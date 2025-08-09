@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components';
 import {
   Button,
   Card,
@@ -16,6 +15,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/shared/ui';
 
 const PostsManager = () => {
