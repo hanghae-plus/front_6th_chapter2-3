@@ -25,7 +25,7 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
 import { postMutations } from "../entities/post/api/mutations"
@@ -65,25 +65,37 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
-  const postQuery = useQuery(postQueries.listQuery({ limit: parseInt(limit), skip: parseInt(skip) }))
+  const postQuery = useQuery({
+    ...postQueries.listQuery({ limit: +limit, skip: +skip }),
+    enabled: !searchQuery && (!selectedTag || selectedTag === "all"),
+    placeholderData: keepPreviousData,
+  })
 
   const { data: users } = useQuery(userQueries.listQuery())
 
   const { data: tags } = useQuery(postQueries.tagQuery())
 
-  const { data: searchedPosts } = useQuery(postQueries.searchQuery({ search: searchQuery }))
+  const searchedPostsQuery = useQuery({
+    ...postQueries.searchQuery({ search: searchQuery }),
+    enabled: !!searchQuery,
+    placeholderData: keepPreviousData,
+  })
 
-  const { data: tagPosts } = useQuery(postQueries.listByTagQuery({ tag: selectedTag }))
+  const tagPostsQuery = useQuery({
+    ...postQueries.listByTagQuery({ tag: selectedTag }),
+    enabled: !!selectedTag && selectedTag !== "all",
+    placeholderData: keepPreviousData,
+  })
+  const active = searchQuery ? searchedPostsQuery : selectedTag && selectedTag !== "all" ? tagPostsQuery : postQuery
 
-  const currentPosts = searchQuery ? searchedPosts : selectedTag && selectedTag !== "all" ? tagPosts : postQuery.data
+  const isLoading = active.isLoading
 
   const posts =
-    currentPosts?.posts?.map((post: Post) => ({
+    active.data?.posts?.map((post: Post) => ({
       ...post,
       author: users?.users?.find((user: User) => user.id === post.userId),
-    })) || []
-
-  const total = currentPosts?.total || 0
+    })) ?? []
+  const total = active.data?.total ?? 0
 
   const addPostMutation = useMutation(postMutations.addMutation())
   const addPost = () => {
@@ -389,7 +401,7 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {isLoading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
 
           {/* 페이지네이션 */}
           <div className="flex justify-between items-center">
