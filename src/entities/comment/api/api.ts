@@ -3,6 +3,19 @@ import type { CommentItem } from "../model"
 
 export interface CommentsResponse {
   comments: CommentItem[]
+  total: number
+}
+
+export interface AddCommentRequest {
+  body: string
+  postId: number
+  userId: number
+}
+
+export interface AddCommentResponse {
+  body: string
+  postId: number
+  userId: number
 }
 
 export const commentApi = {
@@ -10,7 +23,7 @@ export const commentApi = {
     return http.get<CommentsResponse>(`/comments/post/${postId}`)
   },
 
-  addComment: async (comment: Omit<CommentItem, "id">): Promise<CommentItem> => {
+  addComment: async (comment: AddCommentRequest): Promise<CommentItem> => {
     return http.post<CommentItem>("/comments/add", comment)
   },
 
