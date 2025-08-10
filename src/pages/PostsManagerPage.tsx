@@ -82,7 +82,6 @@ const PostsManager = () => {
 
   const total = currentPosts?.total || 0
 
-  // 게시물 추가
   const addPostMutation = useMutation(postMutations.addMutation())
   const addPost = () => {
     addPostMutation.mutate(newPost, {
@@ -152,24 +151,12 @@ const PostsManager = () => {
     deleteCommentMutation.mutate(id)
   }
 
-  // 댓글 좋아요
-  const likeComment = async (id, postId) => {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
+  const likeCommentMutation = useMutation({
+    ...commentMutations.likeMutation(),
+  })
+  const likeComment = (id: number) => {
+    const currentLikes = comments.find((c: CommentItem) => c.id === id)?.likes ?? 0
+    likeCommentMutation.mutate({ id, postId: selectedPost?.id ?? 0, likes: currentLikes + 1 })
   }
 
   // 게시물 상세 보기
