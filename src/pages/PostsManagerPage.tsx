@@ -53,14 +53,13 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
-  const [loading, setLoading] = useState(false)
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   const postQuery = useQuery(postQueries.listQuery({ limit: parseInt(limit), skip: parseInt(skip) }))
 
@@ -165,7 +164,7 @@ const PostsManager = () => {
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
