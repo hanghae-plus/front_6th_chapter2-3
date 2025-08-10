@@ -1,3 +1,1 @@
-import { commentApi } from "./api"
-
-export { commentApi }
+export { commentApi } from "./api"
