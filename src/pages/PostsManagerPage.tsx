@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
   Card,
@@ -25,27 +24,28 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui"
+import { useQueryStates, parseAsString } from "nuqs"
 
 const PostsManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+  const [queryParams, setQueryParams] = useQueryStates({
+    skip: parseAsString.withDefault("0"),
+    limit: parseAsString.withDefault("10"),
+    search: parseAsString.withDefault(""),
+    sortBy: parseAsString.withDefault(""),
+    sortOrder: parseAsString.withDefault("asc"),
+    tag: parseAsString.withDefault(""),
+  })
 
-  // 상태 관리
+  const { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag } = queryParams
+
   const [posts, setPosts] = useState([])
   const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
   const [selectedPost, setSelectedPost] = useState(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
@@ -55,36 +55,24 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
-  }
-
   // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true)
-    let postsData
-    let usersData
+    let postsData: any
+    let usersData: any
 
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+    fetch(`/api/posts?limit=${limit}&skip=${parseInt(skip)}`)
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: any) => {
         postsData = data
         return fetch("/api/users?limit=0&select=username,image")
       })
       .then((response) => response.json())
-      .then((users) => {
+      .then((users: any) => {
         usersData = users.users
-        const postsWithUsers = postsData.posts.map((post) => ({
+        const postsWithUsers = postsData.posts.map((post: any) => ({
           ...post,
-          author: usersData.find((user) => user.id === post.userId),
+          author: usersData.find((user: any) => user.id === post.userId),
         }))
         setPosts(postsWithUsers)
         setTotal(postsData.total)
@@ -127,7 +115,7 @@ const PostsManager = () => {
   }
 
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
+  const fetchPostsByTag = async (tag: string) => {
     if (!tag || tag === "all") {
       fetchPosts()
       return
@@ -141,9 +129,9 @@ const PostsManager = () => {
       const postsData = await postsResponse.json()
       const usersData = await usersResponse.json()
 
-      const postsWithUsers = postsData.posts.map((post) => ({
+      const postsWithUsers = postsData.posts.map((post: any) => ({
         ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
+        author: usersData.users.find((user: any) => user.id === post.userId),
       }))
 
       setPosts(postsWithUsers)
@@ -163,7 +151,7 @@ const PostsManager = () => {
         body: JSON.stringify(newPost),
       })
       const data = await response.json()
-      setPosts([data, ...posts])
+      setPosts([data, ...posts] as any)
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -173,6 +161,7 @@ const PostsManager = () => {
 
   // 게시물 업데이트
   const updatePost = async () => {
+    if (!selectedPost) return
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
@@ -180,7 +169,7 @@ const PostsManager = () => {
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      setPosts((posts as any).map((post: any) => (post.id === data.id ? data : post)))
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -188,19 +177,19 @@ const PostsManager = () => {
   }
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     try {
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
       })
-      setPosts(posts.filter((post) => post.id !== id))
+      setPosts((posts as any).filter((post: any) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
   }
 
   // 댓글 가져오기
-  const fetchComments = async (postId) => {
+  const fetchComments = async (postId: number) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`)
@@ -314,18 +303,7 @@ const PostsManager = () => {
     } else {
       fetchPosts()
     }
-    updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    setSkip(parseInt(params.get("skip") || "0"))
-    setLimit(parseInt(params.get("limit") || "10"))
-    setSearchQuery(params.get("search") || "")
-    setSortBy(params.get("sortBy") || "")
-    setSortOrder(params.get("sortOrder") || "asc")
-    setSelectedTag(params.get("tag") || "")
-  }, [location.search])
 
   // 하이라이트 함수 추가
   const highlightText = (text: string, highlight: string) => {
@@ -372,8 +350,7 @@ const PostsManager = () => {
                           : "text-blue-800 bg-blue-100 hover:bg-blue-200"
                       }`}
                       onClick={() => {
-                        setSelectedTag(tag)
-                        updateURL()
+                        setQueryParams({ tag })
                       }}
                     >
                       {tag}
@@ -492,7 +469,7 @@ const PostsManager = () => {
                   placeholder="게시물 검색..."
                   className="pl-8"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => setQueryParams({ search: e.target.value })}
                   onKeyPress={(e) => e.key === "Enter" && searchPosts()}
                 />
               </div>
@@ -500,9 +477,8 @@ const PostsManager = () => {
             <Select
               value={selectedTag}
               onValueChange={(value) => {
-                setSelectedTag(value)
+                setQueryParams({ tag: value })
                 fetchPostsByTag(value)
-                updateURL()
               }}
             >
               <SelectTrigger className="w-[180px]">
@@ -510,14 +486,14 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
+                {(tags as any).map((tag: any) => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(value) => setQueryParams({ sortBy: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -528,7 +504,7 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            <Select value={sortOrder} onValueChange={(value) => setQueryParams({ sortOrder: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -546,7 +522,7 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
+              <Select value={limit} onValueChange={(value) => setQueryParams({ limit: value })}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="10" />
                 </SelectTrigger>
@@ -559,10 +535,16 @@ const PostsManager = () => {
               <span>항목</span>
             </div>
             <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
+              <Button
+                disabled={parseInt(skip) === 0}
+                onClick={() => setQueryParams({ skip: Math.max(0, parseInt(skip) - parseInt(limit)).toString() })}
+              >
                 이전
               </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
+              <Button
+                disabled={parseInt(skip) + parseInt(limit) >= total}
+                onClick={() => setQueryParams({ skip: (parseInt(skip) + parseInt(limit)).toString() })}
+              >
                 다음
               </Button>
             </div>
