@@ -25,16 +25,18 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
 import { postMutations } from "../entities/post/api/mutations"
+import { commentMutations } from "../entities/comment/api/mutations"
 import type { CreatePostRequest } from "../entities/post/api/api"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
 
 const PostsManager = () => {
+  const queryClient = useQueryClient()
   const [queryParams, setQueryParams] = useQueryStates({
     skip: parseAsString.withDefault("0"),
     limit: parseAsString.withDefault("10"),
@@ -114,24 +116,19 @@ const PostsManager = () => {
     select: (res) => res.comments,
   })
 
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
+  const addCommentMutation = useMutation(commentMutations.addMutation())
+  const addComment = () => {
+    if (!newComment.postId) return
+    addCommentMutation.mutate(
+      { body: newComment.body, postId: newComment.postId, userId: newComment.userId },
+      {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: commentQueries.byPostQuery(data.postId).queryKey })
+          setShowAddCommentDialog(false)
+          setNewComment({ body: "", postId: null, userId: 1 })
+        },
+      },
+    )
   }
 
   // 댓글 업데이트
