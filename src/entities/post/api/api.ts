@@ -1,13 +1,35 @@
 import { http } from "../../../shared/lib/http-client"
 import type { TagItem, Post } from "../model"
 
+export type SortOrder = "asc" | "desc"
+
 export interface PostsResponse {
   posts: Post[]
   total: number
+  skip: number
+  limit: number
 }
+
+export interface FetchPostsParams {
+  limit?: number
+  skip?: number
+  sortBy?: string
+  order?: SortOrder
+}
+
+export type CreatePostDto = Pick<Post, "title" | "body" | "userId">
+
+export interface FetchPostsByTagParams {
+  tag: string
+}
+
+export interface FetchPostsBySearchParams extends FetchPostsParams {
+  search?: string
+}
+
 export const postApi = {
-  getPosts: async (limit: number, skip: number): Promise<PostsResponse> => {
-    return http.get<PostsResponse>("/posts", { params: { limit, skip } })
+  getPosts: async (params: FetchPostsParams): Promise<PostsResponse> => {
+    return http.get<PostsResponse>("/posts", { params })
   },
 
   getPostsByTag: async (tag: string): Promise<PostsResponse> => {
