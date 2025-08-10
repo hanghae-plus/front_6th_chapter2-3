@@ -3,6 +3,9 @@ import type { Tag, Post } from "../model"
 
 export type SortOrder = "asc" | "desc"
 
+export type CreatePostRequest = Pick<Post, "title" | "body" | "userId">
+export type UpdatePostRequest = Partial<Post>
+
 export interface PostsResponse {
   posts: Post[]
   total: number
@@ -16,8 +19,6 @@ export interface FetchPostsParams {
   sortBy?: string
   order?: SortOrder
 }
-
-export type CreatePostDto = Pick<Post, "title" | "body" | "userId">
 
 export interface FetchPostsByTagParams {
   tag: string
@@ -40,11 +41,11 @@ export const postApi = {
     return http.get<PostsResponse>("/posts/search", { params: { q: query } })
   },
 
-  addPost: async (post: Omit<Post, "id">): Promise<Post> => {
+  addPost: async (post: CreatePostRequest): Promise<Post> => {
     return http.post<Post>("/posts/add", post)
   },
 
-  updatePost: async (id: number, post: Partial<Post>): Promise<Post> => {
+  updatePost: async (id: number, post: UpdatePostRequest): Promise<Post> => {
     return http.put<Post>(`/posts/${id}`, post)
   },
 
