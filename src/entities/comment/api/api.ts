@@ -1,5 +1,9 @@
 import { http } from "../../../shared/lib/http-client"
-import type { CommentItem, CommentsResponse } from "../../../shared/types"
+import type { CommentItem } from "../model"
+
+export interface CommentsResponse {
+  comments: CommentItem[]
+}
 
 export const commentApi = {
   getComments: async (postId: number): Promise<CommentsResponse> => {
