@@ -31,28 +31,57 @@ const PostsManager = () => {
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
 
-  // 상태 관리
+  // 게시글 목록 (필터 값으로 패칭)
   const [posts, setPosts] = useState([])
+  // 총 게시글 수
   const [total, setTotal] = useState(0)
+
+  // 건너뛸 게시물 수 (skip이 20일 경우 페이지 게시물이 21부터 시작)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
+  // 한 페이지에 보여질 게시물 수
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
+  // 검색어
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState(null)
+  // 정렬 기준 (아이디, 제목, 반응)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
+  // 정렬 기준 (오름차순, 내림차순)
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+
+  // 수정하려는 게시물 데이터
+  const [selectedPost, setSelectedPost] = useState(null)
+
+  // 게시물 추가 대화상자
   const [showAddDialog, setShowAddDialog] = useState(false)
+  // 게시물 수정 대화상자
   const [showEditDialog, setShowEditDialog] = useState(false)
+
+  // 추가하려는 게시물 데이터
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  // 로딩중 표시
   const [loading, setLoading] = useState(false)
+
+  // 태그 값 (데이터 패칭 값)
   const [tags, setTags] = useState([])
+  // 현재 선택된 태그 (게시물 필터)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
+
+  // 댓글 목록 (게시물 아이디로 패치, 게시물 아이디별로 저장하는 객체)
   const [comments, setComments] = useState({})
+  // 수정하려는 댓글 데이터
   const [selectedComment, setSelectedComment] = useState(null)
+  // 새로 추가할 댓글 데이터
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+
+  // 댓글 추가 대화상자
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
+  // 댓글 수정 대화상자
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+  // 게시물 상세보기 대화상자
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+
+  // 사용자 모달
   const [showUserModal, setShowUserModal] = useState(false)
+  // 사용자 데이터
   const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
@@ -107,6 +136,10 @@ const PostsManager = () => {
       console.error("태그 가져오기 오류:", error)
     }
   }
+
+  useEffect(() => {
+    fetchTags()
+  }, [])
 
   // 게시물 검색
   const searchPosts = async () => {
@@ -268,7 +301,6 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
     try {
-
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -277,7 +309,9 @@ const PostsManager = () => {
       const data = await response.json()
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId].map((comment) => (comment.id === data.id ? {...data, likes: comment.likes + 1} : comment)),
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
       }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
@@ -303,10 +337,7 @@ const PostsManager = () => {
     }
   }
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
-
+  // 태그 값이 바뀌면 게시글 새로 패치
   useEffect(() => {
     if (selectedTag) {
       fetchPostsByTag(selectedTag)
@@ -316,6 +347,7 @@ const PostsManager = () => {
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
 
+  // 파라미터 값 업데이트
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     setSkip(parseInt(params.get("skip") || "0"))
