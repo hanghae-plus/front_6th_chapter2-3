@@ -34,6 +34,7 @@ import type { CreatePostRequest } from "../entities/post/api/api"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
+import { CommentItem } from "../entities/comment/model"
 
 const PostsManager = () => {
   const queryClient = useQueryClient()
@@ -53,7 +54,7 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [selectedComment, setSelectedComment] = useState(null)
+  const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
@@ -131,23 +132,19 @@ const PostsManager = () => {
     )
   }
 
-  // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      }))
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
-    }
+  const updateCommentMutation = useMutation(commentMutations.updateMutation())
+  const updateComment = () => {
+    if (!selectedComment) return
+    updateCommentMutation.mutate(
+      { id: selectedComment.id, body: selectedComment.body },
+      {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: commentQueries.byPostQuery(data.postId).queryKey })
+          setShowAddCommentDialog(false)
+          setNewComment({ body: "", postId: null, userId: 1 })
+        },
+      },
+    )
   }
 
   // 댓글 삭제
