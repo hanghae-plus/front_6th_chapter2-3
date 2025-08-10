@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
+} from "../shared/ui/components"
 import {
   IAddComment,
   IAddPost,

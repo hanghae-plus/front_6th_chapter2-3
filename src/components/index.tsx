@@ -35,13 +35,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, Var
   className?: string
 }
 
+// 버튼 컴포넌트 *
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => {
   return <button className={buttonVariants({ variant, size, className })} ref={ref} {...props} />
 })
 
 Button.displayName = "Button"
 
-// 입력 컴포넌트
+// 입력 컴포넌트 *
 export const Input = forwardRef(({ className, type, ...props }, ref) => {
   return (
     <input
@@ -54,7 +55,7 @@ export const Input = forwardRef(({ className, type, ...props }, ref) => {
 })
 Input.displayName = "Input"
 
-// 카드 컴포넌트
+// 카드 컴포넌트 *
 export const Card = forwardRef(({ className, ...props }, ref) => (
   <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
 ))
@@ -75,7 +76,7 @@ export const CardContent = forwardRef(({ className, ...props }, ref) => (
 ))
 CardContent.displayName = "CardContent"
 
-// 텍스트 영역 컴포넌트
+// 텍스트 영역 컴포넌트 *
 export const Textarea = forwardRef(({ className, ...props }, ref) => {
   return (
     <textarea
