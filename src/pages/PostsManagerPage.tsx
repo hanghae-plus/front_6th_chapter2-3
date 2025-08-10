@@ -32,6 +32,7 @@ import { postMutations } from "../entities/post/api/mutations"
 import type { CreatePostRequest } from "../entities/post/api/api"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
+import { commentQueries } from "../entities/comment/api/queries"
 
 const PostsManager = () => {
   const [queryParams, setQueryParams] = useQueryStates({
@@ -50,7 +51,6 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
@@ -109,17 +109,10 @@ const PostsManager = () => {
     deletePostMutation.mutate(id)
   }
 
-  // 댓글 가져오기
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
+  const { data: comments = [] } = useQuery({
+    ...commentQueries.byPostQuery(selectedPost?.id ?? 0),
+    select: (res) => res.comments,
+  })
 
   // 댓글 추가
   const addComment = async () => {
@@ -337,7 +330,7 @@ const PostsManager = () => {
         </Button>
       </div>
       <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
+        {comments?.map((comment) => (
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
