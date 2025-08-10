@@ -25,9 +25,11 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
+import { postMutations } from "../entities/post/api/mutations"
+import type { CreatePostRequest } from "../entities/post/api/api"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
 
@@ -46,7 +48,7 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
@@ -78,20 +80,14 @@ const PostsManager = () => {
   const total = currentPosts?.total || 0
 
   // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts] as any)
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
+  const addPostMutation = useMutation(postMutations.addMutation())
+  const addPost = () => {
+    addPostMutation.mutate(newPost, {
+      onSuccess: () => {
+        setShowAddDialog(false)
+        setNewPost({ title: "", body: "", userId: 1 })
+      },
+    })
   }
 
   // 게시물 업데이트
