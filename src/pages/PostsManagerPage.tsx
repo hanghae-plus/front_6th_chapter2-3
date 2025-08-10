@@ -61,33 +61,19 @@ const PostsManager = () => {
 
   const { data: users } = useQuery(userQueries.listQuery())
 
+  const { data: tags } = useQuery(postQueries.tagQuery())
+
+  const { data: searchedPosts } = useQuery(postQueries.searchQuery({ search: searchQuery }))
+
+  const currentPosts = searchQuery ? searchedPosts : postQuery.data
+
   const posts =
-    postQuery.data?.posts?.map((post: Post) => ({
+    currentPosts?.posts?.map((post: Post) => ({
       ...post,
       author: users?.users?.find((user: User) => user.id === post.userId),
     })) || []
 
-  const total = postQuery.data?.total || 0
-
-  const { data: tags } = useQuery(postQueries.tagQuery())
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
+  const total = currentPosts?.total || 0
 
   // 태그별 게시물 가져오기
   const fetchPostsByTag = async (tag: string) => {
