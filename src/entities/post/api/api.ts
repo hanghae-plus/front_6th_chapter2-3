@@ -1,6 +1,10 @@
 import { http } from "../../../shared/lib/http-client"
-import type { Post, PostBase, PostsResponse, TagItem } from "../../../shared/types"
+import type { TagItem, Post } from "../model"
 
+export interface PostsResponse {
+  posts: Post[]
+  total: number
+}
 export const postApi = {
   getPosts: async (limit: number, skip: number): Promise<PostsResponse> => {
     return http.get<PostsResponse>("/posts", { params: { limit, skip } })
@@ -14,11 +18,11 @@ export const postApi = {
     return http.get<PostsResponse>("/posts/search", { params: { q: query } })
   },
 
-  addPost: async (post: Omit<PostBase, "id">): Promise<Post> => {
+  addPost: async (post: Omit<Post, "id">): Promise<Post> => {
     return http.post<Post>("/posts/add", post)
   },
 
-  updatePost: async (id: number, post: Partial<PostBase>): Promise<Post> => {
+  updatePost: async (id: number, post: Partial<Post>): Promise<Post> => {
     return http.put<Post>(`/posts/${id}`, post)
   },
 
