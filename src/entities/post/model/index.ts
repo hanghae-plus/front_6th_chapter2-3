@@ -12,7 +12,7 @@ export interface Post {
   reactions?: Reactions
 }
 
-export interface TagItem {
+export interface Tag {
   url: string
   slug: string
 }

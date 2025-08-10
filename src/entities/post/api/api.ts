@@ -1,5 +1,5 @@
 import { http } from "../../../shared/lib/http-client"
-import type { TagItem, Post } from "../model"
+import type { Tag, Post } from "../model"
 
 export type SortOrder = "asc" | "desc"
 
@@ -52,7 +52,7 @@ export const postApi = {
     return http.delete<void>(`/posts/${id}`)
   },
 
-  getTags: async (): Promise<TagItem[]> => {
-    return http.get<TagItem[]>("/posts/tags")
+  getTags: async (): Promise<Tag[]> => {
+    return http.get<Tag[]>("/posts/tags")
   },
 }

@@ -25,6 +25,11 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
+import { useQuery } from "@tanstack/react-query"
+import { postQueries } from "../entities/post/api/queries"
+import { userQueries } from "../entities/user/api/queries"
+import { Post, Tag } from "../entities/post/model"
+import { User } from "../entities/user/model"
 
 const PostsManager = () => {
   const [queryParams, setQueryParams] = useQueryStates({
@@ -38,8 +43,6 @@ const PostsManager = () => {
 
   const { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag } = queryParams
 
-  const [posts, setPosts] = useState([])
-  const [total, setTotal] = useState(0)
   const [selectedPost, setSelectedPost] = useState(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
@@ -55,35 +58,17 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true)
-    let postsData: any
-    let usersData: any
+  const postQuery = useQuery(postQueries.listQuery({ limit: parseInt(limit), skip: parseInt(skip) }))
 
-    fetch(`/api/posts?limit=${limit}&skip=${parseInt(skip)}`)
-      .then((response) => response.json())
-      .then((data: any) => {
-        postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
-      })
-      .then((response) => response.json())
-      .then((users: any) => {
-        usersData = users.users
-        const postsWithUsers = postsData.posts.map((post: any) => ({
-          ...post,
-          author: usersData.find((user: any) => user.id === post.userId),
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  const { data: users } = useQuery(userQueries.listQuery())
+
+  const posts =
+    postQuery.data?.posts?.map((post: Post) => ({
+      ...post,
+      author: users?.users?.find((user: User) => user.id === post.userId),
+    })) || []
+
+  const total = postQuery.data?.total || 0
 
   // 태그 가져오기
   const fetchTags = async () => {
@@ -486,7 +471,7 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {(tags as any).map((tag: any) => (
+                {tags.map((tag: Tag) => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>
