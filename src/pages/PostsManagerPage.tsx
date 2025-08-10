@@ -45,7 +45,7 @@ const PostsManager = () => {
 
   const { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag } = queryParams
 
-  const [selectedPost, setSelectedPost] = useState(null)
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
@@ -90,21 +90,18 @@ const PostsManager = () => {
     })
   }
 
-  // 게시물 업데이트
-  const updatePost = async () => {
+  const updatePostMutation = useMutation(postMutations.updateMutation())
+  const updatePost = () => {
     if (!selectedPost) return
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      setPosts((posts as any).map((post: any) => (post.id === data.id ? data : post)))
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
+    updatePostMutation.mutate(
+      { id: selectedPost.id, post: selectedPost },
+      {
+        onSuccess: () => {
+          setShowEditDialog(false)
+          setSelectedPost(null)
+        },
+      },
+    )
   }
 
   // 게시물 삭제
