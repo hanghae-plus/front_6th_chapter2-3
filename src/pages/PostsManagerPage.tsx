@@ -159,10 +159,8 @@ const PostsManager = () => {
     likeCommentMutation.mutate({ id, postId: selectedPost?.id ?? 0, likes: currentLikes + 1 })
   }
 
-  // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: Post) => {
     setSelectedPost(post)
-    fetchComments(post.id)
     setShowPostDetailDialog(true)
   }
 
