@@ -11,10 +11,6 @@ import {
   TableRow,
   Textarea,
   Table,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
   Select,
   CardHeader,
   CardTitle,
@@ -499,44 +495,40 @@ const PostsManager = () => {
             </div>
             <Select
               value={selectedTag}
+              placeholder="태그 선택"
+              triggerProps={{ className: "w-[180px]" }}
               onValueChange={(value) => {
                 setSelectedTag(value)
                 fetchPostsByTag(value)
                 updateURL()
               }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { name: "모든 태그", value: "all" },
+                ...tags.map((tag) => ({ name: tag.slug, value: tag.url })),
+              ]}
+            />
+            <Select
+              value={sortBy}
+              onValueChange={setSortBy}
+              placeholder="정렬 기준"
+              triggerProps={{ className: "w-[180px]" }}
+              options={[
+                { name: "없음", value: "none" },
+                { name: "ID", value: "id" },
+                { name: "제목", value: "title" },
+                { name: "반응", value: "reactions" },
+              ]}
+            />
+            <Select
+              value={sortOrder}
+              onValueChange={setSortOrder}
+              placeholder="정렬 순서"
+              triggerProps={{ className: "w-[180px]" }}
+              options={[
+                { name: "오름차순", value: "asc" },
+                { name: "내림차순", value: "desc" },
+              ]}
+            />
           </div>
 
           {/* 게시물 테이블 */}
@@ -546,16 +538,17 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
+              <Select
+                value={limit.toString()}
+                onValueChange={(value) => setLimit(Number(value))}
+                placeholder="10"
+                triggerProps={{ className: "w-[180px]" }}
+                options={[
+                  { name: "10", value: 10 },
+                  { name: "20", value: 20 },
+                  { name: "30", value: 30 },
+                ]}
+              />
               <span>항목</span>
             </div>
             <div className="flex gap-2">
@@ -571,136 +564,110 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
+      <Dialog open={showAddDialog} handleChange={setShowAddDialog} title="새 게시물 추가">
+        <div className="space-y-4">
+          <Input
+            placeholder="제목"
+            value={newPost.title}
+            onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+          />
+          <Textarea
+            rows={30}
+            placeholder="내용"
+            value={newPost.body}
+            onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+          />
+          <Input
+            type="number"
+            placeholder="사용자 ID"
+            value={newPost.userId}
+            onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
+          />
+          <Button onClick={addPost}>게시물 추가</Button>
+        </div>
       </Dialog>
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
+      <Dialog open={showEditDialog} handleChange={setShowEditDialog} title="게시물 수정">
+        <div className="space-y-4">
+          <Input
+            placeholder="제목"
+            value={selectedPost?.title || ""}
+            onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
+          />
+          <Textarea
+            rows={15}
+            placeholder="내용"
+            value={selectedPost?.body || ""}
+            onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
+          />
+          <Button onClick={updatePost}>게시물 업데이트</Button>
+        </div>
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
+      <Dialog open={showAddCommentDialog} handleChange={setShowAddCommentDialog} title="새 댓글 추가">
+        <div className="space-y-4">
+          <Textarea
+            placeholder="댓글 내용"
+            value={newComment.body}
+            onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
+          />
+          <Button onClick={addComment}>댓글 추가</Button>
+        </div>
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
+      <Dialog open={showEditCommentDialog} handleChange={setShowEditCommentDialog} title="댓글 수정">
+        <div className="space-y-4">
+          <Textarea
+            placeholder="댓글 내용"
+            value={selectedComment?.body || ""}
+            onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+          />
+          <Button onClick={updateComment}>댓글 업데이트</Button>
+        </div>
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
-          </div>
-        </DialogContent>
+      <Dialog
+        open={showPostDetailDialog}
+        handleChange={setShowPostDetailDialog}
+        title={highlightText(selectedPost?.title, searchQuery) ?? ""}
+      >
+        <div className="space-y-4">
+          <p>{highlightText(selectedPost?.body, searchQuery)}</p>
+          {renderComments(selectedPost?.id)}
+        </div>
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-              </p>
-            </div>
+      <Dialog open={showUserModal} handleChange={setShowUserModal} title="사용자 정보">
+        <div className="space-y-4">
+          <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
+          <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
+          <div className="space-y-2">
+            <p>
+              <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
+            </p>
+            <p>
+              <strong>나이:</strong> {selectedUser?.age}
+            </p>
+            <p>
+              <strong>이메일:</strong> {selectedUser?.email}
+            </p>
+            <p>
+              <strong>전화번호:</strong> {selectedUser?.phone}
+            </p>
+            <p>
+              <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
+              {selectedUser?.address?.state}
+            </p>
+            <p>
+              <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
+            </p>
           </div>
-        </DialogContent>
+        </div>
       </Dialog>
     </Card>
   )
