@@ -1,20 +1,21 @@
-import * as React from "react"
-import { forwardRef } from "react"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+import * as React from 'react';
+import { forwardRef } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
 
-export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
-export const DialogPortal = DialogPrimitive.Portal
-export const DialogOverlay = DialogPrimitive.Overlay
+export const Dialog = DialogPrimitive.Root;
+export const DialogTrigger = DialogPrimitive.Trigger;
+export const DialogPortal = DialogPrimitive.Portal;
+export const DialogOverlay = DialogPrimitive.Overlay;
 
 // 대화상자 컨텐츠
-interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
-  className?: string
+interface DialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+  className?: string;
 }
 
 export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
-  ({ className = "", children, ...props }, ref) => (
+  ({ className = '', children, ...props }, ref) => (
     <DialogPortal>
       <DialogOverlay
         className="fixed inset-0 z-50 bg-black/50
@@ -45,30 +46,39 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>
-  ),
-)
-DialogContent.displayName = DialogPrimitive.Content.displayName
+  )
+);
+DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 // 대화상자 헤더
 interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string
+  className?: string;
 }
 
-export const DialogHeader: React.FC<DialogHeaderProps> = ({ className = "", ...props }) => (
-  <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
-)
-DialogHeader.displayName = "DialogHeader"
-
-// 대화상자 제목 (헤더 텍스트)
-interface DialogTitleProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
-  className?: string
-}
-
-export const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(({ className = "", ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+export const DialogHeader: React.FC<DialogHeaderProps> = ({
+  className = '',
+  ...props
+}) => (
+  <div
+    className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`}
     {...props}
   />
-))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+);
+DialogHeader.displayName = 'DialogHeader';
+
+// 대화상자 제목 (헤더 텍스트)
+interface DialogTitleProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
+  className?: string;
+}
+
+export const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
+  ({ className = '', ...props }, ref) => (
+    <DialogPrimitive.Title
+      ref={ref}
+      className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+      {...props}
+    />
+  )
+);
+DialogTitle.displayName = DialogPrimitive.Title.displayName;
