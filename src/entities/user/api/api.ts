@@ -1,5 +1,9 @@
 import { http } from "../../../shared/lib/http-client"
-import type { User, UsersResponse } from "../../../shared/types"
+import type { User } from "../model"
+
+export interface UsersResponse {
+  users: User[]
+}
 
 export const userApi = {
   getUsers: async (): Promise<UsersResponse> => {
