@@ -13,16 +13,20 @@ export type IPost = {
   author?: IUserSummary
 }
 
-export type IAddPost = Pick<IPost, "title" | "body" | "userId">
-
-export type IEditPost = Omit<IPost, "views">
-
 export type IPosts = {
   limit: number
   posts: IPost[]
   skip: number
   total: number
 }
+
+export type IAddPost = Pick<IPost, "title" | "body" | "userId">
+
+export type IAddProductResponse = Pick<IPost, "id" | "title" | "body" | "userId">
+
+export type IEditPost = IPost
+
+export type IEditPostResponse = Omit<IPost, "views">
 
 // 태그
 export type ITag = {
@@ -50,7 +54,11 @@ export type IAddComment = {
   body: string
 }
 
-export type IEditComment = IComment
+export type IAddCommentResponse = Pick<IComment, "id" | "postId" | "body" | "user">
+
+export type IEditComment = Pick<IComment, "body">
+
+export type IEditCommentResponse = IComment
 
 export type IComments = {
   comments: IComment[]

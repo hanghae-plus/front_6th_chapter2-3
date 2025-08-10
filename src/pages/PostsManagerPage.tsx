@@ -29,6 +29,7 @@ import {
   IAddComment,
   IAddPost,
   IComment,
+  IComments,
   ICommentsByPostId,
   IPost,
   IPosts,
@@ -253,7 +254,7 @@ const PostsManager = () => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
+      const data: IComments = await response.json()
 
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
@@ -408,7 +409,9 @@ const PostsManager = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
+        {/* PostList 분리 */}
         {posts.map((post) => (
+          // PostItem 분리
           <TableRow key={post.id}>
             <TableCell>{post.id}</TableCell>
             <TableCell>
@@ -492,7 +495,9 @@ const PostsManager = () => {
         </Button>
       </div>
       <div className="space-y-1">
+        {/* CommentList 분리 */}
         {comments[postId]?.map((comment) => (
+          // CommentItem 분리
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
