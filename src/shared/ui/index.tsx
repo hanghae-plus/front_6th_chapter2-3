@@ -18,7 +18,3 @@ export { Dialog, DialogTrigger, DialogPortal, DialogOverlay, DialogContent, Dial
 
 // Table 관련 컴포넌트들
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "./Table"
-
-// Layout 컴포넌트들
-export { Header } from "./Header"
-export { Footer } from "./Footer"
