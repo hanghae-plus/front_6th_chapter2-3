@@ -718,6 +718,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>새 게시물 추가</DialogTitle>
           </DialogHeader>
+          {/* form - feature/post/~ */}
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -751,6 +752,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>게시물 수정</DialogTitle>
           </DialogHeader>
+          {/* form - feature/post/~ */}
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -777,10 +779,12 @@ const PostsManager = () => {
         open={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
       >
+        {/* Content - features/comment/add-comment/ui */}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 댓글 추가</DialogTitle>
           </DialogHeader>
+          {/* form - feature/comment/~ */}
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -803,6 +807,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
           </DialogHeader>
+          {/* form - feature/comment/~ */}
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -827,6 +832,8 @@ const PostsManager = () => {
               {highlightText(selectedPost?.title ?? '', searchQuery)}
             </DialogTitle>
           </DialogHeader>
+          {/* feature/post/~ */}
+          {/* feature/comment/~ */}
           <div className="space-y-4">
             <p>{highlightText(selectedPost?.body ?? '', searchQuery)}</p>
             {selectedPost?.id && renderComments(selectedPost?.id)}
@@ -840,6 +847,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
           </DialogHeader>
+          {/* features/user/~ */}
           <div className="space-y-4">
             <img
               src={selectedUser?.image}
