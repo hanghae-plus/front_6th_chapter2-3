@@ -17,7 +17,7 @@ import {
 import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
 import type { Comment, NewComment } from "../entities/comment"
 import type { User, UsersApiResponse } from "../entities/user"
-import { PostTable, PostFilters, PostDetailDialog } from "../widgets"
+import { PostTable, PostFilters, PostDetailDialog, Pagination } from "../widgets"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -375,21 +375,14 @@ const PostsManager = () => {
             />
           )}
 
-          {/* 페이지네이션 기존 유지 */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span>표시</span>
-              {/* 페이지네이션 Select는 추후 위젯화 가능 */}
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            total={total}
+            skip={skip}
+            limit={limit}
+            onPrev={() => setSkip(Math.max(0, skip - limit))}
+            onNext={() => setSkip(skip + limit)}
+            onLimitChange={(value) => setLimit(value)}
+          />
         </div>
       </CardContent>
 
