@@ -15,7 +15,7 @@ export const postQueries = {
   listByTagQuery: (params: FetchPostsByTagParams) =>
     queryOptions({
       queryKey: [...postQueries.listByTag(), params],
-      queryFn: () => postApi.getPostsByTag(params.tag),
+      queryFn: () => postApi.getPostsByTag(params),
       enabled: !!params.tag,
     }),
 
@@ -23,7 +23,7 @@ export const postQueries = {
   searchQuery: (params: FetchPostsBySearchParams) =>
     queryOptions({
       queryKey: [...postQueries.search(), params],
-      queryFn: () => postApi.searchPosts(params.search!),
+      queryFn: () => postApi.searchPosts(params),
       enabled: !!params.search,
     }),
 

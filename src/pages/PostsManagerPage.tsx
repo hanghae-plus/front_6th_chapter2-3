@@ -43,11 +43,11 @@ const PostsManager = () => {
     limit: parseAsString.withDefault("10"),
     search: parseAsString.withDefault(""),
     sortBy: parseAsString.withDefault(""),
-    sortOrder: parseAsString.withDefault("asc"),
+    order: parseAsString.withDefault("asc"),
     tag: parseAsString.withDefault(""),
   })
 
-  const { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag } = queryParams
+  const { skip, limit, search: searchQuery, sortBy, order, tag: selectedTag } = queryParams
 
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -66,7 +66,12 @@ const PostsManager = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   const postQuery = useQuery({
-    ...postQueries.listQuery({ limit: +limit, skip: +skip }),
+    ...postQueries.listQuery({
+      limit: +limit,
+      skip: +skip,
+      sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
+      order: order === "desc" ? "desc" : "asc",
+    }),
     enabled: !searchQuery && (!selectedTag || selectedTag === "all"),
     placeholderData: keepPreviousData,
   })
@@ -76,13 +81,25 @@ const PostsManager = () => {
   const { data: tags } = useQuery(postQueries.tagQuery())
 
   const searchedPostsQuery = useQuery({
-    ...postQueries.searchQuery({ search: searchQuery }),
+    ...postQueries.searchQuery({
+      search: searchQuery,
+      limit: +limit,
+      skip: +skip,
+      sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
+      order: order === "desc" ? "desc" : "asc",
+    }),
     enabled: !!searchQuery,
     placeholderData: keepPreviousData,
   })
 
   const tagPostsQuery = useQuery({
-    ...postQueries.listByTagQuery({ tag: selectedTag }),
+    ...postQueries.listByTagQuery({
+      tag: selectedTag,
+      limit: +limit,
+      skip: +skip,
+      sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
+      order: order === "desc" ? "desc" : "asc",
+    }),
     enabled: !!selectedTag && selectedTag !== "all",
     placeholderData: keepPreviousData,
   })
@@ -389,7 +406,7 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortOrder} onValueChange={(value) => setQueryParams({ sortOrder: value })}>
+            <Select value={order} onValueChange={(value) => setQueryParams({ order: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>

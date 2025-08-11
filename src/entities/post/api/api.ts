@@ -20,7 +20,7 @@ export interface FetchPostsParams {
   order?: SortOrder
 }
 
-export interface FetchPostsByTagParams {
+export interface FetchPostsByTagParams extends FetchPostsParams {
   tag: string
 }
 
@@ -33,12 +33,14 @@ export const postApi = {
     return http.get<PostsResponse>("/posts", { params })
   },
 
-  getPostsByTag: async (tag: string): Promise<PostsResponse> => {
-    return http.get<PostsResponse>(`/posts/tag/${tag}`)
+  getPostsByTag: async (params: FetchPostsByTagParams): Promise<PostsResponse> => {
+    const { tag, ...rest } = params
+    return http.get<PostsResponse>(`/posts/tag/${tag}`, { params: rest })
   },
 
-  searchPosts: async (query: string): Promise<PostsResponse> => {
-    return http.get<PostsResponse>("/posts/search", { params: { q: query } })
+  searchPosts: async (params: FetchPostsBySearchParams): Promise<PostsResponse> => {
+    const { search, ...rest } = params
+    return http.get<PostsResponse>("/posts/search", { params: { q: search, ...rest } })
   },
 
   addPost: async (post: CreatePostRequest): Promise<Post> => {
