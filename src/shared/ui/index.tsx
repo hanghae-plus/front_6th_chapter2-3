@@ -1,7 +1,7 @@
 export { Button } from './Button';
 export { Input } from './Input';
-export { Dialog } from './Dialog';
-export { Select } from './Select';
-export { Table } from './Table';
 export { Textarea } from './Textarea';
-export { Card } from './Card';
+export { Dialog } from './Dialog';
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './Table';
+export { Card, CardContent, CardHeader, CardTitle } from './Card';
