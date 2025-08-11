@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 
+
+
+import { useLocation, useNavigate } from 'react-router-dom';
+
+
 import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -24,16 +24,16 @@ import {
   TableRow,
   Textarea,
 } from '@/components';
-import {
-  Edit2,
-  MessageSquare,
-  Plus,
-  Search,
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-} from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useGetUser } from "@/entities/users/api/query.ts";
+import { UserResponse } from "@/entities/users/types.ts";
+import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { Input } from '@/components/Input.tsx';
+import { Button } from '@/components/Button.tsx';
+import { Card } from '@/components/card/Card.tsx';
+
+
+
+
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<number|null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -318,16 +318,11 @@ const PostsManager = () => {
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`);
-      const userData = await response.json();
-      setSelectedUser(userData);
+  const openUserModal = async (user:UserResponse) => {
+      setSelectedUser(user.id)
       setShowUserModal(true);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 오류:', error);
-    }
   };
+  const { data:userInfo } = useGetUser(selectedUser as number)
 
   useEffect(() => {
     fetchTags();
@@ -533,16 +528,16 @@ const PostsManager = () => {
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+      <Card.Header>
+        <Card.Title className="flex items-center justify-between">
           <span>게시물 관리자</span>
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </Card.Title>
+      </Card.Header>
+      <Card.Content>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
           <div className="flex gap-4">
@@ -642,7 +637,7 @@ const PostsManager = () => {
             </div>
           </div>
         </div>
-      </CardContent>
+      </Card.Content>
 
       {/* 게시물 추가 대화상자 */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -774,34 +769,34 @@ const PostsManager = () => {
           </DialogHeader>
           <div className="space-y-4">
             <img
-              src={selectedUser?.image}
-              alt={selectedUser?.username}
+              src={userInfo?.image}
+              alt={userInfo?.username}
               className="w-24 h-24 rounded-full mx-auto"
             />
             <h3 className="text-xl font-semibold text-center">
-              {selectedUser?.username}
+              {userInfo?.username}
             </h3>
             <div className="space-y-2">
               <p>
-                <strong>이름:</strong> {selectedUser?.firstName}{' '}
-                {selectedUser?.lastName}
+                <strong>이름:</strong> {userInfo?.firstName}{' '}
+                {userInfo?.lastName}
               </p>
               <p>
-                <strong>나이:</strong> {selectedUser?.age}
+                <strong>나이:</strong> {userInfo?.age}
               </p>
               <p>
-                <strong>이메일:</strong> {selectedUser?.email}
+                <strong>이메일:</strong> {userInfo?.email}
               </p>
               <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
+                <strong>전화번호:</strong> {userInfo?.phone}
               </p>
               <p>
-                <strong>주소:</strong> {selectedUser?.address?.address},{' '}
-                {selectedUser?.address?.city}, {selectedUser?.address?.state}
+                <strong>주소:</strong> {userInfo?.address?.address},{' '}
+                {userInfo?.address?.city}, {userInfo?.address?.state}
               </p>
               <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} -{' '}
-                {selectedUser?.company?.title}
+                <strong>직장:</strong> {userInfo?.company?.name} -{' '}
+                {userInfo?.company?.title}
               </p>
             </div>
           </div>
