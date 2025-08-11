@@ -1,37 +1,27 @@
-import { deletePost as deletePostAction, postEntityQueries } from "@/entities/posts"
-import { userEntityQueries, userSchema } from "@/entities/users"
+import { deletePost as deletePostAction, Post, postEntityQueries } from "@/entities/posts"
+import { User, userEntityQueries } from "@/entities/users"
+import { useQueryParamsPagination } from "@/shared/hooks"
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
-import { postWithUserSchema } from "@/views/post-management-page/presenter"
-import { HighlightText } from "@/views/post-management-page/view"
+
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import z from "zod"
+import { parseAsString, useQueryState } from "nuqs"
 
 type Props = {
-  selectedTag: string
-  setSelectedTag: (tag: string) => void
-
-  handleOpenAuthorInformationDialog: (user: z.infer<typeof userSchema>) => void
-  handleOpenPostDetailDialog: (post: z.infer<typeof postWithUserSchema>) => void
-  handleOpenUpdatePostDialog: (post: z.infer<typeof postWithUserSchema>) => void
-
-  limit: number
-  skip: number
-  searchQuery: string
+  onOpenAuthorInformationDialog: (user: User) => void
+  onOpenPostDetailDialog: (post: Post) => void
+  onOpenUpdatePostDialog: (post: Post) => void
 }
 
 export const PostListTable = ({
-  selectedTag,
-  setSelectedTag,
-  handleOpenAuthorInformationDialog,
-  handleOpenPostDetailDialog,
-  handleOpenUpdatePostDialog,
-  limit,
-  skip,
-  searchQuery,
+  onOpenAuthorInformationDialog,
+  onOpenPostDetailDialog,
+  onOpenUpdatePostDialog,
 }: Props) => {
+  const [selectedTag, setSelectedTag] = useQueryState("tag", parseAsString.withDefault(""))
+  const [pagination] = useQueryParamsPagination()
   const postsQuery = useQuery({
-    ...postEntityQueries.getPosts({ limit: limit, skip: skip }),
+    ...postEntityQueries.getPosts({ limit: pagination.limit, skip: pagination.skip }),
   })
 
   const usersQuery = useQuery({
@@ -52,6 +42,20 @@ export const PostListTable = ({
     mutationFn: deletePostAction,
     onError: (error) => console.error("게시물 삭제 오류:", error),
   })
+
+  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+    if (!text) return null
+    if (!highlight.trim()) {
+      return <span>{text}</span>
+    }
+    const regex = new RegExp(`(${highlight})`, "gi")
+    const parts = text.split(regex)
+    return (
+      <span>
+        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
+      </span>
+    )
+  }
 
   if (postsQuery.isLoading || usersQuery.isLoading) {
     return <div className="flex justify-center p-4">로딩 중...</div>
@@ -75,7 +79,7 @@ export const PostListTable = ({
             <TableCell>
               <div className="space-y-1">
                 <div>
-                  <HighlightText text={post.title} highlight={searchQuery} />
+                  <HighlightText text={post.title} highlight={pagination.searchQuery} />
                 </div>
 
                 <div className="flex flex-wrap gap-1">
@@ -102,7 +106,7 @@ export const PostListTable = ({
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => {
                   if (!post.author) return
-                  handleOpenAuthorInformationDialog(post.author)
+                  onOpenAuthorInformationDialog(post.author)
                 }}
               >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
@@ -119,14 +123,14 @@ export const PostListTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => handleOpenPostDetailDialog(post)}>
+                <Button variant="ghost" size="sm" onClick={() => onOpenPostDetailDialog(post)}>
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    handleOpenUpdatePostDialog(post)
+                    onOpenUpdatePostDialog(post)
                   }}
                 >
                   <Edit2 className="w-4 h-4" />
