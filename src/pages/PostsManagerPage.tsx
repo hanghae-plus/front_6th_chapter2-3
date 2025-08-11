@@ -350,6 +350,7 @@ const PostsManager = () => {
 
   // 댓글 좋아요
   const likeComment = async (id: number, postId: number) => {
+    // 게시물 아이디로 댓글 목록을 찾은 뒤 댓글 아이디로 업데이트하려는 댓글 찾음
     const comment = comments[postId].find((c) => c.id === id);
     if (!comment) return;
 

@@ -44,11 +44,7 @@ export type IComment = {
   body: string;
   postId: number;
   likes: number;
-  user: {
-    id: number;
-    username: string;
-    fullName: string;
-  };
+  user: IUserName;
 };
 
 export type IAddComment = {
@@ -171,4 +167,10 @@ export type IUsers = {
   skip: number;
   total: number;
   users: IUserSummary[];
+};
+
+export type IUserName = {
+  id: number;
+  username: string;
+  fullName: string;
 };
