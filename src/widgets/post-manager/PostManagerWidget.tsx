@@ -25,9 +25,9 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from '../components';
+} from '../../components';
 
-const PostsManager = () => {
+export const PostManagerWidget = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -722,5 +722,3 @@ const PostsManager = () => {
     </Card>
   );
 };
-
-export default PostsManager;
