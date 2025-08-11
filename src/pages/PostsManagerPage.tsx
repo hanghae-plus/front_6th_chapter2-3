@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
@@ -17,7 +17,7 @@ import {
 import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
 import type { Comment, NewComment } from "../entities/comment"
 import type { User, UsersApiResponse } from "../entities/user"
-import { PostTable, PostFilters } from "../widgets"
+import { PostTable, PostFilters, PostDetailDialog } from "../widgets"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -324,68 +324,6 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  // 댓글 렌더링과 하이라이트 함수는 기존 유지
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
-
-  const renderComments = (postId: number) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -455,7 +393,6 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 댓글/게시물 모달들 기존 유지 */}
       {/* 게시물 추가 대화상자 */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
@@ -542,18 +479,24 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-            {selectedPost?.id && renderComments(selectedPost.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 게시물 상세 보기 대화상자 위젯 */}
+      <PostDetailDialog
+        open={showPostDetailDialog}
+        onOpenChange={setShowPostDetailDialog}
+        post={selectedPost}
+        comments={selectedPost?.id ? comments[selectedPost.id] : []}
+        searchQuery={searchQuery}
+        onOpenAddComment={(postId) => {
+          setNewComment((prev) => ({ ...prev, postId }))
+          setShowAddCommentDialog(true)
+        }}
+        onLikeComment={likeComment}
+        onEditComment={(comment) => {
+          setSelectedComment(comment)
+          setShowEditCommentDialog(true)
+        }}
+        onDeleteComment={deleteComment}
+      />
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
