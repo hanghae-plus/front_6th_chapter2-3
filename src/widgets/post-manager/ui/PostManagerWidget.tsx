@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from '../../components';
+} from '@/shared/ui';
 
 export const PostManagerWidget = () => {
   const navigate = useNavigate();

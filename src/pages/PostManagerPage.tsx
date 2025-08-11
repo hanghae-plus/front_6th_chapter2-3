@@ -1,4 +1,4 @@
-import { PostManagerWidget } from '../widgets/post-manager/PostManagerWidget';
+import { PostManagerWidget } from '@/widgets/post-manager/ui/PostManagerWidget';
 
 const PostManagerPage = () => {
   return (
