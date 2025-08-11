@@ -1,12 +1,11 @@
-import { postSchema } from "@/entities/posts"
+import { Post } from "@/entities/posts"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import { overlay } from "overlay-kit"
-import { z } from "zod"
 import { usePostUpdateForm } from "../hooks"
 import { PostFormValues } from "../model"
 
 type Props = {
-  post: z.infer<typeof postSchema>
+  post: Post
   onSubmit: (formValues: PostFormValues) => void
   close: () => void
 }
