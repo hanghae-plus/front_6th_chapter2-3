@@ -1,5 +1,5 @@
-import { HTMLAttributes } from "react"
+import { TextareaHTMLAttributes } from "react"
 
-export interface TextareaProps extends HTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   ref?: React.Ref<HTMLTextAreaElement>
 }

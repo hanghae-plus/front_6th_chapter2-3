@@ -35,6 +35,7 @@ export const Dialog = DialogPrimitive.Root
 export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogPortal = DialogPrimitive.Portal
 export const DialogOverlay = DialogPrimitive.Overlay
+export const DialogClose = DialogPrimitive.Close
 
 DialogContent.displayName = DialogPrimitive.Content.displayName
 DialogTitle.displayName = DialogPrimitive.Title.displayName
