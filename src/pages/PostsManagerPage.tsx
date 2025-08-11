@@ -28,6 +28,13 @@ import {
 import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../entities/posts/api"
 import { fetchTagsApi } from "../entities/tags/api"
 import { fetchUserApi, fetchUsersApi } from "../entities/users/api"
+import {
+  addCommentApi,
+  deleteCommentApi,
+  fetchCommentsApi,
+  likeCommentApi,
+  updateCommentApi,
+} from "../entities/comments/api"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -182,8 +189,7 @@ const PostsManager = () => {
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
+      const data = await fetchCommentsApi(postId)
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
@@ -193,12 +199,7 @@ const PostsManager = () => {
   // 댓글 추가
   const addComment = async () => {
     try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
+      const data = await addCommentApi(newComment)
       setComments((prev) => ({
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
@@ -213,12 +214,8 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
+      if (!selectedComment) return
+      const data = updateCommentApi({ id: selectedComment.id, body: selectedComment.body })
       setComments((prev) => ({
         ...prev,
         [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
@@ -232,9 +229,7 @@ const PostsManager = () => {
   // 댓글 삭제
   const deleteComment = async (id, postId) => {
     try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
+      deleteCommentApi(id)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].filter((comment) => comment.id !== id),
@@ -247,12 +242,7 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
     try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      })
-      const data = await response.json()
+      const data = await likeCommentApi(id, 1)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].map((comment) =>
