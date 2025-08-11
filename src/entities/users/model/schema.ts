@@ -71,3 +71,6 @@ export const userDetailSchema = z.object({
   }),
   role: z.string(),
 })
+
+export type User = z.infer<typeof userSchema>
+export type UserDetail = z.infer<typeof userDetailSchema>

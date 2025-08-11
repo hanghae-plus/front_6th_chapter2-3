@@ -16,5 +16,5 @@ export const tagSchema = z.object({
   url: z.string(),
 })
 
-export type PostSchema = z.infer<typeof postSchema>
-export type TagSchema = z.infer<typeof tagSchema>
+export type Post = z.infer<typeof postSchema>
+export type Tag = z.infer<typeof tagSchema>
