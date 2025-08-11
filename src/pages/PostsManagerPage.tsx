@@ -25,6 +25,8 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui"
+import { HighlightText } from "../shared/ui/HighlightText"
+import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -360,7 +362,7 @@ const PostsManager = () => {
             <TableCell>{post.id}</TableCell>
             <TableCell>
               <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
+                <div>{<HighlightText text={post.title} highlight={searchQuery} />}</div>
 
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag) => (
@@ -540,7 +542,31 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {loading ? (
+            <div className="flex justify-center p-4">로딩 중...</div>
+          ) : (
+            <PostsTable
+              data={{
+                rows: posts,
+                searchQuery,
+                selectedTag,
+              }}
+              handlers={{
+                onTagClick: (tag) => {
+                  setSelectedTag(tag)
+                  fetchPostsByTag(tag)
+                  updateURL()
+                },
+                onOpenDetail: (post) => openPostDetail(post),
+                onEdit: (post) => {
+                  setSelectedPost(post)
+                  setShowEditDialog(true)
+                },
+                onDelete: (id) => deletePost(id),
+                onAuthorClick: (author) => author && openUserModal(author),
+              }}
+            />
+          )}
 
           {/* 페이지네이션 */}
           <div className="flex justify-between items-center">
