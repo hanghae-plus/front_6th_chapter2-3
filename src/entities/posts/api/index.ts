@@ -1,0 +1,7 @@
+export * from "./addPost"
+export * from "./deletePost"
+export * from "./fetchPosts"
+// export * from "./fetchPostsByTag"
+export * from "./searchPosts"
+export * from "./updatePost"
+export * from "./types"

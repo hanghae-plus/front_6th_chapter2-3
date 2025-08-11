@@ -25,6 +25,7 @@ import {
   TableRow,
   Textarea,
 } from "../components"
+import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../entities/posts/api"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -73,8 +74,7 @@ const PostsManager = () => {
     let postsData
     let usersData
 
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
+    fetchPostsApi({ limit, skip })
       .then((data) => {
         postsData = data
         return fetch("/api/users?limit=0&select=username,image")
@@ -116,8 +116,7 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
+      const data = await searchPostsApi({ query: searchQuery })
       setPosts(data.posts)
       setTotal(data.total)
     } catch (error) {
@@ -155,14 +154,9 @@ const PostsManager = () => {
   }
 
   // 게시물 추가
-  const addPost = async () => {
+  const addPostFlow = async () => {
     try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
+      const data = await addPostApi(newPost)
       setPosts([data, ...posts])
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
@@ -174,12 +168,9 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
+      if (!selectedPost) return
+
+      const data = await updatePostApi({ selectedPost })
       setPosts(posts.map((post) => (post.id === data.id ? data : post)))
       setShowEditDialog(false)
     } catch (error) {
@@ -190,9 +181,7 @@ const PostsManager = () => {
   // 게시물 삭제
   const deletePost = async (id) => {
     try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
+      await deletePostApi(id)
       setPosts(posts.filter((post) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
@@ -594,7 +583,7 @@ const PostsManager = () => {
               value={newPost.userId}
               onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
             />
-            <Button onClick={addPost}>게시물 추가</Button>
+            <Button onClick={addPostFlow}>게시물 추가</Button>
           </div>
         </DialogContent>
       </Dialog>
