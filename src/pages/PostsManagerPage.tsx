@@ -35,6 +35,7 @@ import {
   likeCommentApi,
   updateCommentApi,
 } from "../entities/comments/api"
+import { fetchPostsByTagApi } from "../entities/posts/api/fetchPostsByTag"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -133,8 +134,8 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
-      const [postsResponse, usersResponse] = await Promise.all([fetch(`/api/posts/tag/${tag}`), fetchUsersApi()])
-      const postsData = await postsResponse.json()
+      const [postsResponse, usersResponse] = await Promise.all([fetchPostsByTagApi(tag), fetchUsersApi()])
+      const postsData = postsResponse
       const usersData = usersResponse
 
       const postsWithUsers = postsData.posts.map((post) => ({

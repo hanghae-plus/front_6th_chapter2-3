@@ -7,7 +7,7 @@ type AddCommentReq = {
   userId: number
 }
 
-export const addComment = async (newComment: AddCommentReq): Promise<Comment> => {
+export const addCommentApi = async (newComment: AddCommentReq): Promise<Comment> => {
   return fetchClient<Comment>("/comments/add", {
     method: "POST",
     body: JSON.stringify(newComment),
