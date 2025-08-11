@@ -1,4 +1,4 @@
-import { IUserName } from '../../../type';
+import { IUserName } from '../../user/model/type';
 
 // 댓글 타입
 export type IComment = {

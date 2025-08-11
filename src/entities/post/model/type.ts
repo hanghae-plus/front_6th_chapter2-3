@@ -1,4 +1,4 @@
-import { IUserSummary } from "../../../type";
+import { IUserSummary } from '../../user/model/type';
 
 // 게시글 타입
 export type IPost = {
