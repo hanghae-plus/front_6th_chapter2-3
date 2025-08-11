@@ -26,6 +26,7 @@ import {
   Textarea,
 } from "../components"
 import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../entities/posts/api"
+import { fetchTagsApi } from "../entities/tags/api"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -100,8 +101,7 @@ const PostsManager = () => {
   // 태그 가져오기
   const fetchTags = async () => {
     try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
+      const data = await fetchTagsApi()
       setTags(data)
     } catch (error) {
       console.error("태그 가져오기 오류:", error)
