@@ -24,8 +24,8 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
-import { Post, Comment, User, Tag, NewPost, NewComment, PostsApiResponse, UsersApiResponse } from "../types"
+} from "../shared/ui"
+import { Post, Comment, User, Tag, NewPost, NewComment, PostsApiResponse, UsersApiResponse } from "../shared/types"
 
 const PostsManager = () => {
   const navigate = useNavigate()
