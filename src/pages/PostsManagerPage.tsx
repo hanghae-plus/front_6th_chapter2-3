@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Textarea,
-} from "../shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
 import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
 import type { Comment, NewComment } from "../entities/comment"
 import type { User, UsersApiResponse } from "../entities/user"
-import { PostTable, PostFilters, PostDetailDialog, Pagination, UserModal } from "../widgets"
+import {
+  PostTable,
+  PostFilters,
+  PostDetailDialog,
+  Pagination,
+  UserDialog,
+  PostFormDialog,
+  CommentFormDialog,
+} from "../widgets"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -386,93 +382,58 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 게시물 추가 다이얼로그 위젯 */}
+      <PostFormDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        formTitle="새 게시물 추가"
+        titleValue={newPost.title}
+        bodyValue={newPost.body}
+        onTitleChange={(v) => setNewPost({ ...newPost, title: v })}
+        onBodyChange={(v) => setNewPost({ ...newPost, body: v })}
+        showUserId
+        userIdValue={newPost.userId}
+        onUserIdChange={(val) => setNewPost({ ...newPost, userId: val })}
+        submitLabel="게시물 추가"
+        onSubmit={addPost}
+      />
 
-      {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 게시물 수정 다이얼로그 위젯 */}
+      <PostFormDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        formTitle="게시물 수정"
+        titleValue={selectedPost?.title || ""}
+        bodyValue={selectedPost?.body || ""}
+        onTitleChange={(v) => selectedPost && setSelectedPost({ ...selectedPost, title: v })}
+        onBodyChange={(v) => selectedPost && setSelectedPost({ ...selectedPost, body: v })}
+        submitLabel="게시물 업데이트"
+        onSubmit={updatePost}
+      />
 
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 댓글 추가 다이얼로그 위젯 */}
+      <CommentFormDialog
+        open={showAddCommentDialog}
+        onOpenChange={setShowAddCommentDialog}
+        formTitle="새 댓글 추가"
+        bodyValue={newComment.body}
+        onBodyChange={(v) => setNewComment({ ...newComment, body: v })}
+        submitLabel="댓글 추가"
+        onSubmit={addComment}
+      />
 
-      {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 댓글 수정 다이얼로그 위젯 */}
+      <CommentFormDialog
+        open={showEditCommentDialog}
+        onOpenChange={setShowEditCommentDialog}
+        formTitle="댓글 수정"
+        bodyValue={selectedComment?.body || ""}
+        onBodyChange={(v) => selectedComment && setSelectedComment({ ...selectedComment, body: v })}
+        submitLabel="댓글 업데이트"
+        onSubmit={updateComment}
+      />
 
-      {/* 게시물 상세 보기 대화상자 위젯 */}
+      {/* 게시물 상세 보기 다이얼로그 위젯 */}
       <PostDetailDialog
         open={showPostDetailDialog}
         onOpenChange={setShowPostDetailDialog}
@@ -491,8 +452,8 @@ const PostsManager = () => {
         onDeleteComment={deleteComment}
       />
 
-      {/* 사용자 모달 */}
-      <UserModal open={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
+      {/* 사용자 다이얼로그 */}
+      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
     </Card>
   )
 }
