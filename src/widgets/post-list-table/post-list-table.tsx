@@ -1,0 +1,144 @@
+import { deletePost as deletePostAction, postEntityQueries } from "@/entities/posts"
+import { userEntityQueries, userSchema } from "@/entities/users"
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
+import { postWithUserSchema } from "@/views/post-management-page/presenter"
+import { HighlightText } from "@/views/post-management-page/view"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import z from "zod"
+
+type Props = {
+  selectedTag: string
+  setSelectedTag: (tag: string) => void
+
+  handleOpenAuthorInformationDialog: (user: z.infer<typeof userSchema>) => void
+  handleOpenPostDetailDialog: (post: z.infer<typeof postWithUserSchema>) => void
+  handleOpenUpdatePostDialog: (post: z.infer<typeof postWithUserSchema>) => void
+
+  limit: number
+  skip: number
+  searchQuery: string
+}
+
+export const PostListTable = ({
+  selectedTag,
+  setSelectedTag,
+  handleOpenAuthorInformationDialog,
+  handleOpenPostDetailDialog,
+  handleOpenUpdatePostDialog,
+  limit,
+  skip,
+  searchQuery,
+}: Props) => {
+  const postsQuery = useQuery({
+    ...postEntityQueries.getPosts({ limit: limit, skip: skip }),
+  })
+
+  const usersQuery = useQuery({
+    ...userEntityQueries.getUsers({ limit: 0, select: "username,image" }),
+    enabled: postsQuery.isFetched,
+    select: (response) => ({
+      data: response.users,
+      pagination: { limit: response?.limit ?? 0, skip: response?.skip ?? 0, total: response?.total ?? 0 },
+    }),
+  })
+
+  const postWithAuthors = postsQuery.data?.posts.map((post) => ({
+    ...post,
+    author: usersQuery.data?.data.find((user) => user.id === post.userId),
+  }))
+
+  const deletePost = useMutation({
+    mutationFn: deletePostAction,
+    onError: (error) => console.error("게시물 삭제 오류:", error),
+  })
+
+  if (postsQuery.isLoading || usersQuery.isLoading) {
+    return <div className="flex justify-center p-4">로딩 중...</div>
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[50px]">ID</TableHead>
+          <TableHead>제목</TableHead>
+          <TableHead className="w-[150px]">작성자</TableHead>
+          <TableHead className="w-[150px]">반응</TableHead>
+          <TableHead className="w-[150px]">작업</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {postWithAuthors?.map((post) => (
+          <TableRow key={post.id}>
+            <TableCell>{post.id}</TableCell>
+            <TableCell>
+              <div className="space-y-1">
+                <div>
+                  <HighlightText text={post.title} highlight={searchQuery} />
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {post.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
+                        selectedTag === tag
+                          ? "text-white bg-blue-500 hover:bg-blue-600"
+                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
+                      }`}
+                      onClick={() => {
+                        setSelectedTag(tag)
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => {
+                  if (!post.author) return
+                  handleOpenAuthorInformationDialog(post.author)
+                }}
+              >
+                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+                <span>{post.author?.username}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <ThumbsUp className="w-4 h-4" />
+                <span>{post.reactions?.likes || 0}</span>
+                <ThumbsDown className="w-4 h-4" />
+                <span>{post.reactions?.dislikes || 0}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => handleOpenPostDetailDialog(post)}>
+                  <MessageSquare className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    handleOpenUpdatePostDialog(post)
+                  }}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => deletePost.mutate({ id: post.id })}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
