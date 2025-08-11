@@ -1,4 +1,4 @@
-import { Comment, NewComment } from "../types"
+import { Comment, NewComment } from "../model/types"
 
 export const fetchComments = async (postId: number) => {
   const response = await fetch(`/api/comments/post/${postId}`)
@@ -16,7 +16,7 @@ export const addComment = async (comment: NewComment): Promise<Comment> => {
 
 export const updateComment = async (id: number, body: string): Promise<Comment> => {
   const response = await fetch(`/api/comments/${id}`, {
-    method: "PUT", 
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ body }),
   })

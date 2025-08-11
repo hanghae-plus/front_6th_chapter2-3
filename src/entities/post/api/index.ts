@@ -1,4 +1,4 @@
-import { Post, PostsApiResponse, NewPost } from "../types"
+import { Post, PostsApiResponse, NewPost } from "../model/types"
 
 export const fetchPosts = async (limit: number, skip: number): Promise<PostsApiResponse> => {
   const response = await fetch(`/api/posts?limit=${limit}&skip=${skip}`)

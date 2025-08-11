@@ -1,4 +1,4 @@
-import { User, UsersApiResponse } from "../types"
+import { User, UsersApiResponse } from "../model/types"
 
 export const fetchUsers = async (params?: string): Promise<UsersApiResponse> => {
   const url = params ? `/api/users?${params}` : "/api/users"

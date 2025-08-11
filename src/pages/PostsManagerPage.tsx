@@ -25,7 +25,9 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui"
-import { Post, Comment, User, Tag, NewPost, NewComment, PostsApiResponse, UsersApiResponse } from "../shared/types"
+import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
+import type { Comment, NewComment } from "../entities/comment"
+import type { User, UsersApiResponse } from "../entities/user"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -175,7 +177,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     if (!selectedPost) return
-    
+
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
@@ -237,7 +239,7 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     if (!selectedComment) return
-    
+
     try {
       const response = await fetch(`/api/comments/${selectedComment.id}`, {
         method: "PUT",
@@ -273,7 +275,6 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id: number, postId: number) => {
     try {
-
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -282,7 +283,9 @@ const PostsManager = () => {
       const data = await response.json()
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId].map((comment: Comment) => (comment.id === data.id ? {...data, likes: comment.likes + 1} : comment)),
+        [postId]: prev[postId].map((comment: Comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
       }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
@@ -387,7 +390,10 @@ const PostsManager = () => {
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => post.author && openUserModal(post.author)}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => post.author && openUserModal(post.author)}
+              >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
