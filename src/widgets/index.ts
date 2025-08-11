@@ -1,3 +1,4 @@
 export { Header } from "./site-header/Header"
 export { Footer } from "./site-footer/Footer"
 export { PostTable } from "./post-table/PostTable"
+export { PostFilters } from "./post-filters/PostFilters"

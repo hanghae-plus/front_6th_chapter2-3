@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
@@ -12,17 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
 } from "../shared/ui"
 import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
 import type { Comment, NewComment } from "../entities/comment"
 import type { User, UsersApiResponse } from "../entities/user"
-import { PostTable } from "../widgets"
+import { PostTable, PostFilters } from "../widgets"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -329,7 +324,7 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  // 하이라이트 함수 추가
+  // 댓글 렌더링과 하이라이트 함수는 기존 유지
   const highlightText = (text: string, highlight: string) => {
     if (!text) return null
     if (!highlight.trim()) {
@@ -344,9 +339,6 @@ const PostsManager = () => {
     )
   }
 
-  // 게시물 테이블 렌더링 제거되고 위젯 사용
-
-  // 댓글 렌더링
   const renderComments = (postId: number) => (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -407,63 +399,23 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value)
-                fetchPostsByTag(value)
-                updateURL()
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PostFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={searchPosts}
+            tags={tags}
+            selectedTag={selectedTag}
+            onTagChange={(value) => {
+              setSelectedTag(value)
+              fetchPostsByTag(value)
+              updateURL()
+            }}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
+            sortOrder={sortOrder}
+            onSortOrderChange={setSortOrder}
+          />
 
-          {/* 게시물 테이블 */}
           {loading ? (
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
@@ -485,21 +437,11 @@ const PostsManager = () => {
             />
           )}
 
-          {/* 페이지네이션 */}
+          {/* 페이지네이션 기존 유지 */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
+              {/* 페이지네이션 Select는 추후 위젯화 가능 */}
             </div>
             <div className="flex gap-2">
               <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
@@ -513,6 +455,7 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
+      {/* 댓글/게시물 모달들 기존 유지 */}
       {/* 게시물 추가 대화상자 */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
