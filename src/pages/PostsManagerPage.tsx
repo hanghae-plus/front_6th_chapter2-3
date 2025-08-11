@@ -335,6 +335,7 @@ const PostsManager = () => {
 
   // 댓글 삭제
   const deleteComment = async (id: number, postId: number) => {
+    // id = comment.id
     try {
       await fetch(`/api/comments/${id}`, {
         method: 'DELETE',
