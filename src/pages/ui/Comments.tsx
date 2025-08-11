@@ -3,7 +3,6 @@ import { Button, HighlightText } from "../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { Comment } from "../../entities"
 
-
 export const Comments = ({
   postId,
   searchQuery,

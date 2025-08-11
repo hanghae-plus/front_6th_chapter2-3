@@ -17,7 +17,18 @@ import { PostTable } from "./ui/PostTable"
 import { Author } from "../shared/types"
 import { INIT_POST } from "../shared/data"
 import { Comments as CommentItems } from "./ui/Comments"
-import { User, Users, Comments, Comment, Posts, Tags } from "../entities"
+import {
+  User,
+  Comment,
+  Tags,
+  getPosts,
+  getUsers,
+  getTags,
+  getUser,
+  getComments,
+  getSeachPosts,
+  getPostsByTag,
+} from "../entities"
 import { NewComment } from "../feature/comment/type"
 import { Post } from "../feature/table/type"
 
@@ -67,23 +78,17 @@ const PostsManager = () => {
     setLoading(true)
 
     try {
-      const postData = await fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      if (postData) {
-        const posts = (await postData.json()) as Posts
+      const { result, posts } = await getPosts(limit, skip)
+      if (result && posts) {
+        const { result, users } = await getUsers()
+        if (result && users) {
+          const postsWithUsers = posts.posts.map((post) => ({
+            ...post,
+            author: users.users.find((user) => user.id === post.userId),
+          })) as Array<Post>
 
-        if (posts) {
-          const userData = await fetch("/api/users?limit=0&select=username,image")
-
-          if (userData) {
-            const users = (await userData.json()) as Users
-            const postsWithUsers = posts.posts.map((post) => ({
-              ...post,
-              author: users.users.find((user) => user.id === post.userId),
-            })) as Array<Post>
-
-            setPosts(postsWithUsers)
-            setTotal(posts.total)
-          }
+          setPosts(postsWithUsers)
+          setTotal(posts.total)
         }
       }
     } catch (error) {
@@ -96,9 +101,10 @@ const PostsManager = () => {
   // 태그 가져오기
   const fetchTags = async () => {
     try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
+      const { result, tags } = await getTags()
+      if (result && tags) {
+        setTags(tags)
+      }
     } catch (error) {
       console.error("태그 가져오기 오류:", error)
     }
@@ -112,10 +118,12 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
+      const { result, posts: postsData } = await getSeachPosts(searchQuery)
+
+      if (result && postsData) {
+        setPosts(postsData.posts)
+        setTotal(postsData.total)
+      }
     } catch (error) {
       console.error("게시물 검색 오류:", error)
     }
@@ -130,20 +138,18 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData = (await postsResponse.json()) as Posts
-      const usersData = (await usersResponse.json()) as Users
+      const { result: postResult, posts } = await getPostsByTag(tag)
+      const { result: userResult, users } = await getUsers()
 
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId) as Author,
-      }))
+      if (postResult && posts && userResult && users) {
+        const postsWithUsers = posts.posts.map((post) => ({
+          ...post,
+          author: users.users.find((user) => user.id === post.userId),
+        }))
 
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
+        setPosts(postsWithUsers)
+        setTotal(posts.total)
+      }
     } catch (error) {
       console.error("태그별 게시물 가져오기 오류:", error)
     }
@@ -199,10 +205,10 @@ const PostsManager = () => {
   const fetchComments = async (postId: number) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = (await response.json()) as Comments
-
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
+      const { result, comments: commentData } = await getComments(postId)
+      if (result && commentData) {
+        setComments((prev) => ({ ...prev, [postId]: commentData.comments }))
+      }
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
@@ -292,10 +298,11 @@ const PostsManager = () => {
   // 사용자 모달 열기
   const openUserModal = async (user: Author) => {
     try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
+      const { result, user: userData } = await getUser(user.id)
+      if (result && userData) {
+        setSelectedUser(userData)
+        setShowUserModal(true)
+      }
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
