@@ -5,7 +5,7 @@ import { createRequest } from '../../../shared/lib/api';
 /**
  * 특정 게시물 댓글 목록 조회
  */
-export const getCommentApi = async (postId: number): Promise<IComments> => {
+export const getCommentsApi = async (postId: number): Promise<IComments> => {
   const response = await fetch(COMMENT.LIST(postId));
 
   if (!response.ok) {
