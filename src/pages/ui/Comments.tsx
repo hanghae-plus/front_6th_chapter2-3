@@ -1,7 +1,8 @@
 import { NewComment } from "../../shared/types"
 import { Button, HighlightText } from "../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { Comment } from "../../shared/types"
+import { Comment } from "../../entities"
+
 
 export const Comments = ({
   postId,

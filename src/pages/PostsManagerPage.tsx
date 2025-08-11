@@ -14,9 +14,10 @@ import {
   HighlightText,
 } from "../shared/ui"
 import { PostTable } from "./ui/PostTable"
-import { Post, Posts, Users, Comment, NewComment, Comments, Author, User, Tag } from "../shared/types"
+import { Post,NewComment, Author } from "../shared/types"
 import { INIT_POST } from "../shared/data"
 import { Comments as CommentItems } from "./ui/Comments"
+import { User, Users, Comments, Comment, Posts, Tags } from "../entities"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState<Array<Tag>>([])
+  const [tags, setTags] = useState<Tags>([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState<{ [key: number]: Array<Comment> }>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
