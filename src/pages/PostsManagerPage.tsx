@@ -80,6 +80,7 @@ const PostsManager = () => {
 
   const { data: tags } = useQuery(postQueries.tagQuery())
 
+  // TODO: 이걸 나중에 묶는걸 고려해봐도...
   const searchedPostsQuery = useQuery({
     ...postQueries.searchQuery({
       search: searchQuery,
