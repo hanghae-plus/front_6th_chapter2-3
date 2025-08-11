@@ -1,7 +1,7 @@
 import { Footer, Header } from "@/widgets/layout"
 import { BrowserRouter as Router } from "react-router-dom"
 
-import PostsManagerPage from "./views/PostsManagerPage.tsx"
+import { PostManagementPage } from "@/views/post-management-page"
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <PostsManagerPage />
+          <PostManagementPage />
         </main>
         <Footer />
       </div>
