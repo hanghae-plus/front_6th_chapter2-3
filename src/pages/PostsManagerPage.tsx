@@ -14,10 +14,12 @@ import {
   HighlightText,
 } from "../shared/ui"
 import { PostTable } from "./ui/PostTable"
-import { Post,NewComment, Author } from "../shared/types"
+import { Author } from "../shared/types"
 import { INIT_POST } from "../shared/data"
 import { Comments as CommentItems } from "./ui/Comments"
 import { User, Users, Comments, Comment, Posts, Tags } from "../entities"
+import { NewComment } from "../feature/comment/type"
+import { Post } from "../feature/table/type"
 
 const PostsManager = () => {
   const navigate = useNavigate()
