@@ -1,8 +1,8 @@
 import React from "react"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "../../shared/ui"
-import type { Post } from "../../entities/post"
-import type { User } from "../../entities/user"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
+import type { Post } from "@entities/post"
+import type { User } from "@entities/user"
 
 interface PostTableProps {
   posts: Post[]

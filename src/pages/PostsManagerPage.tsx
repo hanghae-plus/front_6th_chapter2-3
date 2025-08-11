@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
-import type { Post, NewPost, PostsApiResponse, Tag } from "../entities/post"
-import type { Comment, NewComment } from "../entities/comment"
-import type { User, UsersApiResponse } from "../entities/user"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
+import type { Post, NewPost, PostsApiResponse, Tag } from "@entities/post"
+import type { Comment, NewComment } from "@entities/comment"
+import type { User, UsersApiResponse } from "@entities/user"
 import {
   PostTable,
   PostFilters,
@@ -13,7 +13,7 @@ import {
   UserDialog,
   PostFormDialog,
   CommentFormDialog,
-} from "../widgets"
+} from "@widgets"
 
 const PostsManager = () => {
   const navigate = useNavigate()

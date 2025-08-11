@@ -1,4 +1,4 @@
-import { Comment, NewComment } from "../model/types"
+import { Comment, NewComment } from "@entities/comment/model/types"
 
 export const fetchComments = async (postId: number) => {
   const response = await fetch(`/api/comments/post/${postId}`)

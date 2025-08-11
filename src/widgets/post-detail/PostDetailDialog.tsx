@@ -1,7 +1,7 @@
 import React from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "../../shared/ui"
-import type { Post } from "../../entities/post"
-import type { Comment } from "../../entities/comment"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "@shared/ui"
+import type { Post } from "@entities/post"
+import type { Comment } from "@entities/comment"
 
 interface PostDetailDialogProps {
   open: boolean

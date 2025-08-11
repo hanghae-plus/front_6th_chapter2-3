@@ -1,5 +1,5 @@
 import React from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "../../shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 
 interface CommentFormDialogProps {
   open: boolean
