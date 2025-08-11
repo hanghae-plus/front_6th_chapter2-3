@@ -66,3 +66,13 @@ export interface NewComment {
   postId: number | null
   userId: number
 }
+
+// API 응답 타입들
+export interface PostsApiResponse {
+  posts: Post[]
+  total: number
+}
+
+export interface UsersApiResponse {
+  users: User[]
+}

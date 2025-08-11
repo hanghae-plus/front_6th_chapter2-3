@@ -25,7 +25,7 @@ import {
   TableRow,
   Textarea,
 } from "../components"
-import { Post, Comment, User, Tag, NewPost, NewComment } from "../types"
+import { Post, Comment, User, Tag, NewPost, NewComment, PostsApiResponse, UsersApiResponse } from "../types"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -71,17 +71,17 @@ const PostsManager = () => {
   // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true)
-    let postsData
-    let usersData
+    let postsData: PostsApiResponse
+    let usersData: User[]
 
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: PostsApiResponse) => {
         postsData = data
         return fetch("/api/users?limit=0&select=username,image")
       })
       .then((response) => response.json())
-      .then((users) => {
+      .then((users: UsersApiResponse) => {
         usersData = users.users
         const postsWithUsers = postsData.posts.map((post) => ({
           ...post,
@@ -118,7 +118,7 @@ const PostsManager = () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
+      const data: PostsApiResponse = await response.json()
       setPosts(data.posts)
       setTotal(data.total)
     } catch (error) {
@@ -139,8 +139,8 @@ const PostsManager = () => {
         fetch(`/api/posts/tag/${tag}`),
         fetch("/api/users?limit=0&select=username,image"),
       ])
-      const postsData = await postsResponse.json()
-      const usersData = await usersResponse.json()
+      const postsData: PostsApiResponse = await postsResponse.json()
+      const usersData: UsersApiResponse = await usersResponse.json()
 
       const postsWithUsers = postsData.posts.map((post) => ({
         ...post,
