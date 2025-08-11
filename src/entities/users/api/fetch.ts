@@ -1,4 +1,4 @@
-import { UserResponse } from '../types.ts';
+import { UserResponse } from '../model/types.ts';
 
 
 export const getUsers = async (userId:number):Promise<UserResponse> => {

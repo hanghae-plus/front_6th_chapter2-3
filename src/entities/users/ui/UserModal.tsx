@@ -1,5 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components';
-import { UserResponse } from '../types.ts';
+
+import { UserResponse } from '../model/types.ts';
+import { Dialog } from '@/components/Dialog.tsx'
 
 interface UserModalProps {
   user: UserResponse | null;
@@ -10,10 +11,10 @@ interface UserModalProps {
 const UserModal = ({ user, isOpen, onClose }: UserModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>사용자 정보</DialogTitle>
-        </DialogHeader>
+      <Dialog.Content>
+        <Dialog.Header>
+          <Dialog.Title>사용자 정보</Dialog.Title>
+        </Dialog.Header>
         <div className="space-y-4">
           <img
             src={user?.image}
@@ -39,7 +40,7 @@ const UserModal = ({ user, isOpen, onClose }: UserModalProps) => {
             </p>
             <p>
               <strong>주소:</strong> {user?.address?.address},{' '}
-              {userI?.address?.city}, {user?.address?.state}
+              {user?.address?.city}, {user?.address?.state}
             </p>
             <p>
               <strong>직장:</strong> {user?.company?.name} -{' '}
@@ -47,7 +48,7 @@ const UserModal = ({ user, isOpen, onClose }: UserModalProps) => {
             </p>
           </div>
         </div>
-      </DialogContent>
+      </Dialog.Content>
     </Dialog>
   );
 };
