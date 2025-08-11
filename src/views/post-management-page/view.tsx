@@ -1,75 +1,82 @@
-import { postEntityQueries, postSchema } from "@/entities/posts"
-import { userSchema } from "@/entities/users"
-import { openAddCommentDialog } from "@/features/add-comment/ui"
+import { deleteComment as deleteCommentAction, likeComment as likeCommentAction } from "@/entities/comments"
+import {
+  addPost as addPostAction,
+  optimisticAddPost,
+  Post,
+  postEntityQueries,
+  updatePost as updatePostAction,
+} from "@/entities/posts"
+import { User } from "@/entities/users"
 import { openAddPostDialog } from "@/features/add-post"
-import { openUpdateCommentDialog } from "@/features/update-comment"
 import { openUpdatePostDialog } from "@/features/update-post/ui"
+import { useQueryParamsPagination } from "@/shared/hooks"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 import { openPostDetailDialog } from "@/widgets/post-detail-dialog"
 import { PostListTable, PostListTableFilter, PostListTablePagination } from "@/widgets/post-list-table"
-import { Post } from "@/widgets/types"
+
 import { openUserInfoDialog } from "@/widgets/user-info-dialog"
-import { useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
-import z from "zod"
-import { usePostManagementViewPresenter } from "./presenter"
 
 const PostManagementView = () => {
   const queryClient = useQueryClient()
-  const presenter = usePostManagementViewPresenter()
 
-  const handleOpenPostDetailDialog = (post: z.infer<typeof postSchema>) => {
+  const [queryParamsPagination] = useQueryParamsPagination()
+
+  const addPost = useMutation({
+    mutationFn: addPostAction,
+    onError: (error) => {
+      console.error("게시물 추가 오류:", error)
+    },
+    onSuccess: (addPostResponse) => {
+      queryClient.setQueryData(
+        postEntityQueries.getPosts({ limit: queryParamsPagination.limit, skip: queryParamsPagination.skip }).queryKey,
+        (prevPostResponse) => optimisticAddPost(prevPostResponse, addPostResponse),
+      )
+    },
+  })
+
+  const updatePost = useMutation({
+    mutationFn: updatePostAction,
+    onError: (error) => {
+      console.error("게시물 업데이트 오류:", error)
+    },
+  })
+
+  const deleteComment = useMutation({
+    mutationFn: deleteCommentAction,
+    onError: (error) => console.error("댓글 삭제 오류:", error),
+  })
+
+  const likeComment = useMutation({
+    mutationFn: likeCommentAction,
+    onError: (error) => console.error("댓글 좋아요 오류:", error),
+  })
+
+  const handleOpenPostDetailDialog = (post: Post) => {
     openPostDetailDialog({
       post: post,
-      comments: presenter.getCommentsByPostIdResponse?.data ?? [],
-      searchQuery: presenter.pagination.searchQuery,
+      searchQuery: queryParamsPagination.searchQuery,
 
-      onDeleteComment: (commentId) => presenter.deleteComment.mutate({ id: commentId }),
-      onLikeComment: (commentId, likes) => presenter.likeComment.mutate({ id: commentId, likes }),
-      onOpenAddCommentDialog: () => {
-        openAddCommentDialog({
-          onSubmit: (formData) => presenter.addComment.mutateAsync(formData),
-        })
-      },
-      onOpenUpdateCommentDialog: (comment) => {
-        presenter.setSelectedComment(comment)
-        openUpdateCommentDialog({
-          comment: { body: comment.body, postId: comment.postId, userId: comment.user.id },
-          onSubmit: (formValues) => presenter.updateComment.mutate({ id: comment.id, body: formValues.body }),
-        })
-      },
+      onDeleteComment: (commentId) => deleteComment.mutate({ id: commentId }),
+      onLikeComment: (commentId, likes) => likeComment.mutate({ id: commentId, likes }),
     })
   }
 
-  const handleOpenAuthorInformationDialog = (user: z.infer<typeof userSchema>) => {
+  const handleOpenAuthorInformationDialog = (user: User) => {
     openUserInfoDialog({ userId: user.id })
   }
 
   const handleOpenAddPostDialog = () => {
     openAddPostDialog({
-      onSubmit: (formData) =>
-        presenter.addPost.mutate(formData, {
-          onSuccess: (addPostResponse) => {
-            queryClient.setQueryData(
-              postEntityQueries.getPosts({ limit: presenter.pagination.limit, skip: presenter.pagination.skip })
-                .queryKey,
-              (prevPost) => ({ ...prevPost, posts: [addPostResponse, ...prevPost.posts] }),
-            )
-          },
-        }),
+      onSubmit: (formData) => addPost.mutate(formData),
     })
   }
 
   const handleOpenUpdatePostDialog = (post: Post) => {
-    presenter.setSelectedPost(post)
     openUpdatePostDialog({
       post: post,
-      onSubmit: (formValues) =>
-        presenter.updatePost.mutate({
-          id: post.id,
-          title: formValues.title,
-          body: formValues.body,
-        }),
+      onSubmit: (formValues) => updatePost.mutate({ id: post.id, title: formValues.title, body: formValues.body }),
     })
   }
 
@@ -86,31 +93,15 @@ const PostManagementView = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <PostListTableFilter
-            selectedTag={presenter.selectedTag}
-            setSelectedTag={presenter.setSelectedTag}
-            tags={presenter.tags ?? []}
-          />
+          <PostListTableFilter />
 
           <PostListTable
-            selectedTag={presenter.selectedTag}
-            setSelectedTag={presenter.setSelectedTag}
-            handleOpenAuthorInformationDialog={handleOpenAuthorInformationDialog}
-            handleOpenPostDetailDialog={handleOpenPostDetailDialog}
-            handleOpenUpdatePostDialog={handleOpenUpdatePostDialog}
-            limit={presenter.pagination.limit}
-            skip={presenter.pagination.skip}
-            searchQuery={presenter.pagination.searchQuery}
+            onOpenAuthorInformationDialog={handleOpenAuthorInformationDialog}
+            onOpenPostDetailDialog={handleOpenPostDetailDialog}
+            onOpenUpdatePostDialog={handleOpenUpdatePostDialog}
           />
 
-          <PostListTablePagination
-            total={presenter.postPagination.total ?? 0}
-            limit={presenter.postPagination.limit}
-            skip={presenter.postPagination.skip}
-            handleLimitChange={presenter.handleLimitChange}
-            handleNextPage={presenter.handleNextPage}
-            handlePreviousPage={presenter.handlePreviousPage}
-          />
+          <PostListTablePagination />
         </div>
       </CardContent>
     </Card>
@@ -118,17 +109,3 @@ const PostManagementView = () => {
 }
 
 export default PostManagementView
-
-export const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
-  if (!text) return null
-  if (!highlight.trim()) {
-    return <span>{text}</span>
-  }
-  const regex = new RegExp(`(${highlight})`, "gi")
-  const parts = text.split(regex)
-  return (
-    <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-    </span>
-  )
-}
