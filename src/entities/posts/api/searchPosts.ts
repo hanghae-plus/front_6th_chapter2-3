@@ -1,12 +1,12 @@
 import fetchClient from "../../../shared/utils/fetchClient"
-import { Post } from "./types"
+import { PostApi } from "./types"
 
 type SearchPostsReq = {
   query: string
 }
 
 type SearchPostsRes = {
-  posts: Post[]
+  posts: PostApi[]
   total: number
 }
 

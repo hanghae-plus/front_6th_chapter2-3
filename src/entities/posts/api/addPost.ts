@@ -1,5 +1,5 @@
 import fetchClient from "../../../shared/utils/fetchClient"
-import { Post } from "./types"
+import { PostApi } from "./types"
 
 type AddPostReq = {
   title: string
@@ -7,8 +7,8 @@ type AddPostReq = {
   userId: number
 }
 
-export const addPostApi = async (newPost: AddPostReq): Promise<Post> => {
-  return fetchClient<Post>("/posts/add", {
+export const addPostApi = async (newPost: AddPostReq): Promise<PostApi> => {
+  return fetchClient<PostApi>("/posts/add", {
     method: "POST",
     body: JSON.stringify(newPost),
   })
