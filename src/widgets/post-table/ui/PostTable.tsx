@@ -1,0 +1,74 @@
+import {
+  Table,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../shared/ui/components';
+import PostList from '../../../entities/post/ui/PostList';
+import { useQueryParameter } from '../../../shared/hook/useQueryParameter';
+import { usePostsQuery } from '../../../entities/post/model/hook';
+import { useUserListQuery } from '../../../entities/user/model/hook';
+import { useDeletePost } from '../../../features/post/delete-post/model/useDeletePost';
+
+interface PostTableProps {
+  // 유저 클릭 함수
+  onClickUser: () => void;
+  // 게시물 상세보기 함수
+  onClickPost: () => void;
+  // 게시물 수정
+  onUpdatePost: () => void;
+}
+
+const PostTable = ({
+  onClickUser,
+  onClickPost,
+  onUpdatePost,
+}: PostTableProps) => {
+  const { skip, limit, searchQuery, selectedTag, setSelectedTag } =
+    useQueryParameter();
+
+  // 태그 및 검색어 처리 필요 (sortBy, sortOrder 처리?)
+  const { data: posts, isLoading: isPostLoading } = usePostsQuery(limit, skip);
+  const { data: users, isLoading: isUserLoading } = useUserListQuery();
+
+  const postsWithUsers = posts?.posts.map((post) => ({
+    ...post,
+    author: users?.users.find((user) => user.id === post.userId),
+  }));
+
+  const { deletePost } = useDeletePost();
+
+  const handleSelectedTag = (value: string) => {
+    setSelectedTag(value);
+  };
+
+  if (isPostLoading || isUserLoading) {
+    return <div className="flex justify-center p-4">로딩 중...</div>;
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[50px]">ID</TableHead>
+          <TableHead>제목</TableHead>
+          <TableHead className="w-[150px]">작성자</TableHead>
+          <TableHead className="w-[150px]">반응</TableHead>
+          <TableHead className="w-[150px]">작업</TableHead>
+        </TableRow>
+      </TableHeader>
+      <PostList
+        posts={postsWithUsers}
+        searchQuery={searchQuery}
+        selectedTag={selectedTag}
+        onClickUser={onClickUser}
+        onClickPost={onClickPost}
+        onClickTag={handleSelectedTag}
+        onUpdatePost={onUpdatePost}
+        onDeletePost={deletePost}
+      />
+    </Table>
+  );
+};
+
+export default PostTable;

@@ -24,11 +24,11 @@ interface PostItemProps {
   onClickPost: () => void;
 
   // 태그 클릭 함수
-  onClickTag: () => void;
+  onClickTag: (value: string) => void;
   // 게시물 수정
-  onEditPost: () => void;
+  onUpdatePost: () => void;
   // 게시물 삭제
-  onDeletePost: () => void;
+  onDeletePost: (id: number) => void;
 }
 
 const PostItem = ({
@@ -38,7 +38,7 @@ const PostItem = ({
   onClickUser,
   onClickPost,
   onClickTag,
-  onEditPost,
+  onUpdatePost,
   onDeletePost,
 }: PostItemProps) => {
   return (
@@ -86,10 +86,14 @@ const PostItem = ({
           <Button variant="ghost" size="sm" onClick={onClickPost}>
             <MessageSquare className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onEditPost}>
+          <Button variant="ghost" size="sm" onClick={onUpdatePost}>
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onDeletePost}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDeletePost(post.id)}
+          >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

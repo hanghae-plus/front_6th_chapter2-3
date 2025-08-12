@@ -3,9 +3,8 @@ interface TagItemProps {
   tag: string;
   // 게시물 필터 태그
   selectedTag: string;
-
   // 태그 클릭 함수
-  onClickTag: () => void;
+  onClickTag: (value: string) => void;
 }
 
 const TagItem = ({ tag, selectedTag, onClickTag }: TagItemProps) => {
@@ -16,7 +15,7 @@ const TagItem = ({ tag, selectedTag, onClickTag }: TagItemProps) => {
           ? 'text-white bg-blue-500 hover:bg-blue-600'
           : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
       }`}
-      onClick={onClickTag}
+      onClick={() => onClickTag(tag)}
     >
       {tag}
     </span>

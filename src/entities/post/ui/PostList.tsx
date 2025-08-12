@@ -4,7 +4,7 @@ import PostItem from './PostItem';
 
 interface PostListProps {
   // 게시물 목록
-  posts: IPost[];
+  posts?: IPost[];
   // 하이라이트 처리 검색어
   searchQuery: string;
   // 게시물 필터 태그
@@ -16,11 +16,11 @@ interface PostListProps {
   onClickPost: () => void;
 
   // 태그 클릭 함수
-  onClickTag: () => void;
+  onClickTag: (value: string) => void;
   // 게시물 수정
-  onEditPost: () => void;
+  onUpdatePost: () => void;
   // 게시물 삭제
-  onDeletePost: () => void;
+  onDeletePost: (id: number) => void
 }
 
 const PostList = ({
@@ -30,12 +30,12 @@ const PostList = ({
   onClickUser,
   onClickPost,
   onClickTag,
-  onEditPost,
+  onUpdatePost,
   onDeletePost,
 }: PostListProps) => {
   return (
     <TableBody>
-      {posts.map((post) => (
+      {posts?.map((post) => (
         <PostItem
           key={post.id}
           post={post}
@@ -44,7 +44,7 @@ const PostList = ({
           onClickUser={onClickUser}
           onClickPost={onClickPost}
           onClickTag={onClickTag}
-          onEditPost={onEditPost}
+          onUpdatePost={onUpdatePost}
           onDeletePost={onDeletePost}
         />
       ))}

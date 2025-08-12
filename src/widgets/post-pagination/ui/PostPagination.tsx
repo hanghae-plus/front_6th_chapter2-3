@@ -11,6 +11,7 @@ import { usePostsQuery } from '../../../entities/post/model/hook';
 
 const PostPagination = () => {
   const { skip, setSkip, limit, setLimit } = useQueryParameter();
+  // 태그 및 검색어 있을 때 total 처리 필요 (sortBy, sortOrder 처리?)
   const { data: posts } = usePostsQuery(limit, skip);
 
   return (
