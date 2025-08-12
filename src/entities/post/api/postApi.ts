@@ -1,4 +1,4 @@
-import { Post, Tag } from '../model/types';
+import { NewPostPayload, Post, Tag } from '../model/types';
 
 const API_BASE_URL = '/api/posts';
 
@@ -29,7 +29,7 @@ export const fetchTags = async (): Promise<Tag[]> => {
   return response.json();
 };
 
-export const addPost = async (newPost: Omit<Post, 'id' | 'author'>): Promise<Post> => {
+export const addPost = async (newPost: NewPostPayload): Promise<Post> => {
   const response = await fetch(`${API_BASE_URL}/add`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

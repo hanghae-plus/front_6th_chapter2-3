@@ -19,3 +19,5 @@ export interface Tag {
   name: string;
   url: string;
 }
+
+export type NewPostPayload = Omit<Post, 'id' | 'reactions' | 'author' | 'tags' | 'views'>;
