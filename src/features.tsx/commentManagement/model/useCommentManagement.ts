@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { useCommentStore } from "../../../entities/comment/model/store"
 import { CreateCommentRequest, Comment } from "../../../entities/comment/model/types"
 import { useCommentApi } from "../../../entities/comment/api"
 
 // (비즈니스 로직만)
 export const useCommentManagement = () => {
-  const { comments, updateComment, removeComment, likeComment, selectedComment, setSelectedComment } = useCommentStore()
+  const { selectedComment, setSelectedComment } = useCommentStore()
 
   const { getComments, addCommentApi, likeCommentApi, removeCommentApi, updateCommentApi } = useCommentApi()
 
@@ -30,32 +30,26 @@ export const useCommentManagement = () => {
     if (!selectedComment) return
 
     try {
-      const updatedComment = await updateCommentApi(selectedComment.id, { body: selectedComment.body })
-      updateComment(updatedComment)
+      await updateCommentApi(selectedComment.id, selectedComment.body)
       setShowEditCommentDialog(false)
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
   }
 
-  const handleDeleteComment = async (id: number, postId: number) => {
+  const handleRemoveComment = async (id: number, postId: number) => {
     try {
-      await removeCommentApi(id)
-      removeComment(id, postId)
+      await removeCommentApi(id, postId)
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
   }
 
-  const handleLikeComment = async (id: number, postId: number) => {
+  const handleLikeComment = async (commentId: number, postId: number) => {
     try {
-      const currentComment = comments[postId]?.find((c) => c.id === id)
-      if (currentComment) {
-        await commentApi.likeComment(id, currentComment.likes + 1)
-        likeComment(id, postId)
-      }
+      await likeCommentApi(postId, commentId)
     } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
+      console.error("댓글 좋아요 처리 오류:", error)
     }
   }
 
@@ -81,7 +75,7 @@ export const useCommentManagement = () => {
     getComments,
     handleAddComment,
     handleUpdateComment,
-    handleDeleteComment,
+    handleDeleteComment: handleRemoveComment,
     handleLikeComment,
     openAddCommentDialog,
     openEditCommentDialog,

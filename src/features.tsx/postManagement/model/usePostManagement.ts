@@ -5,7 +5,8 @@ import { usePostApi } from "../../../entities/post/api"
 
 // (비즈니스 로직만)
 export const usePostManagement = () => {
-  const { addPost, updatePost, removePost, setSelectedPost } = usePostStore()
+  const { setSelectedPost } = usePostStore()
+  const { addPostApi, deletePostApi, searchPosts, updatePostApi } = usePostApi()
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({
@@ -16,8 +17,7 @@ export const usePostManagement = () => {
 
   const handleAddPost = async () => {
     try {
-      const post = await usePostApi.createPost(newPost)
-      addPost(post)
+      await addPostApi(newPost)
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -27,8 +27,7 @@ export const usePostManagement = () => {
 
   const handleUpdatePost = async (post: Post) => {
     try {
-      const updatedPost = await postApi.updatePost(post.id, post)
-      updatePost(updatedPost)
+      await updatePostApi(post)
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -37,8 +36,7 @@ export const usePostManagement = () => {
 
   const handleDeletePost = async (id: number) => {
     try {
-      await postApi.deletePost(id)
-      removePost(id)
+      await deletePostApi(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
