@@ -1,0 +1,21 @@
+import { create } from 'zustand';
+import { PostsState } from './types';
+import { fetchPostsWithAuthors } from '../../../features/posts/list-posts/api';
+
+export const usePostsStore = create<PostsState>((set) => ({
+  posts: [],
+  total: 0,
+  loading: false,
+  setPosts: (posts) => set({ posts }),
+  fetchPosts: async (limit, skip) => {
+    set({ loading: true });
+    try {
+      const data = await fetchPostsWithAuthors(limit, skip);
+      set({ posts: data.posts, total: data.total });
+    } catch (error) {
+      console.error('게시물 가져오기 오류', error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+}));
