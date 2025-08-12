@@ -11,7 +11,7 @@ interface PostListProps {
   selectedTag: string;
 
   // 유저 클릭 함수
-  onClickUser: () => void;
+  onClickUser: (userId: number) => void;
   // 게시물 상세보기 함수
   onClickPost: () => void;
 
@@ -20,7 +20,7 @@ interface PostListProps {
   // 게시물 수정
   onUpdatePost: () => void;
   // 게시물 삭제
-  onDeletePost: (id: number) => void
+  onDeletePost: (id: number) => void;
 }
 
 const PostList = ({

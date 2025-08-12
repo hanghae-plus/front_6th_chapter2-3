@@ -9,7 +9,11 @@ import {
 import { IPost } from '../../../../entities/post/model/type';
 import { useUpdatePost } from '../model/useUpdatePost';
 
-const UpdatePostForm = (post: IPost) => {
+interface UpdatePostFormProps {
+  post: IPost;
+}
+
+const UpdatePostForm = ({ post }: UpdatePostFormProps) => {
   const { editPost, setTitle, setBody, updatePost } = useUpdatePost(post);
 
   return (

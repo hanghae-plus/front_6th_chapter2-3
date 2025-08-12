@@ -19,14 +19,14 @@ interface PostItemProps {
   selectedTag: string;
 
   // 유저 클릭 함수
-  onClickUser: () => void;
+  onClickUser: (userId: number) => void;
   // 게시물 상세보기 함수
   onClickPost: () => void;
 
   // 태그 클릭 함수
   onClickTag: (value: string) => void;
   // 게시물 수정
-  onUpdatePost: () => void;
+  onUpdatePost: (post: IPost) => void;
   // 게시물 삭제
   onDeletePost: (id: number) => void;
 }
@@ -63,7 +63,7 @@ const PostItem = ({
       <TableCell>
         <div
           className="flex items-center space-x-2 cursor-pointer"
-          onClick={onClickUser}
+          onClick={() => onClickUser(post.userId)}
         >
           <img
             src={post.author?.image}
@@ -86,7 +86,7 @@ const PostItem = ({
           <Button variant="ghost" size="sm" onClick={onClickPost}>
             <MessageSquare className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onUpdatePost}>
+          <Button variant="ghost" size="sm" onClick={() => onUpdatePost(post)}>
             <Edit2 className="w-4 h-4" />
           </Button>
           <Button
