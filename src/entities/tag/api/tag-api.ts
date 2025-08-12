@@ -1,6 +1,9 @@
 import { TAG } from '../config/constants';
 import { ITag } from '../model/type';
 
+/**
+ * 태그 목록 조회
+ */
 export const getTags = async (): Promise<ITag[]> => {
   const response = await fetch(TAG.LIST);
 

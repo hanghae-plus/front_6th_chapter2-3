@@ -6,6 +6,9 @@ import {
   getPostsByTagApi,
 } from '../api/post-api';
 
+/**
+ * 게시물 목록
+ */
 export const usePostsQuery = (limit: number, skip: number) => {
   return useQuery<IPosts>({
     queryKey: ['posts', limit, skip],
@@ -13,6 +16,9 @@ export const usePostsQuery = (limit: number, skip: number) => {
   });
 };
 
+/**
+ * 게시물 검색
+ */
 export const usePostsBySearchQuery = (searchQuery: string) => {
   return useQuery<IPosts>({
     queryKey: ['posts', 'search', searchQuery],
@@ -21,6 +27,9 @@ export const usePostsBySearchQuery = (searchQuery: string) => {
   });
 };
 
+/**
+ * 태그별 게시물
+ */
 export const usePostsByTagQuery = (tag: string) => {
   return useQuery<IPosts>({
     queryKey: ['posts', 'tag', tag],

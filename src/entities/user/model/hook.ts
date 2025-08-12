@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserListApi, getUserDetail } from '../api/user-api';
 import { IUsers, IUserDetail } from './type';
 
+/**
+ * 유저 목록 조회
+ */
 export const useUserListQuery = () => {
   return useQuery<IUsers>({
     queryKey: ['users'],
@@ -9,6 +12,9 @@ export const useUserListQuery = () => {
   });
 };
 
+/**
+ * 특정 유저 정보 조회
+ */
 export const useUserDetailQuery = (userId: number) => {
   return useQuery<IUserDetail>({
     queryKey: ['user', userId],
