@@ -63,7 +63,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from '@/components';
+} from '@/shared/ui';
 
 const PostsManager = () => {
   // ==================== 라우팅 및 URL 관리 ====================
