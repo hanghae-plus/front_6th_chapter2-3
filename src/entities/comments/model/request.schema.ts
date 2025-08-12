@@ -1,5 +1,6 @@
-import { z } from "zod"
 import { commentSchema } from "./schema"
+
+import { z } from "zod"
 
 export const getCommentsByPostIdRequestParamsSchema = z.object({
   postId: z.number(),

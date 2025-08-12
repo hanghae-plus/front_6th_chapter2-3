@@ -1,7 +1,9 @@
 import { useForm } from "@/shared/hooks"
-import { z } from "zod"
 
-import { addCommentFormSchema, AddCommentFormValues } from "../model"
+import type { AddCommentFormValues } from "../model"
+import { addCommentFormSchema } from "../model"
+
+import { z } from "zod"
 
 const INITIAL_COMMENT_FORM_VALUES: AddCommentFormValues = {
   title: "",

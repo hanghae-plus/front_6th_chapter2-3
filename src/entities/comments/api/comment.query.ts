@@ -1,5 +1,6 @@
-import { queryOptions } from "@tanstack/react-query"
 import { getCommentsByPostId } from "./comment.api"
+
+import { queryOptions } from "@tanstack/react-query"
 
 export const commentEntityQueries = {
   all: ["comments"] as const,

@@ -1,7 +1,8 @@
-import { queryOptions } from "@tanstack/react-query"
-import z from "zod"
-import { getUsersRequestParamsSchema } from "../model"
+import type { getUsersRequestParamsSchema } from "../model"
 import { getUser, getUsers } from "./user.api"
+
+import { queryOptions } from "@tanstack/react-query"
+import type z from "zod"
 
 export const userEntityQueries = {
   all: ["users"] as const,

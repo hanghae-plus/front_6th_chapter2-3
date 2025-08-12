@@ -1,4 +1,4 @@
-import { CardContentProps, CardHeaderProps, CardProps, CardTitleProps } from "./card.types"
+import type { CardContentProps, CardHeaderProps, CardProps, CardTitleProps } from "./card.types"
 
 export const Card = ({ className, ref, ...props }: CardProps) => (
   <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />

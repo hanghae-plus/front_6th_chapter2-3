@@ -1,5 +1,6 @@
-import { z } from "zod"
 import { postSchema } from "./schema"
+
+import { z } from "zod"
 
 export const getPostsRequestParamsSchema = z.object({
   limit: z.number().min(1).max(100).default(10),

@@ -1,7 +1,7 @@
 import { Footer, Header } from "@/widgets/layout"
-import { BrowserRouter as Router } from "react-router-dom"
-
 import { PostManagementPage } from "@/views/post-management-page"
+
+import { BrowserRouter as Router } from "react-router-dom"
 
 const App = () => {
   return (

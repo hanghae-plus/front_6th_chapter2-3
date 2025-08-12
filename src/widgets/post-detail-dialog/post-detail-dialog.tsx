@@ -1,16 +1,16 @@
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import {
   addComment as addCommentAction,
   commentEntityQueries,
   updateComment as updateCommentAction,
 } from "@/entities/comments"
-
+import type { Post } from "@/entities/posts"
 import { openAddCommentDialog } from "@/features/add-comment/ui"
 import { openUpdateCommentDialog } from "@/features/update-comment"
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { overlay } from "overlay-kit"
-import { Post } from "../types"
 
 type Props = {
   post: Post

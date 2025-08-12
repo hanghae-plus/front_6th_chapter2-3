@@ -1,8 +1,10 @@
-import { Post } from "@/entities/posts"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
-import { overlay } from "overlay-kit"
+import type { Post } from "@/entities/posts"
+
 import { usePostUpdateForm } from "../hooks"
-import { PostFormValues } from "../model"
+import type { PostFormValues } from "../model"
+
+import { overlay } from "overlay-kit"
 
 type Props = {
   post: Post

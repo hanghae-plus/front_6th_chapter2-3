@@ -1,5 +1,6 @@
-import z from "zod"
-import { addPostResponseSchema, getPostsResponseSchema, postSchema } from "../model"
+import type { addPostResponseSchema, getPostsResponseSchema, postSchema } from "../model"
+
+import type z from "zod"
 
 export const addPostResponseSchemaToPostSchemaAdapter = (
   response: z.infer<typeof addPostResponseSchema>,

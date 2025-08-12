@@ -1,6 +1,9 @@
 import { useForm } from "@/shared/hooks"
+
+import type { PostFormValues } from "../model"
+import { postFormSchema } from "../model"
+
 import { z } from "zod"
-import { postFormSchema, PostFormValues } from "../model"
 
 const INITIAL_POST_FORM_VALUES: PostFormValues = {
   title: "",

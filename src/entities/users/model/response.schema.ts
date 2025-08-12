@@ -1,5 +1,6 @@
-import { z } from "zod"
 import { userSchema } from "./schema"
+
+import { z } from "zod"
 
 export const getUsersResponseSchema = z.object({
   limit: z.number(),

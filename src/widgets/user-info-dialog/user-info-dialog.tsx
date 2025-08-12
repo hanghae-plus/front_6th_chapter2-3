@@ -1,5 +1,6 @@
-import { userEntityQueries } from "@/entities/users"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+import { userEntityQueries } from "@/entities/users"
+
 import { useQuery } from "@tanstack/react-query"
 import { overlay } from "overlay-kit"
 

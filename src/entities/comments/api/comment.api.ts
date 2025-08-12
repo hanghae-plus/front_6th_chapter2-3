@@ -1,13 +1,14 @@
 import { httpClient } from "@/shared/lib"
-import z from "zod"
-import {
+
+import type {
   addCommentRequestSchema,
   deleteCommentRequestSchema,
-  getCommentsByPostIdRequestParamsSchema,
-  getCommentsByPostIdResponseSchema,
   likeCommentRequestSchema,
   updateCommentRequestSchema,
 } from "../model"
+import { getCommentsByPostIdRequestParamsSchema, getCommentsByPostIdResponseSchema } from "../model"
+
+import type z from "zod"
 
 export const getCommentsByPostId = async (requestParams: z.infer<typeof getCommentsByPostIdRequestParamsSchema>) => {
   const parsedRequestParams = getCommentsByPostIdRequestParamsSchema.parse(requestParams)
@@ -20,7 +21,7 @@ export const getCommentsByPostId = async (requestParams: z.infer<typeof getComme
 }
 
 export const addComment = async (requestBody: z.infer<typeof addCommentRequestSchema>) => {
-  const response = await httpClient.post(`/api/comments/add`, requestBody)
+  const response = await httpClient.post("/api/comments/add", requestBody)
 
   return response.data
 }

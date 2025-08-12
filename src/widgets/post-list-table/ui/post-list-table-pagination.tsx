@@ -1,8 +1,10 @@
-import { postEntityQueries } from "@/entities/posts"
 import { useQueryParamsPagination } from "@/shared/hooks"
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
-import { useQuery } from "@tanstack/react-query"
+import { postEntityQueries } from "@/entities/posts"
+
 import { POST_PAGINATION_LIMIT_OPTIONS } from "../model"
+
+import { useQuery } from "@tanstack/react-query"
 
 export const PostListTablePagination = () => {
   const [queryParamsPagination, setQueryParamsPagination] = useQueryParamsPagination()

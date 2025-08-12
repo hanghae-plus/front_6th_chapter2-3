@@ -1,0 +1,24 @@
+{
+  "root": "src",
+  "layers": {
+    "shared": {
+      "order": 1
+    },
+    "entities": {
+      "order": 2
+    },
+    "features": {
+      "order": 3
+    },
+    "widgets": {
+      "order": 4
+    },
+    "views": {
+      "order": 5
+    },
+    "core": {
+      "order": 6
+    }
+  },
+  "segments": ["ui", "model", "api", "lib", "libs", "hooks", "assets"]
+}

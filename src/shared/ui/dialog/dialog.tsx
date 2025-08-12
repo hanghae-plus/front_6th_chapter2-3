@@ -1,6 +1,6 @@
+import type { DialogContentProps, DialogHeaderProps, DialogTitleProps } from "./dialog.type"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
-import { DialogContentProps, DialogHeaderProps, DialogTitleProps } from "./dialog.type"
 
 export const DialogContent = ({ className, children, ref, ...props }: DialogContentProps) => (
   <DialogPrimitive.Portal>

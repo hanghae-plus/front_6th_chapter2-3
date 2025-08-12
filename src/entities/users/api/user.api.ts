@@ -1,6 +1,9 @@
 import { httpClient } from "@/shared/lib"
-import z from "zod"
-import { getUsersRequestParamsSchema, getUsersResponseSchema, userDetailSchema } from "../model"
+
+import type { userDetailSchema } from "../model"
+import { getUsersRequestParamsSchema, getUsersResponseSchema } from "../model"
+
+import type z from "zod"
 
 export const getUsers = async (requestParams: z.infer<typeof getUsersRequestParamsSchema>) => {
   const parsedRequestParams = getUsersRequestParamsSchema.parse(requestParams)

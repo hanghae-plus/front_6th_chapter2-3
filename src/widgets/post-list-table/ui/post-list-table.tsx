@@ -1,7 +1,9 @@
-import { deletePost as deletePostAction, Post, postEntityQueries } from "@/entities/posts"
-import { User, userEntityQueries } from "@/entities/users"
 import { useQueryParamsPagination } from "@/shared/hooks"
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
+import type { Post } from "@/entities/posts"
+import { deletePost as deletePostAction, postEntityQueries } from "@/entities/posts"
+import type { User } from "@/entities/users"
+import { userEntityQueries } from "@/entities/users"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"

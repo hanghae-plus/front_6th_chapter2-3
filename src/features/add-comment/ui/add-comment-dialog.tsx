@@ -1,7 +1,9 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "@/shared/ui"
-import { overlay } from "overlay-kit"
+
 import { useAddCommentForm } from "../hooks"
-import { AddCommentFormValues } from "../model"
+import type { AddCommentFormValues } from "../model"
+
+import { overlay } from "overlay-kit"
 
 type Props = {
   onSubmit: (formData: AddCommentFormValues) => void

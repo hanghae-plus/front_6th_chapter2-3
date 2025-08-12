@@ -1,5 +1,5 @@
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { HTMLAttributes } from "react"
+import type * as DialogPrimitive from "@radix-ui/react-dialog"
+import type { HTMLAttributes } from "react"
 export interface DialogContentProps extends DialogPrimitive.DialogContentProps {
   ref?: React.Ref<HTMLDivElement>
 }

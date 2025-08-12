@@ -1,8 +1,8 @@
-import { postEntityQueries } from "@/entities/posts"
 import { useQueryParamsPagination } from "@/shared/hooks"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
-import { useQuery } from "@tanstack/react-query"
+import { postEntityQueries } from "@/entities/posts"
 
+import { useQuery } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { parseAsString, useQueryState } from "nuqs"
 

@@ -1,4 +1,4 @@
-import { TextareaProps } from "./textarea.type"
+import type { TextareaProps } from "./textarea.type"
 
 // 텍스트 영역 컴포넌트
 export const Textarea = ({ className, ref, ...props }: TextareaProps) => {

@@ -1,5 +1,6 @@
-import { VariantProps } from "class-variance-authority"
 import { inputVariants } from "./input.css"
+
+import type { VariantProps } from "class-variance-authority"
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement>, VariantProps<typeof inputVariants> {
   ref?: React.Ref<HTMLInputElement>

@@ -1,8 +1,9 @@
 import { useForm } from "@/shared/hooks"
-import { z } from "zod"
 
-import { CommentFormValues } from "@/views/post-management-page/hooks"
-import { updateCommentFormSchema, UpdateCommentFormValues } from "../model"
+import type { UpdateCommentFormValues } from "../model"
+import { updateCommentFormSchema } from "../model"
+
+import { z } from "zod"
 
 const INITIAL_COMMENT_FORM_VALUES: UpdateCommentFormValues = {
   body: "",
@@ -10,7 +11,7 @@ const INITIAL_COMMENT_FORM_VALUES: UpdateCommentFormValues = {
   userId: 1,
 }
 
-const validateCommentForm = (values: CommentFormValues) => {
+const validateCommentForm = (values: UpdateCommentFormValues) => {
   try {
     updateCommentFormSchema.parse(values)
     return null
@@ -28,7 +29,7 @@ const validateCommentForm = (values: CommentFormValues) => {
   }
 }
 
-export const useUpdateCommentForm = (initialValues?: Partial<CommentFormValues>) => {
+export const useUpdateCommentForm = (initialValues?: Partial<UpdateCommentFormValues>) => {
   const form = useForm({
     initialValues: { ...INITIAL_COMMENT_FORM_VALUES, ...initialValues },
     validate: validateCommentForm,

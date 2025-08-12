@@ -1,10 +1,12 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
-import { PostFormValues } from "@/views/post-management-page/hooks"
-import { overlay } from "overlay-kit"
+import type { AddPostFormValues } from "@/features/add-post"
+
 import { useAddPostForm } from "../hooks"
 
+import { overlay } from "overlay-kit"
+
 type Props = {
-  onSubmit: (formData: PostFormValues) => void
+  onSubmit: (formData: AddPostFormValues) => void
   close: () => void
 }
 

@@ -1,20 +1,20 @@
+import { useQueryParamsPagination } from "@/shared/hooks"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 import { deleteComment as deleteCommentAction, likeComment as likeCommentAction } from "@/entities/comments"
+import type { Post } from "@/entities/posts"
 import {
   addPost as addPostAction,
   optimisticAddPost,
-  Post,
   postEntityQueries,
   updatePost as updatePostAction,
 } from "@/entities/posts"
-import { User } from "@/entities/users"
+import type { User } from "@/entities/users"
 import { openAddPostDialog } from "@/features/add-post"
 import { openUpdatePostDialog } from "@/features/update-post/ui"
-import { useQueryParamsPagination } from "@/shared/hooks"
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 import { openPostDetailDialog } from "@/widgets/post-detail-dialog"
 import { PostListTable, PostListTableFilter, PostListTablePagination } from "@/widgets/post-list-table"
-
 import { openUserInfoDialog } from "@/widgets/user-info-dialog"
+
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
 

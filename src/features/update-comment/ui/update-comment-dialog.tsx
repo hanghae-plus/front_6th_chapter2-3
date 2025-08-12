@@ -1,7 +1,9 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "@/shared/ui"
-import { overlay } from "overlay-kit"
+
 import { useUpdateCommentForm } from "../hooks"
-import { UpdateCommentFormValues } from "../model"
+import type { UpdateCommentFormValues } from "../model"
+
+import { overlay } from "overlay-kit"
 
 type Props = {
   comment: UpdateCommentFormValues

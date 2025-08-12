@@ -1,7 +1,8 @@
-import { queryOptions } from "@tanstack/react-query"
-import z from "zod"
-import { getPostsRequestParamsSchema } from "../model"
+import type { getPostsRequestParamsSchema } from "../model"
 import { getPosts, getPostsBySlug, getPostTags } from "./post.api"
+
+import { queryOptions } from "@tanstack/react-query"
+import type z from "zod"
 
 export const postEntityQueries = {
   all: ["post"] as const,
