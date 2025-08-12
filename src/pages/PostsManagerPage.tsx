@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Plus } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { createURLParams } from "@shared/lib"
 import type { Post } from "@entities/post"
@@ -18,41 +18,35 @@ import {
 } from "@widgets"
 
 const PostsManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  
-  // URL 파라미터 파싱 (parseURLParams 통합)
-  const urlParams = useMemo(() => {
-    const params = new URLSearchParams(location.search)
-    return {
-      skip: parseInt(params.get("skip") || "0"),
-      limit: parseInt(params.get("limit") || "10"),
-      search: params.get("search") || "",
-      sortBy: params.get("sortBy") || "",
-      sortOrder: params.get("sortOrder") || "asc",
-      tag: params.get("tag") || "",
-    }
-  }, [location.search])
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  // 상태 관리
-  const [skip, setSkip] = useState(urlParams.skip)
-  const [limit, setLimit] = useState(urlParams.limit)
-  const [searchQuery, setSearchQuery] = useState(urlParams.search)
+  // URL 파라미터 파싱 (단일 출처)
+  const { skip, limit, search, sortBy, sortOrder, tag } = useMemo(() => {
+    return {
+      skip: parseInt(searchParams.get("skip") || "0"),
+      limit: parseInt(searchParams.get("limit") || "10"),
+      search: searchParams.get("search") || "",
+      sortBy: searchParams.get("sortBy") || "",
+      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "asc",
+      tag: searchParams.get("tag") || "",
+    }
+  }, [searchParams])
+
+  const [searchQuery, setSearchQuery] = useState<string>("")
+
+  // UI 전용 상태
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [sortBy, setSortBy] = useState(urlParams.sortBy)
-  const [sortOrder, setSortOrder] = useState(urlParams.sortOrder)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [selectedTag, setSelectedTag] = useState(urlParams.tag)
 
   // TanStack Query로 모든 데이터 조회
   const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(limit, skip, sortBy, sortOrder)
   const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery, limit, skip, sortBy, sortOrder)
-  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag, limit, skip, sortBy, sortOrder)
+  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(tag, limit, skip, sortBy, sortOrder)
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
 
   // 조건에 따라 사용할 데이터 선택
-  const currentPostsData = searchQuery ? searchData : selectedTag && selectedTag !== "all" ? tagData : postsData
+  const currentPostsData = searchQuery ? searchData : tag && tag !== "all" ? tagData : postsData
 
   // 게시물에 작성자 정보 병합
   const posts = useMemo(() => {
@@ -73,22 +67,29 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [userIdForDialog, setUserIdForDialog] = useState<number | null>(null)
 
-  // URL 업데이트 함수
-  const updateURL = useCallback(() => {
-    const params = createURLParams({
-      skip,
-      limit,
-      search: searchQuery,
-      sortBy: sortBy === "none" ? undefined : sortBy,
-      sortOrder,
-      tag: selectedTag === "all" ? undefined : selectedTag,
-    })
-    navigate(`?${params}`)
-  }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag, navigate])
+  // URL 업데이트 함수 (URL을 단일 출처로 유지)
+  const updateURL = useCallback(
+    (
+      patch: Partial<{ skip: number; limit: number; search: string; sortBy: string; sortOrder: string; tag: string }>,
+    ) => {
+      const normalize = (value: unknown) => {
+        if (value == null || value === "" || value === "all" || value === "none") return undefined
+        return value as string | number
+      }
 
-
-
-
+      const nextParams = createURLParams({
+        skip: normalize(patch.skip ?? skip),
+        limit: normalize(patch.limit ?? limit),
+        // 기존 동작 유지: 검색은 입력 시 자동 반영(쿼리), URL은 다른 변경 시에만 포함
+        search: normalize(patch.search ?? searchQuery),
+        sortBy: normalize(patch.sortBy ?? sortBy),
+        sortOrder: normalize(patch.sortOrder ?? sortOrder),
+        tag: normalize(patch.tag ?? tag),
+      })
+      setSearchParams(nextParams)
+    },
+    [skip, limit, sortBy, sortOrder, tag, searchQuery, setSearchParams],
+  )
 
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
@@ -102,28 +103,10 @@ const PostsManager = () => {
     setShowUserModal(true)
   }
 
+  // URL 변경 시 검색어 동기화 (루프 없음)
   useEffect(() => {
-    updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag, updateURL])
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const parsedParams = {
-      skip: parseInt(params.get("skip") || "0"),
-      limit: parseInt(params.get("limit") || "10"),
-      search: params.get("search") || "",
-      sortBy: params.get("sortBy") || "",
-      sortOrder: params.get("sortOrder") || "asc",
-      tag: params.get("tag") || "",
-    }
-    
-    setSkip(parsedParams.skip)
-    setLimit(parsedParams.limit)
-    setSearchQuery(parsedParams.search)
-    setSortBy(parsedParams.sortBy)
-    setSortOrder(parsedParams.sortOrder)
-    setSelectedTag(parsedParams.tag)
-  }, [location.search])
+    setSearchQuery(search)
+  }, [search])
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -141,16 +124,12 @@ const PostsManager = () => {
           <PostFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            onSearchSubmit={() => {}} // 검색은 자동으로 실행됨
-            selectedTag={selectedTag}
-            onTagChange={(value) => {
-              setSelectedTag(value)
-              updateURL()
-            }}
+            selectedTag={tag}
+            onTagChange={(value) => updateURL({ tag: value, skip: 0 })}
             sortBy={sortBy}
-            onSortByChange={setSortBy}
+            onSortByChange={(value) => updateURL({ sortBy: value, skip: 0 })}
             sortOrder={sortOrder}
-            onSortOrderChange={setSortOrder}
+            onSortOrderChange={(value) => updateURL({ sortOrder: value, skip: 0 })}
           />
 
           {isLoading ? (
@@ -159,11 +138,8 @@ const PostsManager = () => {
             <PostTable
               posts={posts}
               searchQuery={searchQuery}
-              selectedTag={selectedTag}
-              onTagSelect={(tag) => {
-                setSelectedTag(tag)
-                updateURL()
-              }}
+              selectedTag={tag}
+              onTagSelect={(tag) => updateURL({ tag, skip: 0 })}
               onOpenDetail={openPostDetail}
               onOpenUser={openUserModal}
               onEdit={(post) => {
@@ -177,19 +153,14 @@ const PostsManager = () => {
             total={total}
             skip={skip}
             limit={limit}
-            onPrev={() => setSkip(Math.max(0, skip - limit))}
-            onNext={() => setSkip(skip + limit)}
-            onLimitChange={(value) => setLimit(value)}
+            onPrev={() => updateURL({ skip: Math.max(0, skip - limit) })}
+            onNext={() => updateURL({ skip: skip + limit })}
+            onLimitChange={(value) => updateURL({ limit: value, skip: 0 })}
           />
         </div>
       </CardContent>
 
-      <PostFormDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        formTitle="새 게시물 추가"
-        mode="create"
-      />
+      <PostFormDialog open={showAddDialog} onOpenChange={setShowAddDialog} formTitle="새 게시물 추가" mode="create" />
 
       <PostFormDialog
         open={showEditDialog}

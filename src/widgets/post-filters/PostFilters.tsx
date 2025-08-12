@@ -6,7 +6,6 @@ import { Tag, useGetTags } from "@entities/post"
 interface PostFiltersProps {
   searchQuery: string
   onSearchChange: (value: string) => void
-  onSearchSubmit: () => void
   selectedTag: string
   onTagChange: (value: string) => void
   sortBy: string
@@ -18,7 +17,6 @@ interface PostFiltersProps {
 export const PostFilters: React.FC<PostFiltersProps> = ({
   searchQuery,
   onSearchChange,
-  onSearchSubmit,
   selectedTag,
   onTagChange,
   sortBy,
@@ -37,7 +35,6 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
             className="pl-8"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && onSearchSubmit()}
           />
         </div>
       </div>
