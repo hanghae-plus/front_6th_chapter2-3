@@ -39,6 +39,3 @@ export class HttpClient {
     return response.data.data
   }
 }
-
-const httpClient = new HttpClient()
-export default httpClient
