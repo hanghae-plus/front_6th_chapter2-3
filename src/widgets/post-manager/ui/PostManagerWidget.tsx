@@ -1,4 +1,4 @@
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -21,6 +21,8 @@ import {
 } from '@/entities/post/api/postApi';
 import { PostTable } from '@/entities/post/ui/PostTable';
 import { useFetchAllUsers, useFetchUserById } from '@/entities/user/api/userApi';
+import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
+import { PostFilter } from '@/features/post-filter/ui/PostFilter';
 import {
   Button,
   Card,
@@ -49,9 +51,6 @@ export const PostManagerWidget = () => {
   // 상태 관리
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
   const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
-  const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -64,11 +63,21 @@ export const PostManagerWidget = () => {
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [selectedComment, setSelectedComment] = useState(null);
 
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
+
+  const {
+    searchQuery,
+    selectedTag,
+    sortBy,
+    sortOrder,
+    setSearchQuery,
+    setSelectedTag,
+    setSortBy,
+    setSortOrder,
+  } = usePostFilter();
 
   const { data: tagsData } = useFetchTags();
   const { data: searchData } = useSearchPosts(searchQuery);
@@ -156,59 +165,18 @@ export const PostManagerWidget = () => {
       <CardContent>
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
-          <div className='flex gap-4'>
-            <div className='flex-1'>
-              <div className='relative'>
-                <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                <Input
-                  placeholder='게시물 검색...'
-                  className='pl-8'
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  // onKeyPress={(e) => e.key === 'Enter' && searchPosts()}
-                />
-              </div>
-            </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value);
-                updateURL();
-              }}
-            >
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='태그 선택' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 기준' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='none'>없음</SelectItem>
-                <SelectItem value='id'>ID</SelectItem>
-                <SelectItem value='title'>제목</SelectItem>
-                <SelectItem value='reactions'>반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 순서' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='asc'>오름차순</SelectItem>
-                <SelectItem value='desc'>내림차순</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PostFilter
+            tags={tags}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+            updateURL={updateURL}
+          />
 
           {/* 게시물 테이블 */}
           {isLoadingPosts ? (
