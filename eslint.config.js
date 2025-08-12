@@ -51,6 +51,9 @@ export default tseslint.config(
 
       // Enforces import order based on FSD layers
       'fsd/ordered-imports': 'warn',
+
+      'import/order': 'off',
+      'sort-imports': 'off',
     },
   },
 );
