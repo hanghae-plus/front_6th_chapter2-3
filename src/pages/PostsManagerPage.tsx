@@ -160,15 +160,9 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      <PostFormDialog open={showAddDialog} onOpenChange={setShowAddDialog} formTitle="새 게시물 추가" mode="create" />
+      <PostFormDialog open={showAddDialog} onOpenChange={setShowAddDialog} mode="create" />
 
-      <PostFormDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        formTitle="게시물 수정"
-        mode="edit"
-        initialPost={selectedPost}
-      />
+      <PostFormDialog open={showEditDialog} onOpenChange={setShowEditDialog} mode="edit" initialPost={selectedPost} />
 
       <CommentFormDialog
         open={showAddCommentDialog}

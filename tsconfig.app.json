@@ -30,6 +30,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@pages/*": ["src/pages/*"],
+      "@features": ["src/features"], // barrel-only
       "@features/*": ["src/features/*"],
       "@widgets": ["src/widgets"], // barrel-only
       "@entities/*": ["src/entities/*"],
