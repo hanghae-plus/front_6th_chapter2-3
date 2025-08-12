@@ -36,6 +36,7 @@ import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
 import { CommentItem } from "../entities/comment/model"
 import { UserProfile } from "../entities/user/ui"
+import { highlightText } from "../shared/lib"
 
 const PostsManager = () => {
   const queryClient = useQueryClient()
@@ -208,21 +209,6 @@ const PostsManager = () => {
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
-  }
-
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
   }
 
   // 게시물 테이블 렌더링
