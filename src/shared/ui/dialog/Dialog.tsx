@@ -4,7 +4,6 @@ import { X } from "lucide-react"
 
 // 기본 Dialog 컴포넌트들
 export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogPortal = DialogPrimitive.Portal
 export const DialogOverlay = DialogPrimitive.Overlay
 

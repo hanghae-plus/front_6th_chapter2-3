@@ -16,6 +16,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Textarea,
 } from "@/shared/ui"
 
 /**
