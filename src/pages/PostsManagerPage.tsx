@@ -27,6 +27,7 @@ import {
 } from "../shared/ui"
 import { HighlightText } from "../shared/ui/HighlightText"
 import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
+import { useFetchPosts } from "../features/fetch-posts/hook"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -57,6 +58,9 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
+  const { posts: abc, total: df } = useFetchPosts(limit, skip)
+  console.log("abc", abc)
+  console.log("df", df)
   // URL 업데이트 함수
   const updateURL = () => {
     const params = new URLSearchParams()
@@ -79,6 +83,7 @@ const PostsManager = () => {
       .then((response) => response.json())
       .then((data) => {
         postsData = data
+        console.log("postsData", postsData)
         return fetch("/api/users?limit=0&select=username,image")
       })
       .then((response) => response.json())

@@ -1,5 +1,6 @@
 import { api } from "../../shared/api/api"
-import { AddPostRequest, Tag, UpdatePostRequest } from "./model"
+import { ListResponse } from "../../shared/types/types"
+import { AddPostRequest, PostItem, Tag, UpdatePostRequest } from "./model"
 
 /**
  * 게시물 목록 조회
@@ -8,7 +9,7 @@ import { AddPostRequest, Tag, UpdatePostRequest } from "./model"
  * @returns 게시물 목록
  */
 export const fetchPosts = async (limit: number, skip: number) => {
-  const response = await api.get(`/posts?limit=${limit}&skip=${skip}`)
+  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts?limit=${limit}&skip=${skip}`)
   return response
 }
 

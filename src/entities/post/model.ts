@@ -15,6 +15,8 @@ export interface PostItem {
   tags?: string[]
   author?: PostAuthor
   reactions?: Partial<PostReactions>
+  views?: number
+  userId?: number
 }
 
 export interface AddPostRequest {

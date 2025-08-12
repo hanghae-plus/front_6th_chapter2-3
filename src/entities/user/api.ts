@@ -1,4 +1,5 @@
 import { api } from "../../shared/api/api"
+import { ListResponse } from "../../shared/types/types"
 import { User } from "./model"
 
 /**
@@ -8,6 +9,9 @@ import { User } from "./model"
  * @returns 사용자 목록
  */
 export const fetchUsers = async (limit: number, select: string) => {
-  const response = await api.get<Pick<User, "id" | "username" | "image">[]>(`/users?limit=${limit}&select=${select}`)
+  const response = await api.get<ListResponse<"users", Pick<User, "id" | "username" | "image">>>(
+    `/users?limit=${limit}&select=${select}`,
+  )
+  console.log("response", response)
   return response
 }
