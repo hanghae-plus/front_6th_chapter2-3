@@ -1,3 +1,31 @@
+/**
+ * 게시물 관리 페이지 (메인 기능 컴포넌트)
+ *
+ * 역할:
+ * - 게시물과 댓글의 전체 CRUD 기능을 관리하는 중앙 컨트롤러 컴포넌트
+ * - 사용자 인터페이스와 데이터 관리를 통합하여 관리자 대시보드 기능 제공
+ * - URL 기반 상태 동기화와 다양한 필터링/검색 기능 제공
+ *
+ * 주요 기능:
+ * 1. 게시물 관리: 조회, 생성, 수정, 삭제, 검색, 태그별 필터링
+ * 2. 댓글 관리: 조회, 생성, 수정, 삭제, 좋아요
+ * 3. 사용자 정보: 작성자 정보 모달 표시
+ * 4. 페이지네이션: 데이터 분할 로딩과 네비게이션
+ * 5. 실시간 검색: 제목/내용 기반 텍스트 검색
+ * 6. 정렬 기능: ID, 제목, 반응 수 기준 오름차순/내림차순
+ * 7. URL 동기화: 브라우저 히스토리와 상태 동기화
+ *
+ * 로직 구조:
+ * - 18개의 useState를 통한 복합 상태 관리
+ * - useEffect를 통한 라이프사이클 및 사이드 이펙트 처리
+ * - Fetch API 기반 비동기 데이터 통신
+ * - 조건부 렌더링을 통한 동적 UI 표시
+ *
+ * 문제점:
+ * - 단일 책임 원칙 위반 (815줄의 거대한 컴포넌트)
+ * - 관심사 분리 부족 (UI, 비즈니스 로직, API 호출 혼재)
+ * - 상태 관리 복잡성 (18개의 useState)
+ */
 import { useEffect, useState } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -38,45 +66,62 @@ import {
 } from '@/components';
 
 const PostsManager = () => {
+  // ==================== 라우팅 및 URL 관리 ====================
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  // 상태 관리
-  const [posts, setPosts] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
+  // ==================== 게시물 관련 상태 ====================
+  const [posts, setPosts] = useState([]); // 게시물 목록 데이터
+  const [total, setTotal] = useState(0); // 전체 게시물 수 (페이지네이션용)
+  const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
+  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 }); // 새 게시물 임시 데이터
+
+  // ==================== 페이지네이션 상태 ====================
+  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0')); // 건너뛸 데이터 수
   const [limit, setLimit] = useState(
     parseInt(queryParams.get('limit') || '10')
-  );
+  ); // 페이지당 표시할 데이터 수
+
+  // ==================== 검색 및 필터링 상태 ====================
   const [searchQuery, setSearchQuery] = useState(
     queryParams.get('search') || ''
-  );
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
+  ); // 검색어
+  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || ''); // 정렬 기준
   const [sortOrder, setSortOrder] = useState(
     queryParams.get('sortOrder') || 'asc'
-  );
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
-  const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState([]);
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
-  const [comments, setComments] = useState({});
-  const [selectedComment, setSelectedComment] = useState(null);
+  ); // 정렬 순서
+  const [tags, setTags] = useState([]); // 사용 가능한 태그 목록
+  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // 선택된 태그
+
+  // ==================== 댓글 관련 상태 ====================
+  const [comments, setComments] = useState({}); // 게시물별 댓글 캐시 {postId: comments[]}
+  const [selectedComment, setSelectedComment] = useState(null); // 현재 선택된 댓글
   const [newComment, setNewComment] = useState({
     body: '',
     postId: null,
     userId: 1,
-  });
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  }); // 새 댓글 임시 데이터
 
-  // URL 업데이트 함수
+  // ==================== UI 다이얼로그 상태 ====================
+  const [showAddDialog, setShowAddDialog] = useState(false); // 게시물 추가 모달
+  const [showEditDialog, setShowEditDialog] = useState(false); // 게시물 수정 모달
+  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false); // 댓글 추가 모달
+  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false); // 댓글 수정 모달
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false); // 게시물 상세 모달
+  const [showUserModal, setShowUserModal] = useState(false); // 사용자 정보 모달
+
+  // ==================== 기타 상태 ====================
+  const [loading, setLoading] = useState(false); // 로딩 상태
+  const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자 정보
+
+  // ==================== URL 동기화 함수 ====================
+  /**
+   * 현재 상태를 URL 쿼리 파라미터에 반영
+   * - 브라우저 히스토리 관리로 뒤로가기/앞으로가기 지원
+   * - 페이지 새로고침 시 상태 복원 가능
+   * - 링크 공유를 통한 상태 전달 가능
+   */
   const updateURL = () => {
     const params = new URLSearchParams();
     if (skip) params.set('skip', skip.toString());
@@ -88,7 +133,15 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // 게시물 가져오기
+  // ==================== 게시물 데이터 관리 함수들 ====================
+  /**
+   * 게시물 목록 조회 (작성자 정보 포함)
+   * 로직:
+   * 1. 페이지네이션 파라미터로 게시물 API 호출
+   * 2. 별도로 사용자 목록 API 호출 (작성자 정보용)
+   * 3. 게시물과 사용자 데이터를 매핑하여 author 필드 추가
+   * 4. 상태 업데이트 및 로딩 상태 관리
+   */
   const fetchPosts = () => {
     setLoading(true);
     let postsData;
@@ -118,7 +171,10 @@ const PostsManager = () => {
       });
   };
 
-  // 태그 가져오기
+  /**
+   * 사용 가능한 태그 목록 조회
+   * - 필터링 옵션으로 사용될 태그들을 미리 로드
+   */
   const fetchTags = async () => {
     try {
       const response = await fetch('/api/posts/tags');
@@ -129,7 +185,11 @@ const PostsManager = () => {
     }
   };
 
-  // 게시물 검색
+  /**
+   * 게시물 텍스트 검색
+   * - 검색어가 있으면 검색 API 호출, 없으면 일반 목록 조회
+   * - 검색 결과도 게시물 목록과 동일한 형태로 처리
+   */
   const searchPosts = async () => {
     if (!searchQuery) {
       fetchPosts();
@@ -147,7 +207,12 @@ const PostsManager = () => {
     setLoading(false);
   };
 
-  // 태그별 게시물 가져오기
+  /**
+   * 태그별 게시물 필터링
+   * - 특정 태그에 속한 게시물들만 조회
+   * - Promise.all을 사용한 병렬 API 호출로 성능 최적화
+   * - 작성자 정보 매핑 로직 공통 적용
+   */
   const fetchPostsByTag = async tag => {
     if (!tag || tag === 'all') {
       fetchPosts();
@@ -175,7 +240,12 @@ const PostsManager = () => {
     setLoading(false);
   };
 
-  // 게시물 추가
+  // ==================== 게시물 CRUD 함수들 ====================
+  /**
+   * 새 게시물 생성
+   * - 낙관적 업데이트: API 호출 후 즉시 로컬 상태 업데이트
+   * - 폼 초기화 및 다이얼로그 닫기 처리
+   */
   const addPost = async () => {
     try {
       const response = await fetch('/api/posts/add', {
@@ -192,7 +262,11 @@ const PostsManager = () => {
     }
   };
 
-  // 게시물 업데이트
+  /**
+   * 기존 게시물 수정
+   * - 선택된 게시물의 데이터를 서버에 전송
+   * - 응답받은 데이터로 로컬 상태의 해당 게시물 교체
+   */
   const updatePost = async () => {
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
@@ -208,7 +282,11 @@ const PostsManager = () => {
     }
   };
 
-  // 게시물 삭제
+  /**
+   * 게시물 삭제
+   * - 서버에서 삭제 후 로컬 상태에서도 해당 게시물 제거
+   * - filter를 사용한 불변성 유지
+   */
   const deletePost = async id => {
     try {
       await fetch(`/api/posts/${id}`, {
@@ -220,7 +298,12 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 가져오기
+  // ==================== 댓글 관리 함수들 ====================
+  /**
+   * 특정 게시물의 댓글 조회
+   * - 캐싱 메커니즘: 이미 로드된 댓글은 재요청하지 않음
+   * - 게시물별로 댓글을 객체 형태로 저장 {postId: comments[]}
+   */
   const fetchComments = async postId => {
     if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
@@ -232,7 +315,11 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 추가
+  /**
+   * 새 댓글 생성
+   * - 해당 게시물의 댓글 배열에 새 댓글 추가
+   * - 기존 댓글이 없는 경우 빈 배열로 초기화 후 추가
+   */
   const addComment = async () => {
     try {
       const response = await fetch('/api/comments/add', {
@@ -252,7 +339,11 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 업데이트
+  /**
+   * 기존 댓글 수정
+   * - 댓글 내용만 수정 가능 (body 필드)
+   * - 해당 게시물의 댓글 배열에서 수정된 댓글 교체
+   */
   const updateComment = async () => {
     try {
       const response = await fetch(`/api/comments/${selectedComment.id}`, {
@@ -273,7 +364,11 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 삭제
+  /**
+   * 댓글 삭제
+   * - 해당 게시물의 댓글 배열에서 삭제된 댓글 제거
+   * - filter를 사용한 불변성 유지
+   */
   const deleteComment = async (id, postId) => {
     try {
       await fetch(`/api/comments/${id}`, {
@@ -288,7 +383,11 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 좋아요
+  /**
+   * 댓글 좋아요 기능
+   * - 현재 좋아요 수에서 +1 증가
+   * - 낙관적 업데이트로 즉시 UI 반영
+   */
   const likeComment = async (id, postId) => {
     try {
       const response = await fetch(`/api/comments/${id}`, {
@@ -312,14 +411,24 @@ const PostsManager = () => {
     }
   };
 
-  // 게시물 상세 보기
+  // ==================== UI 인터랙션 함수들 ====================
+  /**
+   * 게시물 상세 모달 열기
+   * - 선택된 게시물 설정
+   * - 해당 게시물의 댓글 로드 (캐싱 적용)
+   * - 상세 다이얼로그 표시
+   */
   const openPostDetail = post => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
-  // 사용자 모달 열기
+  /**
+   * 사용자 정보 모달 열기
+   * - 작성자 클릭 시 해당 사용자의 상세 정보 조회
+   * - 추가 사용자 정보 (연락처, 주소, 직장 등) 표시
+   */
   const openUserModal = async user => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
@@ -331,10 +440,20 @@ const PostsManager = () => {
     }
   };
 
+  // ==================== 라이프사이클 및 사이드 이펙트 ====================
+  /**
+   * 컴포넌트 마운트 시 태그 목록 초기화
+   */
   useEffect(() => {
     fetchTags();
   }, []);
 
+  /**
+   * 페이지네이션, 정렬, 태그 변경 시 데이터 재조회
+   * - 태그가 선택된 경우: 태그별 게시물 조회
+   * - 태그가 없는 경우: 일반 게시물 목록 조회
+   * - URL 상태 동기화
+   */
   useEffect(() => {
     if (selectedTag) {
       fetchPostsByTag(selectedTag);
@@ -344,6 +463,11 @@ const PostsManager = () => {
     updateURL();
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
+  /**
+   * URL 변경 시 상태 동기화
+   * - 브라우저 뒤로가기/앞으로가기 대응
+   * - 직접 URL 접근 시 상태 복원
+   */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSkip(parseInt(params.get('skip') || '0'));
@@ -354,7 +478,13 @@ const PostsManager = () => {
     setSelectedTag(params.get('tag') || '');
   }, [location.search]);
 
-  // 하이라이트 함수 추가
+  // ==================== 유틸리티 함수들 ====================
+  /**
+   * 검색어 하이라이트 기능
+   * - 검색어가 포함된 텍스트를 시각적으로 강조 표시
+   * - 정규표현식을 사용한 대소문자 무시 검색
+   * - 검색어가 없거나 텍스트가 없는 경우 예외 처리
+   */
   const highlightText = (text: string, highlight: string) => {
     if (!text) return null;
     if (!highlight.trim()) {
@@ -375,7 +505,14 @@ const PostsManager = () => {
     );
   };
 
-  // 게시물 테이블 렌더링
+  // ==================== 렌더링 함수들 ====================
+  /**
+   * 게시물 테이블 렌더링
+   * - 게시물 목록을 테이블 형태로 표시
+   * - 각 행에 게시물 정보, 작성자, 반응, 액션 버튼 포함
+   * - 검색어 하이라이트 적용
+   * - 태그 클릭으로 필터링 기능
+   */
   const renderPostTable = () => (
     <Table>
       <TableHeader>
@@ -470,7 +607,13 @@ const PostsManager = () => {
     </Table>
   );
 
-  // 댓글 렌더링
+  /**
+   * 댓글 목록 렌더링
+   * - 특정 게시물의 댓글들을 표시
+   * - 댓글 추가, 수정, 삭제, 좋아요 기능 포함
+   * - 검색어 하이라이트 적용
+   * - 작성자명과 댓글 내용 표시
+   */
   const renderComments = postId => (
     <div className='mt-2'>
       <div className='flex items-center justify-between mb-2'>
