@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   useAddComment,
@@ -23,6 +23,8 @@ import { PostTable } from '@/entities/post/ui/PostTable';
 import { useFetchAllUsers, useFetchUserById } from '@/entities/user/api/userApi';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
+import { usePagination } from '@/features/post-pagination/model/usePagination';
+import { Pagination } from '@/features/post-pagination/ui/Pagination';
 import {
   Button,
   Card,
@@ -34,31 +36,20 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
   HighlightText,
 } from '@/shared/ui';
 
 export const PostManagerWidget = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
-
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -68,6 +59,7 @@ export const PostManagerWidget = () => {
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
+  const { skip, setSkip, limit, setLimit } = usePagination();
   const {
     searchQuery,
     selectedTag,
@@ -197,30 +189,13 @@ export const PostManagerWidget = () => {
           )}
 
           {/* 페이지네이션 */}
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-2'>
-              <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='10' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='10'>10</SelectItem>
-                  <SelectItem value='20'>20</SelectItem>
-                  <SelectItem value='30'>30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <div className='flex gap-2'>
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            total={total}
+            limit={limit}
+            skip={skip}
+            setSkip={setSkip}
+            setLimit={setLimit}
+          />
         </div>
       </CardContent>
 
