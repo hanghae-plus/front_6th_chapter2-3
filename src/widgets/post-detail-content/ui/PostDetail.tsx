@@ -8,11 +8,11 @@ import {
 import { HighlightText } from '../../../shared/ui/HighlightText';
 import { useDialogStore } from '../../../shared/hook/useDialogStore';
 import { IPost } from '../../../entities/post/model/type';
+import { IComment } from '../../../entities/comment/model/type';
 import { useCommentsQuery } from '../../../entities/comment/model/hook';
 import AddCommentForm from '../../../features/comment/add-comment/ui/AddCommentForm';
-import { useLikeComment } from '../../../features/comment/like-comment/model/useLikeComment';
 import UpdateCommentform from '../../../features/comment/update-comment/ui/UpdateCommentForm';
-import { IComment } from '../../../entities/comment/model/type';
+import { useLikeComment } from '../../../features/comment/like-comment/model/useLikeComment';
 import { useDeleteComment } from '../../../features/comment/delete-comment/model/useDeleteComment';
 
 interface PostDetailProps {
@@ -93,7 +93,7 @@ const PostDetail = ({ post, searchQuery }: PostDetailProps) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteComment(comment.id)}
+                    onClick={() => deleteComment(comment)}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>

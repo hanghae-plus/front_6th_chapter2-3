@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IComment } from '../../../../entities/comment/model/type';
+import {
+  IComment,
+  IComments,
+} from '../../../../entities/comment/model/type';
+import { commentModel } from '../../../../entities/comment/model/store';
 import { updateCommentApi } from '../../../../entities/comment/api/comment-api';
 
 export const useUpdateComment = (
   comment: IComment,
-  onSuccess?: (updated: IComment) => void
+  onSuccess?: () => void
 ) => {
   const queryClient = useQueryClient();
 
@@ -18,10 +22,15 @@ export const useUpdateComment = (
       updateCommentApi(updatedData),
 
     onSuccess: (updatedComment) => {
-      queryClient.invalidateQueries({
-        queryKey: ['comments', updatedComment.postId],
-      });
-      onSuccess?.(updatedComment);
+      queryClient.setQueryData<IComments>(
+        ['comments', updatedComment.postId],
+        (prev) => {
+          if (!prev) return prev;
+          return commentModel.updateComment(prev, updatedComment);
+        }
+      );
+
+      onSuccess?.();
     },
     onError: (error) => {
       console.error('댓글 업데이트 오류:', error);

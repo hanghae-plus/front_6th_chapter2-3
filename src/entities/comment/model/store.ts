@@ -1,79 +1,65 @@
-import { IComment, ICommentsByPostId } from './type';
+import { IAddCommentResponse, IComment, IComments } from './type';
 
 export const commentModel = {
   /**
-   * 특정 게시물 댓글 추가
+   * 댓글 추가
    */
-  addComment: (
-    comments: ICommentsByPostId,
-    newComment: IComment
-  ): ICommentsByPostId => {
-    const postId = newComment.postId;
-
+  addComment: (commentData: IComments, newComment: IComment): IComments => {
     return {
-      ...comments,
-      [postId]: [...(comments[postId] || []), newComment],
+      ...commentData,
+      comments: [newComment, ...commentData.comments],
     };
   },
 
   /**
-   * 특정 게시물 댓글 업데이트
+   * 댓글 업데이트
    */
   updateComment: (
-    comments: ICommentsByPostId,
+    commentData: IComments,
     updatedComment: IComment
-  ): ICommentsByPostId => {
-    const { id, postId } = updatedComment;
-
+  ): IComments => {
     return {
-      ...comments,
-      [postId]: comments[postId].map((comment) =>
-        comment.id === id ? updatedComment : comment
+      ...commentData,
+      comments: commentData.comments.map((comment) =>
+        comment.id === updatedComment.id ? updatedComment : comment
       ),
     };
   },
 
   /**
-   * 특정 게시물 댓글 삭제
+   * 댓글 삭제
    */
-  deleteComment: (
-    comments: ICommentsByPostId,
-    id: number,
-    postId: number
-  ): ICommentsByPostId => {
+  deleteComment: (commentData: IComments, comment: IComment): IComments => {
     return {
-      ...comments,
-      [postId]: comments[postId].filter((comment) => comment.id !== id),
+      ...commentData,
+      comments: commentData.comments.filter((c) => c.id !== comment.id),
     };
   },
 
   /**
-   * 특정 게시물 댓글 좋아요
+   *댓글 좋아요
    */
   likeComment: (
-    comments: ICommentsByPostId,
+    commentData: IComments,
     updatedComment: IComment
-  ): ICommentsByPostId => {
-    const { id, postId } = updatedComment;
-
+  ): IComments => {
     return {
-      ...comments,
-      [postId]: comments[postId].map((comment) =>
-        comment.id === id
-          ? { ...updatedComment, likes: comment.likes + 1 }
+      ...commentData,
+      comments: commentData.comments.map((comment) =>
+        comment.id === updatedComment.id
+          ? { ...updatedComment, likes: updatedComment.likes }
           : comment
       ),
     };
   },
 
   /**
-   * 특정 게시물 댓글 목록에서 아이디로 댓글 추출
+   * 댓글 작성 응답 데이터를 IComment 타입 객체로 변환
    */
-  findCommentById: (
-    commentsByPostId: ICommentsByPostId,
-    postId: number,
-    commentId: number
-  ): IComment | undefined => {
-    return commentsByPostId[postId]?.find((c) => c.id === commentId);
+  addResponseToComment: (res: IAddCommentResponse): IComment => {
+    return {
+      ...res,
+      likes: 0,
+    };
   },
 };

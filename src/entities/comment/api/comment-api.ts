@@ -1,5 +1,10 @@
 import { COMMENT } from '../config/constants';
-import { IAddComment, IComment, IComments } from '../model/type';
+import {
+  IAddComment,
+  IAddCommentResponse,
+  IComment,
+  IComments,
+} from '../model/type';
 import { createRequest } from '../../../shared/lib/api';
 
 /**
@@ -20,7 +25,7 @@ export const getCommentsApi = async (postId: number): Promise<IComments> => {
  */
 export const addCommentApi = async (
   newComment: IAddComment
-): Promise<IComment> => {
+): Promise<IAddCommentResponse> => {
   const response = await fetch(COMMENT.ADD, createRequest('POST', newComment));
 
   if (!response.ok) {

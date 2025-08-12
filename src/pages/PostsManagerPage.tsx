@@ -301,6 +301,7 @@ const PostsManager = () => {
         body: JSON.stringify(newComment),
       });
       const data = await response.json();
+      console.log(data)
       setComments((prev) => ({
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
@@ -321,6 +322,7 @@ const PostsManager = () => {
         body: JSON.stringify({ body: selectedComment?.body }),
       });
       const data = await response.json();
+      console.log(data)
       setComments((prev) => ({
         ...prev,
         [data.postId]: prev[data.postId].map((comment) =>
@@ -362,6 +364,7 @@ const PostsManager = () => {
         body: JSON.stringify({ likes: comment.likes + 1 }),
       });
       const data = await response.json();
+      console.log(data)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].map((comment) =>

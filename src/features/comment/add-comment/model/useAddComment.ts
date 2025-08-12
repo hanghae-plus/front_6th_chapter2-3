@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { addCommentApi } from '../../../../entities/comment/api/comment-api';
-import { IAddComment, IComment } from '../../../../entities/comment/model/type';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  IAddComment,
+  IComments,
+} from '../../../../entities/comment/model/type';
+import { commentModel } from '../../../../entities/comment/model/store';
+import { addCommentApi } from '../../../../entities/comment/api/comment-api';
 
-export const useAddComment = (
-  postId: number,
-  onSuccess?: (createdComment: IComment) => void
-) => {
+export const useAddComment = (postId: number, onSuccess?: () => void) => {
   const queryClient = useQueryClient();
 
   const initialComment: IAddComment = { body: '', postId: postId, userId: 1 };
@@ -16,10 +17,22 @@ export const useAddComment = (
     mutationFn: (comment: IAddComment) => addCommentApi(comment),
 
     onSuccess: (createdComment) => {
-      queryClient.invalidateQueries({
-        queryKey: ['comments', createdComment.postId],
+      const newComment = commentModel.addResponseToComment(createdComment);
+
+      queryClient.setQueryData<IComments>(['comments', postId], (prev) => {
+        if (!prev) {
+          return {
+            comments: [newComment],
+            total: '1',
+            skip: 0,
+            limit: 10,
+          };
+        }
+
+        return commentModel.addComment(prev, newComment);
       });
-      onSuccess?.(createdComment);
+
+      onSuccess?.();
       setNewComment(initialComment);
     },
     onError: (error) => {

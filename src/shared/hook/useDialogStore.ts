@@ -9,7 +9,7 @@ interface DialogState {
 
 export const useDialogStore = create<DialogState>((set) => ({
   show: false,
-  content: null,
   setShow: (show) => set({ show }),
+  content: null,
   setContent: (content) => set({ content }),
 }));
