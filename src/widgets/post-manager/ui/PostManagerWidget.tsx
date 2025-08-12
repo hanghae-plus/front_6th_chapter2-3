@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import {
@@ -11,7 +10,6 @@ import {
 import { CommentList } from '@/entities/comment/ui/CommentList';
 import {
   useFetchPosts,
-  useAddPost,
   useUpdatePost,
   useDeletePost,
   useFetchTags,
@@ -20,6 +18,9 @@ import {
 } from '@/entities/post/model/usePosts';
 import { PostTable } from '@/entities/post/ui/PostTable';
 import { useFetchAllUsers, useFetchUserById } from '@/entities/user/model/useUsers';
+import { useCreatePost } from '@/features/post-create/model/useCreatePost';
+import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
+import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
 import { usePagination } from '@/features/post-pagination/model/usePagination';
@@ -42,11 +43,19 @@ import {
 } from '@/shared/ui';
 
 export const PostManagerWidget = () => {
+  const {
+    showDialog: showAddDialog,
+    setShowDialog: setShowAddDialog,
+    newPost,
+    setNewPost,
+    openDialog: openAddDialog,
+    handleSubmit,
+  } = useCreatePost();
+
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -54,7 +63,6 @@ export const PostManagerWidget = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedComment, setSelectedComment] = useState(null);
 
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
   const { skip, limit, setSkip, setLimit } = usePagination();
@@ -71,7 +79,6 @@ export const PostManagerWidget = () => {
   const total = finalData?.total || 0;
   const tags = tagsData || [];
 
-  const { mutate: addPost } = useAddPost();
   const { mutate: updatePost } = useUpdatePost();
   const { mutate: deletePost } = useDeletePost();
 
@@ -111,10 +118,7 @@ export const PostManagerWidget = () => {
       <CardHeader>
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className='w-4 h-4 mr-2' />
-            게시물 추가
-          </Button>
+          <CreatePostButton onClick={openAddDialog} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -166,33 +170,13 @@ export const PostManagerWidget = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder='내용'
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type='number'
-              placeholder='사용자 ID'
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CreatePostDialog
+        open={showAddDialog}
+        onOpenChange={() => setShowAddDialog(!showAddDialog)}
+        newPost={newPost}
+        setNewPost={setNewPost}
+        onSubmit={handleSubmit}
+      />
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
