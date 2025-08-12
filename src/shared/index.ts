@@ -3,9 +3,6 @@
 // UI Components
 export * from "./ui"
 
-// API functions
-export * from "./api"
-
 // Utility functions
 export * from "./lib"
 
