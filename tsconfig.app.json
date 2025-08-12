@@ -19,19 +19,23 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
 
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/assets/*": ["src/assets/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/types/*": ["src/types/*"],
-      "@/constants/*": ["src/constants/*"]
+      "@/app": ["src/1_app/index.ts"],
+      "@/app/*": ["src/1_app/*"],
+      "@/pages": ["src/2_pages/index.ts"],
+      "@/pages/*": ["src/2_pages/*"],
+      "@/widgets": ["src/3_widgets/index.ts"],
+      "@/widgets/*": ["src/3_widgets/*"],
+      "@/features": ["src/4_features/index.ts"],
+      "@/features/*": ["src/4_features/*"],
+      "@/entities": ["src/5_entities/index.ts"],
+      "@/entities/*": ["src/5_entities/*"],
+      "@/shared": ["src/6_shared/index.ts"],
+      "@/shared/*": ["src/6_shared/*"]
     }
   },
   "include": ["src"]

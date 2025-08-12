@@ -19,14 +19,15 @@
  * - forwardRef를 통한 ref 전달로 접근성 및 포커스 관리 지원
  * - Radix UI의 복합 컴포넌트 패턴을 따른 조합 가능한 컴포넌트 구조
  */
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import * as SelectPrimitive from '@radix-ui/react-select';
-
 import * as React from 'react';
 import { forwardRef } from 'react';
 
-import { VariantProps, cva } from 'class-variance-authority';
 import { Check, ChevronDown, X } from 'lucide-react';
+
+import { cva, VariantProps } from 'class-variance-authority';
+
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import * as SelectPrimitive from '@radix-ui/react-select';
 
 /**
  * 버튼 컴포넌트 variant 정의

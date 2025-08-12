@@ -1,5 +1,3 @@
-import js from '@eslint/js';
-
 import importPlugin from 'eslint-plugin-import';
 import reactA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
@@ -8,6 +6,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+import js from '@eslint/js';
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -46,19 +46,25 @@ export default tseslint.config(
         alias: {
           map: [
             ['@', './src'],
-            ['@/components', './src/components'],
-            ['@/pages', './src/pages'],
-            ['@/assets', './src/assets'],
-            ['@/utils', './src/utils'],
-            ['@/hooks', './src/hooks'],
-            ['@/types', './src/types'],
-            ['@/constants', './src/constants'],
+            ['@/app', './src/1_app/index.ts'],
+            ['@/app/*', './src/1_app/*'],
+            ['@/pages', './src/2_pages/index.ts'],
+            ['@/pages/*', './src/2_pages/*'],
+            ['@/widgets', './src/3_widgets/index.ts'],
+            ['@/widgets/*', './src/3_widgets/*'],
+            ['@/features', './src/4_features/index.ts'],
+            ['@/features/*', './src/4_features/*'],
+            ['@/entities', './src/5_entities/index.ts'],
+            ['@/shared', './src/6_shared/index.ts'],
           ],
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
         },
       },
     },
     rules: {
+      // Import - Prettier가 처리하므로 비활성화
+      'import/order': 'off',
+
       // React Hooks
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [

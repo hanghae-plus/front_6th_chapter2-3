@@ -13,9 +13,19 @@
   "jsxSingleQuote": true,
   "proseWrap": "preserve",
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
-  "importOrder": ["^react$", "^react-(.*)$", "^[^@/]", "^@/(.*)$", "^[./]"],
+  "importOrder": [
+    "^react$",
+    "^react-router-dom$",
+    "^lucide-react$",
+    "^[a-z]",
+    "<THIRD_PARTY_MODULES>",
+    "^@/",
+    "^[./]",
+    "^.*\\u0000$"
+  ],
   "importOrderSeparation": true,
-  "importOrderGroupNamespaceSpecifiers": true,
   "importOrderSortSpecifiers": true,
+  "importOrderGroupNamespaceSpecifiers": true,
+  "importOrderCaseInsensitive": true,
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
 }

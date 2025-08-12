@@ -1,7 +1,7 @@
-import react from '@vitejs/plugin-react';
-
 import path from 'path';
 import { defineConfig } from 'vite';
+
+import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,13 +9,24 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/pages': path.resolve(__dirname, './src/pages'),
-      '@/assets': path.resolve(__dirname, './src/assets'),
-      '@/utils': path.resolve(__dirname, './src/utils'),
-      '@/hooks': path.resolve(__dirname, './src/hooks'),
-      '@/types': path.resolve(__dirname, './src/types'),
-      '@/constants': path.resolve(__dirname, './src/constants'),
+
+      '@/app': path.resolve(__dirname, './src/1_app/index.ts'),
+      '@/app/*': path.resolve(__dirname, './src/1_app/*'),
+
+      '@/pages': path.resolve(__dirname, './src/2_pages/index.ts'),
+      '@/pages/*': path.resolve(__dirname, './src/2_pages/*'),
+
+      '@/widgets': path.resolve(__dirname, './src/3_widgets/index.ts'),
+      '@/widgets/*': path.resolve(__dirname, './src/3_widgets/*'),
+
+      '@/features': path.resolve(__dirname, './src/4_features/index.ts'),
+      '@/features/*': path.resolve(__dirname, './src/4_features/*'),
+
+      '@/entities': path.resolve(__dirname, './src/5_entities/index.ts'),
+      '@/entities/*': path.resolve(__dirname, './src/5_entities/*'),
+
+      '@/shared': path.resolve(__dirname, './src/6_shared/index.ts'),
+      '@/shared/*': path.resolve(__dirname, './src/6_shared/*'),
     },
   },
   server: {

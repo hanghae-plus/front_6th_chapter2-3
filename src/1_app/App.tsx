@@ -16,9 +16,8 @@
  */
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import Footer from '@/components/Footer.tsx';
-import Header from '@/components/Header.tsx';
-import PostsManagerPage from '@/pages/PostsManagerPage.tsx';
+import { PostsManagerPage } from '@/pages';
+import { Footer, Header } from '@/widgets';
 
 const App = () => {
   return (
