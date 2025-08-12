@@ -1,13 +1,13 @@
 import { apiClient } from "../../../shared/api/base"
 
 import { usePostStore } from "../model/store"
-import { Post } from "../model/types"
+import { CreatePostRequest, Post } from "../model/types"
 
 export const usePostApi = () => {
   const { setLoading, setPosts, setTotal, addPost, updatePost, removePost } = usePostStore()
 
   /** 게시물 목록 가져오기 */
-  const fetchPosts = async (limit: number, skip: number) => {
+  const getPosts = async (limit: number, skip: number) => {
     setLoading(true)
     try {
       const postsData = await apiClient.get<{ posts: Post[]; total: number }>(`/posts?limit=${limit}&skip=${skip}`)
@@ -31,7 +31,7 @@ export const usePostApi = () => {
   const searchPosts = async (searchQuery: string) => {
     setLoading(true)
     try {
-      if (!searchQuery) return fetchPosts(10, 0)
+      if (!searchQuery) return getPosts(10, 0)
 
       const data = await apiClient.get<{ posts: Post[]; total: number }>(
         `/posts/search?q=${encodeURIComponent(searchQuery)}`,
@@ -46,10 +46,10 @@ export const usePostApi = () => {
   }
 
   /** 태그별 게시물 가져오기 */
-  const fetchPostsByTag = async (tag: string) => {
+  const getPostsByTag = async (tag: string) => {
     setLoading(true)
     try {
-      if (!tag || tag === "all") return fetchPosts(10, 0)
+      if (!tag || tag === "all") return getPosts(10, 0)
 
       const [postsData, usersData] = await Promise.all([
         apiClient.get<{ posts: Post[]; total: number }>(`/posts/tag/${tag}`),
@@ -71,7 +71,7 @@ export const usePostApi = () => {
   }
 
   // 게시물 추가
-  const addPostApi = async (newPost: Post) => {
+  const addPostApi = async (newPost: CreatePostRequest) => {
     try {
       const data = await apiClient.post<Post>("/posts/add", newPost)
       addPost(data)
@@ -100,5 +100,5 @@ export const usePostApi = () => {
     }
   }
 
-  return { fetchPosts, searchPosts, fetchPostsByTag, addPostApi, updatePostApi, deletePostApi }
+  return { getPosts, searchPosts, getPostsByTag, addPostApi, updatePostApi, deletePostApi }
 }

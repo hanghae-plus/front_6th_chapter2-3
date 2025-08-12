@@ -6,7 +6,7 @@ export const useTagApi = () => {
   const { setTags } = useTagStore()
 
   /** 태그 목록 가져오기 */
-  const fetchTags = async () => {
+  const getTags = async () => {
     try {
       const tags = await apiClient.get<Tag[]>("/posts/tags")
       setTags(tags)
@@ -14,5 +14,5 @@ export const useTagApi = () => {
       console.error("태그 가져오기 오류:", err)
     }
   }
-  return { fetchTags }
+  return { getTags }
 }
