@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
 
 export const usePostSearch = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const { searchParams, updateQuery } = useUrlQuery();
 
-  const { updateQuery } = useUrlQuery();
+  const searchQuery = searchParams.get('search') || '';
 
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
   const [inputValue, setInputValue] = useState(searchQuery);
+
+  const setSearchQuery = (search: string) => updateQuery({ search });
 
   const handleSearch = () => {
     setSearchQuery(inputValue);
