@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { IPost } from '../../../../entities/post/model/type';
 import { updatePostApi } from '../../../../entities/post/api/post-api';
 
@@ -17,18 +18,18 @@ export const useUpdatePost = (
     setEditPost((prev) => ({ ...prev, title }));
   const setBody = (body: string) => setEditPost((prev) => ({ ...prev, body }));
 
-  const updatePost = async () => {
-    try {
-      const updatedPost = await updatePostApi(editPost);
-
-      // 게시물 업데이트 성공 후 처리
-      // setPosts(posts.map((post) => (post.id === data.id ? data : post)));
-      // setShowEditDialog(false);
+  const mutation = useMutation({
+    mutationFn: () => updatePostApi(editPost),
+    
+    onSuccess: (updatedPost) => {
       onSuccess?.(updatedPost);
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('게시물 업데이트 오류:', error);
-    }
-  };
+    },
+  });
+
+  const updatePost = () => mutation.mutate();
 
   return { editPost, setTitle, setBody, updatePost };
 };
