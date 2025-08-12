@@ -105,3 +105,15 @@ export interface UserInComment {
   image: string;
   username: string;
 }
+
+// http://localhost:5173/api/users?limit=0&select=username,image
+export interface UsersResponse {
+  users: {
+    id: number;
+    image: string;
+    username: string;
+  }[];
+  limit: number;
+  skip: number;
+  total: number;
+}
