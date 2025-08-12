@@ -1,4 +1,4 @@
-import { Posts } from '../../../../entities/post/model/types';
+import { Posts } from '../../../../entities/post/model/type';
 
 export interface SearchPostTypes {
   posts: Posts[];

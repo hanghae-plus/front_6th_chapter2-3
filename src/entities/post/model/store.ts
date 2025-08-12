@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PostsState } from './types';
+import { PostsState } from './type';
 import { fetchPostsWithAuthors } from '../../../features/posts/list-posts/api';
 
 export const usePostsStore = create<PostsState>((set) => ({

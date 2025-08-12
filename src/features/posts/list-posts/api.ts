@@ -1,5 +1,5 @@
 import { fetchPosts } from '../../../entities/post/api/api';
-import { Posts } from '../../../entities/post/types';
+import { Posts } from '../../../entities/post/model/type';
 import { fetchUserBasic } from '../../../entities/user/api/api';
 import { UserBasic } from '../../../entities/user/types';
 
