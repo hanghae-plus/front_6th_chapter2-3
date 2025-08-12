@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { createURLParams, parseURLParams } from "@shared/lib"
-import type { Post, NewPost, PostsApiResponse } from "@entities/post"
+import type { Post, NewPost } from "@entities/post"
+import { useGetPosts, useGetPostSearch, useGetPostsByTag } from "@entities/post"
+import { useGetUsers } from "@entities/user"
 import type { Comment, NewComment } from "@entities/comment"
-import type { User, UsersApiResponse } from "@entities/user"
+import type { User } from "@entities/user"
 import {
   PostTable,
   PostFilters,
@@ -22,8 +24,6 @@ const PostsManager = () => {
   const urlParams = parseURLParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState<Post[]>([])
-  const [total, setTotal] = useState(0)
   const [skip, setSkip] = useState(urlParams.skip)
   const [limit, setLimit] = useState(urlParams.limit)
   const [searchQuery, setSearchQuery] = useState(urlParams.search)
@@ -33,8 +33,25 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
-  const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(urlParams.tag)
+
+  // TanStack Query로 모든 데이터 조회
+  const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(limit, skip)
+  const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery)
+  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag)
+  const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
+
+  // 조건에 따라 사용할 데이터 선택
+  const currentPostsData = searchQuery ? searchData : selectedTag && selectedTag !== "all" ? tagData : postsData
+
+  // 게시물에 작성자 정보 병합
+  const posts =
+    currentPostsData?.posts?.map((post) => ({
+      ...post,
+      author: usersData?.users?.find((user) => user.id === post.userId),
+    })) || []
+  const total = currentPostsData?.total || 0
+  const isLoading = isLoadingPosts || isLoadingSearch || isLoadingTag || isLoadingUsers
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: null, userId: 1 })
@@ -45,7 +62,7 @@ const PostsManager = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   // URL 업데이트 함수
-  const updateURL = () => {
+  const updateURL = useCallback(() => {
     const params = createURLParams({
       skip,
       limit,
@@ -55,83 +72,7 @@ const PostsManager = () => {
       tag: selectedTag,
     })
     navigate(`?${params}`)
-  }
-
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true)
-    let postsData: PostsApiResponse
-    let usersData: User[]
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data: PostsApiResponse) => {
-        postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
-      })
-      .then((response) => response.json())
-      .then((users: UsersApiResponse) => {
-        usersData = users.users
-        const postsWithUsers = postsData.posts.map((post: Post) => ({
-          ...post,
-          author: usersData.find((user: User) => user.id === post.userId),
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data: PostsApiResponse = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData: PostsApiResponse = await postsResponse.json()
-      const usersData: UsersApiResponse = await usersResponse.json()
-
-      const postsWithUsers = postsData.posts.map((post: Post) => ({
-        ...post,
-        author: usersData.users.find((user: User) => user.id === post.userId),
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
-    }
-    setLoading(false)
-  }
+  }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag, navigate])
 
   // 게시물 추가
   const addPost = async () => {
@@ -141,8 +82,7 @@ const PostsManager = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),
       })
-      const data = await response.json()
-      setPosts([data, ...posts])
+      await response.json()
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -160,8 +100,7 @@ const PostsManager = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedPost),
       })
-      const data = await response.json()
-      setPosts(posts.map((post: Post) => (post.id === data.id ? data : post)))
+      await response.json()
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -174,7 +113,6 @@ const PostsManager = () => {
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
       })
-      setPosts(posts.filter((post) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
@@ -288,13 +226,8 @@ const PostsManager = () => {
   }
 
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
     updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
+  }, [skip, limit, sortBy, sortOrder, selectedTag, updateURL])
 
   useEffect(() => {
     const params = parseURLParams(location.search)
@@ -322,11 +255,10 @@ const PostsManager = () => {
           <PostFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            onSearchSubmit={searchPosts}
+            onSearchSubmit={() => {}} // 검색은 자동으로 실행됨
             selectedTag={selectedTag}
             onTagChange={(value) => {
               setSelectedTag(value)
-              fetchPostsByTag(value)
               updateURL()
             }}
             sortBy={sortBy}
@@ -335,7 +267,7 @@ const PostsManager = () => {
             onSortOrderChange={setSortOrder}
           />
 
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
             <PostTable
