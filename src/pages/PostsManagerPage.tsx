@@ -73,10 +73,12 @@ const PostsManager = () => {
     let postsData
     let usersData
 
+    // getPosts
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
       .then((data) => {
         postsData = data
+        // getUsers
         return fetch("/api/users?limit=0&select=username,image")
       })
       .then((response) => response.json())
@@ -97,17 +99,6 @@ const PostsManager = () => {
       })
   }
 
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }
-
   // 게시물 검색
   const searchPosts = async () => {
     if (!searchQuery) {
@@ -116,6 +107,7 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
+      // getPostsBySearch
       const response = await fetch(`/api/posts/search?q=${searchQuery}`)
       const data = await response.json()
       setPosts(data.posts)
@@ -135,7 +127,9 @@ const PostsManager = () => {
     setLoading(true)
     try {
       const [postsResponse, usersResponse] = await Promise.all([
+        // getPostsByTag
         fetch(`/api/posts/tag/${tag}`),
+        // getUsers
         fetch("/api/users?limit=0&select=username,image"),
       ])
       const postsData = await postsResponse.json()
@@ -157,6 +151,7 @@ const PostsManager = () => {
   // 게시물 추가
   const addPost = async () => {
     try {
+      // createPost
       const response = await fetch("/api/posts/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -174,6 +169,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
+      // updatePost
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -190,6 +186,7 @@ const PostsManager = () => {
   // 게시물 삭제
   const deletePost = async (id) => {
     try {
+      // deletePost
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
       })
@@ -203,8 +200,10 @@ const PostsManager = () => {
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
+      // getComments
       const response = await fetch(`/api/comments/post/${postId}`)
       const data = await response.json()
+      console.log("comments", data)
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
@@ -214,6 +213,7 @@ const PostsManager = () => {
   // 댓글 추가
   const addComment = async () => {
     try {
+      // createComment
       const response = await fetch("/api/comments/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -253,6 +253,7 @@ const PostsManager = () => {
   // 댓글 삭제
   const deleteComment = async (id, postId) => {
     try {
+      // deleteComment
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
       })
@@ -268,6 +269,7 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
     try {
+      // likeComment
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -295,6 +297,7 @@ const PostsManager = () => {
   // 사용자 모달 열기
   const openUserModal = async (user) => {
     try {
+      // getUser
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
       setSelectedUser(userData)
