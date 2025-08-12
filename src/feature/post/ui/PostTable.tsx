@@ -1,6 +1,6 @@
 import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react"
 import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../shared/ui"
-import { Post } from "../../shared/types"
+import { Post } from "./type"
 
 export const PostTable = ({
   posts,

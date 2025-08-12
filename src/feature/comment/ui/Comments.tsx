@@ -1,7 +1,7 @@
-import { NewComment } from "../../shared/types"
-import { Button, HighlightText } from "../../shared/ui"
+import { Button, HighlightText } from "../../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { Comment } from "../../entities"
+import { Comment } from "../../../entities"
+import { NewComment } from "../type"
 
 export const Comments = ({
   postId,
@@ -9,10 +9,9 @@ export const Comments = ({
   setNewComment,
   setShowAddCommentDialog,
   comments,
+  setComments,
   setSelectedComment,
   setShowEditCommentDialog,
-  likeComment,
-  deleteComment,
 }: {
   postId: number
   searchQuery: string
@@ -23,9 +22,47 @@ export const Comments = ({
   }
   setSelectedComment: React.Dispatch<React.SetStateAction<Comment | null>>
   setShowEditCommentDialog: React.Dispatch<React.SetStateAction<boolean>>
-  likeComment: (id: number, postId: number) => Promise<void>
-  deleteComment: (id: number, postId: number) => Promise<void>
+  setComments: React.Dispatch<
+    React.SetStateAction<{
+      [key: number]: Comment[]
+    }>
+  >
 }) => {
+  // 댓글 좋아요
+  const likeComment = async (id: number, postId: number) => {
+    try {
+      const response = await fetch(`/api/comments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
+      })
+      const data = await response.json()
+      setComments((prev) => ({
+        ...prev,
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
+      }))
+    } catch (error) {
+      console.error("댓글 좋아요 오류:", error)
+    }
+  }
+
+  // 댓글 삭제
+  const deleteComment = async (id: number, postId: number) => {
+    try {
+      await fetch(`/api/comments/${id}`, {
+        method: "DELETE",
+      })
+      setComments((prev) => ({
+        ...prev,
+        [postId]: prev[postId].filter((comment) => comment.id !== id),
+      }))
+    } catch (error) {
+      console.error("댓글 삭제 오류:", error)
+    }
+  }
+
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
