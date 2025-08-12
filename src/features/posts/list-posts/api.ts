@@ -1,7 +1,7 @@
 import { fetchPosts } from '../../../entities/post/api/api';
 import { Posts } from '../../../entities/post/model/type';
 import { fetchUserBasic } from '../../../entities/user/api/api';
-import { UserBasic } from '../../../entities/user/types';
+import { UserBasic } from '../../../entities/user/model/type';
 
 export async function fetchPostsWithAuthors(limit: number, skip: string) {
   const [postsData, usersData] = await Promise.all([fetchPosts(limit, skip), fetchUserBasic()]);
