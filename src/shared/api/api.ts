@@ -1,83 +1,135 @@
 type Params = Record<string, string | number | boolean | undefined | null>
+type BaseOpts = { params?: Params; headers?: Record<string, string> }
 
 /**
- * API 요청 함수
+ * 쿼리 스트링 생성
+ * @param params - 쿼리 파라미터
+ * @returns 쿼리 스트링
  */
-
-type RequestOpts = {
-  params?: Params
-  headers?: Record<string, string>
-}
-
-const toQuery = (params?: Params) => {
+function queryString(params?: Params): string {
   if (!params) return ""
-  const sp = new URLSearchParams()
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null) sp.set(k, String(v))
-  }
-  const qs = sp.toString()
-  return qs ? `?${qs}` : ""
+  const urlSearchParams = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null) urlSearchParams.set(k, String(v))
+  })
+  const queryString = urlSearchParams.toString()
+  return queryString ? `?${queryString}` : ""
 }
 
-const trimSlashes = (s: string) => s.replace(/(^\/+|\/+$)/g, "")
-const joinPath = (...parts: Array<string | undefined>) =>
-  "/" +
-  parts
-    .filter((p): p is string => !!p && p.length > 0)
-    .map((p) => trimSlashes(p))
-    .join("/")
-
-/** 확장용 베이스 클라이언트 */
+/**
+ * API 클라이언트 클래스
+ * 기본 경로를 설정하고 HTTP 메서드를 제공합니다.
+ */
 export class ApiClient {
-  protected readonly basePath: string
-  protected readonly defaultHeaders: Record<string, string>
+  private basePath: string
 
-  constructor(basePath = "", defaultHeaders: Record<string, string> = {}) {
-    this.basePath = trimSlashes(basePath) ? "/" + trimSlashes(basePath) : ""
-    this.defaultHeaders = { ...defaultHeaders }
+  constructor(basePath: string = "") {
+    this.basePath = basePath
   }
 
-  /** 하위 클래스에서 응답 처리 커스터마이징 가능 */
-  protected async parseResponse<T>(res: Response): Promise<T> {
-    if (res.status === 204) return undefined as unknown as T
-    const ct = res.headers.get("Content-Type") || ""
-    if (ct.includes("application/json")) return (await res.json()) as T
-    return (await res.text()) as unknown as T
-  }
-
-  protected buildUrl(path: string, params?: Params) {
-    return joinPath(this.basePath, path) + toQuery(params)
-  }
-
-  protected async request<T>(method: string, path: string, body?: unknown, opts: RequestOpts = {}): Promise<T> {
-    const url = this.buildUrl(path, opts.params)
-    const headers: Record<string, string> = { ...this.defaultHeaders, ...(opts.headers || {}) }
-    const init: RequestInit = { method, headers }
-
-    if (body !== undefined) {
-      if (!headers["Content-Type"]) headers["Content-Type"] = "application/json"
-      init.body = headers["Content-Type"].includes("application/json")
-        ? JSON.stringify(body)
-        : (body as string | FormData | URLSearchParams | ReadableStream)
+  /**
+   * 전체 URL 생성
+   * @param path - 상대 경로
+   * @returns 전체 URL
+   */
+  private buildUrl(path: string): string {
+    // basePath가 이미 /api로 시작하면 중복 방지
+    if (this.basePath.startsWith("/api")) {
+      return this.basePath + path
     }
+    // basePath가 비어있거나 /api로 시작하지 않으면 /api 추가
+    return "/api" + this.basePath + path
+  }
 
+  /**
+   * 요청 처리
+   * @param path - 요청 경로
+   * @param init - 요청 옵션
+   * @returns 요청 결과
+   */
+  private async request<T>(path: string, init: RequestInit): Promise<T> {
+    const url = this.buildUrl(path)
     const res = await fetch(url, init)
+
     if (!res.ok) {
-      let detail = ""
-      try {
-        detail = (await res.text()).slice(0, 300)
-      } catch {
-        // 응답 텍스트 읽기 실패 시 무시
-      }
-      throw new Error(`API ${res.status} ${res.statusText}${detail ? ` - ${detail}` : ""}`)
+      throw new Error(`API ${res.status} ${res.statusText}`)
     }
-    return this.parseResponse<T>(res)
+
+    if (res.status === 204) {
+      return undefined as unknown as T
+    }
+
+    return res.json() as Promise<T>
   }
 
-  // HTTP verbs
-  get = <T>(path: string, opts?: RequestOpts) => this.request<T>("GET", path, undefined, opts)
-  delete = <T>(path: string, opts?: RequestOpts) => this.request<T>("DELETE", path, undefined, opts)
-  post = <T, B = unknown>(path: string, body?: B, opts?: RequestOpts) => this.request<T>("POST", path, body, opts)
-  put = <T, B = unknown>(path: string, body?: B, opts?: RequestOpts) => this.request<T>("PUT", path, body, opts)
-  patch = <T, B = unknown>(path: string, body?: B, opts?: RequestOpts) => this.request<T>("PATCH", path, body, opts)
+  /**
+   * GET 요청
+   * @param path - 요청 경로
+   * @param opts - 요청 옵션
+   * @returns 요청 결과
+   */
+  protected get<T>(path: string, opts: BaseOpts = {}): Promise<T> {
+    return this.request<T>(`${path}${queryString(opts.params)}`, {
+      method: "GET",
+      headers: opts.headers,
+    })
+  }
+
+  /**
+   * POST 요청
+   * @param path - 요청 경로
+   * @param body - 요청 본문
+   * @param opts - 요청 옵션
+   * @returns 요청 결과
+   */
+  protected post<T, B = unknown>(path: string, body?: B, opts: BaseOpts = {}): Promise<T> {
+    return this.request<T>(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+      body: body == null ? undefined : JSON.stringify(body),
+    })
+  }
+
+  /**
+   * PUT 요청
+   * @param path - 요청 경로
+   * @param body - 요청 본문
+   * @param opts - 요청 옵션
+   * @returns 요청 결과
+   */
+  protected put<T, B = unknown>(path: string, body?: B, opts: BaseOpts = {}): Promise<T> {
+    return this.request<T>(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+      body: body == null ? undefined : JSON.stringify(body),
+    })
+  }
+
+  /**
+   * PATCH 요청
+   * @param path - 요청 경로
+   * @param body - 요청 본문
+   * @param opts - 요청 옵션
+   * @returns 요청 결과
+   */
+  protected patch<T, B = unknown>(path: string, body?: B, opts: BaseOpts = {}): Promise<T> {
+    return this.request<T>(path, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+      body: body == null ? undefined : JSON.stringify(body),
+    })
+  }
+
+  /**
+   * DELETE 요청
+   * @param path - 요청 경로
+   * @param opts - 요청 옵션
+   * @returns 요청 결과
+   */
+  protected delete<T>(path: string, opts: BaseOpts = {}): Promise<T> {
+    return this.request<T>(path, {
+      method: "DELETE",
+      headers: opts.headers,
+    })
+  }
 }
