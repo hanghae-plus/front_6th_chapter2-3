@@ -1,9 +1,5 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query"
 
-/**
- * Applies an update function to a set of query [key,data] pairs and returns a rollback function.
- * Optionally accepts a predicate to limit which pairs are updated.
- */
 export function updateQueriesWithRollback<Data>(
   queryClient: QueryClient,
   pairs: Array<[QueryKey, Data | undefined]>,

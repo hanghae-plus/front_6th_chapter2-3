@@ -76,9 +76,9 @@ const PostsManager = () => {
       skip,
       limit,
       search: searchQuery,
-      sortBy,
+      sortBy: sortBy === "none" ? undefined : sortBy,
       sortOrder,
-      tag: selectedTag,
+      tag: selectedTag === "all" ? undefined : selectedTag,
     })
     navigate(`?${params}`)
   }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag, navigate])
