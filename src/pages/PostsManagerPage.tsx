@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
@@ -37,9 +37,9 @@ const PostsManager = () => {
   const [selectedTag, setSelectedTag] = useState(urlParams.tag)
 
   // TanStack Query로 모든 데이터 조회
-  const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(limit, skip)
-  const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery, limit, skip)
-  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag, limit, skip)
+  const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(limit, skip, sortBy, sortOrder)
+  const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery, limit, skip, sortBy, sortOrder)
+  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag, limit, skip, sortBy, sortOrder)
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
 
   // TanStack Query mutations
@@ -51,11 +51,13 @@ const PostsManager = () => {
   const currentPostsData = searchQuery ? searchData : selectedTag && selectedTag !== "all" ? tagData : postsData
 
   // 게시물에 작성자 정보 병합
-  const posts =
-    currentPostsData?.posts?.map((post) => ({
+  const posts = useMemo(() => {
+    const base = currentPostsData?.posts || []
+    return base.map((post) => ({
       ...post,
       author: usersData?.users?.find((user) => user.id === post.userId),
-    })) || []
+    }))
+  }, [currentPostsData?.posts, usersData?.users])
   const total = currentPostsData?.total || 0
   const isLoading = isLoadingPosts || isLoadingSearch || isLoadingTag || isLoadingUsers
   // React Query로 전환됨: 로컬 comments 상태 제거

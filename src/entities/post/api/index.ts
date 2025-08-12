@@ -1,17 +1,51 @@
 import { Post, PostsApiResponse, NewPost } from "@entities/post/model/types"
+import { createURLParams } from "@shared/lib"
 
-export const fetchPosts = async (limit: number, skip: number): Promise<PostsApiResponse> => {
-  const response = await fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+export const fetchPosts = async (
+  limit: number,
+  skip: number,
+  sortBy: string = "none",
+  sortOrder: string = "asc",
+): Promise<PostsApiResponse> => {
+  const query = createURLParams({
+    limit,
+    skip,
+    ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
+  })
+  const response = await fetch(`/api/posts?${query}`)
   return response.json()
 }
 
-export const searchPosts = async (query: string, limit: number, skip: number): Promise<PostsApiResponse> => {
-  const response = await fetch(`/api/posts/search?q=${query}&limit=${limit}&skip=${skip}`)
+export const searchPosts = async (
+  query: string,
+  limit: number,
+  skip: number,
+  sortBy: string = "none",
+  sortOrder: string = "asc",
+): Promise<PostsApiResponse> => {
+  const queryString = createURLParams({
+    q: query,
+    limit,
+    skip,
+    ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
+  })
+  const response = await fetch(`/api/posts/search?${queryString}`)
   return response.json()
 }
 
-export const fetchPostsByTag = async (tag: string, limit: number, skip: number): Promise<PostsApiResponse> => {
-  const response = await fetch(`/api/posts/tag/${tag}?limit=${limit}&skip=${skip}`)
+export const fetchPostsByTag = async (
+  tag: string,
+  limit: number,
+  skip: number,
+  sortBy: string = "none",
+  sortOrder: string = "asc",
+): Promise<PostsApiResponse> => {
+  const queryString = createURLParams({
+    limit,
+    skip,
+    ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
+  })
+  const response = await fetch(`/api/posts/tag/${encodeURIComponent(tag)}?${queryString}`)
   return response.json()
 }
 
