@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { BaseProps } from '../../types/common';
 
-interface TextareaProps extends BaseProps, React.HTMLAttributes<HTMLTextAreaElement> {}
+interface TextareaProps extends BaseProps, React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
