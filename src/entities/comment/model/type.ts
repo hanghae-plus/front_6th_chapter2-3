@@ -20,9 +20,4 @@ export interface CommentState {
   setComments: (comments: Record<number, Comment[]>) => void;
   setSelectedComment: (comment: Comment | null) => void;
   setNewComment: (comment: any) => void;
-  fetchComments: (postId: number) => Promise<void>;
-  addComment: () => Promise<void>;
-  updateComment: () => Promise<void>;
-  deleteComment: (id: number, postId: number) => Promise<void>;
-  likeComment: (id: number, postId: number) => Promise<void>;
 }
