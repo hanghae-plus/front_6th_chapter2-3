@@ -1,5 +1,5 @@
-import Header from "../../widgets/layout/ui/Header.tsx"
-import Footer from "../../widgets/layout/ui/Footer.tsx"
+import Header from "../../shared/ui/Header.tsx"
+import Footer from "../../shared/ui/Footer.tsx"
 import PostsManagerPage from "../../pages/PostsManagerPage.tsx"
 
 const App = () => {
