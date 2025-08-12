@@ -2,7 +2,7 @@ import React from "react"
 import { ThumbsDown, ThumbsUp, MessageSquare, Edit2, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "../../../shared/ui"
 import { HighlightText } from "../../../shared/ui/HighlightText"
-import { PostItem } from "../../../entities/post/model/types"
+import { PostItem } from "../../../entities/post/types"
 
 export interface PostsTableProps {
   data: {
