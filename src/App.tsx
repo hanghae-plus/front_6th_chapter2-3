@@ -1,8 +1,6 @@
 import { BrowserRouter as Router } from "react-router-dom"
+import { Header, Footer } from "@/app/ui/"
 import PostsManagerPage from "@/pages/PostsManagerPage"
-
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
 
 const App = () => {
   return (
