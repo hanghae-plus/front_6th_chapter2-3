@@ -1,9 +1,8 @@
-/* eslint-disable react-refresh/only-export-components */
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+import { DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import { userEntityQueries } from "@/entities/users"
 
 import { useQuery } from "@tanstack/react-query"
-import { overlay } from "overlay-kit"
+ 
 
 type Props = {
   userId: number
@@ -45,10 +44,4 @@ export const UserInfoDialog = ({ userId }: Props) => {
   )
 }
 
-export const openUserInfoDialog = (options: Omit<Props, "close">) => {
-  overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => !!isOpen && close()}>
-      <UserInfoDialog userId={options.userId} />
-    </Dialog>
-  ))
-}
+ 

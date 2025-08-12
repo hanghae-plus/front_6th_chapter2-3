@@ -1,5 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+ 
+import { Button, DialogContent, DialogHeader, DialogTitle, HighlightText } from "@/shared/ui"
 import {
   addComment as addCommentAction,
   commentEntityQueries,
@@ -11,7 +11,6 @@ import { openUpdateCommentDialog } from "@/features/update-comment"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { overlay } from "overlay-kit"
 
 type Props = {
   post: Post
@@ -38,19 +37,7 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
     onError: (error) => console.error("댓글 수정 오류:", error),
   })
 
-  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
+  
 
   return (
     <DialogContent className="max-w-3xl">
@@ -125,15 +112,4 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
   )
 }
 
-export const openPostDetailDialog = (options: Omit<Props, "close">) => {
-  overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => !!isOpen && close()}>
-      <PostDetailDialog
-        post={options.post}
-        onDeleteComment={options.onDeleteComment}
-        onLikeComment={options.onLikeComment}
-        searchQuery={options.searchQuery}
-      />
-    </Dialog>
-  ))
-}
+ 

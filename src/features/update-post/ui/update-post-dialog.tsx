@@ -1,11 +1,10 @@
-/* eslint-disable react-refresh/only-export-components */
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
+import { Button, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import type { Post } from "@/entities/posts"
 
 import { usePostUpdateForm } from "../hooks"
 import type { PostFormValues } from "../model"
 
-import { overlay } from "overlay-kit"
+ 
 
 type Props = {
   post: Post
@@ -46,10 +45,4 @@ export const UpdatePostDialog = ({ post, onSubmit }: Props) => {
   )
 }
 
-export const openUpdatePostDialog = (options: Omit<Props, "close">) => {
-  overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => isOpen && close()}>
-      <UpdatePostDialog post={options.post} onSubmit={options.onSubmit} close={close} />
-    </Dialog>
-  ))
-}
+ 

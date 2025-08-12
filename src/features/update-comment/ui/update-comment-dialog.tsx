@@ -1,10 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "@/shared/ui"
+import { Button, DialogContent, DialogHeader, DialogTitle, Textarea } from "@/shared/ui"
 
 import { useUpdateCommentForm } from "../hooks"
 import type { UpdateCommentFormValues } from "../model"
-
-import { overlay } from "overlay-kit"
 
 type Props = {
   comment: UpdateCommentFormValues
@@ -39,10 +36,4 @@ export const UpdateCommentDialog = ({ comment, onSubmit, close }: Props) => {
   )
 }
 
-export const openUpdateCommentDialog = (options: Omit<Props, "close">) => {
-  overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => isOpen && close()}>
-      <UpdateCommentDialog comment={options.comment} onSubmit={options.onSubmit} close={close} />
-    </Dialog>
-  ))
-}
+ 

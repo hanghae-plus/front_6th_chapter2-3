@@ -1,1 +1,2 @@
-export { PostDetailDialog, openPostDetailDialog } from "./post-detail-dialog"
+export { PostDetailDialog } from "./post-detail-dialog"
+export { openPostDetailDialog } from "./open"

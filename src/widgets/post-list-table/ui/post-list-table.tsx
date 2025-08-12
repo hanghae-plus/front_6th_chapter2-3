@@ -1,5 +1,5 @@
 import { useQueryParamsPagination } from "@/shared/hooks"
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
+import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
 import type { Post } from "@/entities/posts"
 import { deletePost as deletePostAction, postEntityQueries } from "@/entities/posts"
 import type { User } from "@/entities/users"
@@ -45,19 +45,7 @@ export const PostListTable = ({
     onError: (error) => console.error("게시물 삭제 오류:", error),
   })
 
-  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
+  
 
   if (postsQuery.isLoading || usersQuery.isLoading) {
     return <div className="flex justify-center p-4">로딩 중...</div>

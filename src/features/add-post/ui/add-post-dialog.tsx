@@ -1,10 +1,9 @@
-/* eslint-disable react-refresh/only-export-components */
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
+import { Button, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import type { AddPostFormValues } from "@/features/add-post"
 
 import { useAddPostForm } from "../hooks"
 
-import { overlay } from "overlay-kit"
+ 
 
 type Props = {
   onSubmit: (formData: AddPostFormValues) => void
@@ -49,10 +48,4 @@ export const AddPostDialog = ({ onSubmit, close }: Props) => {
   )
 }
 
-export const openAddPostDialog = (options: Omit<Props, "close">) => {
-  overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => isOpen && close()}>
-      <AddPostDialog onSubmit={options.onSubmit} close={close} />
-    </Dialog>
-  ))
-}
+ 
