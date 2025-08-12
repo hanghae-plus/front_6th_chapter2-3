@@ -16,3 +16,19 @@ export interface PostItem {
   author?: PostAuthor
   reactions?: Partial<PostReactions>
 }
+
+export interface AddPostRequest {
+  title: string
+  body: string
+  userId: number
+}
+
+export interface UpdatePostRequest extends AddPostRequest {
+  id: number
+}
+
+export interface Tag {
+  name: string
+  slug: string
+  url: string
+}

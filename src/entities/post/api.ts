@@ -1,4 +1,5 @@
 import { api } from "../../shared/api/api"
+import { AddPostRequest, Tag, UpdatePostRequest } from "./model"
 
 /**
  * 게시물 목록 조회
@@ -36,7 +37,7 @@ export const fetchPostsByTag = async (tag: string) => {
  * @param post - 게시물 정보
  * @returns 게시물 정보
  */
-export const addPost = async (post: { title: string; body: string; userId: number }) => {
+export const addPost = async (post: AddPostRequest) => {
   const response = await api.post(`/posts`, post)
   return response
 }
@@ -47,7 +48,7 @@ export const addPost = async (post: { title: string; body: string; userId: numbe
  * @param post - 게시물 정보
  * @returns 게시물 정보
  */
-export const updatePost = async (post: { id: number; title: string; body: string; userId: number }) => {
+export const updatePost = async (post: UpdatePostRequest) => {
   const response = await api.put(`/posts/${post.id}`, post)
   return response
 }
@@ -59,5 +60,14 @@ export const updatePost = async (post: { id: number; title: string; body: string
  */
 export const deletePost = async (id: number) => {
   const response = await api.delete(`/posts/${id}`)
+  return response
+}
+
+/**
+ * 태그 목록 조회
+ * @returns 태그 목록
+ */
+export const fetchTags = async () => {
+  const response = await api.get<Tag[]>("/posts/tags")
   return response
 }
