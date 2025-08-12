@@ -118,6 +118,17 @@ const PostsManager = () => {
     setLoading(false)
   }
 
+  // 태그 가져오기
+  const fetchTags = async () => {
+    try {
+      const response = await fetch("/api/posts/tags")
+      const data = await response.json()
+      setTags(data)
+    } catch (error) {
+      console.error("태그 가져오기 오류:", error)
+    }
+  }
+
   // 태그별 게시물 가져오기
   const fetchPostsByTag = async (tag) => {
     if (!tag || tag === "all") {
