@@ -18,3 +18,15 @@ export interface CreatePost {
   body: string
   userId: number
 }
+
+export interface UpdatePost {
+  body: string
+  id: number
+  reactions: {
+    dislikes: number
+    likes: number
+  }
+  tags: string[]
+  title: string
+  userId: number
+}
