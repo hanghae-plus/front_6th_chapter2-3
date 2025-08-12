@@ -1,35 +1,70 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "@shared/ui"
+import { usePostPost, usePutPost } from "@entities/post"
+import type { Post } from "@entities/post"
 
 interface PostFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   formTitle: string
-  titleValue: string
-  bodyValue: string
-  onTitleChange: (value: string) => void
-  onBodyChange: (value: string) => void
-  showUserId?: boolean
-  userIdValue?: number
-  onUserIdChange?: (value: number) => void
-  submitLabel: string
-  onSubmit: () => void
+  mode: "create" | "edit"
+  initialPost?: Post | null
+  onSuccess?: () => void
 }
 
 export const PostFormDialog: React.FC<PostFormDialogProps> = ({
   open,
   onOpenChange,
   formTitle,
-  titleValue,
-  bodyValue,
-  onTitleChange,
-  onBodyChange,
-  showUserId = false,
-  userIdValue,
-  onUserIdChange,
-  submitLabel,
-  onSubmit,
+  mode,
+  initialPost,
+  onSuccess,
 }) => {
+  const [title, setTitle] = useState("")
+  const [body, setBody] = useState("")
+  const [userId, setUserId] = useState(1)
+
+  const createPostMutation = usePostPost()
+  const editPostMutation = usePutPost()
+
+  useEffect(() => {
+    if (mode === "create") {
+      setTitle("")
+      setBody("")
+      setUserId(1)
+    } else if (mode === "edit" && initialPost) {
+      setTitle(initialPost.title || "")
+      setBody(initialPost.body || "")
+      setUserId(initialPost.userId || 1)
+    }
+  }, [mode, initialPost, open])
+
+  const handleSubmit = () => {
+    if (mode === "create") {
+      createPostMutation.mutate(
+        { title, body, userId },
+        {
+          onSuccess: () => {
+            onOpenChange(false)
+            onSuccess?.()
+          },
+          onError: (error) => console.error("게시물 추가 오류:", error),
+        }
+      )
+    } else if (mode === "edit" && initialPost) {
+      editPostMutation.mutate(
+        { id: initialPost.id, post: { title, body } },
+        {
+          onSuccess: () => {
+            onOpenChange(false)
+            onSuccess?.()
+          },
+          onError: (error) => console.error("게시물 수정 오류:", error),
+        }
+      )
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -37,22 +72,24 @@ export const PostFormDialog: React.FC<PostFormDialogProps> = ({
           <DialogTitle>{formTitle}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <Input placeholder="제목" value={titleValue} onChange={(e) => onTitleChange(e.target.value)} />
+          <Input placeholder="제목" value={title} onChange={(e) => setTitle(e.target.value)} />
           <Textarea
-            rows={showUserId ? 30 : 15}
+            rows={mode === "create" ? 30 : 15}
             placeholder="내용"
-            value={bodyValue}
-            onChange={(e) => onBodyChange(e.target.value)}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
           />
-          {showUserId && (
+          {mode === "create" && (
             <Input
               type="number"
               placeholder="사용자 ID"
-              value={userIdValue}
-              onChange={(e) => onUserIdChange && onUserIdChange(Number(e.target.value))}
+              value={userId}
+              onChange={(e) => setUserId(Number(e.target.value))}
             />
           )}
-          <Button onClick={onSubmit}>{submitLabel}</Button>
+          <Button onClick={handleSubmit}>
+            {mode === "create" ? "게시물 추가" : "게시물 수정"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

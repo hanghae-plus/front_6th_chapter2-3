@@ -2,6 +2,7 @@ import React from "react"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
+import { useDeletePost } from "@entities/post"
 import type { Post } from "@entities/post"
 
 interface PostTableProps {
@@ -12,7 +13,6 @@ interface PostTableProps {
   onOpenDetail: (post: Post) => void
   onOpenUser: (userId: number) => void
   onEdit: (post: Post) => void
-  onDelete: (postId: number) => void
 }
 
 export const PostTable: React.FC<PostTableProps> = ({
@@ -23,8 +23,14 @@ export const PostTable: React.FC<PostTableProps> = ({
   onOpenDetail,
   onOpenUser,
   onEdit,
-  onDelete,
 }) => {
+  const deletePostMutation = useDeletePost()
+  
+  const handleDelete = (postId: number) => {
+    deletePostMutation.mutate(postId, {
+      onError: (error) => console.error("게시물 삭제 오류:", error),
+    })
+  }
   return (
     <Table>
       <TableHeader>
@@ -85,7 +91,7 @@ export const PostTable: React.FC<PostTableProps> = ({
                 <Button variant="ghost" size="sm" onClick={() => onEdit(post)}>
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => onDelete(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

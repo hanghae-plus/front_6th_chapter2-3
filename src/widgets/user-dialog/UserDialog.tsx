@@ -1,14 +1,15 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
-import type { User } from "@entities/user"
+import { useGetUser } from "@entities/user"
 
 interface UserDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  user: User | null
+  userId: number | null
 }
 
-export const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user }) => {
+export const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, userId }) => {
+  const { data: user } = useGetUser(userId ?? 0)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
