@@ -1,17 +1,23 @@
 // 게시물 타입
 export interface Post {
-  body: string
+  posts: PostItem[]
+  total: number
+  limit: number
+  skip: number
+}
+
+export interface PostItem {
   id: number
   reactions: {
     dislikes: number
     likes: number
   }
-  tags: string[]
   title: string
+  body: string
   userId: number
   views: number
+  tags: string[]
 }
-
 export interface CreatePost {
   id: number
   title: string
