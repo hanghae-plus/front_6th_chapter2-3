@@ -1,5 +1,14 @@
-import { Close, Content, Overlay, Portal, Title } from '@radix-ui/react-dialog';
+import {
+  Close,
+  Content,
+  Overlay,
+  Portal,
+  Title,
+  Root,
+} from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+
+export const Dialog = Root;
 
 interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;

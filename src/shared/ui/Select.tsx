@@ -4,10 +4,15 @@ import {
   ItemIndicator,
   ItemText,
   Portal,
+  Root,
   Trigger,
+  Value,
   Viewport,
 } from '@radix-ui/react-select';
 import { Check, ChevronDown } from 'lucide-react';
+
+export const Select = Root;
+export const SelectValue = Value;
 
 interface SelectTriggerProps extends React.HTMLAttributes<HTMLButtonElement> {
   className?: string;
