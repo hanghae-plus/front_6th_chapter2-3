@@ -615,6 +615,7 @@ const PostsManager = () => {
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
           <div className="flex gap-4">
+            {/* 검색 서치바 */}
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -627,6 +628,8 @@ const PostsManager = () => {
                 />
               </div>
             </div>
+            
+            {/* 태그 셀렉터 */}
             <Select
               value={selectedTag}
               onValueChange={(value) => {
@@ -647,6 +650,8 @@ const PostsManager = () => {
                 ))}
               </SelectContent>
             </Select>
+
+            {/* 정렬 기준 */}
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
@@ -658,6 +663,8 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* 정렬 순서 */}
             <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
