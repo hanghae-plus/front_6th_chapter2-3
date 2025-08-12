@@ -12,3 +12,4 @@ export {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog/Dialog"
+export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/ui/table/Table"
