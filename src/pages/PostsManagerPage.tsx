@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { createURLParams, parseURLParams } from "@shared/lib"
 import type { Post, NewPost } from "@entities/post"
-import { useGetPosts, useGetPostSearch, useGetPostsByTag } from "@entities/post"
+import { useGetPosts, useGetPostSearch, useGetPostsByTag, usePostPost, usePutPost, useDeletePost } from "@entities/post"
 import { useGetUsers } from "@entities/user"
 import type { Comment, NewComment } from "@entities/comment"
 import type { User } from "@entities/user"
@@ -40,6 +40,11 @@ const PostsManager = () => {
   const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery)
   const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag)
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
+  
+  // TanStack Query mutations
+  const createPost = usePostPost()
+  const editPost = usePutPost()
+  const removePost = useDeletePost()
 
   // 조건에 따라 사용할 데이터 선택
   const currentPostsData = searchQuery ? searchData : selectedTag && selectedTag !== "all" ? tagData : postsData
@@ -75,47 +80,39 @@ const PostsManager = () => {
   }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag, navigate])
 
   // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      await response.json()
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
+  const addPost = () => {
+    createPost.mutate(newPost, {
+      onSuccess: () => {
+        setShowAddDialog(false)
+        setNewPost({ title: "", body: "", userId: 1 })
+      },
+      onError: (error) => {
+        console.error("게시물 추가 오류:", error)
+      }
+    })
   }
 
   // 게시물 업데이트
-  const updatePost = async () => {
+  const updatePost = () => {
     if (!selectedPost) return
 
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      await response.json()
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
+    editPost.mutate({ id: selectedPost.id, post: selectedPost }, {
+      onSuccess: () => {
+        setShowEditDialog(false)
+      },
+      onError: (error) => {
+        console.error("게시물 업데이트 오류:", error)
+      }
+    })
   }
 
   // 게시물 삭제
-  const deletePost = async (id: number) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
+  const deletePost = (id: number) => {
+    removePost.mutate(id, {
+      onError: (error) => {
+        console.error("게시물 삭제 오류:", error)
+      }
+    })
   }
 
   // 댓글 가져오기
