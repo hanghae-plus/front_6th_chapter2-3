@@ -3,7 +3,6 @@ import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post"
-import type { User } from "@entities/user"
 
 interface PostTableProps {
   posts: Post[]
@@ -11,11 +10,10 @@ interface PostTableProps {
   selectedTag: string
   onTagSelect: (tag: string) => void
   onOpenDetail: (post: Post) => void
-  onOpenUser: (user: User) => void
+  onOpenUser: (userId: number) => void
   onEdit: (post: Post) => void
   onDelete: (postId: number) => void
 }
-
 
 export const PostTable: React.FC<PostTableProps> = ({
   posts,
@@ -65,7 +63,7 @@ export const PostTable: React.FC<PostTableProps> = ({
             <TableCell>
               <div
                 className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => post.author && onOpenUser(post.author)}
+                onClick={() => post.author && onOpenUser(post.author.id)}
               >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>

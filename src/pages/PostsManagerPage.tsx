@@ -5,9 +5,8 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { createURLParams, parseURLParams } from "@shared/lib"
 import type { Post, NewPost } from "@entities/post"
 import { useGetPosts, useGetPostSearch, useGetPostsByTag, usePostPost, usePutPost, useDeletePost } from "@entities/post"
-import { useGetUsers } from "@entities/user"
+import { useGetUsers, useGetUser } from "@entities/user"
 import type { Comment, NewComment } from "@entities/comment"
-import type { User } from "@entities/user"
 import {
   PostTable,
   PostFilters,
@@ -40,7 +39,7 @@ const PostsManager = () => {
   const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery)
   const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag)
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
-  
+
   // TanStack Query mutations
   const createPost = usePostPost()
   const editPost = usePutPost()
@@ -64,7 +63,8 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [userIdForDialog, setUserIdForDialog] = useState<number | null>(null)
+  const { data: userDetail } = useGetUser(userIdForDialog ?? 0)
 
   // URL 업데이트 함수
   const updateURL = useCallback(() => {
@@ -88,7 +88,7 @@ const PostsManager = () => {
       },
       onError: (error) => {
         console.error("게시물 추가 오류:", error)
-      }
+      },
     })
   }
 
@@ -96,14 +96,17 @@ const PostsManager = () => {
   const updatePost = () => {
     if (!selectedPost) return
 
-    editPost.mutate({ id: selectedPost.id, post: selectedPost }, {
-      onSuccess: () => {
-        setShowEditDialog(false)
+    editPost.mutate(
+      { id: selectedPost.id, post: selectedPost },
+      {
+        onSuccess: () => {
+          setShowEditDialog(false)
+        },
+        onError: (error) => {
+          console.error("게시물 업데이트 오류:", error)
+        },
       },
-      onError: (error) => {
-        console.error("게시물 업데이트 오류:", error)
-      }
-    })
+    )
   }
 
   // 게시물 삭제
@@ -111,7 +114,7 @@ const PostsManager = () => {
     removePost.mutate(id, {
       onError: (error) => {
         console.error("게시물 삭제 오류:", error)
-      }
+      },
     })
   }
 
@@ -210,16 +213,10 @@ const PostsManager = () => {
     setShowPostDetailDialog(true)
   }
 
-  // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+  // 사용자 모달 열기 (React Query 사용)
+  const openUserModal = (userId: number) => {
+    setUserIdForDialog(userId)
+    setShowUserModal(true)
   }
 
   useEffect(() => {
@@ -367,7 +364,7 @@ const PostsManager = () => {
       />
 
       {/* 사용자 다이얼로그 */}
-      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
+      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} user={userDetail ?? null} />
     </Card>
   )
 }
