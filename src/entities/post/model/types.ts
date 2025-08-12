@@ -9,6 +9,11 @@ export interface Posts {
   };
   views: number;
   userId: number;
+  author?: {
+    id: number;
+    username: string;
+    image: string;
+  };
 }
 
 export interface PostsState {
@@ -16,5 +21,6 @@ export interface PostsState {
   total: number;
   loading: boolean;
   setPosts: (posts: Posts[]) => void;
+  setTotal: (total: number) => void;
   fetchPosts: (limit: number, skip: string) => Promise<void>;
 }

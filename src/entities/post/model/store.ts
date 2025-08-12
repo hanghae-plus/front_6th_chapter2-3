@@ -7,6 +7,7 @@ export const usePostsStore = create<PostsState>((set) => ({
   total: 0,
   loading: false,
   setPosts: (posts) => set({ posts }),
+  setTotal: (total) => set({ total }),
   fetchPosts: async (limit, skip) => {
     set({ loading: true });
     try {
