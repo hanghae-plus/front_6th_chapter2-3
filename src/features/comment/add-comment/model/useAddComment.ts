@@ -3,12 +3,13 @@ import { addCommentApi } from '../../../../entities/comment/api/comment-api';
 import { IAddComment, IComment } from '../../../../entities/comment/model/type';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const initialComment: IAddComment = { body: '', postId: null, userId: 1 };
-
 export const useAddComment = (
+  postId: number,
   onSuccess?: (createdComment: IComment) => void
 ) => {
   const queryClient = useQueryClient();
+
+  const initialComment: IAddComment = { body: '', postId: postId, userId: 1 };
   const [newComment, setNewComment] = useState<IAddComment>(initialComment);
 
   const mutation = useMutation({

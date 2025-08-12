@@ -7,8 +7,12 @@ import {
 } from '../../../../shared/ui/components';
 import { useAddComment } from '../model/useAddComment';
 
-const AddCommentForm = () => {
-  const { newComment, setBody, addComment } = useAddComment();
+interface AddCommentFormProps {
+  postId: number;
+}
+
+const AddCommentForm = ({ postId }: AddCommentFormProps) => {
+  const { newComment, setBody, addComment } = useAddComment(postId);
 
   return (
     <DialogContent>

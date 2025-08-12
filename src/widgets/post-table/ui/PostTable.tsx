@@ -26,7 +26,7 @@ interface PostTableProps {
   // 유저 클릭 함수
   onClickUser: (userId: number) => void;
   // 게시물 상세보기 함수
-  onClickPost: () => void;
+  onClickPost: (post: IPost) => void;
   // 게시물 수정
   onUpdatePost: (post: IPost) => void;
 }
@@ -115,7 +115,11 @@ const PostTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={onClickPost}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onClickPost(post)}
+                >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button

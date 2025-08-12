@@ -8,7 +8,11 @@ import {
 import { IComment } from '../../../../entities/comment/model/type';
 import { useUpdateComment } from '../model/useUpdateComment';
 
-const UpdateCommentform = (comment: IComment) => {
+interface UpdateCommentForm {
+  comment: IComment;
+}
+
+const UpdateCommentForm = ({ comment }: UpdateCommentForm) => {
   const { editComment, setBody, updateComment } = useUpdateComment(comment);
 
   return (
@@ -28,4 +32,4 @@ const UpdateCommentform = (comment: IComment) => {
   );
 };
 
-export default UpdateCommentform;
+export default UpdateCommentForm;

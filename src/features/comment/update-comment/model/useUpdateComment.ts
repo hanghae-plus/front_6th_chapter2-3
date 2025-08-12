@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IComment } from '../../../../entities/comment/model/type';
 import { updateCommentApi } from '../../../../entities/comment/api/comment-api';
 
@@ -7,6 +7,8 @@ export const useUpdateComment = (
   comment: IComment,
   onSuccess?: (updated: IComment) => void
 ) => {
+  const queryClient = useQueryClient();
+
   const initialComment = { body: comment.body };
   const [editComment, setEditComment] =
     useState<Partial<IComment>>(initialComment);
@@ -16,6 +18,9 @@ export const useUpdateComment = (
       updateCommentApi(updatedData),
 
     onSuccess: (updatedComment) => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments', updatedComment.postId],
+      });
       onSuccess?.(updatedComment);
     },
     onError: (error) => {
