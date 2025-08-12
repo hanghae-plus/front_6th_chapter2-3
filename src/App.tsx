@@ -1,19 +1,16 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from '@/app/layouts';
+import { QueryProvider, RouterProvider } from '@/app/providers';
 import PostsManagerPage from '@/pages/PostsManagerPage';
-
-const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
+    <QueryProvider>
+      <RouterProvider>
         <Layout>
           <PostsManagerPage />
         </Layout>
-      </Router>
-    </QueryClientProvider>
+      </RouterProvider>
+    </QueryProvider>
   );
 };
 
