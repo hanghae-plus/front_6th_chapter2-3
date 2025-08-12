@@ -5,8 +5,8 @@ import type { Post, PostsApiResponse } from "../model/types"
 import type { NewPost } from "../model/types"
 import { updateQueriesWithRollback } from "@shared/lib"
 
-const buildTempPost = (p: NewPost): Post => ({
-  id: -Date.now(),
+const buildTempPost = (p: NewPost, nextId: number): Post => ({
+  id: nextId,
   title: p.title,
   body: p.body,
   userId: p.userId,
@@ -33,7 +33,12 @@ export const usePostPost = () => {
     onMutate: async (payload: NewPost) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] })
       const pairs = queryClient.getQueriesData<PostsApiResponse>({ queryKey: ["posts", "list"] })
-      const temp = buildTempPost(payload)
+      
+      // total 값을 기반으로 다음 ID 생성 (첫 번째 캐시 데이터만 사용)
+      const firstData = pairs[0]?.[1]
+      const nextId = firstData?.total ? firstData.total + 1 : 1
+      
+      const temp = buildTempPost(payload, nextId)
       const rollback = updateQueriesWithRollback(
         queryClient,
         pairs,
