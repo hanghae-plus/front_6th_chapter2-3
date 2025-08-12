@@ -12,5 +12,3 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, v
 })
 
 Button.displayName = "Button"
-
-export type { ButtonProps }

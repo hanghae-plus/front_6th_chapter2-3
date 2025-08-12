@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
+import { Button } from "@/shared/ui/button"
+import { Input } from "@/shared/ui/input"
+
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -11,12 +15,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
