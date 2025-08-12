@@ -1,6 +1,6 @@
-import Header from "../../shared/ui/Header.tsx"
-import Footer from "../../shared/ui/Footer.tsx"
-import PostsManagerPage from "../../pages/PostsManagerPage.tsx"
+import Header from "../../shared/ui/Header.tsx";
+import Footer from "../../shared/ui/Footer.tsx";
+import PostsManagerPage from "../../pages/PostsManagerPage.tsx";
 
 const App = () => {
   return (
@@ -11,7 +11,7 @@ const App = () => {
       </main>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
