@@ -1,5 +1,6 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "@shared/ui"
+import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post"
 import type { Comment } from "@entities/comment"
 
@@ -15,19 +16,6 @@ interface PostDetailDialogProps {
   onDeleteComment: (commentId: number, postId: number) => void
 }
 
-const highlightText = (text: string, highlight: string) => {
-  if (!text) return null
-  if (!highlight.trim()) {
-    return <span>{text}</span>
-  }
-  const regex = new RegExp(`(${highlight})`, "gi")
-  const parts = text.split(regex)
-  return (
-    <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-    </span>
-  )
-}
 
 export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
   open,

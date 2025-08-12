@@ -1,6 +1,7 @@
 import React from "react"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
+import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post"
 import type { User } from "@entities/user"
 
@@ -15,19 +16,6 @@ interface PostTableProps {
   onDelete: (postId: number) => void
 }
 
-const highlightText = (text: string, highlight: string) => {
-  if (!text) return null
-  if (!highlight.trim()) {
-    return <span>{text}</span>
-  }
-  const regex = new RegExp(`(${highlight})`, "gi")
-  const parts = text.split(regex)
-  return (
-    <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-    </span>
-  )
-}
 
 export const PostTable: React.FC<PostTableProps> = ({
   posts,

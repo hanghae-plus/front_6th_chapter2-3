@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
+import { createURLParams, parseURLParams } from "@shared/lib"
 import type { Post, NewPost, PostsApiResponse, Tag } from "@entities/post"
 import type { Comment, NewComment } from "@entities/comment"
 import type { User, UsersApiResponse } from "@entities/user"
@@ -18,23 +19,23 @@ import {
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+  const urlParams = parseURLParams(location.search)
 
   // 상태 관리
   const [posts, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
+  const [skip, setSkip] = useState(urlParams.skip)
+  const [limit, setLimit] = useState(urlParams.limit)
+  const [searchQuery, setSearchQuery] = useState(urlParams.search)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  const [sortBy, setSortBy] = useState(urlParams.sortBy)
+  const [sortOrder, setSortOrder] = useState(urlParams.sortOrder)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tag[]>([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
+  const [selectedTag, setSelectedTag] = useState(urlParams.tag)
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: null, userId: 1 })
@@ -46,14 +47,15 @@ const PostsManager = () => {
 
   // URL 업데이트 함수
   const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
+    const params = createURLParams({
+      skip,
+      limit,
+      search: searchQuery,
+      sortBy,
+      sortOrder,
+      tag: selectedTag
+    })
+    navigate(`?${params}`)
   }
 
   // 게시물 가져오기
@@ -311,13 +313,13 @@ const PostsManager = () => {
   }, [skip, limit, sortBy, sortOrder, selectedTag])
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    setSkip(parseInt(params.get("skip") || "0"))
-    setLimit(parseInt(params.get("limit") || "10"))
-    setSearchQuery(params.get("search") || "")
-    setSortBy(params.get("sortBy") || "")
-    setSortOrder(params.get("sortOrder") || "asc")
-    setSelectedTag(params.get("tag") || "")
+    const params = parseURLParams(location.search)
+    setSkip(params.skip)
+    setLimit(params.limit)
+    setSearchQuery(params.search)
+    setSortBy(params.sortBy)
+    setSortOrder(params.sortOrder)
+    setSelectedTag(params.tag)
   }, [location.search])
 
   return (
