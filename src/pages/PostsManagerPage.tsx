@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
-import { createURLParams, parseURLParams } from "@shared/lib"
+import { createURLParams } from "@shared/lib"
 import type { Post, NewPost } from "@entities/post"
 import { useGetPosts, useGetPostSearch, useGetPostsByTag, usePostPost, usePutPost, useDeletePost } from "@entities/post"
 import { useGetUsers, useGetUser } from "@entities/user"
@@ -22,7 +22,19 @@ import {
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const urlParams = parseURLParams(location.search)
+  
+  // URL 파라미터 파싱 (parseURLParams 통합)
+  const urlParams = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    return {
+      skip: parseInt(params.get("skip") || "0"),
+      limit: parseInt(params.get("limit") || "10"),
+      search: params.get("search") || "",
+      sortBy: params.get("sortBy") || "",
+      sortOrder: params.get("sortOrder") || "asc",
+      tag: params.get("tag") || "",
+    }
+  }, [location.search])
 
   // 상태 관리
   const [skip, setSkip] = useState(urlParams.skip)
@@ -194,13 +206,22 @@ const PostsManager = () => {
   }, [skip, limit, sortBy, sortOrder, selectedTag, updateURL])
 
   useEffect(() => {
-    const params = parseURLParams(location.search)
-    setSkip(params.skip)
-    setLimit(params.limit)
-    setSearchQuery(params.search)
-    setSortBy(params.sortBy)
-    setSortOrder(params.sortOrder)
-    setSelectedTag(params.tag)
+    const params = new URLSearchParams(location.search)
+    const parsedParams = {
+      skip: parseInt(params.get("skip") || "0"),
+      limit: parseInt(params.get("limit") || "10"),
+      search: params.get("search") || "",
+      sortBy: params.get("sortBy") || "",
+      sortOrder: params.get("sortOrder") || "asc",
+      tag: params.get("tag") || "",
+    }
+    
+    setSkip(parsedParams.skip)
+    setLimit(parsedParams.limit)
+    setSearchQuery(parsedParams.search)
+    setSortBy(parsedParams.sortBy)
+    setSortOrder(parsedParams.sortOrder)
+    setSelectedTag(parsedParams.tag)
   }, [location.search])
 
   return (
