@@ -5,13 +5,13 @@ export const fetchPosts = async (limit: number, skip: number): Promise<PostsApiR
   return response.json()
 }
 
-export const searchPosts = async (query: string): Promise<PostsApiResponse> => {
-  const response = await fetch(`/api/posts/search?q=${query}`)
+export const searchPosts = async (query: string, limit: number, skip: number): Promise<PostsApiResponse> => {
+  const response = await fetch(`/api/posts/search?q=${query}&limit=${limit}&skip=${skip}`)
   return response.json()
 }
 
-export const fetchPostsByTag = async (tag: string): Promise<PostsApiResponse> => {
-  const response = await fetch(`/api/posts/tag/${tag}`)
+export const fetchPostsByTag = async (tag: string, limit: number, skip: number): Promise<PostsApiResponse> => {
+  const response = await fetch(`/api/posts/tag/${tag}?limit=${limit}&skip=${skip}`)
   return response.json()
 }
 

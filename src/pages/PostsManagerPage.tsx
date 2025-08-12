@@ -38,8 +38,8 @@ const PostsManager = () => {
 
   // TanStack Query로 모든 데이터 조회
   const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(limit, skip)
-  const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery)
-  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag)
+  const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(searchQuery, limit, skip)
+  const { data: tagData, isLoading: isLoadingTag } = useGetPostsByTag(selectedTag, limit, skip)
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
 
   // TanStack Query mutations
