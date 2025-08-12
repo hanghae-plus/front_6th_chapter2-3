@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 export const useUrlQuery = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const updateQuery = useCallback(
     (newParams: Record<string, string | number | null | undefined>) => {
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(searchParams);
 
       Object.entries(newParams).forEach(([key, value]) => {
         if (value) {
@@ -16,10 +15,10 @@ export const useUrlQuery = () => {
           params.delete(key);
         }
       });
-      navigate(`?${params.toString()}`);
+      setSearchParams(params);
     },
-    [location.search, navigate],
+    [searchParams, setSearchParams],
   );
 
-  return { updateQuery };
+  return { searchParams, updateQuery };
 };
