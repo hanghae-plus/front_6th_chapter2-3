@@ -7,7 +7,6 @@ export const PostFilter = ({
   setSearchQuery,
   selectedTag,
   setSelectedTag,
-  updateURL,
   tags,
   sortBy,
   setSortBy,
@@ -28,13 +27,7 @@ export const PostFilter = ({
           />
         </div>
       </div>
-      <Select
-        value={selectedTag}
-        onValueChange={(value) => {
-          setSelectedTag(value);
-          updateURL();
-        }}
-      >
+      <Select value={selectedTag} onValueChange={(value) => setSelectedTag(value)}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='태그 선택' />
         </SelectTrigger>

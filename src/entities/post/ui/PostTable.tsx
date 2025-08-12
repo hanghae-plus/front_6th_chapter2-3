@@ -1,8 +1,5 @@
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 
-import { Post } from '../model/types';
-
-import { User } from '@/entities/user/model/types';
 import {
   Table,
   TableHeader,
@@ -18,7 +15,6 @@ export const PostTable = ({
   posts,
   searchQuery,
   selectedTag,
-  updateURL,
   openPostDetail,
   openUserModal,
   setShowEditDialog,
@@ -55,10 +51,7 @@ export const PostTable = ({
                         ? 'text-white bg-blue-500 hover:bg-blue-600'
                         : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
                     }`}
-                    onClick={() => {
-                      setSelectedTag(tag);
-                      updateURL();
-                    }}
+                    onClick={() => setSelectedTag(tag)}
                   >
                     {tag}
                   </span>

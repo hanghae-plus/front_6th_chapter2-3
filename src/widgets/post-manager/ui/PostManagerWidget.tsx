@@ -1,6 +1,5 @@
 import { Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 
 import {
   useAddComment,
@@ -41,9 +40,6 @@ import {
 } from '@/shared/ui';
 
 export const PostManagerWidget = () => {
-  const navigate = useNavigate();
-
-  // 상태 관리
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
@@ -59,7 +55,7 @@ export const PostManagerWidget = () => {
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
-  const { skip, setSkip, limit, setLimit } = usePagination();
+  const { skip, limit, setSkip, setLimit } = usePagination();
   const {
     searchQuery,
     selectedTag,
@@ -94,8 +90,6 @@ export const PostManagerWidget = () => {
   const { data: user } = useFetchUserById(selectedUserId);
 
   const postsWithAuthors = useMemo(() => {
-    const finalData = searchData || tagData || postsData;
-
     if (!finalData || !usersData) return [];
 
     return finalData.posts.map((post) => ({
@@ -103,18 +97,6 @@ export const PostManagerWidget = () => {
       author: usersData.find((user) => user.id === post.userId),
     }));
   }, [searchData, tagData, postsData, usersData]);
-
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
-  };
 
   // 게시물 상세 보기
   const openPostDetail = (post) => {
@@ -128,20 +110,6 @@ export const PostManagerWidget = () => {
     setSelectedUserId(user.id);
     setShowUserModal(true);
   };
-
-  useEffect(() => {
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || '0'));
-    setLimit(parseInt(params.get('limit') || '10'));
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
-    setSelectedTag(params.get('tag') || '');
-  }, [location.search]);
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -162,12 +130,11 @@ export const PostManagerWidget = () => {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
-            setSortBy={setSortBy}
             sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
             selectedTag={selectedTag}
+            setSortBy={setSortBy}
+            setSortOrder={setSortOrder}
             setSelectedTag={setSelectedTag}
-            updateURL={updateURL}
           />
 
           {/* 게시물 테이블 */}
@@ -178,7 +145,6 @@ export const PostManagerWidget = () => {
               posts={postsWithAuthors}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
-              updateURL={updateURL}
               openPostDetail={openPostDetail}
               openUserModal={openUserModal}
               setShowEditDialog={setShowEditDialog}
