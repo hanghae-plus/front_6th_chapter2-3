@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import { userEntityQueries } from "@/entities/users"
 

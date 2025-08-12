@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import type { Post } from "@/entities/posts"
 
@@ -15,7 +16,6 @@ type Props = {
 export const UpdatePostDialog = ({ post, onSubmit }: Props) => {
   const updateForm = usePostUpdateForm(post)
 
-  console.log(updateForm.values)
   return (
     <DialogContent>
       <DialogHeader>

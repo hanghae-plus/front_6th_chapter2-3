@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import {
   addComment as addCommentAction,
