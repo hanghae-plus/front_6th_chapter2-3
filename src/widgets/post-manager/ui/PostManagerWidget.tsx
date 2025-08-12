@@ -24,6 +24,8 @@ import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
 import { usePagination } from '@/features/post-pagination/model/usePagination';
 import { Pagination } from '@/features/post-pagination/ui/Pagination';
+import { usePostSearch } from '@/features/post-search/model/usePostSearch';
+import { PostSearch } from '@/features/post-search/ui/PostSearch';
 import {
   Button,
   Card,
@@ -56,16 +58,9 @@ export const PostManagerWidget = () => {
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
   const { skip, limit, setSkip, setLimit } = usePagination();
-  const {
-    searchQuery,
-    selectedTag,
-    sortBy,
-    sortOrder,
-    setSearchQuery,
-    setSelectedTag,
-    setSortBy,
-    setSortOrder,
-  } = usePostFilter();
+  const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
+    usePostFilter();
+  const { inputValue, setInputValue, searchQuery, handleSearch } = usePostSearch();
 
   const { data: tagsData } = useFetchTags();
   const { data: searchData } = useSearchPosts(searchQuery);
@@ -125,17 +120,22 @@ export const PostManagerWidget = () => {
       <CardContent>
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
-          <PostFilter
-            tags={tags}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            selectedTag={selectedTag}
-            setSortBy={setSortBy}
-            setSortOrder={setSortOrder}
-            setSelectedTag={setSelectedTag}
-          />
+          <div className='flex gap-4'>
+            <PostSearch
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              handleSearch={handleSearch}
+            />
+            <PostFilter
+              tags={tags}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              selectedTag={selectedTag}
+              setSortBy={setSortBy}
+              setSortOrder={setSortOrder}
+              setSelectedTag={setSelectedTag}
+            />
+          </div>
 
           {/* 게시물 테이블 */}
           {isLoadingPosts ? (

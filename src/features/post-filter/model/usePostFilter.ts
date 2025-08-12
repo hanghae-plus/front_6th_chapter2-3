@@ -9,7 +9,6 @@ export const usePostFilter = () => {
 
   const { updateQuery } = useUrlQuery();
 
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
   const [selectedTag, setSelectedTagState] = useState(queryParams.get('tag') || 'all');
   const [sortBy, setSortByState] = useState(queryParams.get('sortBy') || 'id');
   const [sortOrder, setSortOrderState] = useState(queryParams.get('sortOrder') || 'asc');
@@ -30,11 +29,9 @@ export const usePostFilter = () => {
   };
 
   return {
-    searchQuery,
     selectedTag,
     sortBy,
     sortOrder,
-    setSearchQuery,
     setSelectedTag,
     setSortBy,
     setSortOrder,
