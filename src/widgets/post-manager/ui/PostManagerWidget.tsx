@@ -7,7 +7,7 @@ import {
   useFetchComments,
   useLikeComment,
   useUpdateComment,
-} from '@/entities/comment/api/commentApi';
+} from '@/entities/comment/model/useComments';
 import { CommentList } from '@/entities/comment/ui/CommentList';
 import {
   useFetchPosts,
@@ -17,9 +17,9 @@ import {
   useFetchTags,
   useSearchPosts,
   useFetchPostsByTag,
-} from '@/entities/post/api/postApi';
+} from '@/entities/post/model/usePosts';
 import { PostTable } from '@/entities/post/ui/PostTable';
-import { useFetchAllUsers, useFetchUserById } from '@/entities/user/api/userApi';
+import { useFetchAllUsers, useFetchUserById } from '@/entities/user/model/useUsers';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
 import { usePagination } from '@/features/post-pagination/model/usePagination';
