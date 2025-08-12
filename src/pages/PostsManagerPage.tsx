@@ -848,7 +848,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
           </DialogHeader>
-          {/* features/user/~ */}
+          {/* entities/user/~ */}
           <div className="space-y-4">
             <img
               src={selectedUser?.image}
