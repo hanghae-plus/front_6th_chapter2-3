@@ -5,7 +5,6 @@ export { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card/Card"
 export { Textarea } from "@/shared/ui/textarea/Textarea"
 export {
   Dialog,
-  DialogTrigger,
   DialogPortal,
   DialogOverlay,
   DialogContent,
