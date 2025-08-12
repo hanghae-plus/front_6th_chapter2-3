@@ -78,7 +78,7 @@ const PostsManager = () => {
       .then((response) => response.json())
       .then((data) => {
         postsData = data
-        // getUsers
+        // getUserList
         return fetch("/api/users?limit=0&select=username,image")
       })
       .then((response) => response.json())
@@ -140,7 +140,7 @@ const PostsManager = () => {
       const [postsResponse, usersResponse] = await Promise.all([
         // getPostsByTag
         fetch(`/api/posts/tag/${tag}`),
-        // getUsers
+        // getUserList
         fetch("/api/users?limit=0&select=username,image"),
       ])
       const postsData = await postsResponse.json()
@@ -308,7 +308,7 @@ const PostsManager = () => {
   // 사용자 모달 열기
   const openUserModal = async (user) => {
     try {
-      // getUser
+      // getUserInfo
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
       setSelectedUser(userData)

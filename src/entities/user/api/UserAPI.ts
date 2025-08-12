@@ -11,7 +11,7 @@ class UserAPI extends ApiClient {
    * @param select - 선택할 필드
    * @returns 사용자 목록
    */
-  async getUsers(limit: number, select: string) {
+  async getUserList(limit: number, select: string) {
     return await this.get(`?limit=${limit}&select=${select}`)
   }
 
@@ -20,7 +20,7 @@ class UserAPI extends ApiClient {
    * @param id - 사용자 ID
    * @returns 사용자 정보
    */
-  async getUser(id: number) {
+  async getUserInfo(id: number) {
     return await this.get(`/${id}`)
   }
 }
