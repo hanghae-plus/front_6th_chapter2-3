@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
-import { useUserStore } from "../../../entities/user/model/store"
+import { useUserStore } from "../model/store"
 
-export const UserModal: React.FC = () => {
+const UserModal = () => {
   const { selectedUser, showUserModal, setShowUserModal } = useUserStore()
 
   return (
@@ -41,3 +41,5 @@ export const UserModal: React.FC = () => {
     </Dialog>
   )
 }
+
+export default UserModal
