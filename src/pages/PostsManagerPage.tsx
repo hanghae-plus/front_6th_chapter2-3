@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { Plus, Search } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { Button, Input, Select, CardHeader, CardTitle, Card, CardContent } from "../shared/ui"
+import { Button, CardHeader, CardTitle, Card, CardContent } from "../shared/ui"
 import { PostTable } from "../feature/post/ui/PostTable"
 import { Author } from "../shared/types"
 import { INIT_POST } from "../shared/data"
@@ -26,6 +26,8 @@ import { PostEditDialog } from "../feature/post/ui/PostEditDialog"
 import { PostDetailDialog } from "../feature/post/ui/PostDetailDialog"
 import { PostUserDialog } from "../feature/post/ui/PostUserDialog"
 import { Pagination } from "../widgets"
+import PostSearchFilter from "../feature/post/ui/PostSearchFilter"
+import { PostHeader } from "../feature/post/ui/PostHeader"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -255,6 +257,18 @@ const PostsManager = () => {
     setShowPostDetailDialog(true)
   }
 
+  const handleChangeTag = (value: string) => {
+    setSelectedTag(value)
+    fetchPostsByTag(value)
+    updateURL()
+  }
+
+  const handleSearchPost = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      searchPosts()
+    }
+  }
+
   // 사용자 모달 열기
   const openUserModal = async (user: Author) => {
     try {
@@ -368,70 +382,26 @@ const PostsManager = () => {
     setSkip,
   }
 
+  const filterProps = {
+    searchQuery,
+    selectedTag,
+    sortBy,
+    sortOrder,
+    tags,
+    setSearchQuery,
+    setSortBy,
+    setSortOrder,
+    handleChangeTag,
+    handleSearchPost,
+  }
+
   return (
     <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            게시물 추가
-          </Button>
-        </CardTitle>
-      </CardHeader>
+      <PostHeader setShowAddDialog={setShowAddDialog} />
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
-            <Select
-              value={selectedTag}
-              placeholder="태그 선택"
-              triggerProps={{ className: "w-[180px]" }}
-              onValueChange={(value) => {
-                setSelectedTag(value)
-                fetchPostsByTag(value)
-                updateURL()
-              }}
-              options={[
-                { name: "모든 태그", value: "all" },
-                ...tags.map((tag) => ({ name: tag.slug, value: tag.url })),
-              ]}
-            />
-            <Select
-              value={sortBy}
-              onValueChange={setSortBy}
-              placeholder="정렬 기준"
-              triggerProps={{ className: "w-[180px]" }}
-              options={[
-                { name: "없음", value: "none" },
-                { name: "ID", value: "id" },
-                { name: "제목", value: "title" },
-                { name: "반응", value: "reactions" },
-              ]}
-            />
-            <Select
-              value={sortOrder}
-              onValueChange={setSortOrder}
-              placeholder="정렬 순서"
-              triggerProps={{ className: "w-[180px]" }}
-              options={[
-                { name: "오름차순", value: "asc" },
-                { name: "내림차순", value: "desc" },
-              ]}
-            />
-          </div>
+          <PostSearchFilter {...filterProps} />
 
           {/* 게시물 테이블 */}
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> : <PostTable {...postTableProps} />}
