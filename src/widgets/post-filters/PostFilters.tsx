@@ -1,13 +1,12 @@
 import React from "react"
 import { Search } from "lucide-react"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui"
-import type { Tag } from "@entities/post"
+import { Tag, useGetTags } from "@entities/post"
 
 interface PostFiltersProps {
   searchQuery: string
   onSearchChange: (value: string) => void
   onSearchSubmit: () => void
-  tags: Tag[]
   selectedTag: string
   onTagChange: (value: string) => void
   sortBy: string
@@ -20,7 +19,6 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
   searchQuery,
   onSearchChange,
   onSearchSubmit,
-  tags,
   selectedTag,
   onTagChange,
   sortBy,
@@ -28,6 +26,7 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
   sortOrder,
   onSortOrderChange,
 }) => {
+  const { data: tags = [] } = useGetTags()
   return (
     <div className="flex gap-4">
       <div className="flex-1">
@@ -49,7 +48,7 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">모든 태그</SelectItem>
-          {tags.map((tag) => (
+          {tags.map((tag: Tag) => (
             <SelectItem key={tag.url} value={tag.slug}>
               {tag.slug}
             </SelectItem>

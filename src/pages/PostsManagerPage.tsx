@@ -3,7 +3,7 @@ import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { createURLParams, parseURLParams } from "@shared/lib"
-import type { Post, NewPost, PostsApiResponse, Tag } from "@entities/post"
+import type { Post, NewPost, PostsApiResponse } from "@entities/post"
 import type { Comment, NewComment } from "@entities/comment"
 import type { User, UsersApiResponse } from "@entities/user"
 import {
@@ -34,7 +34,6 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState<Tag[]>([])
   const [selectedTag, setSelectedTag] = useState(urlParams.tag)
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
@@ -53,7 +52,7 @@ const PostsManager = () => {
       search: searchQuery,
       sortBy,
       sortOrder,
-      tag: selectedTag
+      tag: selectedTag,
     })
     navigate(`?${params}`)
   }
@@ -86,17 +85,6 @@ const PostsManager = () => {
       .finally(() => {
         setLoading(false)
       })
-  }
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
   }
 
   // 게시물 검색
@@ -300,10 +288,6 @@ const PostsManager = () => {
   }
 
   useEffect(() => {
-    fetchTags()
-  }, [])
-
-  useEffect(() => {
     if (selectedTag) {
       fetchPostsByTag(selectedTag)
     } else {
@@ -339,7 +323,6 @@ const PostsManager = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onSearchSubmit={searchPosts}
-            tags={tags}
             selectedTag={selectedTag}
             onTagChange={(value) => {
               setSelectedTag(value)
