@@ -48,34 +48,37 @@ Feature-Sliced Design(FSD)을 프로젝트에 적용하면서 가장 애매했�
 
 | 컴포넌트               | 단일 책임         | 모델 의존성       | 분리 점수     | 상태            | 비고                         |
 | ---------------------- | ----------------- | ----------------- | ------------- | --------------- | ---------------------------- |
-| **add-post**           | ✅ 게시물 생성    | ✅ usePostPost    | **🟢 HIGH**   | 🔄 **분리대상** | CRUD + 복잡한 상태 관리      |
-| **edit-post**          | ✅ 게시물 수정    | ✅ usePutPost     | **🟢 HIGH**   | 🔄 **분리대상** | CRUD + 초기값 설정           |
-| **add-comment**        | ✅ 댓글 생성      | ✅ usePostComment | **🟢 HIGH**   | 🔄 **분리대상** | CRUD + postId 의존성         |
-| **edit-comment**       | ✅ 댓글 수정      | ✅ usePutComment  | **🟢 HIGH**   | 🔄 **분리대상** | CRUD + 초기값 설정           |
-| **post-filters**       | ✅ 필터/검색 제어 | ✅ tags API       | **🟢 HIGH**   | 🔄 **분리대상** | URL param 제어 + 복잡한 상태 |
-| **user-dialog**        | ✅ 사용자 조회    | ✅ user API       | **🟡 MEDIUM** | 🤔 **검토필요** | 단순 조회지만 독립성 높음    |
-| **post-detail-dialog** | ✅ 데이터 표시    | ✅ post API       | **🟡 MEDIUM** | 🤔 **검토필요** | 단순 조회                    |
+| **add-post**           | ✅ 게시물 생성    | ✅ usePostPost    | **🟢 HIGH**   | ✅ **분리완료** | CRUD + 복잡한 상태 관리      |
+| **edit-post**          | ✅ 게시물 수정    | ✅ usePutPost     | **🟢 HIGH**   | ✅ **분리완료** | CRUD + 초기값 설정           |
+| **add-comment**        | ✅ 댓글 생성      | ✅ usePostComment | **🟢 HIGH**   | ✅ **분리완료** | CRUD + postId 의존성         |
+| **edit-comment**       | ✅ 댓글 수정      | ✅ usePutComment  | **🟢 HIGH**   | ✅ **분리완료** | CRUD + 초기값 설정           |
+| **remove-post**        | ✅ 게시물 삭제    | ✅ useDeletePost  | **🟢 HIGH**   | ✅ **분리완료** | DELETE 작업 + 확인 로직      |
+| **like-comment**       | ✅ 댓글 좋아요    | ✅ usePatchLikes  | **🟢 HIGH**   | ✅ **분리완료** | PATCH + optimistic update    |
+| **remove-comment**     | ✅ 댓글 삭제      | ✅ useDeleteComment | **🟢 HIGH**   | ✅ **분리완료** | DELETE + 즉시 UI 업데이트    |
+| **post-filters**       | ✅ 필터/검색 제어 | ✅ tags API       | **🟡 MEDIUM** | ❌ **유지**     | props drilling으로 분리불가  |
+| **user-dialog**        | ❌ 단순 조회      | ❌ GET만          | **🔴 LOW**    | ❌ **유지**     | 단순 데이터 표시             |
+| **post-detail-dialog** | ❌ 조합 위젯      | ❌ GET + 조합     | **🔴 LOW**    | ❌ **유지**     | Feature들을 배치하는 역할    |
 | pagination             | ❌ 순수 UI        | ❌ 계산만         | **🔴 LOW**    | ❌ **유지**     | 비즈니스 로직 없음           |
 | header                 | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 단순 네비게이션              |
 | footer                 | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 정적 컨텐츠                  |
-| post-table             | ❌ 데이터 표시    | ❌ prop 전달만    | **🔴 LOW**    | ❌ **유지**     | 복합 UI 블록                 |
+| post-table             | ❌ 데이터 표시    | ❌ 복합 API 호출  | **🔴 LOW**    | ❌ **유지**     | 복합 UI 블록 + 데이터 통합   |
 
 ### 분석 결과 요약
 
-**🟢 HIGH (Feature 분리 필요):**
+**🟢 HIGH (Feature 분리 완료):**
 
-- **CRUD 작업** + **서버 상태 관리** + **복잡한 폼 로직**
-- 분리 완료: add-post, edit-post, add-comment, edit-comment
-- 분리 대상: post-filters
+- **사용자 행위(User Action)** + **서버 상태 변경** + **비즈니스 로직**
+- 분리 완료: add-post, edit-post, add-comment, edit-comment, remove-post, like-comment, remove-comment
+- 총 7개 Feature로 분리하여 단일 책임 원칙 준수
 
-**🟡 MEDIUM (상황에 따라 분리):**
+**🟡 MEDIUM (분리 검토 후 유지):**
 
-- **단순 조회** + **API 의존성** + **독립적 책임**
-- 향후 확장 가능성과 팀 컨벤션에 따라 결정
+- **post-filters**: props drilling 문제로 분리 불가능
+- API 의존성이 있으나 완전한 캡슐화가 어려운 경우
 
 **🔴 LOW (분리 불필요):**
 
-- **순수 UI** + **정적 컨텐츠** + **단순 계산**
+- **순수 UI** + **정적 컨텐츠** + **단순 계산** + **GET API만 사용**
 - Widget으로 유지하여 복잡성 방지
 
 ## 실제 적용 예시
@@ -118,11 +121,48 @@ src/widgets/post-table/   // 단순 데이터 표 렌더링
 - **서버 통신, 캐싱, 검증** → Feature
 - **언제든 slice 이동이 쉽다** → 처음부터 완벽히 나눠야 한다는 부담을 내려놓기
 
+## GET API는 Feature로 분리하지 않는다
+
+### 핵심 원칙
+
+**GET API는 Entity 레이어에서 관리하고, Feature는 실제 사용자 행위에 집중한다.**
+
+### 판단 기준
+
+| API 종류 | 위치 | 이유 | 예시 |
+|---------|------|------|------|
+| **GET** | `entities/*/api/` | 데이터 조회, 부수효과 없음 | `useGetPosts()`, `useGetUser()` |
+| **POST** | `features/add-*` | 새로운 데이터 생성 행위 | `features/add-post/` |
+| **PUT/PATCH** | `features/edit-*` | 기존 데이터 수정 행위 | `features/edit-comment/` |
+| **DELETE** | `features/remove-*` | 데이터 삭제 행위 | `features/remove-post/` |
+
+### 실제 적용 사례
+
+```typescript
+// ✅ 올바른 구조
+entities/post/api/useGetPosts()        // 조회는 Entity
+features/add-post/                     // 생성은 Feature  
+widgets/post-table/                    // Entity API 직접 사용
+
+// ❌ 잘못된 구조
+features/get-posts/                    // GET을 Feature로 오해
+features/fetch-user-list/              // 불필요한 추상화
+```
+
+### 이유
+
+1. **Feature = 사용자 행위**: "무엇을 하겠다"는 명확한 의도
+2. **GET = 데이터 요구**: "데이터가 필요하다"는 단순 요구사항
+3. **부수효과 없음**: 시스템 상태를 변경하지 않음
+4. **재사용성**: 여러 곳에서 동일한 데이터 필요
+
 ## 마무리
 
-FSD에서 Feature와 Widget을 구분하는 핵심은 **"기능 중심"**과 **"재사용 가능성"** 두 축으로 판단하는 것이다. UI를 어디에 배치할지 결정할 때는 컴포넌트의 책임 범위와 복잡도를 기준으로 하되, 필요에 따라 점진적으로 Feature로 승급하는 유연한 접근이 중요하다.
+FSD에서 Feature와 Widget을 구분하는 핵심은 **"사용자 행위 중심"**과 **"단일 책임 원칙"** 두 축으로 판단하는 것이다. 
 
-결국 "완벽한 분리"보다는 **"명확한 책임 분리"**와 **"유지보수 용이성"**을 우선시하는 것이 현실적인 FSD 적용 방법이라고 생각한다.
+특히 **GET API는 Feature가 아닌 Entity에서 관리**하여 불필요한 추상화를 피하고, **실제 비즈니스 행위(POST/PUT/DELETE)만 Feature로 분리**하는 것이 FSD 철학에 부합한다.
+
+결국 "완벽한 분리"보다는 **"명확한 책임 분리"**와 **"적절한 추상화 수준"**을 유지하는 것이 현실적인 FSD 적용 방법이라고 생각한다.
 
 ---
 
