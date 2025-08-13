@@ -19,7 +19,7 @@ export const fetchPosts = async (limit: number, skip: number) => {
  * @returns 게시물 목록
  */
 export const searchPosts = async (searchQuery: string) => {
-  const response = await api.get(`/posts/search?q=${searchQuery}`)
+  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts/search?q=${searchQuery}`)
   return response
 }
 
@@ -29,7 +29,7 @@ export const searchPosts = async (searchQuery: string) => {
  * @returns 게시물 목록
  */
 export const fetchPostsByTag = async (tag: string) => {
-  const response = await api.get(`/posts/tag/${tag}`)
+  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts/tag/${tag}`)
   return response
 }
 
