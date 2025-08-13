@@ -27,5 +27,6 @@
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": true,
   "importOrderCaseInsensitive": true,
+  "importOrderTypeScriptVersion": "4.4.0",
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
 }
