@@ -38,6 +38,7 @@ export interface PostFilter {
   sortOrder?: "asc" | "desc"
   skip?: number
   limit?: number
+  [key: string]: unknown
 }
 
 export interface PostWithAuthor extends Post {

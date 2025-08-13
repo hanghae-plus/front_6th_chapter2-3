@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 
 import {
   Button,
@@ -27,6 +28,8 @@ import {
   Textarea,
 } from "@/shared/ui"
 import { HttpClient } from "@/shared/api/http"
+import { postWithAuthorQueries } from "@/features/post/model/queries"
+import { postQueries } from "@/entities/post/model/queries"
 import {
   Author,
   Comment,
@@ -81,6 +84,22 @@ const PostsManager = () => {
   const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
 
+  // ===== useQuery 훅들 =====
+  // 게시물 목록 조회 (with author)
+  const postsQuery = useQuery(
+    postWithAuthorQueries.list({
+      skip,
+      limit,
+      search: searchQuery,
+      tag: selectedTag,
+      sortBy: (sortBy as "id" | "title" | "reactions" | "none") || undefined,
+      sortOrder: sortOrder as "asc" | "desc",
+    }),
+  )
+
+  // 태그 목록 조회
+  const tagsQuery = useQuery(postQueries.tags())
+
   // ===== URL 업데이트 함수 =====
   /**
    * 현재 상태를 URL 쿼리 파라미터로 업데이트
@@ -99,66 +118,15 @@ const PostsManager = () => {
 
   // ===== 게시물 관련 함수들 =====
   /**
-   * 게시물 목록을 가져오는 함수
-   * 게시물과 사용자 정보를 함께 가져와서 조합
-   */
-  const fetchPosts = async () => {
-    setLoading(true)
-
-    try {
-      const { posts, total } = await HttpClient.get<PostPaginatedResponse>(`/posts?limit=${limit}&skip=${skip}`)
-      const { users } = await HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`)
-
-      console.log("---post---")
-      console.log(posts)
-      const postsWithUsers = posts.map((post) => ({
-        ...post,
-        author: users.find((user) => user.id === post.userId) as Author,
-      }))
-
-      console.log("---postWithUsers---")
-      console.log(postsWithUsers)
-
-      setPosts(postsWithUsers)
-      setTotal(total)
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  /**
-   * 태그 목록을 가져오는 함수
-   */
-  const fetchTags = async () => {
-    try {
-      const res = await HttpClient.get<Tag[]>(`/posts/tags`)
-      setTags(res)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }
-
-  /**
    * 게시물 검색 함수
    * 검색어가 없으면 전체 게시물을 가져옴
    */
   const searchPosts = async () => {
     if (!searchQuery) {
-      fetchPosts()
+      // 검색어가 없으면 전체 게시물을 가져옴
       return
     }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
+    // useQuery가 자동으로 처리하므로 별도 로직 불필요
   }
 
   /**
@@ -167,29 +135,10 @@ const PostsManager = () => {
    */
   const fetchPostsByTag = async (tag: string) => {
     if (!tag || tag === "all") {
-      fetchPosts()
+      // useQuery가 자동으로 처리하므로 별도 로직 불필요
       return
     }
-    setLoading(true)
-    try {
-      // 게시물과 사용자 정보를 병렬로 가져옴
-      const [postsResponse, usersResponse] = await Promise.all([
-        HttpClient.get<PostPaginatedResponse>(`/posts/tag/${tag}`),
-        HttpClient.get<UserPaginatedResponse>("/users?limit=0&select=username,image"),
-      ])
-
-      // 게시물에 작성자 정보 추가
-      const postsWithUsers = postsResponse.posts.map((post) => ({
-        ...post,
-        author: usersResponse.users.find((user) => user.id === post.userId) as Author,
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsResponse.total)
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
-    }
-    setLoading(false)
+    // useQuery가 자동으로 처리하므로 별도 로직 불필요
   }
 
   /**
@@ -342,9 +291,7 @@ const PostsManager = () => {
       const updatedLikes = currentComment.likes + 1
 
       // HttpClient를 사용하여 PATCH 요청
-      const data = await HttpClient.patch<Comment>(`/comments/${id}`, {
-        likes: updatedLikes,
-      })
+      const data = await HttpClient.patch<Comment>(`/comments/${id}`, { likes: updatedLikes })
 
       // 좋아요 수를 증가시켜 댓글 목록 업데이트
       setComments((prev) => ({
@@ -384,18 +331,21 @@ const PostsManager = () => {
   // ===== useEffect 훅들 =====
   // 컴포넌트 마운트 시 태그 목록 가져오기
   useEffect(() => {
-    fetchTags()
-  }, [])
+    // tagsQuery.data는 태그 목록 배열
+    if (tagsQuery.data) {
+      setTags(tagsQuery.data)
+    }
+  }, [tagsQuery.data])
 
   // 페이지네이션, 정렬, 태그 변경 시 게시물 다시 가져오기
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
+    // postsQuery.data는 게시물 목록과 전체 개수를 포함한 객체
+    if (postsQuery.data) {
+      setPosts(postsQuery.data.posts)
+      setTotal(postsQuery.data.total)
     }
     updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
+  }, [skip, limit, sortBy, sortOrder, selectedTag, postsQuery.data])
 
   // URL 쿼리 파라미터 변경 시 상태 동기화
   useEffect(() => {

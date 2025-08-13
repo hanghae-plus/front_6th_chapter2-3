@@ -1,10 +1,8 @@
-import type { CommentFilter } from "@/entities/comment/model/types"
+import { normalize } from "@/shared/lib/normalizeParams"
+import type { CommentFilter } from "@/shared/types/comment.type"
 
-export const COMMENT_QUERY_KEYS = {
-  all: ["comments"] as const,
-  lists: () => [...COMMENT_QUERY_KEYS.all, "list"] as const,
-  list: (postId: number, filters?: CommentFilter) => [...COMMENT_QUERY_KEYS.lists(), postId, filters] as const,
-  details: () => [...COMMENT_QUERY_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...COMMENT_QUERY_KEYS.details(), id] as const,
-  user: (userId: number, filters?: CommentFilter) => [...COMMENT_QUERY_KEYS.all, "user", userId, filters] as const,
-} as const
+export const COMMENT_QK = {
+  base: () => ["comments"] as const,
+  list: (p: CommentFilter) => [...COMMENT_QK.base(), "list", normalize(p as Record<string, unknown>)] as const,
+  detail: (id: number) => [...COMMENT_QK.base(), "detail", id] as const,
+}
