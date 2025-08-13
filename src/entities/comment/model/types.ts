@@ -16,10 +16,11 @@ export interface CommentsResponse {
 
 export interface CreateCommentRequest {
   body: string
-  postId: number
+  postId: number | null
   userId: number
 }
 
 export interface UpdateComment {
-  body: string
+  body?: string
+  likes?: number
 }

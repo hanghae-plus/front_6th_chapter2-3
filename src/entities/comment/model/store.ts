@@ -4,39 +4,42 @@ import { commentApi } from "../api"
 
 interface CommentsState {
   comments: Record<number, Comment[]>
+  selectedComment: Comment | null
   loading: boolean
   error: string | null
 
   fetchComments: (postId: number) => Promise<void>
-  addComment: (comment: CreateCommentRequest) => Promise<void>
-  updateComment: (id: number, comment: UpdateComment) => Promise<void>
+  createComment: (comment: CreateCommentRequest) => Promise<void>
+  editComment: (id: number, comment: UpdateComment) => Promise<void>
   deleteComment: (id: number, postId: number) => Promise<void>
   likeComment: (id: number, postId: number) => Promise<void>
+
   setComments: (postId: number, comments: Comment[]) => void
+  setSelectedComment: (comment: Comment | null) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
 }
 
 export const useCommentStore = create<CommentsState>((set, get) => ({
   comments: {},
+  selectedComment: null,
   loading: false,
   error: null,
 
-  setComments: (postId: number, comments: Comment[]) =>
-    set((prev) => ({
-      comments: { ...prev.comments, [postId]: comments },
+  setComments: (postId, comments) =>
+    set((state) => ({
+      comments: { ...state.comments, [postId]: comments },
     })),
-  setLoading: (loading: boolean) => set({ loading }),
-  setError: (error: string | null) => set({ error }),
+  setSelectedComment: (selectedComment) => set({ selectedComment }),
+  setLoading: (loading) => set({ loading }),
+  setError: (error) => set({ error }),
 
   fetchComments: async (postId: number) => {
-    if (get().comments[postId]) return
-
     set({ loading: true, error: null })
     try {
-      const data = await commentApi.getComments(postId)
-      set((prev) => ({
-        comments: { ...prev.comments, [postId]: data.comments },
+      const data = await commentApi.getCommentsByPost(postId)
+      set((state) => ({
+        comments: { ...state.comments, [postId]: data.comments },
         loading: false,
       }))
     } catch (error: any) {
@@ -45,13 +48,15 @@ export const useCommentStore = create<CommentsState>((set, get) => ({
     }
   },
 
-  addComment: async (comment: CreateCommentRequest) => {
+  createComment: async (comment: CreateCommentRequest) => {
     try {
       const data = await commentApi.addComment(comment)
-      set((prev) => ({
+      const { comments } = get()
+      const postComments = comments[comment.postId!] || []
+      set((state) => ({
         comments: {
-          ...prev.comments,
-          [data.postId]: [...(prev.comments[data.postId] || []), data],
+          ...state.comments,
+          [comment.postId!]: [data, ...postComments],
         },
       }))
     } catch (error: any) {
@@ -60,28 +65,33 @@ export const useCommentStore = create<CommentsState>((set, get) => ({
     }
   },
 
-  updateComment: async (id: number, comment: UpdateComment) => {
+  editComment: async (id: number, comment: UpdateComment) => {
     try {
       const data = await commentApi.updateComment(id, comment)
-      set((prev) => ({
-        comments: {
-          ...prev.comments,
-          [data.postId]: prev.comments[data.postId].map((c) => (c.id === data.id ? data : c)),
+      const { comments } = get()
+      const updatedComments = Object.keys(comments).reduce(
+        (acc, postId) => {
+          acc[Number(postId)] = comments[Number(postId)].map((c) => (c.id === data.id ? data : c))
+          return acc
         },
-      }))
+        {} as Record<number, Comment[]>,
+      )
+      set({ comments: updatedComments })
     } catch (error: any) {
       set({ error: error.message })
-      console.error("댓글 수정 오류:", error)
+      console.error("댓글 업데이트 오류:", error)
     }
   },
 
   deleteComment: async (id: number, postId: number) => {
     try {
       await commentApi.deleteComment(id)
-      set((prev) => ({
+      const { comments } = get()
+      const postComments = comments[postId] || []
+      set((state) => ({
         comments: {
-          ...prev.comments,
-          [postId]: prev.comments[postId].filter((c) => c.id !== id),
+          ...state.comments,
+          [postId]: postComments.filter((comment) => comment.id !== id),
         },
       }))
     } catch (error: any) {
@@ -92,17 +102,16 @@ export const useCommentStore = create<CommentsState>((set, get) => ({
 
   likeComment: async (id: number, postId: number) => {
     try {
-      const currentComments = get().comments[postId]
-      const comment = currentComments.find((c) => c.id === id)
-      if (!comment) return
-
       const data = await commentApi.likeComment(id)
-      set((prev) => ({
-        comments: {
-          ...prev.comments,
-          [postId]: prev.comments[postId].map((c) => (c.id === data.id ? { ...data, likes: c.likes + 1 } : c)),
+      const { comments } = get()
+      const updatedComments = Object.keys(comments).reduce(
+        (acc, postId) => {
+          acc[Number(postId)] = comments[Number(postId)].map((c) => (c.id === data.id ? data : c))
+          return acc
         },
-      }))
+        {} as Record<number, Comment[]>,
+      )
+      set({ comments: updatedComments })
     } catch (error: any) {
       set({ error: error.message })
       console.error("댓글 좋아요 오류:", error)

@@ -3,18 +3,21 @@ import { Comment, CreateCommentRequest, CommentsResponse, UpdateComment } from "
 
 export const commentApi = {
   /** 댓글 목록 가져오기 */
-  async getComments(postId: number): Promise<CommentsResponse> {
+  async getCommentsByPost(postId: number): Promise<CommentsResponse> {
     return await apiClient.get<CommentsResponse>(`/comments/post/${postId}`)
   },
 
   /** 댓글 추가 */
   async addComment(newComment: CreateCommentRequest): Promise<Comment> {
+    if (!newComment.postId) {
+      throw new Error("postId is required")
+    }
     return await apiClient.post<Comment>("/comments/add", newComment)
   },
 
   /** 댓글 업데이트 */
-  async updateComment(commentId: number, body: UpdateComment): Promise<Comment> {
-    return await apiClient.put<Comment>(`/comments/${commentId}`, { body })
+  async updateComment(commentId: number, updateData: UpdateComment): Promise<Comment> {
+    return await apiClient.put<Comment>(`/comments/${commentId}`, updateData)
   },
 
   /** 댓글 삭제 */
