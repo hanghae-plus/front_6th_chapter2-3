@@ -4,7 +4,7 @@ import type { Post } from "@/entities/posts"
 import { usePostUpdateForm } from "../hooks"
 import type { PostFormValues } from "../model"
 
- 
+
 
 type Props = {
   post: Post
@@ -45,4 +45,4 @@ export const UpdatePostDialog = ({ post, onSubmit }: Props) => {
   )
 }
 
- 
+

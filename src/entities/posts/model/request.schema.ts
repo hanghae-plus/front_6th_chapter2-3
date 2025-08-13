@@ -3,8 +3,10 @@ import { postSchema } from "./schema"
 import { z } from "zod"
 
 export const getPostsRequestParamsSchema = z.object({
-  limit: z.number().min(1).max(100).default(10),
-  skip: z.number().min(0).default(0),
+  limit: z.number().min(1).max(100).optional(),
+  skip: z.number().min(0).optional(),
+  sortBy: z.enum(postSchema.pick({ id: true, title: true, reactions: true }).keyof().enum).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
 })
 
 export const addPostRequestSchema = postSchema.pick({

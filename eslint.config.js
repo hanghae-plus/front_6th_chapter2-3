@@ -32,10 +32,25 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       
-      // 코드 스타일 규칙
+      // 코드 스타일 규칙 (자동수정 가능하도록 구성)
       "semi": ["error", "never"],
       "quotes": ["error", "double"],
       "indent": ["error", 2],
+      "eol-last": ["error", "always"],
+      "no-trailing-spaces": ["error"],
+      "no-multi-spaces": ["error"],
+      "comma-spacing": ["error", { before: false, after: true }],
+      "keyword-spacing": ["error", { before: true, after: true }],
+      "space-before-blocks": ["error", "always"],
+      "space-infix-ops": ["error"],
+      "arrow-spacing": ["error", { before: true, after: true }],
+      "block-spacing": ["error", "always"],
+      "object-curly-newline": ["error", { "multiline": true, "consistent": true }],
+      "object-curly-spacing": ["error", "always"],
+      "array-bracket-spacing": ["error", "never"],
+      "space-in-parens": ["error", "never"],
+      "jsx-quotes": ["error", "prefer-double"],
+      "arrow-parens": ["error", "always"],
       "max-len": [
         "warn",
         {
@@ -48,10 +63,6 @@ export default tseslint.config(
         }
       ],
       "comma-dangle": ["error", "always-multiline"],
-      "object-curly-spacing": ["error", "always"],
-      "array-bracket-spacing": ["error", "never"],
-      "arrow-parens": ["error", "always"],
-      "eol-last": ["error", "always"],
 
       // FSD layer restrictions (custom rules) - warnings only for gradual adoption
       "no-restricted-imports": [
@@ -70,7 +81,7 @@ export default tseslint.config(
 
       // Import sort: 외부(서드파티) → 한 줄 공백 → 앱 내부(FSD 경로 순)
       "simple-import-sort/imports": [
-        "warn",
+        "error",
         {
           groups: [
             // 1) Node 내장 + 외부(react, react-dom 등)
@@ -102,6 +113,7 @@ export default tseslint.config(
           ],
         },
       ],
+      "simple-import-sort/exports": "error",
     },
   },
 )

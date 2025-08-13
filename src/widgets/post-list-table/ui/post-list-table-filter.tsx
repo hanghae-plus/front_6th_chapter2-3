@@ -1,14 +1,12 @@
-import { useQueryParamsPagination } from "@/shared/hooks"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
-import { postEntityQueries } from "@/entities/posts"
+import { getPostsRequestParamsSchema, postEntityQueries, postSchema } from "@/entities/posts"
+import { usePostListFilterQueryParams } from "@/widgets/post-list-table"
 
 import { useQuery } from "@tanstack/react-query"
 import { Search } from "lucide-react"
-import { parseAsString, useQueryState } from "nuqs"
 
 export const PostListTableFilter = () => {
-  const [selectedTag, setSelectedTag] = useQueryState("tag", parseAsString.withDefault(""))
-  const [queryParamsPagination, setQueryParamsPagination] = useQueryParamsPagination()
+  const { queryParams, setQueryParamsPagination, setSelectedTag, setSortBy } = usePostListFilterQueryParams()
 
   const { data: tags } = useQuery({
     ...postEntityQueries.getPostTags(),
@@ -19,11 +17,17 @@ export const PostListTableFilter = () => {
   }
 
   const handleChangeSortBy = (sortBy: string) => {
-    setQueryParamsPagination((prevPagination) => ({ ...prevPagination, sortBy }))
+    const parsedSortBy = getPostsRequestParamsSchema.shape.sortBy.safeParse(sortBy)
+    if (!parsedSortBy.success) return
+
+    setSortBy(parsedSortBy.data ?? "id")
   }
 
-  const handleChangeSortOrder = (sortOrder: string) => {
-    setQueryParamsPagination((prevPagination) => ({ ...prevPagination, sortOrder }))
+  const handleChangeOrder = (order: string) => {
+    const parsedOrder = getPostsRequestParamsSchema.shape.order.safeParse(order)
+    if (!parsedOrder.success) return
+
+    setQueryParamsPagination((prevPagination) => ({ ...prevPagination, order: parsedOrder.data }))
   }
 
   return (
@@ -40,13 +44,13 @@ export const PostListTableFilter = () => {
             name="searchQuery"
             placeholder="게시물 검색..."
             className="pl-8"
-            value={queryParamsPagination.searchQuery}
+            value={queryParams.searchQuery}
             onChange={(event) => handleChangeSearchQuery(event.target.value)}
           />
         </div>
       </div>
       <Select
-        value={selectedTag}
+        value={queryParams.selectedTag}
         onValueChange={(value) => {
           setSelectedTag(value)
         }}
@@ -63,21 +67,21 @@ export const PostListTableFilter = () => {
           ))}
         </SelectContent>
       </Select>
-      <Select name="sortBy" value={queryParamsPagination.sortBy} onValueChange={(value) => handleChangeSortBy(value)}>
+      <Select name="sortBy" value={queryParams.sortBy} onValueChange={(value) => handleChangeSortBy(value)}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 기준" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">없음</SelectItem>
-          <SelectItem value="id">ID</SelectItem>
-          <SelectItem value="title">제목</SelectItem>
-          <SelectItem value="reactions">반응</SelectItem>
+          <SelectItem value={postSchema.keyof().enum.id}>ID</SelectItem>
+          <SelectItem value={postSchema.keyof().enum.title}>제목</SelectItem>
+          <SelectItem value={postSchema.keyof().enum.reactions}>반응</SelectItem>
         </SelectContent>
       </Select>
       <Select
-        name="sortOrder"
-        value={queryParamsPagination.sortOrder}
-        onValueChange={(value) => handleChangeSortOrder(value)}
+        name="order"
+        value={queryParams.order}
+        onValueChange={(value) => handleChangeOrder(value)}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />

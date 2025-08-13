@@ -1,4 +1,4 @@
- 
+
 import { Button, DialogContent, DialogHeader, DialogTitle, HighlightText } from "@/shared/ui"
 import {
   addComment as addCommentAction,
@@ -36,8 +36,6 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
     mutationFn: updateCommentAction,
     onError: (error) => console.error("댓글 수정 오류:", error),
   })
-
-  
 
   return (
     <DialogContent className="max-w-3xl">
@@ -112,4 +110,4 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
   )
 }
 
- 
+

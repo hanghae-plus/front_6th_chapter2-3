@@ -1,6 +1,6 @@
 import { useQueryParamsPagination } from "@/shared/hooks"
 import { deleteComment as deleteCommentAction, likeComment as likeCommentAction } from "@/entities/comments"
-import { addPost as addPostAction, optimisticAddPost, postEntityQueries, updatePost as updatePostAction } from "@/entities/posts"
+import { addPost as addPostAction, getPostsRequestParamsSchema, optimisticAddPost, postEntityQueries, updatePost as updatePostAction } from "@/entities/posts"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
@@ -15,7 +15,12 @@ export const usePostManagement = () => {
     },
     onSuccess: (addPostResponse) => {
       queryClient.setQueryData(
-        postEntityQueries.getPosts({ limit: queryParamsPagination.limit, skip: queryParamsPagination.skip }).queryKey,
+        postEntityQueries.getPosts({
+          limit: queryParamsPagination.limit,
+          skip: queryParamsPagination.skip,
+          sortBy: getPostsRequestParamsSchema.shape.sortBy.safeParse(queryParamsPagination.sortBy)?.data,
+          order: queryParamsPagination.order,
+        }).queryKey,
         (prevPostResponse) => optimisticAddPost(prevPostResponse, addPostResponse),
       )
     },

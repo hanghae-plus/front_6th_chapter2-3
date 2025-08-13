@@ -1,15 +1,13 @@
-import { useQueryParamsPagination } from "@/shared/hooks"
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
 import { postEntityQueries } from "@/entities/posts"
-
-import { POST_PAGINATION_LIMIT_OPTIONS } from "../model"
+import { POST_PAGINATION_LIMIT_OPTIONS, usePostListFilterQueryParams } from "@/widgets/post-list-table"
 
 import { useQuery } from "@tanstack/react-query"
 
 export const PostListTablePagination = () => {
-  const [queryParamsPagination, setQueryParamsPagination] = useQueryParamsPagination()
+  const { queryParams, setQueryParamsPagination } = usePostListFilterQueryParams()
   const postsQuery = useQuery({
-    ...postEntityQueries.getPosts({ limit: queryParamsPagination.limit, skip: queryParamsPagination.skip }),
+    ...postEntityQueries.getPosts({ ...queryParams }),
   })
 
   const handleLimitChange = (limit: number) => {
@@ -33,7 +31,7 @@ export const PostListTablePagination = () => {
       <div className="flex items-center gap-2">
         <span>표시</span>
         <Select
-          value={queryParamsPagination.limit.toString()}
+          value={queryParams.limit.toString()}
           onValueChange={(value) => handleLimitChange(Number(value))}
         >
           <SelectTrigger className="w-[180px]">
@@ -51,11 +49,11 @@ export const PostListTablePagination = () => {
         <span>항목</span>
       </div>
       <div className="flex gap-2">
-        <Button disabled={queryParamsPagination.skip === 0} onClick={handlePreviousPage}>
+        <Button disabled={queryParams.skip === 0} onClick={handlePreviousPage}>
           이전
         </Button>
         <Button
-          disabled={queryParamsPagination.skip + queryParamsPagination.limit >= (postsQuery.data?.total ?? 0)}
+          disabled={queryParams.skip + queryParams.limit >= (postsQuery.data?.total ?? 0)}
           onClick={handleNextPage}
         >
           다음

@@ -3,7 +3,7 @@ import type { AddPostFormValues } from "@/features/add-post"
 
 import { useAddPostForm } from "../hooks"
 
- 
+
 
 type Props = {
   onSubmit: (formData: AddPostFormValues) => void
@@ -48,4 +48,4 @@ export const AddPostDialog = ({ onSubmit, close }: Props) => {
   )
 }
 
- 
+

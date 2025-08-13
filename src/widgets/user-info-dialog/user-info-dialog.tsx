@@ -2,7 +2,7 @@ import { DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import { userEntityQueries } from "@/entities/users"
 
 import { useQuery } from "@tanstack/react-query"
- 
+
 
 type Props = {
   userId: number
@@ -44,4 +44,4 @@ export const UserInfoDialog = ({ userId }: Props) => {
   )
 }
 
- 
+
