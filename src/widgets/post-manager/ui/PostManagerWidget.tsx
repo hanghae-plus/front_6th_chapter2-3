@@ -10,7 +10,6 @@ import {
 import { CommentList } from '@/entities/comment/ui/CommentList';
 import {
   useFetchPosts,
-  useUpdatePost,
   useDeletePost,
   useFetchTags,
   useSearchPosts,
@@ -21,6 +20,8 @@ import { useFetchAllUsers, useFetchUserById } from '@/entities/user/model/useUse
 import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
+import { useEditPost } from '@/features/post-edit/model/useEditPost';
+import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
 import { usePagination } from '@/features/post-pagination/model/usePagination';
@@ -37,26 +38,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Input,
   Textarea,
   HighlightText,
 } from '@/shared/ui';
 
 export const PostManagerWidget = () => {
-  const {
-    showDialog: showAddDialog,
-    setShowDialog: setShowAddDialog,
-    newPost,
-    setNewPost,
-    openDialog: openAddDialog,
-    handleSubmit,
-  } = useCreatePost();
-
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -79,7 +69,21 @@ export const PostManagerWidget = () => {
   const total = finalData?.total || 0;
   const tags = tagsData || [];
 
-  const { mutate: updatePost } = useUpdatePost();
+  const {
+    showDialog: showAddDialog,
+    setShowDialog: setShowAddDialog,
+    newPost,
+    setNewPost,
+    openDialog: openAddDialog,
+    handleSubmit,
+  } = useCreatePost();
+
+  const {
+    showDialog: showEditDialog,
+    setShowDialog: setShowEditDialog,
+    handleSubmit: handleEditSubmit,
+  } = useEditPost(selectedPost!);
+
   const { mutate: deletePost } = useDeletePost();
 
   const { data: comments } = useFetchComments(selectedPostId);
@@ -179,27 +183,13 @@ export const PostManagerWidget = () => {
       />
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={selectedPost?.title || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder='내용'
-              value={selectedPost?.body || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditPostDialog
+        showEditDialog={showEditDialog}
+        setShowEditDialog={setShowEditDialog}
+        selectedPost={selectedPost}
+        setSelectedPost={setSelectedPost}
+        updatePost={handleEditSubmit}
+      />
 
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
