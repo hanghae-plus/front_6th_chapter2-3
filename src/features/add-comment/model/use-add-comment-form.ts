@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react"
 import { usePostComment } from "@entities/comment"
-import type { AddCommentFormData, AddCommentCallbacks } from "@/features/add-comment/model/types"
+
+// Types
+export interface AddCommentFormData {
+  body: string
+  postId: number
+  userId: number
+}
+
+export interface AddCommentCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useAddCommentForm = (open: boolean, postId?: number) => {
   const [body, setBody] = useState("")

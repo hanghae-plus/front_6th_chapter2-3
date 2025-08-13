@@ -1,5 +1,10 @@
 import { useDeletePost as useDeletePostEntity } from "@entities/post"
-import type { DeletePostCallbacks } from "@/features/remove-post/model/types"
+
+// Types
+export interface DeletePostCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useRemovePost = () => {
   const deletePostMutation = useDeletePostEntity()

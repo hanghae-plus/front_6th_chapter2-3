@@ -1,2 +1,1 @@
-export { useRemovePost } from "@/features/remove-post/model/use-remove-post"
-export * from "@/features/remove-post/model/types"
+export { useRemovePost, type DeletePostCallbacks } from "./use-remove-post"

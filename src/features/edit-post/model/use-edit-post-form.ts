@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react"
 import { usePutPost } from "@entities/post"
 import type { Post } from "@entities/post"
-import type { EditPostFormData, EditPostCallbacks } from "./types"
+
+// Types
+export interface EditPostFormData {
+  title: string
+  body: string
+}
+
+export interface EditPostCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useEditPostForm = (initialPost?: Post | null, open?: boolean) => {
   const [title, setTitle] = useState("")

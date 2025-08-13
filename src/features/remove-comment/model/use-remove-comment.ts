@@ -1,5 +1,10 @@
 import { useDeleteComment } from "@entities/comment"
-import type { RemoveCommentCallbacks } from "./types"
+
+// Types
+export interface RemoveCommentCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useRemoveComment = () => {
   const deleteCommentMutation = useDeleteComment()
@@ -10,7 +15,7 @@ export const useRemoveComment = () => {
       {
         onSuccess: callbacks?.onSuccess,
         onError: callbacks?.onError,
-      }
+      },
     )
   }
 

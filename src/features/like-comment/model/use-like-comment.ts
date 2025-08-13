@@ -1,5 +1,10 @@
 import { usePatchCommentLikes } from "@entities/comment"
-import type { LikeCommentCallbacks } from "./types"
+
+// Types
+export interface LikeCommentCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useLikeComment = () => {
   const likeCommentMutation = usePatchCommentLikes()

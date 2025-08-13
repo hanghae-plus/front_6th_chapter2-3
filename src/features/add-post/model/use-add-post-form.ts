@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react"
 import { usePostPost } from "@entities/post"
-import type { AddPostFormData, AddPostCallbacks } from "./types"
+
+// Types
+export interface AddPostFormData {
+  title: string
+  body: string
+  userId: number
+}
+
+export interface AddPostCallbacks {
+  onSuccess?: () => void
+  onError?: (error: unknown) => void
+}
 
 export const useAddPostForm = (open: boolean) => {
   const [title, setTitle] = useState("")

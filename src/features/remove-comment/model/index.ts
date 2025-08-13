@@ -1,2 +1,1 @@
-export { useRemoveComment } from "./use-remove-comment"
-export type { RemoveCommentCallbacks } from "./types"
+export { useRemoveComment, type RemoveCommentCallbacks } from "./use-remove-comment"
