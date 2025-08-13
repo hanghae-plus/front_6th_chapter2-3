@@ -1,5 +1,5 @@
-import type { Tag } from "../../tag/model/types.ts"
-import { User } from "../../user/model/types.ts"
+import type { Tag } from "../../tag/model/types"
+import { User } from "../../user/model/types"
 
 export interface Post {
   id: number
@@ -18,4 +18,22 @@ export interface Post {
 
 export interface PostWithTags extends Post {
   tags?: Tag[]
+}
+
+// api 호출 관련
+
+export interface PostsResponse {
+  posts: Post[]
+  total?: number
+}
+
+export interface CreatePostRequest {
+  title: string
+  body: string
+  userId: number
+}
+
+export interface UpdatePostRequest {
+  title: string
+  body: string
 }
