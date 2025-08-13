@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui';
-import { highlightText } from '@/shared/lib/highlightText';
+import { highlightText } from '@/shared/lib';
 
 type Author = UsersResponse['users'][0];
 
