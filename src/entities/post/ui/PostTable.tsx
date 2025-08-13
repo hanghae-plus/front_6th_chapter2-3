@@ -10,9 +10,11 @@ import UserAvatar from "../../user/ui/UserAvatar"
 
 const PostTable = () => {
   const { posts } = usePostStore()
+
+  console.log(posts)
+
   const { handleDeletePost, openEditDialog, openPostDetail } = usePostManagement()
   const { searchQuery } = useSearch()
-
   return (
     <Table>
       <TableHeader>

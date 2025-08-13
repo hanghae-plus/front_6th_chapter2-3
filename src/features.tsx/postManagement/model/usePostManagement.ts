@@ -1,14 +1,15 @@
 import { useState } from "react"
 import { usePostStore } from "../../../entities/post/model/store"
 import { CreatePostRequest, Post } from "../../../entities/post/model/types"
-import { usePostApi } from "../../../entities/post/api"
 
 // (비즈니스 로직만)
 export const usePostManagement = () => {
-  const { setSelectedPost } = usePostStore()
-  const { addPostApi, deletePostApi, updatePostApi } = usePostApi()
+  const { setSelectedPost, createPost, editPost, deletePost, error: postError } = usePostStore()
+
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+
   const [newPost, setNewPost] = useState<CreatePostRequest>({
     title: "",
     body: "",
@@ -17,28 +18,30 @@ export const usePostManagement = () => {
 
   const handleAddPost = async () => {
     try {
-      await addPostApi(newPost)
+      await createPost(newPost)
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
-      console.error("게시물 추가 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("게시물 추가 처리 중 오류:", error)
     }
   }
 
   const handleUpdatePost = async (post: Post) => {
     try {
-      await updatePostApi(post)
+      await editPost(post.id, post)
       setShowEditDialog(false)
     } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("게시물 업데이트 처리 중 오류:", error)
     }
   }
 
   const handleDeletePost = async (id: number) => {
     try {
-      await deletePostApi(id)
+      await deletePost(id)
     } catch (error) {
-      console.error("게시물 삭제 오류:", error)
+      console.error("게시물 삭제 처리 중 오류:", error)
     }
   }
 
@@ -47,16 +50,25 @@ export const usePostManagement = () => {
     setShowEditDialog(true)
   }
 
+  const openPostDetail = (post: Post) => {
+    setSelectedPost(post)
+    setShowPostDetailDialog(true)
+  }
+
   return {
     showAddDialog,
     showEditDialog,
+    showPostDetailDialog,
     newPost,
+    postError,
     setShowAddDialog,
     setShowEditDialog,
+    setShowPostDetailDialog,
     setNewPost,
     handleAddPost,
     handleUpdatePost,
     handleDeletePost,
     openEditDialog,
+    openPostDetail,
   }
 }

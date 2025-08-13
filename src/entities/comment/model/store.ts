@@ -1,64 +1,111 @@
 import { create } from "zustand"
-import { Comment } from "./types"
+import { Comment, CreateCommentRequest, UpdateComment } from "./types"
+import { commentApi } from "../api"
 
-interface CommentStore {
+interface CommentsState {
   comments: Record<number, Comment[]>
-  selectedComment: Comment | null
+  loading: boolean
+  error: string | null
 
+  fetchComments: (postId: number) => Promise<void>
+  addComment: (comment: CreateCommentRequest) => Promise<void>
+  updateComment: (id: number, comment: UpdateComment) => Promise<void>
+  deleteComment: (id: number, postId: number) => Promise<void>
+  likeComment: (id: number, postId: number) => Promise<void>
   setComments: (postId: number, comments: Comment[]) => void
-  addComment: (comment: Comment) => void
-  updateComment: (comment: Comment) => void
-  removeComment: (id: number, postId: number) => void
-  likeComment: (id: number, postId: number) => void
-  setSelectedComment: (comment: Comment | null) => void
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
 }
 
-export const useCommentStore = create<CommentStore>((set) => ({
+export const useCommentStore = create<CommentsState>((set, get) => ({
   comments: {},
-  selectedComment: null,
+  loading: false,
+  error: null,
 
-  setComments: (postId, comments) =>
-    set((state) => ({
-      comments: { ...state.comments, [postId]: comments },
+  setComments: (postId: number, comments: Comment[]) =>
+    set((prev) => ({
+      comments: { ...prev.comments, [postId]: comments },
     })),
+  setLoading: (loading: boolean) => set({ loading }),
+  setError: (error: string | null) => set({ error }),
 
-  addComment: (comment) =>
-    set((state) => ({
-      comments: {
-        ...state.comments,
-        [comment.postId]: [...(state.comments[comment.postId] || []), comment],
-      },
-    })),
+  fetchComments: async (postId: number) => {
+    if (get().comments[postId]) return
 
-  updateComment: (updatedComment) =>
-    set((state) => ({
-      comments: {
-        ...state.comments,
-        [updatedComment.postId]:
-          state.comments[updatedComment.postId]?.map((comment) =>
-            comment.id === updatedComment.id ? updatedComment : comment,
-          ) || [],
-      },
-    })),
+    set({ loading: true, error: null })
+    try {
+      const data = await commentApi.getComments(postId)
+      set((prev) => ({
+        comments: { ...prev.comments, [postId]: data.comments },
+        loading: false,
+      }))
+    } catch (error: any) {
+      set({ error: error.message, loading: false })
+      console.error("댓글 가져오기 오류:", error)
+    }
+  },
 
-  removeComment: (id, postId) =>
-    set((state) => ({
-      comments: {
-        ...state.comments,
-        [postId]: state.comments[postId]?.filter((comment) => comment.id !== id) || [],
-      },
-    })),
+  addComment: async (comment: CreateCommentRequest) => {
+    try {
+      const data = await commentApi.addComment(comment)
+      set((prev) => ({
+        comments: {
+          ...prev.comments,
+          [data.postId]: [...(prev.comments[data.postId] || []), data],
+        },
+      }))
+    } catch (error: any) {
+      set({ error: error.message })
+      console.error("댓글 추가 오류:", error)
+    }
+  },
 
-  likeComment: (id, postId) =>
-    set((state) => ({
-      comments: {
-        ...state.comments,
-        [postId]:
-          state.comments[postId]?.map((comment) =>
-            comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment,
-          ) || [],
-      },
-    })),
+  updateComment: async (id: number, comment: UpdateComment) => {
+    try {
+      const data = await commentApi.updateComment(id, comment)
+      set((prev) => ({
+        comments: {
+          ...prev.comments,
+          [data.postId]: prev.comments[data.postId].map((c) => (c.id === data.id ? data : c)),
+        },
+      }))
+    } catch (error: any) {
+      set({ error: error.message })
+      console.error("댓글 수정 오류:", error)
+    }
+  },
 
-  setSelectedComment: (selectedComment) => set({ selectedComment }),
+  deleteComment: async (id: number, postId: number) => {
+    try {
+      await commentApi.deleteComment(id)
+      set((prev) => ({
+        comments: {
+          ...prev.comments,
+          [postId]: prev.comments[postId].filter((c) => c.id !== id),
+        },
+      }))
+    } catch (error: any) {
+      set({ error: error.message })
+      console.error("댓글 삭제 오류:", error)
+    }
+  },
+
+  likeComment: async (id: number, postId: number) => {
+    try {
+      const currentComments = get().comments[postId]
+      const comment = currentComments.find((c) => c.id === id)
+      if (!comment) return
+
+      const data = await commentApi.likeComment(id)
+      set((prev) => ({
+        comments: {
+          ...prev.comments,
+          [postId]: prev.comments[postId].map((c) => (c.id === data.id ? { ...data, likes: c.likes + 1 } : c)),
+        },
+      }))
+    } catch (error: any) {
+      set({ error: error.message })
+      console.error("댓글 좋아요 오류:", error)
+    }
+  },
 }))

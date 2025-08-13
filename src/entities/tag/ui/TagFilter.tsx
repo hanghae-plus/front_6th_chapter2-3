@@ -7,9 +7,9 @@ const TagFilter = () => {
   const { tags, selectedTag } = useTagStore()
   const { handleGetTags, handleTagChange } = useFilter()
 
-  useEffect(() => {
-    handleGetTags()
-  }, [handleGetTags])
+  // useEffect(() => {
+  //   handleGetTags()
+  // }, [handleGetTags])
 
   return (
     <Select value={selectedTag} onValueChange={handleTagChange}>

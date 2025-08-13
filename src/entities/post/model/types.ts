@@ -18,12 +18,15 @@ export interface Post {
 export interface PostsResponse {
   posts: Post[]
   total: number
-  skip: number
-  limit: number
 }
 
 export interface CreatePostRequest {
   title: string
   body: string
   userId: number
+}
+
+export interface UpdatePost {
+  title: string
+  body: string
 }

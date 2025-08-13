@@ -3,7 +3,7 @@ import { Input } from "../../../shared/ui/Input"
 import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
 
 const SearchBar = () => {
-  const { searchQuery, setSearchQuery, searchPosts } = useSearch()
+  const { searchQuery, setSearchQuery, handleSearchPost } = useSearch()
 
   return (
     <div className="flex-1">
@@ -14,7 +14,7 @@ const SearchBar = () => {
           className="pl-8"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+          onKeyPress={(e) => e.key === "Enter" && handleSearchPost()}
         />
       </div>
     </div>

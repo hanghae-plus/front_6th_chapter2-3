@@ -1,13 +1,19 @@
 import { useState } from "react"
 import { useCommentStore } from "../../../entities/comment/model/store"
 import { CreateCommentRequest, Comment } from "../../../entities/comment/model/types"
-import { useCommentApi } from "../../../entities/comment/api"
 
 // (비즈니스 로직만)
 export const useCommentManagement = () => {
-  const { selectedComment, setSelectedComment } = useCommentStore()
-
-  const { getComments, addCommentApi, likeCommentApi, removeCommentApi, updateCommentApi } = useCommentApi()
+  const {
+    selectedComment,
+    setSelectedComment,
+    createComment,
+    editComment,
+    deleteComment,
+    toggleLikeComment,
+    fetchComments,
+    error: commentError,
+  } = useCommentStore()
 
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
@@ -16,13 +22,15 @@ export const useCommentManagement = () => {
     postId: 0,
     userId: 1,
   })
+
   const handleAddComment = async () => {
     try {
-      await addCommentApi(newComment)
+      await createComment(newComment)
       setShowAddCommentDialog(false)
       setNewComment({ body: "", postId: 0, userId: 1 })
     } catch (error) {
-      console.error("댓글 추가 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("댓글 추가 처리 중 오류:", error)
     }
   }
 
@@ -30,26 +38,29 @@ export const useCommentManagement = () => {
     if (!selectedComment) return
 
     try {
-      await updateCommentApi(selectedComment.id, selectedComment.body)
+      await editComment(selectedComment.id, selectedComment.body)
       setShowEditCommentDialog(false)
     } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("댓글 업데이트 처리 중 오류:", error)
     }
   }
 
-  const handleRemoveComment = async (id: number, postId: number) => {
+  const handleDeleteComment = async (commentId: number, postId: number) => {
     try {
-      await removeCommentApi(id, postId)
+      await deleteComment(commentId, postId)
     } catch (error) {
-      console.error("댓글 삭제 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("댓글 삭제 처리 중 오류:", error)
     }
   }
 
   const handleLikeComment = async (commentId: number, postId: number) => {
     try {
-      await likeCommentApi(postId, commentId)
+      await toggleLikeComment(commentId, postId)
     } catch (error) {
-      console.error("댓글 좋아요 처리 오류:", error)
+      // 에러는 이미 store에서 처리됨
+      console.error("댓글 좋아요 처리 중 오류:", error)
     }
   }
 
@@ -63,11 +74,21 @@ export const useCommentManagement = () => {
     setShowEditCommentDialog(true)
   }
 
+  // 댓글 가져오기 (PostDetailDialog에서 사용)
+  const getComments = async (postId: number) => {
+    try {
+      await fetchComments(postId)
+    } catch (error) {
+      console.error("댓글 가져오기 처리 중 오류:", error)
+    }
+  }
+
   return {
     showAddCommentDialog,
     showEditCommentDialog,
     newComment,
     selectedComment,
+    commentError,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
     setNewComment,
@@ -75,7 +96,7 @@ export const useCommentManagement = () => {
     getComments,
     handleAddComment,
     handleUpdateComment,
-    handleDeleteComment: handleRemoveComment,
+    handleDeleteComment,
     handleLikeComment,
     openAddCommentDialog,
     openEditCommentDialog,

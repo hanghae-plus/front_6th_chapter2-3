@@ -1,9 +1,8 @@
 import { useState } from "react"
-
-import { usePostApi } from "../../../entities/post/api"
+import { usePostStore } from "../../../entities/post/model/store"
 
 export const useSearch = () => {
-  const { searchPosts } = usePostApi()
+  const { searchPosts } = usePostStore()
   const [searchQuery, setSearchQuery] = useState("")
 
   const handleSearchPost = async () => {
@@ -13,6 +12,6 @@ export const useSearch = () => {
   return {
     searchQuery,
     setSearchQuery,
-    handleSearchPost,
+    searchPosts: handleSearchPost,
   }
 }

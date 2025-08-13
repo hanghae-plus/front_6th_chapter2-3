@@ -19,3 +19,7 @@ export interface CreateCommentRequest {
   postId: number
   userId: number
 }
+
+export interface UpdateComment {
+  body: string
+}

@@ -1,18 +1,36 @@
 import { create } from "zustand"
 import { User } from "./types"
+import { userApi } from "../api/userApi"
 
-interface UserStore {
+interface UsersState {
   selectedUser: User | null
-  showUserModal: boolean
+  loading: boolean
+  error: string | null
 
+  // Actions
+  fetchUser: (id: number) => Promise<void>
   setSelectedUser: (user: User | null) => void
-  setShowUserModal: (show: boolean) => void
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
 }
 
-export const useUserStore = create<UserStore>((set) => ({
+export const useUsersStore = create<UsersState>((set) => ({
   selectedUser: null,
-  showUserModal: false,
+  loading: false,
+  error: null,
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
-  setShowUserModal: (showUserModal) => set({ showUserModal }),
+  fetchUser: async (id: number) => {
+    set({ loading: true, error: null })
+    try {
+      const userData = await userApi.getUser(id)
+      set({ selectedUser: userData, loading: false })
+    } catch (error: any) {
+      set({ error: error.message, loading: false })
+      console.error("사용자 정보 가져오기 오류:", error)
+    }
+  },
+
+  setSelectedUser: (user: User | null) => set({ selectedUser: user }),
+  setLoading: (loading: boolean) => set({ loading }),
+  setError: (error: string | null) => set({ error }),
 }))

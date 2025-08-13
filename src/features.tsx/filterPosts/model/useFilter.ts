@@ -1,12 +1,10 @@
 import { useState, useCallback } from "react"
 import { useTagStore } from "../../../entities/tag/model/store"
-import { useTagApi } from "../../../entities/tag/api"
-import { usePostApi } from "../../../entities/post/api"
+import { usePostStore } from "../../../entities/post/model/store"
 
 export const useFilter = () => {
-  const { setSelectedTag } = useTagStore()
-  const { getTags } = useTagApi()
-  const { getPostsByTag } = usePostApi()
+  const { setSelectedTag, getTags } = useTagStore()
+  const { fetchPostsByTag } = usePostStore()
 
   const [sortBy, setSortBy] = useState("")
   const [sortOrder, setSortOrder] = useState("asc")
@@ -16,12 +14,11 @@ export const useFilter = () => {
   }, [getTags])
 
   const handleTagChange = useCallback(
-    (tag: string) => {
+    async (tag: string) => {
       setSelectedTag(tag)
-
-      getPostsByTag(tag)
+      await fetchPostsByTag(tag)
     },
-    [setSelectedTag, getPostsByTag],
+    [setSelectedTag, fetchPostsByTag],
   )
 
   return {
