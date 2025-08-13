@@ -34,6 +34,7 @@ import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
 import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
 import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
 import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
+import { TagSelectBox } from "@/features/post/ui/TagSelectBox"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -64,32 +65,18 @@ const PostsManager = () => {
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
   const [input, setInput] = useState("")
 
-  // 게시물 목록 조회 (with author)
+  // 게시물 목록 조회 (with author) - 태그별 필터링
   const postsQuery = useQuery(
-    postWithAuthorQueries.list({
+    postWithAuthorQueries.listByTag(selectedTag || "all", {
       skip,
       limit,
-      tag: selectedTag,
       sortBy: (sortBy as "id" | "title" | "reactions" | "none") || undefined,
       sortOrder: sortOrder as "asc" | "desc",
     }),
   )
 
-  const queryClient = useQueryClient()
-
-  const createPostMutation = useMutation(postMutations.create(queryClient))
-
   // 태그 목록 조회
   const tagsQuery = useQuery(postQueries.tags())
-
-  // 태그 렌더링을 useMemo로 최적화
-  const tagOptions = useMemo(() => {
-    return tags.map((tag) => (
-      <SelectItem key={tag.name} value={tag.name}>
-        {tag.name}
-      </SelectItem>
-    ))
-  }, [tags])
 
   // ===== URL 업데이트 함수 =====
   /**
@@ -108,16 +95,7 @@ const PostsManager = () => {
   }
 
   // ===== 게시물 관련 함수들 =====
-  /**
-   * 특정 태그로 게시물을 가져오는 함수
-   * @param tag - 검색할 태그
-   */
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      // useQuery가 자동으로 처리하므로 별도 로직 불필요
-      return
-    }
-  }
+  // fetchPostsByTag 함수 제거 - postWithAuthorQueries.listByTag가 자동으로 처리
 
   // ===== 댓글 관련 함수들 =====
   /**
@@ -190,7 +168,9 @@ const PostsManager = () => {
   useEffect(() => {
     // postsQuery.data는 게시물 목록과 전체 개수를 포함한 객체
     if (postsQuery.data) {
-      setPosts(postsQuery.data.posts)
+      // author가 undefined인 경우를 필터링하여 PostWithAuthor[] 타입 보장
+      const validPosts = postsQuery.data.posts.filter((post) => post.author) as PostWithAuthor[]
+      setPosts(validPosts)
     }
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag, postsQuery.data])
@@ -292,11 +272,8 @@ const PostsManager = () => {
             {/* 게시물 작업 버튼들 */}
             <TableCell>
               <div className="flex items-center gap-2">
-                {/* 댓글 보기 버튼 */}
                 <DetailPostDialogOpenButton onClick={() => openPostDetail(post)} />
-                {/* 수정 버튼 */}
                 <EditPostDialogOpenButton onClick={() => openPostDetail(post)} />
-                {/* 삭제 버튼 */}
                 <DeletePostButton post={post} />
               </div>
             </TableCell>
@@ -333,22 +310,13 @@ const PostsManager = () => {
               </div>
             </div>
             {/* 태그 선택 드롭다운 */}
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
+            <TagSelectBox
+              selectedTag={selectedTag}
+              onTagChange={(value) => {
                 setSelectedTag(value)
-                fetchPostsByTag(value)
                 updateURL()
               }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tagOptions}
-              </SelectContent>
-            </Select>
+            />
             <SortSelectBox />
           </div>
 
@@ -357,7 +325,6 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* ===== 대화상자들 ===== */}
       <AddPostDialog />
       <EditPostDialog selectedPost={selectedPost} />
       <DetailPostDialog selectedPost={selectedPost} />
