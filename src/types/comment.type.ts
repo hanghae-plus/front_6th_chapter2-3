@@ -8,3 +8,9 @@ export type Comment = {
     username: string
   }
 }
+
+export type CommentDraft = {
+  body: string
+  postId: number | null
+  userId: number
+}

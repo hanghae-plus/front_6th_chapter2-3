@@ -27,3 +27,18 @@ export type Tag = {
   url: string
   slug: string
 }
+
+export type PostDraft = {
+  title: string
+  body: string
+  userId: number
+}
+
+export type SearchInfo = {
+  skip: number
+  limit: number
+  searchQuery: string
+  sortBy: string
+  sortOrder: string
+  selectedTag: string
+}

@@ -26,45 +26,63 @@ import {
   Textarea,
 } from "../components"
 import { URL_PATH } from "../shared/config/routes"
+import { usePostsManagerStore } from "../shared/stores"
 import { Comment } from "../types/comment.type"
 import { Post, PostResponse, Tag } from "../types/product.type"
-import { DetailedUser, User, UserResponse } from "../types/user.type"
+import { User, UserResponse } from "../types/user.type"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
 
-  // 상태 관리
+  // jotai
   const [posts, setPosts] = useState<Post[]>([])
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [tags, setTags] = useState<Tag[]>([])
 
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [selectedUser, setSelectedUser] = useState<DetailedUser | null>(null)
-
-  const [postDraft, setPostDraft] = useState({ title: "", body: "", userId: 1 })
-  const [commentDraft, setCommentDraft] = useState({ body: "", postId: null as number | null, userId: 1 })
-
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
 
-  const [searchInfo, setSearchInfo] = useState({
-    skip: parseInt(queryParams.get("skip") || "0"),
-    limit: parseInt(queryParams.get("limit") || "10"),
-    searchQuery: queryParams.get("search") || "",
-    sortBy: queryParams.get("sortBy") || "",
-    sortOrder: queryParams.get("sortOrder") || "asc",
-    selectedTag: queryParams.get("tag") || "",
-  })
+  // zustand store
+  const {
+    selectedPost,
+    selectedComment,
+    selectedUser,
+    postDraft,
+    commentDraft,
+    showPostDetailDialog,
+    showAddCommentDialog,
+    showEditCommentDialog,
+    showAddDialog,
+    showEditDialog,
+    showUserModal,
+    searchInfo,
+    setSelectedPost,
+    setSelectedComment,
+    setSelectedUser,
+    setPostDraft,
+    setCommentDraft,
+    setShowPostDetailDialog,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+    setShowAddDialog,
+    setShowEditDialog,
+    setShowUserModal,
+    setSearchInfo,
+  } = usePostsManagerStore()
+
+  // URL에서 초기 검색 정보 설정
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    setSearchInfo({
+      skip: parseInt(params.get("skip") || "0"),
+      limit: parseInt(params.get("limit") || "10"),
+      searchQuery: params.get("search") || "",
+      sortBy: params.get("sortBy") || "",
+      sortOrder: params.get("sortOrder") || "asc",
+      selectedTag: params.get("tag") || "",
+    })
+  }, [location.search, setSearchInfo])
   // URL 업데이트 함수
   const updateURL = () => {
     const params = new URLSearchParams()
@@ -390,7 +408,7 @@ const PostsManager = () => {
                           : "text-blue-800 bg-blue-100 hover:bg-blue-200"
                       }`}
                       onClick={() => {
-                        setSearchInfo((p) => ({ ...p, selectedTag: tag }))
+                        setSearchInfo({ selectedTag: tag })
                         updateURL()
                       }}
                     >
@@ -451,7 +469,7 @@ const PostsManager = () => {
         <Button
           size="sm"
           onClick={() => {
-            setCommentDraft((prev) => ({ ...prev, postId }))
+            setCommentDraft({ postId })
             setShowAddCommentDialog(true)
           }}
         >
@@ -513,7 +531,7 @@ const PostsManager = () => {
                   placeholder="게시물 검색..."
                   className="pl-8"
                   value={searchInfo.searchQuery}
-                  onChange={(e) => setSearchInfo((p) => ({ ...p, searchQuery: e.target.value }))}
+                  onChange={(e) => setSearchInfo({ searchQuery: e.target.value })}
                   onKeyPress={(e) => e.key === "Enter" && searchPosts()}
                 />
               </div>
@@ -521,7 +539,7 @@ const PostsManager = () => {
             <Select
               value={searchInfo.selectedTag}
               onValueChange={(value) => {
-                setSearchInfo((p) => ({ ...p, selectedTag: value }))
+                setSearchInfo({ selectedTag: value })
                 fetchPostsByTag(value)
                 updateURL()
               }}
@@ -538,10 +556,7 @@ const PostsManager = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select
-              value={searchInfo.sortBy}
-              onValueChange={(value) => setSearchInfo((p) => ({ ...p, sortBy: value }))}
-            >
+            <Select value={searchInfo.sortBy} onValueChange={(value) => setSearchInfo({ sortBy: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -552,10 +567,7 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select
-              value={searchInfo.sortOrder}
-              onValueChange={(value) => setSearchInfo((p) => ({ ...p, sortOrder: value }))}
-            >
+            <Select value={searchInfo.sortOrder} onValueChange={(value) => setSearchInfo({ sortOrder: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -575,7 +587,7 @@ const PostsManager = () => {
               <span>표시</span>
               <Select
                 value={searchInfo.limit.toString()}
-                onValueChange={(value) => setSearchInfo((p) => ({ ...p, limit: Number(value) }))}
+                onValueChange={(value) => setSearchInfo({ limit: Number(value) })}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="10" />
@@ -591,13 +603,13 @@ const PostsManager = () => {
             <div className="flex gap-2">
               <Button
                 disabled={searchInfo.skip === 0}
-                onClick={() => setSearchInfo((p) => ({ ...p, skip: Math.max(0, p.skip - p.limit) }))}
+                onClick={() => setSearchInfo({ skip: Math.max(0, searchInfo.skip - searchInfo.limit) })}
               >
                 이전
               </Button>
               <Button
                 disabled={searchInfo.skip + searchInfo.limit >= total}
-                onClick={() => setSearchInfo((p) => ({ ...p, skip: p.skip + p.limit }))}
+                onClick={() => setSearchInfo({ skip: searchInfo.skip + searchInfo.limit })}
               >
                 다음
               </Button>
@@ -616,19 +628,19 @@ const PostsManager = () => {
             <Input
               placeholder="제목"
               value={postDraft.title}
-              onChange={(e) => setPostDraft({ ...postDraft, title: e.target.value })}
+              onChange={(e) => setPostDraft({ title: e.target.value })}
             />
             <Textarea
               rows={30}
               placeholder="내용"
               value={postDraft.body}
-              onChange={(e) => setPostDraft({ ...postDraft, body: e.target.value })}
+              onChange={(e) => setPostDraft({ body: e.target.value })}
             />
             <Input
               type="number"
               placeholder="사용자 ID"
               value={postDraft.userId}
-              onChange={(e) => setPostDraft({ ...postDraft, userId: Number(e.target.value) })}
+              onChange={(e) => setPostDraft({ userId: Number(e.target.value) })}
             />
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
@@ -668,7 +680,7 @@ const PostsManager = () => {
             <Textarea
               placeholder="댓글 내용"
               value={commentDraft.body}
-              onChange={(e) => setCommentDraft({ ...commentDraft, body: e.target.value })}
+              onChange={(e) => setCommentDraft({ body: e.target.value })}
             />
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
