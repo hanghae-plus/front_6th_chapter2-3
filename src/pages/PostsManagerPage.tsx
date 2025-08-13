@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
+import { DeletePostButton } from "@/features/post/ui"
+import { usePosts } from "@/entities/post/model/queries"
 import {
   Button,
   Input,
@@ -37,9 +39,7 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // ===== 상태 관리 =====
-  // 게시물 관련 상태
-  const [posts, setPosts] = useState([]) // 게시물 목록
-  const [total, setTotal] = useState(0) // 전체 게시물 수
+  // 게시물 관련 상태 - TanStack Query 사용
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0")) // 페이지네이션 시작 인덱스
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10")) // 페이지당 게시물 수
 
@@ -48,6 +48,19 @@ const PostsManager = () => {
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "") // 정렬 기준
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc") // 정렬 순서
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
+
+  // TanStack Query로 게시물 데이터 가져오기
+  const { data: postsData, isLoading: loading } = usePosts({
+    skip,
+    limit,
+    sortBy: (sortBy as "id" | "title" | "reactions" | "none") || undefined,
+    sortOrder: (sortOrder as "asc" | "desc") || undefined,
+    tag: selectedTag || undefined,
+    search: searchQuery || undefined,
+  })
+
+  const posts = postsData?.posts || []
+  const total = postsData?.total || 0
 
   // 선택된 항목 상태
   const [selectedPost, setSelectedPost] = useState(null) // 선택된 게시물
@@ -65,7 +78,6 @@ const PostsManager = () => {
   // 데이터 상태
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새 게시물 데이터
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 }) // 새 댓글 데이터
-  const [loading, setLoading] = useState(false) // 로딩 상태
   const [tags, setTags] = useState([]) // 태그 목록
   const [comments, setComments] = useState({}) // 댓글 목록 (게시물 ID별로 그룹화)
 
@@ -87,40 +99,6 @@ const PostsManager = () => {
 
   // ===== 게시물 관련 함수들 =====
   /**
-   * 게시물 목록을 가져오는 함수
-   * 게시물과 사용자 정보를 함께 가져와서 조합
-   */
-  const fetchPosts = () => {
-    setLoading(true)
-    let postsData
-    let usersData
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data) => {
-        postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
-      })
-      .then((response) => response.json())
-      .then((users) => {
-        usersData = users.users
-        // 게시물에 작성자 정보 추가
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.find((user) => user.id === post.userId),
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
-  /**
    * 태그 목록을 가져오는 함수
    */
   const fetchTags = async () => {
@@ -139,19 +117,19 @@ const PostsManager = () => {
    */
   const searchPosts = async () => {
     if (!searchQuery) {
-      fetchPosts()
+      // fetchPosts() // 기존 함수 제거
       return
     }
-    setLoading(true)
+    // setLoading(true) // 기존 로딩 상태 제거
     try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
+      // const response = await fetch(`/api/posts/search?q=${searchQuery}`) // 기존 함수 제거
+      // const data = await response.json() // 기존 함수 제거
+      // setPosts(data.posts) // 기존 함수 제거
+      // setTotal(data.total) // 기존 함수 제거
     } catch (error) {
       console.error("게시물 검색 오류:", error)
     }
-    setLoading(false)
+    // setLoading(false) // 기존 로딩 상태 제거
   }
 
   /**
@@ -160,31 +138,29 @@ const PostsManager = () => {
    */
   const fetchPostsByTag = async (tag) => {
     if (!tag || tag === "all") {
-      fetchPosts()
+      // fetchPosts() // 기존 함수 제거
       return
     }
-    setLoading(true)
+    // setLoading(true) // 기존 로딩 상태 제거
     try {
-      // 게시물과 사용자 정보를 병렬로 가져옴
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData = await postsResponse.json()
-      const usersData = await usersResponse.json()
-
-      // 게시물에 작성자 정보 추가
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
+      // 게시물과 사용자 정보를 병렬로 가져옴 // 기존 함수 제거
+      // const [postsResponse, usersResponse] = await Promise.all([ // 기존 함수 제거
+      //   fetch(`/api/posts/tag/${tag}`), // 기존 함수 제거
+      //   fetch("/api/users?limit=0&select=username,image"), // 기존 함수 제거
+      // ]) // 기존 함수 제거
+      // const postsData = await postsResponse.json() // 기존 함수 제거
+      // const usersData = await usersResponse.json() // 기존 함수 제거
+      // 게시물에 작성자 정보 추가 // 기존 함수 제거
+      // const postsWithUsers = postsData.posts.map((post) => ({ // 기존 함수 제거
+      //   ...post, // 기존 함수 제거
+      //   author: usersData.users.find((user) => user.id === post.userId), // 기존 함수 제거
+      // })) // 기존 함수 제거
+      // setPosts(postsWithUsers) // 기존 함수 제거
+      // setTotal(postsData.total) // 기존 함수 제거
     } catch (error) {
       console.error("태그별 게시물 가져오기 오류:", error)
     }
-    setLoading(false)
+    // setLoading(false) // 기존 로딩 상태 제거
   }
 
   /**
@@ -198,7 +174,7 @@ const PostsManager = () => {
         body: JSON.stringify(newPost),
       })
       const data = await response.json()
-      setPosts([data, ...posts]) // 새 게시물을 목록 맨 앞에 추가
+      // setPosts([data, ...posts]) // 새 게시물을 목록 맨 앞에 추가 // 기존 함수 제거
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -217,8 +193,8 @@ const PostsManager = () => {
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
-      // 수정된 게시물로 목록 업데이트
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      // 수정된 게시물로 목록 업데이트 // 기존 함수 제거
+      // setPosts(posts.map((post) => (post.id === data.id ? data : post))) // 기존 함수 제거
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -231,11 +207,14 @@ const PostsManager = () => {
    */
   const deletePost = async (id) => {
     try {
-      await fetch(`/api/posts/${id}`, {
+      const res = await fetch(`/api/posts/${id}`, {
         method: "DELETE",
       })
-      // 삭제된 게시물을 목록에서 제거
-      setPosts(posts.filter((post) => post.id !== id))
+
+      const data = await res.json()
+      console.log(data)
+      // 삭제된 게시물을 목록에서 제거 // 기존 함수 제거
+      // setPosts(posts.filter((post) => post.id !== id)) // 기존 함수 제거
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
@@ -385,9 +364,9 @@ const PostsManager = () => {
   // 페이지네이션, 정렬, 태그 변경 시 게시물 다시 가져오기
   useEffect(() => {
     if (selectedTag) {
-      fetchPostsByTag(selectedTag)
+      // fetchPostsByTag(selectedTag) // 기존 함수 제거
     } else {
-      fetchPosts()
+      // fetchPosts() // 기존 함수 제거
     }
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
@@ -505,6 +484,8 @@ const PostsManager = () => {
                   <Edit2 className="w-4 h-4" />
                 </Button>
                 {/* 삭제 버튼 */}
+
+                <DeletePostButton postId={post.id} />
                 <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -608,7 +589,7 @@ const PostsManager = () => {
               value={selectedTag}
               onValueChange={(value) => {
                 setSelectedTag(value)
-                fetchPostsByTag(value)
+                // fetchPostsByTag(value) // 기존 함수 제거
                 updateURL()
               }}
             >

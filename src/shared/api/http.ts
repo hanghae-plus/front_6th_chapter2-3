@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AxiosResponse } from "axios"
 import { axiosClient } from "@/shared/api/axios-client"
 import { ApiResponse, PaginatedResponse } from "@/shared/api/type"
 
@@ -6,7 +7,15 @@ export class HttpClient {
   // GET 요청
   static async get<T>(url: string, config?: any): Promise<T> {
     const response = await axiosClient.get<ApiResponse<T>>(url, config)
-    return response.data.data
+    console.log("GET 응답:", response.data)
+
+    // data 필드가 없는 경우 전체 응답을 반환
+    if (response.data.data !== undefined) {
+      return response.data.data
+    }
+
+    // data 필드가 없는 경우 (더미 데이터 환경 등) 전체 응답을 반환
+    return response.data as T
   }
 
   // POST 요청
@@ -28,9 +37,10 @@ export class HttpClient {
   }
 
   // DELETE 요청
-  static async delete<T>(url: string, config?: any): Promise<T> {
+  static async delete<T>(url: string, config?: any): Promise<AxiosResponse<ApiResponse<T>>> {
+    console.log("여기 호출")
     const response = await axiosClient.delete<ApiResponse<T>>(url, config)
-    return response.data.data
+    return response
   }
 
   // 페이지네이션 GET 요청

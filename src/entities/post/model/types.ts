@@ -47,3 +47,5 @@ export interface PostPaginatedResponse {
   limit: number
   hasMore: boolean
 }
+
+export type DeletePostResponse = Post

@@ -56,10 +56,50 @@ export const useDeletePost = () => {
   return useMutation({
     mutationFn: (id: number) => deletePost(id),
     onSuccess: (_, deletedId) => {
-      // 게시물 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
+      console.log("삭제 성공, deletedId:", deletedId)
+      console.log("POST_QUERY_KEYS.lists():", POST_QUERY_KEYS.lists())
 
-      // 삭제된 게시물 캐시 제거
+      // 캐시 무효화 제거 (자동 재요청 방지)
+      // queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
+
+      // 모든 관련 쿼리 키에 대해 직접 캐시 업데이트
+      const allQueryKeys = [POST_QUERY_KEYS.lists(), POST_QUERY_KEYS.all]
+
+      allQueryKeys.forEach((queryKey) => {
+        queryClient.setQueriesData({ queryKey }, (oldData: unknown) => {
+          console.log("setQueriesData 콜백 호출됨, queryKey:", queryKey)
+          console.log("oldData:", oldData)
+          if (!oldData) return oldData
+
+          // PostPaginatedResponse 형태인 경우
+          if (oldData && typeof oldData === "object" && "posts" in oldData) {
+            const data = oldData as { posts: Array<{ id: number }>; total?: number }
+            if (Array.isArray(data.posts)) {
+              console.log("PostPaginatedResponse 형태 처리")
+              const filteredPosts = data.posts.filter((post) => post.id !== deletedId)
+              console.log("필터링 후 게시물 수:", filteredPosts.length)
+              return {
+                ...oldData,
+                posts: filteredPosts,
+                total: data.total ? data.total - 1 : 0, // total도 감소
+              }
+            }
+          }
+
+          // Post[] 형태인 경우
+          if (Array.isArray(oldData)) {
+            console.log("Post[] 형태 처리")
+            const filteredPosts = oldData.filter((post: { id: number }) => post.id !== deletedId)
+            console.log("필터링 후 게시물 수:", filteredPosts.length)
+            return filteredPosts
+          }
+
+          console.log("처리되지 않은 데이터 형태")
+          return oldData
+        })
+      })
+
+      // 상세 게시물 캐시도 제거
       queryClient.removeQueries({ queryKey: POST_QUERY_KEYS.detail(deletedId) })
     },
     onError: (error) => {

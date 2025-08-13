@@ -15,7 +15,21 @@ export const getPosts = async (filters: PostFilter = {}): Promise<PostPaginatedR
   }
 
   const url = `/posts${params.toString() ? `?${params.toString()}` : ""}`
-  return HttpClient.get<PostPaginatedResponse>(url)
+  const response = await HttpClient.get<PostPaginatedResponse>(url)
+
+  // 응답이 PostPaginatedResponse 형태인지 확인
+  if (response && typeof response === "object" && "posts" in response && "total" in response) {
+    return response
+  }
+
+  // 기본값 반환 (에러 방지)
+  return {
+    posts: [],
+    total: 0,
+    skip: filters.skip || 0,
+    limit: filters.limit || 10,
+    hasMore: false,
+  }
 }
 
 // 게시물 검색
