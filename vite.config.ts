@@ -8,25 +8,19 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-
-      '@/app': path.resolve(__dirname, './src/1_app/index.ts'),
+      '@/app': path.resolve(__dirname, './src/1_app'),
       '@/app/*': path.resolve(__dirname, './src/1_app/*'),
-
-      '@/pages': path.resolve(__dirname, './src/2_pages/index.ts'),
+      '@/pages': path.resolve(__dirname, './src/2_pages'),
       '@/pages/*': path.resolve(__dirname, './src/2_pages/*'),
-
-      '@/widgets': path.resolve(__dirname, './src/3_widgets/index.ts'),
+      '@/widgets': path.resolve(__dirname, './src/3_widgets'),
       '@/widgets/*': path.resolve(__dirname, './src/3_widgets/*'),
-
-      '@/features': path.resolve(__dirname, './src/4_features/index.ts'),
+      '@/features': path.resolve(__dirname, './src/4_features'),
       '@/features/*': path.resolve(__dirname, './src/4_features/*'),
-
-      '@/entities': path.resolve(__dirname, './src/5_entities/index.ts'),
+      '@/entities': path.resolve(__dirname, './src/5_entities'),
       '@/entities/*': path.resolve(__dirname, './src/5_entities/*'),
-
-      '@/shared': path.resolve(__dirname, './src/6_shared/index.ts'),
+      '@/shared': path.resolve(__dirname, './src/6_shared'),
       '@/shared/*': path.resolve(__dirname, './src/6_shared/*'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
