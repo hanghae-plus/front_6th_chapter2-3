@@ -1,4 +1,5 @@
 import {
+  addPostComment,
   deletePostComment,
   getPostComments,
   getPosts,
@@ -7,6 +8,7 @@ import {
 } from './remote';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  addComment,
   deleteComment,
   getLikes,
   incrementCommentLike,
@@ -91,6 +93,7 @@ export const usePostCommentLike = () => {
   });
 };
 
+// 개별 댓글 삭제
 export const usePostCommentDelete = () => {
   const queryClient = useQueryClient();
 
@@ -117,6 +120,34 @@ export const usePostCommentDelete = () => {
       );
 
       return { previousComments };
+    },
+  });
+};
+
+// 개별 댓글 추가
+export const useAddPostComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      body,
+      postId,
+    }: {
+      userId: number;
+      postId: number;
+      body: string;
+    }) => addPostComment(postId, userId, body),
+    onSuccess: (data, { postId }) => {
+      queryClient.setQueryData(
+        QUERY_KEYS.postComments(postId),
+        (old: PostCommentsResponse) => {
+          return {
+            ...old,
+            comments: addComment(old.comments, { ...data, likes: 0 }),
+          };
+        },
+      );
     },
   });
 };

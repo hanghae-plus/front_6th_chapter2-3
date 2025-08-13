@@ -1,1 +1,2 @@
-export * from './usePostModal';
+export * from './usePostDialog';
+export * from './useAddCommentDialog';

@@ -1,4 +1,4 @@
-import { usePostModal } from '../model';
+import { useAddCommentDialog, usePostDialog } from '../model';
 import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import {
   usePostCommentDelete,
@@ -17,7 +17,8 @@ import {
 
 export const PostDialog = () => {
   const [searchQuery] = useSearchQuery();
-  const { opened, post, close } = usePostModal();
+  const { opened, data: post, close } = usePostDialog();
+  const { open: openAddCommentDialog } = useAddCommentDialog();
   const { data: comments } = usePostComments(post?.id);
   const { mutate: likeComment } = usePostCommentLike();
   const { mutate: deleteComment } = usePostCommentDelete();
@@ -41,7 +42,6 @@ export const PostDialog = () => {
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(post.body, searchQuery)}</p>
-          {/* {renderComments(post.id)} */}
 
           <div className="mt-2">
             <div className="flex items-center justify-between mb-2">
@@ -49,8 +49,10 @@ export const PostDialog = () => {
               <Button
                 size="sm"
                 onClick={() => {
-                  setNewComment((prev) => ({ ...prev, postId }));
-                  setShowAddCommentDialog(true);
+                  openAddCommentDialog({
+                    postId: post.id,
+                    userId: 1,
+                  });
                 }}
               >
                 <Plus className="w-3 h-3 mr-1" />

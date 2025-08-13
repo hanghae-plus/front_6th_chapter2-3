@@ -28,6 +28,7 @@ export interface PostComment {
   };
 }
 
+// 게시글 태그 데이터
 export interface PostTag {
   slug: string;
   name: string;

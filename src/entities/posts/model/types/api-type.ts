@@ -10,3 +10,8 @@ export interface PostCommentsResponse extends Pagination {
 }
 
 export type PostsTagsResponse = PostTag[];
+
+export type AddPostCommentResponse = Pick<
+  PostComment,
+  'id' | 'body' | 'postId' | 'user'
+>;

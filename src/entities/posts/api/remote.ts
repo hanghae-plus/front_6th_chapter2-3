@@ -1,4 +1,5 @@
 import type {
+  AddPostCommentResponse,
   PostCommentsResponse,
   PostsResponse,
   PostsTagsResponse,
@@ -46,5 +47,17 @@ export const patchPostCommentLike = async (
 export const deletePostComment = async (commentId: number) => {
   return await remote(`/api/comments/${commentId}`, {
     method: 'DELETE',
+  });
+};
+
+export const addPostComment = async (
+  postId: number,
+  userId: number,
+  body: string,
+): Promise<AddPostCommentResponse> => {
+  return await remote('/api/comments/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body, postId, userId }),
   });
 };

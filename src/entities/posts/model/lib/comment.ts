@@ -18,3 +18,7 @@ export const getLikes = (comments: PostComment[], commentId: number) => {
 export const deleteComment = (comments: PostComment[], commentId: number) => {
   return comments.filter((comment) => comment.id !== commentId);
 };
+
+export const addComment = (comments: PostComment[], comment: PostComment) => {
+  return [...comments, comment];
+};
