@@ -110,3 +110,119 @@ import type { Props } from './types';
 - **Index 파일**: 모든 FSD 레이어에 public API 구성 완료
 - **Import Order**: 6단계 그룹화 자동 정렬 적용
 - **Staged**: FSD 구조 변경 및 설정 파일들 준비 완료
+
+## ✅ Phase 3: 클린 코드 리팩토링
+
+### 1) 매직넘버 상수화
+
+#### **상수 관리 구조 구축**
+
+FSD 아키텍처에 따라 `6_shared/constants/` 디렉토리에 상수 관리 시스템 구축:
+
+```typescript
+src/6_shared/constants/
+├── ui.ts          # UI 관련 상수 (크기, 스타일, 레이아웃)
+├── api.ts         # API 관련 상수 (엔드포인트, 기본값)
+└── index.ts       # 배럴 파일 (통합 export)
+```
+
+#### **UI 상수 정의**
+
+```typescript
+// src/6_shared/constants/ui.ts
+export const UI_CONSTANTS = {
+  TEXTAREA_ROWS: {
+    LARGE: 30, // 게시물 작성용
+    MEDIUM: 15, // 게시물 수정용
+    SMALL: 5, // 댓글 작성용
+  },
+  ICON_SIZES: {
+    SMALL: 'w-3 h-3', // 댓글 버튼용
+    MEDIUM: 'w-4 h-4', // 일반 버튼용
+    LARGE: 'w-8 h-8', // 프로필 이미지용
+  },
+  PAGINATION: {
+    DEFAULT_LIMIT: 10,
+    DEFAULT_SKIP: 0,
+    LIMIT_OPTIONS: [10, 20, 30] as const,
+  },
+  STYLES: {
+    TAG_SELECTED: 'text-white bg-blue-500 hover:bg-blue-600',
+    TAG_DEFAULT: 'text-blue-800 bg-blue-100 hover:bg-blue-200',
+    TAG_SIZE: 'px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer',
+  },
+} as const;
+```
+
+#### **API 상수 정의**
+
+```typescript
+// src/6_shared/constants/api.ts
+export const API_CONSTANTS = {
+  ENDPOINTS: {
+    POSTS: '/api/posts',
+    USERS: '/api/users',
+    COMMENTS: '/api/comments',
+  },
+  DEFAULT_USER_ID: 1,
+  QUERY_PARAMS: {
+    USERS_SELECT: 'limit=0&select=username,image',
+  },
+  REACTIONS: {
+    DEFAULT_LIKES: 0,
+    DEFAULT_DISLIKES: 0,
+    LIKE_INCREMENT: 1,
+  },
+} as const;
+```
+
+#### **PostsManagerPage 리팩토링**
+
+매직넘버 → 상수 교체 완료:
+
+**UI 관련 매직넘버**:
+
+- ✅ `rows={30}` → `rows={UI_CONSTANTS.TEXTAREA_ROWS.LARGE}`
+- ✅ `rows={15}` → `rows={UI_CONSTANTS.TEXTAREA_ROWS.MEDIUM}`
+- ✅ `className='w-4 h-4'` → `className={UI_CONSTANTS.ICON_SIZES.MEDIUM}`
+- ✅ `className='w-3 h-3'` → `className={UI_CONSTANTS.ICON_SIZES.SMALL}`
+- ✅ `className='w-8 h-8'` → `className={UI_CONSTANTS.ICON_SIZES.LARGE}`
+- ✅ 페이지네이션 `[10, 20, 30]` → `UI_CONSTANTS.PAGINATION.LIMIT_OPTIONS`
+- ✅ 태그 스타일 인라인 클래스 → `UI_CONSTANTS.STYLES.*`
+
+**API 관련 매직넘버**:
+
+- ✅ `userId: 1` → `userId: API_CONSTANTS.DEFAULT_USER_ID`
+- ✅ `likes + 1` → `likes + API_CONSTANTS.REACTIONS.LIKE_INCREMENT`
+- ✅ `|| 0` → `|| API_CONSTANTS.REACTIONS.DEFAULT_LIKES`
+- ✅ `parseInt('10')` → `parseInt(String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT))`
+- ✅ `parseInt('0')` → `parseInt(String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP))`
+
+#### **Import 구문 추가**
+
+```typescript
+// src/2_pages/PostsManagerPage.tsx
+import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
+```
+
+#### **Public API 등록**
+
+```typescript
+// src/6_shared/index.ts
+export * from './ui';
+export * from './constants';
+```
+
+#### 🎯 **현재 상태**
+
+- **상수 구조**: FSD 아키텍처 기반 체계적 상수 관리 시스템 구축
+- **매직넘버 제거**: PostsManagerPage의 모든 매직넘버 상수화 완료
+- **타입 안정성**: `as const` 어서션으로 타입 안정성 확보
+- **유지보수성**: 의미 있는 이름으로 코드 가독성 향상
+- **일관성**: UI 요소와 API 설정값의 중앙 집중식 관리
+
+#### **다음 단계**
+
+1. **타입 정의**: TypeScript 타입 에러 해결
+2. **도메인별 상수**: Post, Comment, User 엔티티별 상수 분리
+3. **기능별 상수**: 검색, 정렬, 필터링 관련 상수 세분화

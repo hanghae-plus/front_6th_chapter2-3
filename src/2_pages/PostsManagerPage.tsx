@@ -40,6 +40,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import {
   Button,
   Card,
@@ -73,14 +74,24 @@ const PostsManager = () => {
 
   // ==================== 게시물 관련 상태 ====================
   const [posts, setPosts] = useState([]); // 게시물 목록 데이터
-  const [total, setTotal] = useState(0); // 전체 게시물 수 (페이지네이션용)
+  const [total, setTotal] = useState(API_CONSTANTS.REACTIONS.DEFAULT_LIKES); // 전체 게시물 수 (페이지네이션용)
   const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 }); // 새 게시물 임시 데이터
+  const [newPost, setNewPost] = useState({
+    title: '',
+    body: '',
+    userId: API_CONSTANTS.DEFAULT_USER_ID,
+  }); // 새 게시물 임시 데이터
 
   // ==================== 페이지네이션 상태 ====================
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0')); // 건너뛸 데이터 수
+  const [skip, setSkip] = useState(
+    parseInt(
+      queryParams.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
+    )
+  ); // 건너뛸 데이터 수
   const [limit, setLimit] = useState(
-    parseInt(queryParams.get('limit') || '10')
+    parseInt(
+      queryParams.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
+    )
   ); // 페이지당 표시할 데이터 수
 
   // ==================== 검색 및 필터링 상태 ====================
@@ -100,7 +111,7 @@ const PostsManager = () => {
   const [newComment, setNewComment] = useState({
     body: '',
     postId: null,
-    userId: 1,
+    userId: API_CONSTANTS.DEFAULT_USER_ID,
   }); // 새 댓글 임시 데이터
 
   // ==================== UI 다이얼로그 상태 ====================
@@ -151,7 +162,9 @@ const PostsManager = () => {
       .then(response => response.json())
       .then(data => {
         postsData = data;
-        return fetch('/api/users?limit=0&select=username,image');
+        return fetch(
+          `${API_CONSTANTS.ENDPOINTS.USERS}?limit=0&select=username,image`
+        );
       })
       .then(response => response.json())
       .then(users => {
@@ -222,7 +235,7 @@ const PostsManager = () => {
     try {
       const [postsResponse, usersResponse] = await Promise.all([
         fetch(`/api/posts/tag/${tag}`),
-        fetch('/api/users?limit=0&select=username,image'),
+        fetch(`${API_CONSTANTS.ENDPOINTS.USERS}?limit=0&select=username,image`),
       ]);
       const postsData = await postsResponse.json();
       const usersData = await usersResponse.json();
@@ -256,7 +269,11 @@ const PostsManager = () => {
       const data = await response.json();
       setPosts([data, ...posts]);
       setShowAddDialog(false);
-      setNewPost({ title: '', body: '', userId: 1 });
+      setNewPost({
+        title: '',
+        body: '',
+        userId: API_CONSTANTS.DEFAULT_USER_ID,
+      });
     } catch (error) {
       console.error('게시물 추가 오류:', error);
     }
@@ -333,7 +350,11 @@ const PostsManager = () => {
         [data.postId]: [...(prev[data.postId] || []), data],
       }));
       setShowAddCommentDialog(false);
-      setNewComment({ body: '', postId: null, userId: 1 });
+      setNewComment({
+        body: '',
+        postId: null,
+        userId: API_CONSTANTS.DEFAULT_USER_ID,
+      });
     } catch (error) {
       console.error('댓글 추가 오류:', error);
     }
@@ -394,7 +415,9 @@ const PostsManager = () => {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          likes: comments[postId].find(c => c.id === id).likes + 1,
+          likes:
+            comments[postId].find(c => c.id === id).likes +
+            API_CONSTANTS.REACTIONS.LIKE_INCREMENT,
         }),
       });
       const data = await response.json();
@@ -402,7 +425,10 @@ const PostsManager = () => {
         ...prev,
         [postId]: prev[postId].map(comment =>
           comment.id === data.id
-            ? { ...data, likes: comment.likes + 1 }
+            ? {
+                ...data,
+                likes: comment.likes + API_CONSTANTS.REACTIONS.LIKE_INCREMENT,
+              }
             : comment
         ),
       }));
@@ -470,8 +496,16 @@ const PostsManager = () => {
    */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || '0'));
-    setLimit(parseInt(params.get('limit') || '10'));
+    setSkip(
+      parseInt(
+        params.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
+      )
+    );
+    setLimit(
+      parseInt(
+        params.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
+      )
+    );
     setSearchQuery(params.get('search') || '');
     setSortBy(params.get('sortBy') || '');
     setSortOrder(params.get('sortOrder') || 'asc');
@@ -536,10 +570,10 @@ const PostsManager = () => {
                   {post.tags?.map(tag => (
                     <span
                       key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
+                      className={`${UI_CONSTANTS.STYLES.TAG_SIZE} ${
                         selectedTag === tag
-                          ? 'text-white bg-blue-500 hover:bg-blue-600'
-                          : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
+                          ? UI_CONSTANTS.STYLES.TAG_SELECTED
+                          : UI_CONSTANTS.STYLES.TAG_DEFAULT
                       }`}
                       onClick={() => {
                         setSelectedTag(tag);
@@ -560,17 +594,23 @@ const PostsManager = () => {
                 <img
                   src={post.author?.image}
                   alt={post.author?.username}
-                  className='w-8 h-8 rounded-full'
+                  className={`${UI_CONSTANTS.ICON_SIZES.LARGE} rounded-full`}
                 />
                 <span>{post.author?.username}</span>
               </div>
             </TableCell>
             <TableCell>
               <div className='flex items-center gap-2'>
-                <ThumbsUp className='w-4 h-4' />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className='w-4 h-4' />
-                <span>{post.reactions?.dislikes || 0}</span>
+                <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                <span>
+                  {post.reactions?.likes ||
+                    API_CONSTANTS.REACTIONS.DEFAULT_LIKES}
+                </span>
+                <ThumbsDown className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                <span>
+                  {post.reactions?.dislikes ||
+                    API_CONSTANTS.REACTIONS.DEFAULT_DISLIKES}
+                </span>
               </div>
             </TableCell>
             <TableCell>
@@ -580,7 +620,7 @@ const PostsManager = () => {
                   size='sm'
                   onClick={() => openPostDetail(post)}
                 >
-                  <MessageSquare className='w-4 h-4' />
+                  <MessageSquare className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>
                 <Button
                   variant='ghost'
@@ -590,14 +630,14 @@ const PostsManager = () => {
                     setShowEditDialog(true);
                   }}
                 >
-                  <Edit2 className='w-4 h-4' />
+                  <Edit2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>
                 <Button
                   variant='ghost'
                   size='sm'
                   onClick={() => deletePost(post.id)}
                 >
-                  <Trash2 className='w-4 h-4' />
+                  <Trash2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>
               </div>
             </TableCell>
@@ -625,7 +665,7 @@ const PostsManager = () => {
             setShowAddCommentDialog(true);
           }}
         >
-          <Plus className='w-3 h-3 mr-1' />
+          <Plus className={`${UI_CONSTANTS.ICON_SIZES.SMALL} mr-1`} />
           댓글 추가
         </Button>
       </div>
@@ -649,7 +689,7 @@ const PostsManager = () => {
                 size='sm'
                 onClick={() => likeComment(comment.id, postId)}
               >
-                <ThumbsUp className='w-3 h-3' />
+                <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.SMALL} />
                 <span className='ml-1 text-xs'>{comment.likes}</span>
               </Button>
               <Button
@@ -660,14 +700,14 @@ const PostsManager = () => {
                   setShowEditCommentDialog(true);
                 }}
               >
-                <Edit2 className='w-3 h-3' />
+                <Edit2 className={UI_CONSTANTS.ICON_SIZES.SMALL} />
               </Button>
               <Button
                 variant='ghost'
                 size='sm'
                 onClick={() => deleteComment(comment.id, postId)}
               >
-                <Trash2 className='w-3 h-3' />
+                <Trash2 className={UI_CONSTANTS.ICON_SIZES.SMALL} />
               </Button>
             </div>
           </div>
@@ -682,7 +722,7 @@ const PostsManager = () => {
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
           <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className='w-4 h-4 mr-2' />
+            <Plus className={`${UI_CONSTANTS.ICON_SIZES.MEDIUM} mr-2`} />
             게시물 추가
           </Button>
         </CardTitle>
@@ -693,7 +733,9 @@ const PostsManager = () => {
           <div className='flex gap-4'>
             <div className='flex-1'>
               <div className='relative'>
-                <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                <Search
+                  className={`absolute left-2 top-2.5 ${UI_CONSTANTS.ICON_SIZES.MEDIUM} text-muted-foreground`}
+                />
                 <Input
                   placeholder='게시물 검색...'
                   className='pl-8'
@@ -764,17 +806,23 @@ const PostsManager = () => {
                   <SelectValue placeholder='10' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='10'>10</SelectItem>
-                  <SelectItem value='20'>20</SelectItem>
-                  <SelectItem value='30'>30</SelectItem>
+                  {UI_CONSTANTS.PAGINATION.LIMIT_OPTIONS.map(option => (
+                    <SelectItem key={option} value={String(option)}>
+                      {option}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <span>항목</span>
             </div>
             <div className='flex gap-2'>
               <Button
-                disabled={skip === 0}
-                onClick={() => setSkip(Math.max(0, skip - limit))}
+                disabled={skip === UI_CONSTANTS.PAGINATION.DEFAULT_SKIP}
+                onClick={() =>
+                  setSkip(
+                    Math.max(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP, skip - limit)
+                  )
+                }
               >
                 이전
               </Button>
@@ -802,7 +850,7 @@ const PostsManager = () => {
               onChange={e => setNewPost({ ...newPost, title: e.target.value })}
             />
             <Textarea
-              rows={30}
+              rows={UI_CONSTANTS.TEXTAREA_ROWS.LARGE}
               placeholder='내용'
               value={newPost.body}
               onChange={e => setNewPost({ ...newPost, body: e.target.value })}
@@ -835,7 +883,7 @@ const PostsManager = () => {
               }
             />
             <Textarea
-              rows={15}
+              rows={UI_CONSTANTS.TEXTAREA_ROWS.MEDIUM}
               placeholder='내용'
               value={selectedPost?.body || ''}
               onChange={e =>
