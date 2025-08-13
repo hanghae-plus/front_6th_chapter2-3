@@ -1,6 +1,7 @@
 import React from "react"
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui"
 import { usePostQueryParams } from "@/shared/hooks/use-post-query-params"
+import { LIMIT_OPTIONS } from "@shared/constants"
 
 interface PaginationProps {
   total: number
@@ -15,7 +16,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPrev,
   onNext,
   onLimitChange,
-  limitOptions = [10, 20, 30],
+  limitOptions = LIMIT_OPTIONS,
 }) => {
   const { param } = usePostQueryParams()
   const currentStart = Math.min(param.skip + 1, total)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Plus } from "lucide-react"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
@@ -38,11 +38,6 @@ const PostsManager = () => {
     setUserIdForDialog(userId)
     setShowUserModal(true)
   }
-
-  // URL 변경 시 검색어 동기화 (루프 없음)
-  useEffect(() => {
-    setSearchQuery(searchQuery)
-  }, [searchQuery])
 
   return (
     <Card className="w-full max-w-6xl mx-auto">

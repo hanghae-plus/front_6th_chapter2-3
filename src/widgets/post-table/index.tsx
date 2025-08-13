@@ -3,6 +3,8 @@ import { Edit2, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
 import { useGetPosts, useGetPostsByTag, useGetPostSearch } from "@entities/post"
+import { mergePostsWithAuthors } from "@entities/post"
+import { LIMIT_OPTIONS } from "@shared/constants"
 import { RemovePostButton } from "@/features/remove-post/ui"
 import type { Post } from "@entities/post"
 import { Pagination } from "@/widgets/pagination"
@@ -63,16 +65,12 @@ export const PostTable: React.FC<PostTableProps> = ({
     return postsData
   }
   // 조건에 따라 사용할 데이터 선택
-  const currentPostsData = getPostDataByFilter()
+  const activePostsData = getPostDataByFilter()
 
   // 게시물에 작성자 정보 병합
-  const postsWithAuthor = useMemo(() => {
-    const base = currentPostsData?.posts || []
-    return base.map((post) => ({
-      ...post,
-      author: usersData?.users?.find((user) => user.id === post.userId),
-    }))
-  }, [currentPostsData?.posts, usersData?.users])
+  const postsWithAuthors = useMemo(() => {
+    return mergePostsWithAuthors(activePostsData?.posts, usersData?.users)
+  }, [activePostsData?.posts, usersData?.users])
 
   return (
     <>
@@ -91,7 +89,7 @@ export const PostTable: React.FC<PostTableProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {postsWithAuthor.map((post) => (
+              {postsWithAuthors.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell>{post.id}</TableCell>
                   <TableCell>
@@ -147,7 +145,8 @@ export const PostTable: React.FC<PostTableProps> = ({
             </TableBody>
           </Table>
           <Pagination
-            total={currentPostsData?.total || 0}
+            total={activePostsData?.total || 0}
+            limitOptions={LIMIT_OPTIONS}
             onPrev={onPrev}
             onNext={onNext}
             onLimitChange={onLimitChange}
