@@ -1,5 +1,6 @@
 import type {
   AddPostCommentResponse,
+  Post,
   PostCommentsResponse,
   PostsResponse,
   PostsTagsResponse,
@@ -59,5 +60,13 @@ export const addPostComment = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ body, postId, userId }),
+  });
+};
+
+export const updatePost = async (postId: number, post: Post): Promise<Post> => {
+  return await remote(`/api/posts/${postId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(post),
   });
 };

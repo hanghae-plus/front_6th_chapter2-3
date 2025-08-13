@@ -5,10 +5,10 @@ import {
   ThumbsUp,
   Trash2,
 } from 'lucide-react';
-import { usePostDialog } from '../model';
+import { useEditPostDialog, usePostDialog } from '../model';
 import { useUsers, type UsersResponse } from '@/entities/users';
 import type { Post } from '@/entities/posts';
-import { usePosts } from '@/entities/posts';
+import { usePosts, useSearchQuery, useTag } from '@/entities/posts';
 import {
   Button,
   Table,
@@ -25,34 +25,17 @@ type Author = UsersResponse['users'][0];
 type PostWithAuthor = Post & { author?: Author };
 
 interface Props {
-  limit: number;
-  skip: number;
-  searchQuery?: string;
-  selectedTag?: string;
-  onClickTag: (tag: string) => void;
   onClickOpenUserModal: (user: Author) => void;
-  onClickOpenPostDetail: (post: Post) => void;
-  onClickOpenEditDialog: (post: Post) => void;
   onClickDeletePost: (postId: number) => void;
 }
 
 export const PostsTable = ({
-  limit,
-  skip,
-  searchQuery = '',
-  selectedTag = '',
-  onClickTag,
   onClickOpenUserModal,
-  // onClickOpenPostDetail,
-  onClickOpenEditDialog,
   onClickDeletePost,
 }: Props) => {
-  const { data: postsData, isLoading: postsLoading } = usePosts(
-    limit,
-    skip,
-    searchQuery,
-    selectedTag,
-  );
+  const [searchQuery] = useSearchQuery();
+  const [selectedTag, setSelectedTag] = useTag();
+  const { data: postsData, isLoading: postsLoading } = usePosts();
   const { data: usersData, isLoading: usersLoading } = useUsers();
   const loading = postsLoading || usersLoading;
   const posts: PostWithAuthor[] =
@@ -61,6 +44,7 @@ export const PostsTable = ({
       return { ...post, author };
     }) ?? [];
   const { open } = usePostDialog();
+  const { open: openEditDialog } = useEditPostDialog();
 
   if (loading) {
     return <div className="flex justify-center p-4">로딩 중...</div>;
@@ -94,7 +78,7 @@ export const PostsTable = ({
                           ? 'text-white bg-blue-500 hover:bg-blue-600'
                           : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
                       }`}
-                      onClick={() => onClickTag(tag)}
+                      onClick={() => setSelectedTag(tag)}
                     >
                       {tag}
                     </span>
@@ -129,18 +113,13 @@ export const PostsTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  // onClick={() => onClickOpenPostDetail(post)}
-                  onClick={() => open(post)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => open(post)}>
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onClickOpenEditDialog(post)}
+                  onClick={() => openEditDialog(post)}
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>

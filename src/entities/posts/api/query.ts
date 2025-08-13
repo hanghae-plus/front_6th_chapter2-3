@@ -5,6 +5,7 @@ import {
   getPosts,
   getPostsTags,
   patchPostCommentLike,
+  updatePost,
 } from './remote';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -12,17 +13,23 @@ import {
   deleteComment,
   getLikes,
   incrementCommentLike,
+  useLimit,
+  useSearchQuery,
+  useSkip,
+  useTag,
+  type Post,
   type PostCommentsResponse,
+  type PostsResponse,
 } from '../model';
 import { QUERY_KEYS } from '@/shared/config';
 
 // 게시글 목록 가져오기
-export const usePosts = (
-  limit: number,
-  skip: number,
-  searchQuery: string = '',
-  selectedTag: string = '',
-) => {
+export const usePosts = () => {
+  const [limit] = useLimit();
+  const [skip] = useSkip();
+  const [searchQuery] = useSearchQuery();
+  const [selectedTag] = useTag();
+
   return useQuery({
     queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
     queryFn: () => getPosts(limit, skip, searchQuery, selectedTag),
@@ -148,6 +155,41 @@ export const useAddPostComment = () => {
           };
         },
       );
+    },
+  });
+};
+
+// 게시물 업데이트
+export const useUpdatePost = () => {
+  const [limit] = useLimit();
+  const [skip] = useSkip();
+  const [searchQuery] = useSearchQuery();
+  const [selectedTag] = useTag();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, post }: { postId: number; post: Post }) =>
+      updatePost(postId, post),
+    onMutate: async ({ postId, post }) => {
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      });
+
+      const previousPosts = queryClient.getQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      );
+
+      queryClient.setQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        (old: PostsResponse) => {
+          return {
+            ...old,
+            posts: old.posts.map((item) => (item.id === postId ? post : item)),
+          };
+        },
+      );
+
+      return { previousPosts };
     },
   });
 };

@@ -2,6 +2,7 @@ import { Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AddCommentDialog, PostDialog, PostsTable } from '@/features/posts';
+import { EditPostDialog } from '@/features/posts';
 import {
   useLimit,
   usePosts,
@@ -58,26 +59,20 @@ const PostsManager = () => {
   // );
   const [sortOrder, setSortOrder] = useSortOrder();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
 
   // const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [selectedTag, setSelectedTag] = useTag();
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
-  const [newComment, setNewComment] = useState({
-    body: '',
-    postId: null,
-    userId: 1,
-  });
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
+
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const { data: tags } = usePostsTags();
-  const { data: postsData } = usePosts(limit, skip, searchQuery, selectedTag);
+  const { data: postsData } = usePosts();
   const total = postsData?.total ?? 0;
 
   // URL 업데이트 함수
@@ -203,20 +198,20 @@ const PostsManager = () => {
   };
 
   // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedPost),
-      });
-      const data = await response.json();
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)));
-      setShowEditDialog(false);
-    } catch (error) {
-      console.error('게시물 업데이트 오류:', error);
-    }
-  };
+  // const updatePost = async () => {
+  //   try {
+  //     const response = await fetch(`/api/posts/${selectedPost.id}`, {
+  //       method: 'PUT',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(selectedPost),
+  //     });
+  //     const data = await response.json();
+  //     setPosts(posts.map((post) => (post.id === data.id ? data : post)));
+  //     setShowEditDialog(false);
+  //   } catch (error) {
+  //     console.error('게시물 업데이트 오류:', error);
+  //   }
+  // };
 
   // 게시물 삭제
   const deletePost = async (id) => {
@@ -243,24 +238,24 @@ const PostsManager = () => {
   };
 
   // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch('/api/comments/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newComment),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }));
-      setShowAddCommentDialog(false);
-      setNewComment({ body: '', postId: null, userId: 1 });
-    } catch (error) {
-      console.error('댓글 추가 오류:', error);
-    }
-  };
+  // const addComment = async () => {
+  //   try {
+  //     const response = await fetch('/api/comments/add', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(newComment),
+  //     });
+  //     const data = await response.json();
+  //     setComments((prev) => ({
+  //       ...prev,
+  //       [data.postId]: [...(prev[data.postId] || []), data],
+  //     }));
+  //     setShowAddCommentDialog(false);
+  //     setNewComment({ body: '', postId: null, userId: 1 });
+  //   } catch (error) {
+  //     console.error('댓글 추가 오류:', error);
+  //   }
+  // };
 
   // 댓글 업데이트
   const updateComment = async () => {
@@ -505,15 +500,8 @@ const PostsManager = () => {
 
           {/* 게시물 테이블 */}
           <PostsTable
-            limit={limit}
-            skip={skip}
             onClickTag={setSelectedTag}
             onClickOpenUserModal={openUserModal}
-            onClickOpenPostDetail={openPostDetail}
-            onClickOpenEditDialog={(post) => {
-              setSelectedPost(post);
-              setShowEditDialog(true);
-            }}
             onClickDeletePost={deletePost}
           />
 
@@ -588,7 +576,7 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>게시물 수정</DialogTitle>
@@ -612,7 +600,8 @@ const PostsManager = () => {
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <EditPostDialog />
 
       {/* 댓글 추가 대화상자 */}
       {/* <Dialog
