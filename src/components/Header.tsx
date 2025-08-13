@@ -2,10 +2,10 @@ import { MessageSquare } from "lucide-react"
 
 export function Header() {
   return (
-    <header className="bg-blue-600 text-white p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
+    <header className="bg-blue-600 p-4 text-white shadow-md">
+      <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <MessageSquare className="w-6 h-6" />
+          <MessageSquare className="h-6 w-6" />
           <h1 className="text-xl font-bold">게시물 관리 시스템</h1>
         </div>
         <nav>

@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="bg-gray-100 text-gray-600 py-4 mt-8">
+    <footer className="mt-8 bg-gray-100 py-4 text-gray-600">
       <div className="container mx-auto text-center">
         <p>&copy; 2023 Post Management System. All rights reserved.</p>
       </div>
