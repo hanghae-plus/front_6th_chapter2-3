@@ -1,4 +1,4 @@
-import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
   Button,
   DialogContent,
@@ -10,6 +10,7 @@ import { useDialogStore } from '../../../shared/hook/useDialogStore';
 import { IPost } from '../../../entities/post/model/type';
 import { IComment } from '../../../entities/comment/model/type';
 import { useCommentsQuery } from '../../../entities/comment/model/hook';
+import CommentList from '../../../entities/comment/ui/CommentList';
 import AddCommentForm from '../../../features/comment/add-comment/ui/AddCommentForm';
 import UpdateCommentform from '../../../features/comment/update-comment/ui/UpdateCommentForm';
 import { useLikeComment } from '../../../features/comment/like-comment/model/useLikeComment';
@@ -58,49 +59,14 @@ const PostDetail = ({ post, searchQuery }: PostDetailProps) => {
             </Button>
           </div>
 
-          {/* CommentList */}
-          <div className="space-y-1">
-            {comments?.comments?.map((comment) => (
-              // CommentItem
-              <div
-                key={comment.id}
-                className="flex items-center justify-between text-sm border-b pb-1"
-              >
-                <div className="flex items-center space-x-2 overflow-hidden">
-                  <span className="font-medium truncate">
-                    {comment.user.username}:
-                  </span>
-                  <span className="truncate">
-                    {HighlightText(comment.body, searchQuery)}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => likeComment(comment)}
-                  >
-                    <ThumbsUp className="w-3 h-3" />
-                    <span className="ml-1 text-xs">{comment.likes}</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleUpdateComment(comment)}
-                  >
-                    <Edit2 className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteComment(comment)}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* 댓글 목록 */}
+          <CommentList
+            comments={comments?.comments}
+            searchQuery={searchQuery}
+            onLikeComment={likeComment}
+            onEditComment={handleUpdateComment}
+            onDeleteComment={deleteComment}
+          />
         </div>
       </div>
     </DialogContent>

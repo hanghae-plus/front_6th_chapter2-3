@@ -10,11 +10,11 @@ interface CommentItemProps {
   searchQuery: string;
 
   // 댓글 좋아요
-  onLikeComment?: () => void;
+  onLikeComment: (comment: IComment) => void;
   // 댓글 수정
-  onEditComment?: () => void;
+  onEditComment: (comment: IComment) => void;
   // 댓글 삭제
-  onDeleteComment?: () => void;
+  onDeleteComment: (comment: IComment) => void;
 }
 
 const CommentItem = ({
@@ -36,14 +36,26 @@ const CommentItem = ({
         </span>
       </div>
       <div className="flex items-center space-x-1">
-        <Button variant="ghost" size="sm" onClick={onLikeComment}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onLikeComment(comment)}
+        >
           <ThumbsUp className="w-3 h-3" />
           <span className="ml-1 text-xs">{comment.likes}</span>
         </Button>
-        <Button variant="ghost" size="sm" onClick={onEditComment}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEditComment(comment)}
+        >
           <Edit2 className="w-3 h-3" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={onDeleteComment}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDeleteComment(comment)}
+        >
           <Trash2 className="w-3 h-3" />
         </Button>
       </div>

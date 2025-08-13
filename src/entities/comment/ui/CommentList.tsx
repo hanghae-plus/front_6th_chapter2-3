@@ -3,16 +3,16 @@ import CommentItem from './CommentItem';
 
 interface CommentListProps {
   // 댓글 목록
-  comments: IComment[];
+  comments?: IComment[];
   // 하이라이트 처리 검색어
   searchQuery: string;
 
   // 댓글 좋아요
-  onLikeComment: () => void;
+  onLikeComment: (comment: IComment) => void;
   // 댓글 수정
-  onEditComment: () => void;
+  onEditComment: (comment: IComment) => void;
   // 댓글 삭제
-  onDeleteComment: () => void;
+  onDeleteComment: (comment: IComment) => void;
 }
 
 const CommentList = ({
@@ -24,7 +24,7 @@ const CommentList = ({
 }: CommentListProps) => {
   return (
     <div className="space-y-1">
-      {comments.map((comment) => (
+      {comments?.map((comment) => (
         <CommentItem
           key={comment.id}
           comment={comment}
