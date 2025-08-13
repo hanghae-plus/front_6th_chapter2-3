@@ -22,6 +22,7 @@ import { EditCommentDialog } from '@/features/comment-edit/ui/EditCommentDialog'
 import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
+import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
 import { useEditPost } from '@/features/post-edit/model/useEditPost';
 import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
@@ -30,18 +31,8 @@ import { usePagination } from '@/features/post-pagination/model/usePagination';
 import { Pagination } from '@/features/post-pagination/ui/Pagination';
 import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { PostSearch } from '@/features/post-search/ui/PostSearch';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  HighlightText,
-} from '@/shared/ui';
-import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
+import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileDialog';
 
 export const PostManagerWidget = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
@@ -231,42 +222,11 @@ export const PostManagerWidget = () => {
       </DetailPostDialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <img
-              src={user?.image}
-              alt={user?.username}
-              className='w-24 h-24 rounded-full mx-auto'
-            />
-            <h3 className='text-xl font-semibold text-center'>{user?.username}</h3>
-            <div className='space-y-2'>
-              <p>
-                <strong>이름:</strong> {user?.firstName} {user?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {user?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {user?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {user?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {user?.address?.address}, {user?.address?.city},{' '}
-                {user?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {user?.company?.name} - {user?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserProfileDialog
+        showUserModal={showUserModal}
+        setShowUserModal={setShowUserModal}
+        user={user}
+      />
     </Card>
   );
 };
