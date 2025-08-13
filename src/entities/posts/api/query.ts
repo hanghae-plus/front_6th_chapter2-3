@@ -1,4 +1,5 @@
 import {
+  addPost,
   addPostComment,
   deletePost,
   deletePostComment,
@@ -18,6 +19,7 @@ import {
   useSearchQuery,
   useSkip,
   useTag,
+  type AddPostRequest,
   type Post,
   type PostCommentsResponse,
   type PostsResponse,
@@ -220,6 +222,41 @@ export const useDeletePost = () => {
           return {
             ...old,
             posts: old.posts.filter((item) => item.id !== postId),
+          };
+        },
+      );
+
+      return { previousPosts };
+    },
+  });
+};
+
+// 게시물 추가
+export const useAddPost = () => {
+  const [limit] = useLimit();
+  const [skip] = useSkip();
+  const [searchQuery] = useSearchQuery();
+  const [selectedTag] = useTag();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postData: AddPostRequest) => addPost(postData),
+    onMutate: async (postData) => {
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      });
+
+      const previousPosts = queryClient.getQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      );
+
+      queryClient.setQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        (old: PostsResponse) => {
+          return {
+            ...old,
+            posts: [postData, ...old.posts],
+            total: old.total + 1,
           };
         },
       );

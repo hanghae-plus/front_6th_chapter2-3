@@ -15,3 +15,11 @@ export type AddPostCommentResponse = Pick<
   PostComment,
   'id' | 'body' | 'postId' | 'user'
 >;
+
+export interface AddPostRequest {
+  title: string;
+  body: string;
+  userId: number;
+}
+
+export type AddPostResponse = Post;

@@ -1,5 +1,7 @@
 import type {
   AddPostCommentResponse,
+  AddPostRequest,
+  AddPostResponse,
   Post,
   PostCommentsResponse,
   PostsResponse,
@@ -74,5 +76,15 @@ export const updatePost = async (postId: number, post: Post): Promise<Post> => {
 export const deletePost = async (postId: number) => {
   return await remote(`/api/posts/${postId}`, {
     method: 'DELETE',
+  });
+};
+
+export const addPost = async (
+  postData: AddPostRequest,
+): Promise<AddPostResponse> => {
+  return await remote('/api/posts/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(postData),
   });
 };

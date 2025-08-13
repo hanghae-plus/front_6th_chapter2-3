@@ -1,7 +1,13 @@
 import { Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AddCommentDialog, PostDialog, PostsTable } from '@/features/posts';
+import {
+  AddCommentDialog,
+  AddPostDialog,
+  PostDialog,
+  PostsTable,
+  useAddPostDialog,
+} from '@/features/posts';
 import { EditPostDialog } from '@/features/posts';
 import {
   useLimit,
@@ -74,6 +80,8 @@ const PostsManager = () => {
   const { data: tags } = usePostsTags();
   const { data: postsData } = usePosts();
   const total = postsData?.total ?? 0;
+
+  const { open: openAddPostDialog } = useAddPostDialog();
 
   // URL 업데이트 함수
   // const updateURL = () => {
@@ -181,21 +189,21 @@ const PostsManager = () => {
   // };
 
   // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch('/api/posts/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost),
-      });
-      const data = await response.json();
-      setPosts([data, ...posts]);
-      setShowAddDialog(false);
-      setNewPost({ title: '', body: '', userId: 1 });
-    } catch (error) {
-      console.error('게시물 추가 오류:', error);
-    }
-  };
+  // const addPost = async () => {
+  //   try {
+  //     const response = await fetch('/api/posts/add', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(newPost),
+  //     });
+  //     const data = await response.json();
+  //     setPosts([data, ...posts]);
+  //     setShowAddDialog(false);
+  //     setNewPost({ title: '', body: '', userId: 1 });
+  //   } catch (error) {
+  //     console.error('게시물 추가 오류:', error);
+  //   }
+  // };
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -438,7 +446,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => openAddPostDialog()}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -539,7 +547,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      {/* <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 게시물 추가</DialogTitle>
@@ -569,7 +577,8 @@ const PostsManager = () => {
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <AddPostDialog />
 
       {/* 게시물 수정 대화상자 */}
       {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
