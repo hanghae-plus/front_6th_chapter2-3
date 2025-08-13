@@ -113,7 +113,7 @@ const PostsManager = () => {
           setNewComment((prev) => ({ ...prev, postId }))
           setShowAddCommentDialog(true)
         }}
-        onEditComment={(comment) => {
+        onOpenEditComment={(comment) => {
           setSelectedComment(comment)
           setShowEditCommentDialog(true)
         }}

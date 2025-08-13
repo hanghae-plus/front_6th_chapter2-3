@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "@share
 import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post"
 import type { Comment } from "@entities/comment"
-import { useGetComments, usePatchCommentLikes, useDeleteComment } from "@entities/comment"
+import { useGetComments } from "@entities/comment"
+import { CommentItem } from "./comment-item"
 
 interface PostDetailDialogProps {
   open: boolean
@@ -11,7 +12,7 @@ interface PostDetailDialogProps {
   post: Post | null
   searchQuery: string
   onOpenAddComment: (postId: number) => void
-  onEditComment: (comment: Comment) => void
+  onOpenEditComment: (comment: Comment) => void
 }
 
 export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
@@ -20,24 +21,12 @@ export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
   post,
   searchQuery,
   onOpenAddComment,
-  onEditComment,
+  onOpenEditComment,
 }) => {
   const postId = post?.id
 
   const { data: commentsData } = useGetComments(postId ?? 0)
   const comments = commentsData?.comments || []
-
-  const likeCommentMutation = usePatchCommentLikes()
-  const deleteCommentMutation = useDeleteComment()
-
-  const handleLikeComment = (commentId: number, postId: number) => {
-    const currentLikes = comments.find((c: Comment) => c.id === commentId)?.likes || 0
-    likeCommentMutation.mutate({ id: commentId, postId, currentLikes })
-  }
-
-  const handleDeleteComment = (commentId: number, postId: number) => {
-    deleteCommentMutation.mutate({ id: commentId, postId })
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,23 +47,13 @@ export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
               </div>
               <div className="space-y-1">
                 {comments?.map((comment: Comment) => (
-                  <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-                    <div className="flex items-center space-x-2 overflow-hidden">
-                      <span className="font-medium truncate">{comment.user.username}:</span>
-                      <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Button variant="ghost" size="sm" onClick={() => handleLikeComment(comment.id, postId)}>
-                        좋아요 <span className="ml-1 text-xs">{comment.likes}</span>
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => onEditComment(comment)}>
-                        수정
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id, postId)}>
-                        삭제
-                      </Button>
-                    </div>
-                  </div>
+                  <CommentItem
+                    key={comment.id}
+                    comment={comment}
+                    postId={postId}
+                    searchQuery={searchQuery}
+                    onOpenEditComment={onOpenEditComment}
+                  />
                 ))}
               </div>
             </div>
