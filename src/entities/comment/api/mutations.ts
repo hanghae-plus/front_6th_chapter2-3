@@ -5,10 +5,39 @@ import { queryClient } from "../../../shared/config/query-client"
 import type { CommentItem } from "../model"
 
 export const commentMutations = {
-  addMutation: () => ({
-    mutationKey: [...commentQueries.all(), "add"] as const,
-    mutationFn: (comment: AddCommentRequest) => commentApi.addComment(comment),
-  }),
+  addMutation: () =>
+    mutationOptions({
+      mutationKey: [...commentQueries.all(), "add"] as const,
+      mutationFn: (comment: AddCommentRequest) => commentApi.addComment(comment),
+      onMutate: async (comment) => {
+        const key = commentQueries.byPost(comment.postId)
+        await queryClient.cancelQueries({ queryKey: key })
+        const previous = queryClient.getQueryData<{ comments: CommentItem[]; total: number }>(key)
+        const tempId = Date.now() * -1
+        const optimistic: CommentItem = {
+          id: tempId,
+          body: comment.body,
+          postId: comment.postId,
+          likes: 0,
+          user: { username: `user-${comment.userId}` },
+        }
+        queryClient.setQueryData(key, (old: { comments: CommentItem[]; total: number }) => ({
+          comments: [optimistic, ...(old?.comments ?? [])],
+          total: (old?.total ?? 0) + 1,
+        }))
+        return { previous, key, tempId }
+      },
+      onError: (_e, _vars, ctx) => {
+        if (ctx?.previous) queryClient.setQueryData(ctx.key, ctx.previous)
+      },
+      onSuccess: (created, _vars, ctx) => {
+        if (!ctx) return
+        queryClient.setQueryData(ctx.key, (old: { comments: CommentItem[]; total: number }) => ({
+          comments: (old?.comments ?? []).map((c) => (c.id === ctx.tempId ? created : c)),
+          total: old?.total ?? 0,
+        }))
+      },
+    }),
 
   updateMutation: () =>
     mutationOptions({
