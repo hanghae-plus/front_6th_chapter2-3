@@ -1,4 +1,4 @@
-import { useSearchParams } from '@/shared/lib/hooks';
+import { useSearchParams } from '@/shared/lib';
 
 export const useSkip = () => useSearchParams<number>('skip', '0', parseInt);
 

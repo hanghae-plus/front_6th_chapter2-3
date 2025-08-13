@@ -1,5 +1,8 @@
-import type { PostCommentsResponse } from './type';
-import type { PostsResponse, PostsTagsResponse } from '../types';
+import type {
+  PostCommentsResponse,
+  PostsResponse,
+  PostsTagsResponse,
+} from '../model';
 import { remote } from '@/shared/api';
 
 export const getPosts = async (
@@ -27,4 +30,15 @@ export const getPostComments = async (
   postId: number,
 ): Promise<PostCommentsResponse> => {
   return await remote(`/api/comments/post/${postId}`);
+};
+
+export const patchPostCommentLike = async (
+  commentId: number,
+  likes: number,
+) => {
+  return await remote(`/api/comments/${commentId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ likes }),
+  });
 };

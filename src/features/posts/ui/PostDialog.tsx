@@ -1,6 +1,10 @@
 import { usePostModal } from '../model';
 import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
-import { usePostComments, useSearchQuery } from '@/entities/posts';
+import {
+  usePostCommentLike,
+  usePostComments,
+  useSearchQuery,
+} from '@/entities/posts';
 import { highlightText } from '@/shared/lib';
 import {
   Button,
@@ -14,6 +18,7 @@ export const PostDialog = () => {
   const [searchQuery] = useSearchQuery();
   const { opened, post, close } = usePostModal();
   const { data: comments } = usePostComments(post?.id);
+  const { mutate: likeComment } = usePostCommentLike();
 
   if (!post) {
     return null;
@@ -69,7 +74,9 @@ export const PostDialog = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => likeComment(comment.id, postId)}
+                      onClick={() =>
+                        likeComment({ commentId: comment.id, postId: post.id })
+                      }
                     >
                       <ThumbsUp className="w-3 h-3" />
                       <span className="ml-1 text-xs">{comment.likes}</span>
