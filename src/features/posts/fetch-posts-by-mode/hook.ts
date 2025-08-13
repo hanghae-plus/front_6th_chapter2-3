@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query"
 import { useFetchPostsModeStore } from "./fetchMode.store"
 import { useUsersQuery } from "../../../entities/user/hook"
 import { USER_SEARCH } from "../constants/constant"
-import { queryKeyGeneratorByMode } from "../utils/queryKeyGeneratorByMode"
+
 import { fetchPostsByMode } from "./api"
 import { joinPostsWithUsers } from "../utils/joinPostsWithUsers"
 import { useMemo } from "react"
 import { useUpdateURL } from "../../update-URL/useUpdateURL"
+import { queryBuilderHelper } from "../../../entities/post/utils"
+import { fetchPostsTest } from "../../../entities/post/api"
 
 /**
  * 포스트 목록 조회
@@ -15,17 +17,27 @@ import { useUpdateURL } from "../../update-URL/useUpdateURL"
 export const useFetchPostsByMode = () => {
   const { params } = useUpdateURL()
 
-  const { mode } = useFetchPostsModeStore()
-  // key 생성
-  const key = useMemo(() => queryKeyGeneratorByMode(mode), [mode])
-  console.log("useFetchPost의 KEY", mode, key)
+  const { state } = useFetchPostsModeStore()
+  console.log("state", state)
+  //   console.log("useFetchPost의 KEY", state, key)
   // 유저 목록 조회
   const users = useUsersQuery(USER_SEARCH.limit, USER_SEARCH.select)
 
   // 포스트 목록 조회
   const { data, isLoading, isError } = useQuery({
-    queryKey: key,
-    queryFn: async () => await fetchPostsByMode(mode),
+    queryKey: ["postsView", ...Object.values(state)],
+    // queryFn: async () => await fetchPostsByMode(state),
+    queryFn: async () =>
+      await fetchPostsTest(
+        queryBuilderHelper(state.mode, {
+          limit: state.limit,
+          skip: state.skip,
+          sortBy: state.sortBy,
+          order: state.order,
+          tag: state.tag,
+          q: state.q,
+        }),
+      ),
     placeholderData: (prev) => prev,
   })
 

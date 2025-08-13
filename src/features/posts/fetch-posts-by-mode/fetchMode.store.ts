@@ -1,21 +1,36 @@
 import { create } from "zustand"
 
-export const initialMode = { type: "list", limit: 10, skip: 0 } as const
+const initialState: FetchPostsQueryParams = {
+  mode: "list",
+  limit: 10,
+  skip: 0,
+  sortBy: "id",
+  order: "asc",
+  tag: "",
+  q: "",
+}
+export type ModeType = "list" | "search" | "tag"
 
-export type FetchPostsMode =
-  | { type: "list"; limit: number; skip: number }
-  | { type: "search"; q: string }
-  | { type: "tag"; tag: string }
-
-export interface FetchPostsModeState {
-  mode: FetchPostsMode
+export interface FetchPostsQueryParams {
+  mode: ModeType
+  limit?: number
+  skip?: number
+  sortBy?: string
+  order?: string
+  tag?: string
+  q?: string
 }
 
 export interface FetchPostsModeAction {
-  setMode: (mode: FetchPostsMode) => void
+  setMode: (newMode: FetchPostsQueryParams) => void
 }
 
-export const useFetchPostsModeStore = create<FetchPostsModeState & FetchPostsModeAction>((set) => ({
-  mode: initialMode,
-  setMode: (mode) => set({ mode }),
+export const useFetchPostsModeStore = create<{
+  state: FetchPostsQueryParams
+  action: FetchPostsModeAction
+}>((set, get) => ({
+  state: initialState,
+  action: {
+    setMode: (newMode) => set({ state: { ...get().state, ...newMode } }),
+  },
 }))

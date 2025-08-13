@@ -31,26 +31,24 @@ import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hook"
 import { useSearchMode } from "../features/posts/fetch-posts-by-mode/search-mode/useSearchMode"
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/tag-mode/useTagMode.ts"
 import { useTagsQuery } from "../entities/post/hook.ts"
+import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/page-navigate-mode/usePageNavigateMode.ts"
+import { useSortMode } from "../features/posts/fetch-posts-by-mode/sort-mode/useSortMode.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
-
-  // 상태 관리
-  // const [posts, setPosts] = useState([])
-  // const [total, setTotal] = useState(0)
-  // const [loading, setLoading] = useState(false)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
+  // const url = useUpdateURL()
+  // const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
   const [selectedPost, setSelectedPost] = useState(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  // const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
+  // const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  // const [tags, setTags] = useState([])
+
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
@@ -64,11 +62,11 @@ const PostsManager = () => {
   // URL 업데이트 함수
   const updateURL = () => {
     const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
+    // if (skip) params.set("skip", skip.toString())
     if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
+    // if (searchQuery) params.set("search", searchQuery)
+    // if (sortBy) params.set("sortBy", sortBy)
+    // if (sortOrder) params.set("sortOrder", sortOrder)
     if (selectedTag) params.set("tag", selectedTag)
     navigate(`?${params.toString()}`)
   }
@@ -77,18 +75,9 @@ const PostsManager = () => {
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
   const { data: tags } = useTagsQuery()
-  // console.log(tags)
-  // 태그 가져오기
-  // const fetchTags = async () => {
-  //   try {
-  //     const response = await fetch("/api/posts/tags")
-  //     const data = await response.json()
-  //     setTags(data)
-  //   } catch (error) {
-  //     console.error("태그 가져오기 오류:", error)
-  //   }
-  // }
-
+  const pageNavigateMode = usePageNavigateMode()
+  const sortMode = useSortMode()
+  console.log("sortMode", sortMode)
   // 게시물 추가
   const addPost = async () => {
     try {
@@ -248,11 +237,11 @@ const PostsManager = () => {
   // URL 파라미터 가져오기
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    setSkip(parseInt(params.get("skip") || "0"))
+    // setSkip(parseInt(params.get("skip") || "0"))
     setLimit(parseInt(params.get("limit") || "10"))
     setSearchQuery(params.get("search") || "")
-    setSortBy(params.get("sortBy") || "")
-    setSortOrder(params.get("sortOrder") || "asc")
+    // setSortBy(params.get("sortBy") || "")
+    // setSortOrder(params.get("sortOrder") || "asc")
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
@@ -352,7 +341,10 @@ const PostsManager = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select
+              value={sortMode.param.sortBy}
+              onValueChange={(value) => sortMode.update(value, sortMode.param.order)}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -363,7 +355,10 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            <Select
+              value={sortMode.param.order}
+              onValueChange={(value) => sortMode.update(sortMode.param.sortBy, value)}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -418,10 +413,10 @@ const PostsManager = () => {
               <span>항목</span>
             </div>
             <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
+              <Button disabled={pageNavigateMode.state.prevDisabled} onClick={() => pageNavigateMode.action.prevPage()}>
                 이전
               </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
+              <Button disabled={pageNavigateMode.state.nextDisabled} onClick={() => pageNavigateMode.action.nextPage()}>
                 다음
               </Button>
             </div>

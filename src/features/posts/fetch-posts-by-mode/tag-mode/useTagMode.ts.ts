@@ -1,9 +1,11 @@
 import { useUpdateURL } from "../../../update-URL/useUpdateURL"
-import { initialMode, useFetchPostsModeStore } from "../fetchMode.store"
+import { useFetchPostsModeStore } from "../fetchMode.store"
 
 export const useTagMode = () => {
   const { action, params } = useUpdateURL()
-  const { setMode } = useFetchPostsModeStore()
+  const {
+    action: { setMode },
+  } = useFetchPostsModeStore()
 
   /**
    * 태그 파라미터 업데이트
@@ -12,9 +14,9 @@ export const useTagMode = () => {
   const updateTagParams = (tag: string) => {
     action.updateTagParams(tag)
     if (tag === "all") {
-      setMode(initialMode)
+      setMode({ mode: "list", skip: 0 })
     } else {
-      setMode({ type: "tag", tag })
+      setMode({ mode: "tag", tag, skip: 0 })
     }
   }
 

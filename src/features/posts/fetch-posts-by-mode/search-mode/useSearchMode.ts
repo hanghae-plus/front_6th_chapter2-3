@@ -5,15 +5,19 @@ import { useFetchPostsModeStore } from "../fetchMode.store"
 export const useSearchMode = () => {
   const { action, params } = useUpdateURL()
   const [searchQuery, setSearchQuery] = useState(params.search || "")
-  const { setMode } = useFetchPostsModeStore()
+  const {
+    action: { setMode },
+  } = useFetchPostsModeStore()
 
   /**
    * 검색 파라미터 업데이트
    * @param keyword 검색 파라미터
    */
   const updateSearchParams = (keyword: string) => {
+    console.log("updateSearchParams", keyword)
     action.updateSearchParams(keyword)
-    setMode({ type: "search", q: keyword || "" })
+
+    setMode({ mode: "search", q: keyword || "", skip: 0 })
   }
 
   return {

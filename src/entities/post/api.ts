@@ -2,6 +2,11 @@ import { api } from "../../shared/api/api"
 import { ListResponse } from "../../shared/types/types"
 import { AddPostRequest, PostItem, Tag, UpdatePostRequest } from "./model"
 
+export const fetchPostsTest = async (url: string) => {
+  const response = await api.get<ListResponse<"posts", PostItem>>(url)
+  return response
+}
+
 /**
  * 게시물 목록 조회
  * @param limit - 페이지당 게시물 수
@@ -18,8 +23,10 @@ export const fetchPosts = async (limit: number, skip: number) => {
  * @param searchQuery - 검색어
  * @returns 게시물 목록
  */
-export const searchPosts = async (searchQuery: string) => {
-  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts/search?q=${searchQuery}`)
+export const searchPosts = async (searchQuery: string, limit: number, skip: number) => {
+  const response = await api.get<ListResponse<"posts", PostItem>>(
+    `/posts/search?q=${searchQuery}&limit=${limit}&skip=${skip}`,
+  )
   return response
 }
 
@@ -28,8 +35,8 @@ export const searchPosts = async (searchQuery: string) => {
  * @param tag - 태그
  * @returns 게시물 목록
  */
-export const fetchPostsByTag = async (tag: string) => {
-  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts/tag/${tag}`)
+export const fetchPostsByTag = async (tag: string, limit: number, skip: number) => {
+  const response = await api.get<ListResponse<"posts", PostItem>>(`/posts/tag/${tag}?limit=${limit}&skip=${skip}`)
   return response
 }
 
