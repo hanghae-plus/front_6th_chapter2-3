@@ -30,6 +30,7 @@ import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
 import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hook"
 import { useSearchMode } from "../features/posts/fetch-posts-by-mode/search-mode/useSearchMode"
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/tag-mode/useTagMode.ts"
+import { useTagsQuery } from "../entities/post/hook.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [tags, setTags] = useState([])
+  // const [tags, setTags] = useState([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
@@ -75,17 +76,18 @@ const PostsManager = () => {
   const { posts, total, isLoading: loading } = useFetchPostsByMode()
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
-
+  const { data: tags } = useTagsQuery()
+  // console.log(tags)
   // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }
+  // const fetchTags = async () => {
+  //   try {
+  //     const response = await fetch("/api/posts/tags")
+  //     const data = await response.json()
+  //     setTags(data)
+  //   } catch (error) {
+  //     console.error("태그 가져오기 오류:", error)
+  //   }
+  // }
 
   // 게시물 추가
   const addPost = async () => {
@@ -239,9 +241,9 @@ const PostsManager = () => {
   }
 
   // 태그 가져오기
-  useEffect(() => {
-    fetchTags()
-  }, [])
+  // useEffect(() => {
+  //   fetchTags()
+  // }, [])
 
   // URL 파라미터 가져오기
   useEffect(() => {
@@ -335,9 +337,6 @@ const PostsManager = () => {
             <Select
               value={tagMode.param}
               onValueChange={(value) => {
-                // setSelectedTag(value)
-                // fetchPostsByTag(value)
-                // updateURL()
                 tagMode.update(value)
               }}
             >
@@ -346,7 +345,7 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
+                {tags?.map((tag) => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>

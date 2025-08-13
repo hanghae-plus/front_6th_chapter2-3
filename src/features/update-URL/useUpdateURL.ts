@@ -1,5 +1,14 @@
 import { useSearchParams } from "react-router-dom"
 
+const initialParams = {
+  search: "",
+  skip: 0,
+  limit: 10,
+  sortBy: "createdAt",
+  sortOrder: "desc",
+  tag: "",
+}
+
 export const useUpdateURL = () => {
   const [params, setParams] = useSearchParams()
 
@@ -60,12 +69,12 @@ export const useUpdateURL = () => {
       updateTagParams,
     },
     params: {
-      search: params.get("search"),
-      skip: params.get("skip"),
-      limit: params.get("limit"),
-      sortBy: params.get("sortBy"),
-      sortOrder: params.get("sortOrder"),
-      tag: params.get("tag"),
+      search: params.get("search") || initialParams.search,
+      skip: params.get("skip") || initialParams.skip,
+      limit: params.get("limit") || initialParams.limit,
+      sortBy: params.get("sortBy") || initialParams.sortBy,
+      sortOrder: params.get("sortOrder") || initialParams.sortOrder,
+      tag: params.get("tag") || initialParams.tag,
     },
   }
 }
