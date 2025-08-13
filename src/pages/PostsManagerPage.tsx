@@ -167,7 +167,6 @@ const PostsManager = () => {
       <CommentFormDialog
         open={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
-        formTitle="새 댓글 추가"
         mode="create"
         postId={newComment.postId ?? undefined}
         onSuccess={() => setNewComment({ body: "", postId: null, userId: 1 })}
@@ -176,7 +175,6 @@ const PostsManager = () => {
       <CommentFormDialog
         open={showEditCommentDialog}
         onOpenChange={setShowEditCommentDialog}
-        formTitle="댓글 수정"
         mode="edit"
         initialComment={selectedComment}
       />
