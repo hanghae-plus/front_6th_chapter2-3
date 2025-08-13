@@ -2,9 +2,7 @@ import { Edit2, Plus, Search, ThumbsUp, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PostsTable } from '@/features/posts';
-import { usePosts } from '@/entities/posts';
-import { useUsers } from '@/entities/users';
-import type { Post } from '@/entities/posts';
+import { usePosts, usePostsTags, type Post } from '@/entities/posts';
 import {
   Button,
   Card,
@@ -23,7 +21,7 @@ import {
   SelectValue,
   Textarea,
 } from '@/shared/ui';
-import { highlightText } from '@/shared/lib/highlightText';
+import { highlightText } from '@/shared/lib';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -32,7 +30,7 @@ const PostsManager = () => {
 
   // 상태 관리
 
-  const [total, setTotal] = useState(0);
+  // const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
   const [limit, setLimit] = useState(
     parseInt(queryParams.get('limit') || '10'),
@@ -48,8 +46,7 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
-  // const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState([]);
+
   const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
@@ -64,74 +61,67 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // const [posts, setPosts] = useState([]);
-  const { data: postsData, isLoading: postsLoading } = usePosts(limit, skip);
-  const { data: usersData, isLoading: usersLoading } = useUsers();
-  const loading = postsLoading || usersLoading;
-  const posts =
-    postsData?.posts.map((post) => ({
-      ...post,
-      author: usersData?.users?.find((user) => user.id === post.userId),
-    })) ?? [];
+  const { data: tags } = usePostsTags();
+  const { data: postsData } = usePosts(limit, skip, searchQuery, selectedTag);
+  const total = postsData?.total ?? 0;
 
   // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
-  };
+  // const updateURL = () => {
+  //   const params = new URLSearchParams();
+  //   if (skip) params.set('skip', skip.toString());
+  //   if (limit) params.set('limit', limit.toString());
+  //   if (searchQuery) params.set('search', searchQuery);
+  //   if (sortBy) params.set('sortBy', sortBy);
+  //   if (sortOrder) params.set('sortOrder', sortOrder);
+  //   if (selectedTag) params.set('tag', selectedTag);
+  //   navigate(`?${params.toString()}`);
+  // };
 
   // 게시물 가져오기
-  const fetchPosts = () => {
-    return;
-    // setLoading(true);
-    // let postsData;
-    // let usersData;
+  // const fetchPosts = () => {
+  //   return;
+  // setLoading(true);
+  // let postsData;
+  // let usersData;
 
-    // getPosts(limit, skip).then((data) => {
-    //   postsData = data;
-    //   return getUsers(0, 'username,image');
-    // });
+  // getPosts(limit, skip).then((data) => {
+  //   postsData = data;
+  //   return getUsers(0, 'username,image');
+  // });
 
-    // fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     postsData = data;
-    //     return fetch('/api/users?limit=0&select=username,image');
-    //   })
-    //   .then((response) => response.json())
-    //   .then((users) => {
-    //     usersData = users.users;
-    //     const postsWithUsers = postsData.posts.map((post) => ({
-    //       ...post,
-    //       author: usersData.find((user) => user.id === post.userId),
-    //     }));
-    //     setPosts(postsWithUsers);
-    //     setTotal(postsData.total);
-    //   })
-    //   .catch((error) => {
-    //     console.error('게시물 가져오기 오류:', error);
-    //   })
-    //   .finally(() => {
-    //     setLoading(false);
-    //   });
-  };
+  // fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     postsData = data;
+  //     return fetch('/api/users?limit=0&select=username,image');
+  //   })
+  //   .then((response) => response.json())
+  //   .then((users) => {
+  //     usersData = users.users;
+  //     const postsWithUsers = postsData.posts.map((post) => ({
+  //       ...post,
+  //       author: usersData.find((user) => user.id === post.userId),
+  //     }));
+  //     setPosts(postsWithUsers);
+  //     setTotal(postsData.total);
+  //   })
+  //   .catch((error) => {
+  //     console.error('게시물 가져오기 오류:', error);
+  //   })
+  //   .finally(() => {
+  //     setLoading(false);
+  //   });
+  // };
 
   // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/posts/tags');
-      const data = await response.json();
-      setTags(data);
-    } catch (error) {
-      console.error('태그 가져오기 오류:', error);
-    }
-  };
+  // const fetchTags = async () => {
+  //   try {
+  //     const response = await fetch('/api/posts/tags');
+  //     const data = await response.json();
+  //   } catch (error) {
+  //     console.error('태그 가져오기 오류:', error);
+  //   }
+  // };
 
   // 게시물 검색
   // const searchPosts = async () => {
@@ -141,6 +131,7 @@ const PostsManager = () => {
   //   }
   //   setLoading(true);
   //   try {
+  //     setTags(data);
   //     const response = await fetch(`/api/posts/search?q=${searchQuery}`);
   //     const data = await response.json();
   //     setPosts(data.posts);
@@ -324,7 +315,7 @@ const PostsManager = () => {
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: { id: number }) => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
       const userData = await response.json();
@@ -335,18 +326,29 @@ const PostsManager = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTags();
-  }, []);
+  // useEffect(() => {
+  //   fetchTags();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (selectedTag) {
+  //     fetchPostsByTag(selectedTag);
+  //   } else {
+  //     fetchPosts();
+  //   }
+  //   updateURL();
+  // }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
+    const params = new URLSearchParams();
+    if (skip) params.set('skip', skip.toString());
+    if (limit) params.set('limit', limit.toString());
+    if (searchQuery) params.set('search', searchQuery);
+    if (sortBy) params.set('sortBy', sortBy);
+    if (sortOrder) params.set('sortOrder', sortOrder);
+    if (selectedTag) params.set('tag', selectedTag);
+    navigate(`?${params.toString()}`);
+  }, [limit, navigate, searchQuery, selectedTag, skip, sortBy, sortOrder]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -448,26 +450,21 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value);
-                fetchPostsByTag(value);
-                updateURL();
-              }}
-            >
+            {/*  */}
+            <Select value={selectedTag} onValueChange={setSelectedTag}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="태그 선택" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
+                {tags?.map((tag) => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {/*  */}
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
@@ -479,6 +476,7 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
+            {/*  */}
             <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
@@ -494,10 +492,7 @@ const PostsManager = () => {
           <PostsTable
             limit={limit}
             skip={skip}
-            onClickTag={(tag) => {
-              setSelectedTag(tag);
-              updateURL();
-            }}
+            onClickTag={setSelectedTag}
             onClickOpenUserModal={openUserModal}
             onClickOpenPostDetail={openPostDetail}
             onClickOpenEditDialog={(post) => {
