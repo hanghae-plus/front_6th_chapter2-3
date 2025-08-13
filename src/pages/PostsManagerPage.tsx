@@ -33,6 +33,7 @@ import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenB
 import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
 import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
 import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
+import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -348,6 +349,7 @@ const PostsManager = () => {
                 {tagOptions}
               </SelectContent>
             </Select>
+            <SortSelectBox />
           </div>
 
           {/* 게시물 테이블 */}
