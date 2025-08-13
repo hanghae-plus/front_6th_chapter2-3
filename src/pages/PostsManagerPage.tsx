@@ -36,7 +36,7 @@ import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
 import { CommentItem } from "../entities/comment/model"
 import { CommentList } from "../entities/comment/ui"
-import { UserProfile } from "../entities/user/ui"
+import { UserDetail } from "../entities/user/ui"
 import { highlightText } from "../shared/lib"
 
 const PostsManager = () => {
@@ -509,7 +509,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
           </DialogHeader>
-          <UserProfile user={selectedUser} />
+          <UserDetail user={selectedUser} />
         </DialogContent>
       </Dialog>
     </Card>

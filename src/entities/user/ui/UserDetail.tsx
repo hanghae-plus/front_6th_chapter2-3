@@ -1,10 +1,10 @@
 import { User } from "../model"
 
-interface UserProfileProps {
+interface UserDetailProps {
   user: User | null
 }
 
-export const UserProfile = ({ user }: UserProfileProps) => {
+export const UserDetail = ({ user }: UserDetailProps) => {
   if (!user) return null
 
   return (
