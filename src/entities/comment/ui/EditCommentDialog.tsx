@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../share
 import { Button } from "../../../shared/ui/Button"
 import { Textarea } from "../../../shared/ui/Textarea"
 import { useCommentStore } from "../model/store"
-import { useCommentManagement } from "../../../features/commentManagement/model/useCommentManagement"
+import { useCommentManagement } from "../../../features.tsx/commentManagement/model/useCommentManagement"
 
 const EditCommentDialog = () => {
   const { selectedComment, setSelectedComment } = useCommentStore()

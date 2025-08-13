@@ -1,7 +1,8 @@
 import { useFilter } from "../model/useFilter"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/Select"
+import { FC } from "react"
 
-export const SortFilter: React.FC = () => {
+export const SortFilter: FC = () => {
   const { sortBy, sortOrder, setSortBy, setSortOrder } = useFilter()
 
   return (

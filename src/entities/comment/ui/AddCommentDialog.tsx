@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
 import { Button } from "../../../shared/ui/Button"
 import { Textarea } from "../../../shared/ui/Textarea"
-import { useCommentManagement } from "../../../features/commentManagement/model/useCommentManagement"
+import { useCommentManagement } from "../../../features.tsx/commentManagement/model/useCommentManagement"
 
 const AddCommentDialog = () => {
   const { showAddCommentDialog, setShowAddCommentDialog, newComment, setNewComment, handleAddComment } =

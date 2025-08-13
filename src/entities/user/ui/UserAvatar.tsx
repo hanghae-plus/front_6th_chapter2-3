@@ -1,5 +1,6 @@
+import { useUserManagement } from "../../../features.tsx/userManagement/model/useUserManagement"
 import { User } from "../model/types"
-import { useUserManagement } from "../../../features/userManagement/model/useUserManagement"
+import { FC } from "react"
 
 interface UserAvatarProps {
   user?: User

@@ -6,7 +6,7 @@ import { usePostApi } from "../../../entities/post/api"
 // (비즈니스 로직만)
 export const usePostManagement = () => {
   const { setSelectedPost } = usePostStore()
-  const { addPostApi, deletePostApi, searchPosts, updatePostApi } = usePostApi()
+  const { addPostApi, deletePostApi, updatePostApi } = usePostApi()
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({

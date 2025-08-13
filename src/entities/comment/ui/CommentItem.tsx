@@ -1,8 +1,9 @@
 import { Button } from "../../../shared/ui/Button"
 import { Edit2, Trash2, ThumbsUp } from "lucide-react"
 import { Comment } from "../model/types"
-import { useCommentManagement } from "../../../features/commentManagement/model/useCommentManagement"
 import { highlightText } from "../../../shared/utils/highlightText"
+import { useCommentManagement } from "../../../features.tsx/commentManagement/model/useCommentManagement"
+import { FC } from "react"
 
 interface CommentItemProps {
   comment: Comment

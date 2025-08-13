@@ -3,7 +3,7 @@ import { Button } from "../../../shared/ui/Button"
 import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
 import { usePostStore } from "../model/store"
-import { usePostManagement } from "../../../features/postManagement/model/usePostManagement"
+import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
 
 const EditPostDialog = () => {
   const { selectedPost, setSelectedPost } = usePostStore()

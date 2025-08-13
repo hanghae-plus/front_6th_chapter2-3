@@ -1,5 +1,6 @@
+import { useFilter } from "../../../features.tsx/filterPosts/model/useFilter"
 import { useTagStore } from "../model/store"
-import { useFilter } from "../../../features/filterPosts/model/useFilter"
+import { FC } from "react"
 
 interface TagChipProps {
   tag: string

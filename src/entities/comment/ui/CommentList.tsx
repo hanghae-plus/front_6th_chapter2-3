@@ -1,8 +1,9 @@
 import { Button } from "../../../shared/ui/Button"
 import { Plus } from "lucide-react"
 import { useCommentStore } from "../model/store"
-import { CommentItem } from "./CommentItem"
-import { useCommentManagement } from "../../../features/commentManagement/model/useCommentManagement"
+import { FC } from "react"
+import { useCommentManagement } from "../../../features.tsx/commentManagement/model/useCommentManagement"
+import CommentItem from "./CommentItem"
 
 interface CommentListProps {
   postId: number

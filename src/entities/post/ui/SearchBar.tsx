@@ -1,6 +1,6 @@
 import { Search } from "lucide-react"
 import { Input } from "../../../shared/ui/Input"
-import { useSearch } from "../../../features/searchPosts/model/useSearch"
+import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
 
 const SearchBar = () => {
   const { searchQuery, setSearchQuery, searchPosts } = useSearch()

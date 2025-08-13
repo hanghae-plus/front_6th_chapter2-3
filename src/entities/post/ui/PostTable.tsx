@@ -2,11 +2,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Button } from "../../../shared/ui/Button"
 import { Edit2, MessageSquare, Trash2, ThumbsDown, ThumbsUp } from "lucide-react"
 import { usePostStore } from "../model/store"
-import { TagChip } from "../../tag/ui/TagChip"
-import { UserAvatar } from "../../user/ui/UserAvatar"
-import { usePostManagement } from "../../../features/postManagement/model/usePostManagement"
-import { useSearch } from "../../../features/searchPosts/model/useSearch"
 import { highlightText } from "../../../shared/utils/highlightText"
+import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
+import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
+import TagChip from "../../tag/ui/TagChip"
+import UserAvatar from "../../user/ui/UserAvatar"
 
 const PostTable = () => {
   const { posts } = usePostStore()

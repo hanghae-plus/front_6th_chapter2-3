@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../share
 import { Button } from "../../../shared/ui/Button"
 import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
-import { usePostManagement } from "../../../features/postManagement/model/usePostManagement"
+import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
 
 const AddPostDialog = () => {
   const { showAddDialog, setShowAddDialog, newPost, setNewPost, handleAddPost } = usePostManagement()

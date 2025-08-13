@@ -1,11 +1,11 @@
 import { useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
 import { usePostStore } from "../model/store"
-import { CommentList } from "../../comment/ui/CommentList"
-import { usePostManagement } from "../../../features/postManagement/model/usePostManagement"
-import { useSearch } from "../../../features/searchPosts/model/useSearch"
 import { useCommentApi } from "../../comment/api"
 import { highlightText } from "../../../shared/utils/highlightText"
+import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
+import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
+import CommentList from "../../comment/ui/CommentList"
 
 const PostDetailDialog = () => {
   const { selectedPost } = usePostStore()

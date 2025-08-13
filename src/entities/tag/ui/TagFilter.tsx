@@ -1,15 +1,15 @@
 import { useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/Select"
 import { useTagStore } from "../model/store"
-import { useFilter } from "../../../features/filterPosts/model/useFilter"
+import { useFilter } from "../../../features.tsx/filterPosts/model/useFilter"
 
-const TagFilter: FC = () => {
+const TagFilter = () => {
   const { tags, selectedTag } = useTagStore()
-  const { fetchTags, handleTagChange } = useFilter()
+  const { handleGetTags, handleTagChange } = useFilter()
 
   useEffect(() => {
-    fetchTags()
-  }, [fetchTags])
+    handleGetTags()
+  }, [handleGetTags])
 
   return (
     <Select value={selectedTag} onValueChange={handleTagChange}>
