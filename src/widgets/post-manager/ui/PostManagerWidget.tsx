@@ -10,7 +10,6 @@ import {
 import { CommentList } from '@/entities/comment/ui/CommentList';
 import {
   useFetchPosts,
-  useDeletePost,
   useFetchTags,
   useSearchPosts,
   useFetchPostsByTag,
@@ -22,8 +21,11 @@ import { EditCommentDialog } from '@/features/comment-edit/ui/EditCommentDialog'
 import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
+import { DeletePostButton } from '@/features/post-delete/ui/DeletePostButton';
 import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
+import { ViewPostDetailButton } from '@/features/post-detail/ui/ViewPostDetailButton';
 import { useEditPost } from '@/features/post-edit/model/useEditPost';
+import { EditPostButton } from '@/features/post-edit/ui/EditPostButton';
 import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
 import { PostFilter } from '@/features/post-filter/ui/PostFilter';
@@ -76,8 +78,6 @@ export const PostManagerWidget = () => {
     handleSubmit: handleEditSubmit,
   } = useEditPost(selectedPost!);
 
-  const { mutate: deletePost } = useDeletePost();
-
   const { data: comments } = useFetchComments(selectedPostId);
   const { mutate: addComment } = useAddComment();
   const { mutate: updateComment } = useUpdateComment();
@@ -95,13 +95,6 @@ export const PostManagerWidget = () => {
       author: usersData.find((user) => user.id === post.userId),
     }));
   }, [searchData, tagData, postsData, usersData]);
-
-  // 게시물 상세 보기
-  const openPostDetail = (post) => {
-    setSelectedPost(post);
-    setSelectedPostId(post.id);
-    setShowPostDetailDialog(true);
-  };
 
   // 사용자 모달 열기
   const openUserModal = async (user) => {
@@ -145,12 +138,15 @@ export const PostManagerWidget = () => {
               posts={postsWithAuthors}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
-              openPostDetail={openPostDetail}
               openUserModal={openUserModal}
-              setShowEditDialog={setShowEditDialog}
-              setSelectedPost={setSelectedPost}
-              deletePost={deletePost}
               setSelectedTag={setSelectedTag}
+              renderActions={(post) => (
+                <>
+                  <ViewPostDetailButton post={post} />
+                  <EditPostButton post={post} />
+                  <DeletePostButton postId={post.id} />
+                </>
+              )}
             />
           )}
 
