@@ -38,9 +38,5 @@ export const commentMutations = {
       onError: (_e, _vars, ctx) => {
         if (ctx?.previous) queryClient.setQueryData(ctx.key, ctx.previous)
       },
-
-      onSettled: (_d, _e, variables) => {
-        queryClient.invalidateQueries({ queryKey: commentQueries.byPost(variables.postId) })
-      },
     }),
 }
