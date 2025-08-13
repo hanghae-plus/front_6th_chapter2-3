@@ -1,33 +1,50 @@
-import { useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
-import { usePostStore } from "../model/store"
-import { useCommentApi } from "../../comment/api"
 import { highlightText } from "../../../shared/utils/highlightText"
-import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
-import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
+import { Post } from "../model/types"
 import CommentList from "../../comment/ui/CommentList"
 
-const PostDetailDialog = () => {
-  const { selectedPost } = usePostStore()
-  const { searchQuery } = useSearch()
-  const { getComments } = useCommentApi()
-  const { showPostDetailDialog, setShowPostDetailDialog } = usePostManagement()
+interface PostDetailDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  selectedPost: Post | null
+  searchQuery: string
+  comments: any[]
+  onAddComment: (postId: number) => void
+  onEditComment: (comment: any) => void
+  onDeleteComment: (id: number, postId: number) => void
+  onLikeComment: (id: number, postId: number) => void
+}
 
-  useEffect(() => {
-    if (selectedPost && showPostDetailDialog) {
-      getComments(selectedPost.id)
-    }
-  }, [selectedPost, showPostDetailDialog, getComments])
-
+const PostDetailDialog = ({ 
+  open, 
+  onOpenChange, 
+  selectedPost, 
+  searchQuery,
+  comments,
+  onAddComment,
+  onEditComment,
+  onDeleteComment,
+  onLikeComment
+}: PostDetailDialogProps) => {
   return (
-    <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-          {selectedPost && <CommentList postId={selectedPost.id} searchQuery={searchQuery} />}
+          {selectedPost && (
+            <CommentList 
+              postId={selectedPost.id} 
+              searchQuery={searchQuery}
+              comments={comments}
+              onAddComment={onAddComment}
+              onEditComment={onEditComment}
+              onDeleteComment={(commentId) => onDeleteComment(commentId, selectedPost.id)}
+              onLikeComment={(commentId) => onLikeComment(commentId, selectedPost.id)}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

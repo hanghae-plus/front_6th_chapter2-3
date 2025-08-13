@@ -1,10 +1,13 @@
 import { Search } from "lucide-react"
 import { Input } from "../../../shared/ui/Input"
-import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
 
-const SearchBar = () => {
-  const { searchQuery, setSearchQuery, handleSearchPost } = useSearch()
+interface SearchBarProps {
+  searchQuery: string
+  onSearchQueryChange: (query: string) => void
+  onSearch: () => void
+}
 
+const SearchBar = ({ searchQuery, onSearchQueryChange, onSearch }: SearchBarProps) => {
   return (
     <div className="flex-1">
       <div className="relative">
@@ -13,8 +16,8 @@ const SearchBar = () => {
           placeholder="게시물 검색..."
           className="pl-8"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearchPost()}
+          onChange={(e) => onSearchQueryChange(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && onSearch()}
         />
       </div>
     </div>

@@ -1,20 +1,32 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui/Table"
 import { Button } from "../../../shared/ui/Button"
 import { Edit2, MessageSquare, Trash2, ThumbsDown, ThumbsUp } from "lucide-react"
-import { usePostStore } from "../model/store"
+import { Post } from "../model/types"
 import { highlightText } from "../../../shared/utils/highlightText"
-import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
-import { useSearch } from "../../../features.tsx/searchPosts/model/useSearch"
 import TagChip from "../../tag/ui/TagChip"
 import UserAvatar from "../../user/ui/UserAvatar"
 
-const PostTable = () => {
-  const { posts } = usePostStore()
+interface PostTableProps {
+  posts: Post[]
+  searchQuery: string
+  selectedTag: string
+  onTagClick: (tag: string) => void
+  onUserClick: (user: any) => void
+  onPostDetail: (post: Post) => void
+  onEditPost: (post: Post) => void
+  onDeletePost: (id: number) => void
+}
 
-  console.log(posts)
-
-  const { handleDeletePost, openEditDialog, openPostDetail } = usePostManagement()
-  const { searchQuery } = useSearch()
+const PostTable = ({
+  posts,
+  searchQuery,
+  selectedTag,
+  onTagClick,
+  onUserClick,
+  onPostDetail,
+  onEditPost,
+  onDeletePost,
+}: PostTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -35,13 +47,13 @@ const PostTable = () => {
                 <div>{highlightText(post.title, searchQuery)}</div>
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag) => (
-                    <TagChip key={tag} tag={tag} />
+                    <TagChip key={tag} tag={tag} isSelected={selectedTag === tag} onClick={() => onTagClick(tag)} />
                   ))}
                 </div>
               </div>
             </TableCell>
             <TableCell>
-              <UserAvatar user={post.author} />
+              <UserAvatar user={post.author} onClick={() => onUserClick(post.author)} />
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
@@ -53,13 +65,13 @@ const PostTable = () => {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
+                <Button variant="ghost" size="sm" onClick={() => onPostDetail(post)}>
                   <MessageSquare className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => openEditDialog(post)}>
+                <Button variant="ghost" size="sm" onClick={() => onEditPost(post)}>
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDeletePost(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => onDeletePost(post.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

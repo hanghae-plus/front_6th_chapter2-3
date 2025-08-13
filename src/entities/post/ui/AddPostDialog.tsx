@@ -2,13 +2,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../share
 import { Button } from "../../../shared/ui/Button"
 import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
-import { usePostManagement } from "../../../features.tsx/postManagement/model/usePostManagement"
 
-const AddPostDialog = () => {
-  const { showAddDialog, setShowAddDialog, newPost, setNewPost, handleAddPost } = usePostManagement()
+interface AddPostDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onAdd: () => void
+  newPost: { title: string; body: string; userId: number }
+  setNewPost: (post: { title: string; body: string; userId: number }) => void
+}
 
+const AddPostDialog = ({ open, onOpenChange, onAdd, newPost, setNewPost }: AddPostDialogProps) => {
   return (
-    <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>
@@ -31,7 +36,7 @@ const AddPostDialog = () => {
             value={newPost.userId}
             onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
           />
-          <Button onClick={handleAddPost}>게시물 추가</Button>
+          <Button onClick={onAdd}>게시물 추가</Button>
         </div>
       </DialogContent>
     </Dialog>
