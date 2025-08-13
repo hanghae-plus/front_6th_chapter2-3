@@ -1,5 +1,6 @@
+import { useAtom } from "jotai"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
@@ -26,22 +27,21 @@ import {
   Textarea,
 } from "../components"
 import { URL_PATH } from "../shared/config/routes"
-import { usePostsManagerStore } from "../shared/stores"
+import { commentsAtom, loadingAtom, postsAtom, tagsAtom, totalAtom, usePostsManagerStore } from "../shared/stores"
 import { Comment } from "../types/comment.type"
-import { Post, PostResponse, Tag } from "../types/product.type"
+import { Post, PostResponse } from "../types/product.type"
 import { User, UserResponse } from "../types/user.type"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // jotai
-  const [posts, setPosts] = useState<Post[]>([])
-  const [comments, setComments] = useState<Record<number, Comment[]>>({})
-  const [tags, setTags] = useState<Tag[]>([])
-
-  const [loading, setLoading] = useState(false)
-  const [total, setTotal] = useState(0)
+  // jotai atoms
+  const [posts, setPosts] = useAtom(postsAtom)
+  const [comments, setComments] = useAtom(commentsAtom)
+  const [tags, setTags] = useAtom(tagsAtom)
+  const [loading, setLoading] = useAtom(loadingAtom)
+  const [total, setTotal] = useAtom(totalAtom)
 
   // zustand store
   const {
@@ -212,7 +212,7 @@ const PostsManager = () => {
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      setPosts(posts.map((post: Post) => (post.id === data.id ? data : post)))
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -225,7 +225,7 @@ const PostsManager = () => {
       await fetch(URL_PATH.POSTS.DELETE(id), {
         method: "DELETE",
       })
-      setPosts(posts.filter((post) => post.id !== id))
+      setPosts(posts.filter((post: Post) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
@@ -237,7 +237,7 @@ const PostsManager = () => {
     try {
       const response = await fetch(URL_PATH.COMMENTS.BY_POST(postId))
       const data = await response.json()
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
+      setComments((prev: Record<number, Comment[]>) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
@@ -252,7 +252,7 @@ const PostsManager = () => {
         body: JSON.stringify(commentDraft),
       })
       const data = await response.json()
-      setComments((prev) => ({
+      setComments((prev: Record<number, Comment[]>) => ({
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
       }))
@@ -273,7 +273,7 @@ const PostsManager = () => {
         body: JSON.stringify({ body: selectedComment.body }),
       })
       const data = await response.json()
-      setComments((prev) => ({
+      setComments((prev: Record<number, Comment[]>) => ({
         ...prev,
         [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
       }))
@@ -289,7 +289,7 @@ const PostsManager = () => {
       await fetch(URL_PATH.COMMENTS.DELETE(id), {
         method: "DELETE",
       })
-      setComments((prev) => ({
+      setComments((prev: Record<number, Comment[]>) => ({
         ...prev,
         [postId]: prev[postId].filter((comment) => comment.id !== id),
       }))
@@ -307,7 +307,7 @@ const PostsManager = () => {
         body: JSON.stringify({ likes: (comments[postId]?.find((c) => c.id === id)?.likes || 0) + 1 }),
       })
       const data = await response.json()
-      setComments((prev) => ({
+      setComments((prev: Record<number, Comment[]>) => ({
         ...prev,
         [postId]:
           prev[postId]?.map((comment) => (comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment)) ||
