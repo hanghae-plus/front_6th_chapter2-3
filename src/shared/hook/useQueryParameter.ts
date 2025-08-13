@@ -1,98 +1,59 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 interface QueryParams {
   skip: number;
   limit: number;
-  searchQuery: string;
   sortBy: string;
-  sortOrder: string;
-  selectedTag: string;
+  sortOrder: 'asc' | 'desc';
+  search: string;
+  tag: string;
 }
 
-const defaultParams: QueryParams = {
-  skip: 0,
-  limit: 10,
-  searchQuery: '',
-  sortBy: '',
-  sortOrder: 'asc',
-  selectedTag: '',
-};
-
 export const useQueryParameter = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [skip, setSkip] = useState<number>(defaultParams.skip);
-  const [limit, setLimit] = useState<number>(defaultParams.limit);
-  const [searchQuery, setSearchQuery] = useState<string>(
-    defaultParams.searchQuery
-  );
-  const [sortBy, setSortBy] = useState<string>(defaultParams.sortBy);
-  const [sortOrder, setSortOrder] = useState<string>(defaultParams.sortOrder);
-  const [selectedTag, setSelectedTag] = useState<string>(
-    defaultParams.selectedTag
-  );
-
-  // URL를 상태에 반영
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-
-    setSkip(parseInt(params.get('skip') ?? '') || defaultParams.skip);
-    setLimit(parseInt(params.get('limit') ?? '') || defaultParams.limit);
-    setSearchQuery(params.get('search') ?? defaultParams.searchQuery);
-    setSortBy(params.get('sortBy') ?? defaultParams.sortBy);
-    setSortOrder(params.get('sortOrder') ?? defaultParams.sortOrder);
-    setSelectedTag(params.get('tag') ?? defaultParams.selectedTag);
-  }, [location.search]);
-
-  // 상태를 URL에 반영
-  useEffect(() => {
-    const params = new URLSearchParams();
-
-    if (skip !== defaultParams.skip) params.set('skip', skip.toString());
-    if (limit !== defaultParams.limit) params.set('limit', limit.toString());
-    if (searchQuery !== defaultParams.searchQuery)
-      params.set('search', searchQuery);
-    if (sortBy !== defaultParams.sortBy) params.set('sortBy', sortBy);
-    if (sortOrder !== defaultParams.sortOrder)
-      params.set('sortOrder', sortOrder);
-    if (selectedTag !== defaultParams.selectedTag)
-      params.set('tag', selectedTag);
-
-    // 쿼리가 바뀌었을 때만 navigate 호출
-    const newQuery = params.toString();
-    
-    const currentQuery = location.search.startsWith('?')
-      ? location.search.slice(1)
-      : location.search;
-
-    if (newQuery !== currentQuery) {
-      navigate(`?${newQuery}`, { replace: true });
-    }
-  }, [
-    skip,
-    limit,
-    searchQuery,
-    sortBy,
-    sortOrder,
-    selectedTag,
-    navigate,
-    location.search,
-  ]);
-
-  return {
-    skip,
-    setSkip,
-    limit,
-    setLimit,
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    selectedTag,
-    setSelectedTag,
+  // 프론트에서 사용할 변수명
+  const params = {
+    skip: Number(searchParams.get('skip')) || 0,
+    limit: Number(searchParams.get('limit')) || 10,
+    sortBy: searchParams.get('sortBy') || '',
+    sortOrder: searchParams.get('sortOrder') || 'asc',
+    searchQuery: searchParams.get('search') || '',
+    selectedTag: searchParams.get('tag') || '',
   };
+
+  const setParam = (
+    key: keyof QueryParams,
+    value: string | number,
+    clearOther?: keyof QueryParams
+  ) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (value === '' || value === 0) {
+      newParams.delete(key);
+    } else {
+      newParams.set(key, String(value));
+    }
+
+    if (clearOther) newParams.delete(clearOther);
+
+    setSearchParams(newParams, { replace: true });
+  };
+
+  const setters = {
+    setSkip: (v: number) => setParam('skip', v),
+    setLimit: (v: number) => setParam('limit', v),
+    setSortBy: (v: string) => setParam('sortBy', v),
+    setSortOrder: (v: 'asc' | 'desc') => setParam('sortOrder', v),
+    setSearchQuery: (v: string) => setParam('search', v, 'tag'),
+    setSelectedTag: (v: string) => {
+      if (v === 'all') {
+        setParam('tag', '', 'search');
+      } else {
+        setParam('tag', v, 'search');
+      }
+    },
+  };
+
+  return { params, setters };
 };

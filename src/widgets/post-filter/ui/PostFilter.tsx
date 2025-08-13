@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react';
+import { useState } from 'react';
 import {
   Input,
   Select,
@@ -8,21 +9,13 @@ import {
   SelectValue,
 } from '../../../shared/ui/components';
 import { useQueryParameter } from '../../../shared/hook/useQueryParameter';
-import { usePostTagsQuery } from '../../../entities/post/model/hook';
+import { usePostTagListQuery } from '../../../entities/post/model/hook';
 
 const PostFilter = () => {
-  const { data: tags } = usePostTagsQuery();
+  const { params, setters } = useQueryParameter();
 
-  const {
-    searchQuery,
-    setSearchQuery,
-    selectedTag,
-    setSelectedTag,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-  } = useQueryParameter();
+  const { data: tags } = usePostTagListQuery();
+  const [inputValue, setInputValue] = useState(params.searchQuery);
 
   // 추후 기능별로 분리?
   return (
@@ -34,17 +27,22 @@ const PostFilter = () => {
           <Input
             placeholder="게시물 검색..."
             className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setters.setSearchQuery(inputValue);
+              }
+            }}
           />
         </div>
       </div>
 
       {/* 태그 셀렉터 */}
       <Select
-        value={selectedTag}
+        value={params.selectedTag}
         onValueChange={(value) => {
-          setSelectedTag(value);
+          setters.setSelectedTag(value);
         }}
       >
         <SelectTrigger className="w-[180px]">
@@ -61,7 +59,7 @@ const PostFilter = () => {
       </Select>
 
       {/* 정렬 기준 */}
-      <Select value={sortBy} onValueChange={setSortBy}>
+      <Select value={params.sortBy} onValueChange={setters.setSortBy}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 기준" />
         </SelectTrigger>
@@ -74,7 +72,7 @@ const PostFilter = () => {
       </Select>
 
       {/* 정렬 순서 */}
-      <Select value={sortOrder} onValueChange={setSortOrder}>
+      <Select value={params.sortOrder} onValueChange={setters.setSortOrder}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />
         </SelectTrigger>

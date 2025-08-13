@@ -1,50 +1,35 @@
 import { useQuery } from '@tanstack/react-query';
 import { IPosts, IPostTag } from './type';
-import {
-  getPostsApi,
-  getPostsBySearchApi,
-  getPostsByTagApi,
-  getPostTagsApi,
-} from '../api/post-api';
+import { getPostListApi, getPostTagListApi } from '../api/post-api';
+
+interface UsePostsQueryParams {
+  searchQuery: string;
+  selectedTag: string;
+  limit: number;
+  skip: number;
+  sortBy: string;
+  sortOrder: string;
+}
 
 /**
- * 게시물 목록
+ * 게시글 목록 조회
  */
-export const usePostsQuery = (limit: number, skip: number) => {
+export const usePostListQuery = (params: UsePostsQueryParams) => {
   return useQuery<IPosts>({
-    queryKey: ['posts', limit, skip],
-    queryFn: () => getPostsApi(limit, skip),
+    queryKey: ['posts', params],
+    queryFn: () => getPostListApi(params),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
 /**
  * 게시물 태그 목록 조회
  */
-export const usePostTagsQuery = () => {
+export const usePostTagListQuery = () => {
   return useQuery<IPostTag[]>({
     queryKey: ['tags'],
-    queryFn: getPostTagsApi,
-  });
-};
-
-/**
- * 게시물 검색
- */
-export const usePostsBySearchQuery = (searchQuery: string) => {
-  return useQuery<IPosts>({
-    queryKey: ['posts', 'search', searchQuery],
-    queryFn: () => getPostsBySearchApi(searchQuery),
-    enabled: !!searchQuery,
-  });
-};
-
-/**
- * 태그별 게시물
- */
-export const usePostsByTagQuery = (tag: string) => {
-  return useQuery<IPosts>({
-    queryKey: ['posts', 'tag', tag],
-    queryFn: () => getPostsByTagApi(tag),
-    enabled: !!tag,
+    queryFn: getPostTagListApi,
   });
 };

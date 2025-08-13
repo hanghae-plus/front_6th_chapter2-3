@@ -21,7 +21,7 @@ const PostManagePage = () => {
   const setShow = useDialogStore((state) => state.setShow);
   const setContent = useDialogStore((state) => state.setContent);
 
-  const { searchQuery } = useQueryParameter();
+  const { params } = useQueryParameter();
 
   const handleAddPost = () => {
     setShow(true);
@@ -30,7 +30,7 @@ const PostManagePage = () => {
 
   const handlePostClick = (post: IPost) => {
     setShow(true);
-    setContent(<PostDetail post={post} searchQuery={searchQuery} />);
+    setContent(<PostDetail post={post} searchQuery={params.searchQuery} />);
   };
 
   const handleUpdatePost = (post: IPost) => {

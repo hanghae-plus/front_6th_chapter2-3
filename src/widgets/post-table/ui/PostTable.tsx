@@ -6,10 +6,10 @@ import {
 } from '../../../shared/ui/components';
 import { useQueryParameter } from '../../../shared/hook/useQueryParameter';
 import { IPost } from '../../../entities/post/model/type';
-import { usePostsQuery } from '../../../entities/post/model/hook';
+import PostList from '../../../entities/post/ui/PostList';
+import { usePostListQuery } from '../../../entities/post/model/hook';
 import { useUserListQuery } from '../../../entities/user/model/hook';
 import { useDeletePost } from '../../../features/post/delete-post/model/useDeletePost';
-import PostList from '../../../entities/post/ui/PostList';
 
 interface PostTableProps {
   // 유저 클릭 함수
@@ -25,11 +25,9 @@ const PostTable = ({
   onClickPost,
   onUpdatePost,
 }: PostTableProps) => {
-  const { skip, limit, searchQuery, selectedTag, setSelectedTag } =
-    useQueryParameter();
+  const { params, setters } = useQueryParameter();
 
-  // 태그 및 검색어 처리 필요 (sortBy, sortOrder 처리?)
-  const { data: posts, isLoading: isPostLoading } = usePostsQuery(limit, skip);
+  const { data: posts, isLoading: isPostLoading } = usePostListQuery(params);
   const { data: users, isLoading: isUserLoading } = useUserListQuery();
 
   const postsWithUsers = posts?.posts.map((post) => ({
@@ -40,7 +38,7 @@ const PostTable = ({
   const { deletePost } = useDeletePost();
 
   const handleSelectedTag = (value: string) => {
-    setSelectedTag(value);
+    setters.setSelectedTag(value);
   };
 
   if (isPostLoading || isUserLoading) {
@@ -62,8 +60,8 @@ const PostTable = ({
       {/* 게시글 목록 */}
       <PostList
         posts={postsWithUsers}
-        searchQuery={searchQuery}
-        selectedTag={selectedTag}
+        searchQuery={params.searchQuery}
+        selectedTag={params.selectedTag}
         onClickUser={onClickUser}
         onClickPost={onClickPost}
         onClickTag={handleSelectedTag}
