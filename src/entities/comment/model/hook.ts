@@ -9,5 +9,8 @@ export const useCommentsQuery = (postId: number) => {
   return useQuery<IComments>({
     queryKey: ['comments', postId],
     queryFn: () => getCommentsApi(postId),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };

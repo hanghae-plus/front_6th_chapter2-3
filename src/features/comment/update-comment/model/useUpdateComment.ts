@@ -1,25 +1,18 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  IComment,
-  IComments,
-} from '../../../../entities/comment/model/type';
+import { IComment, IComments } from '../../../../entities/comment/model/type';
 import { commentModel } from '../../../../entities/comment/model/store';
 import { updateCommentApi } from '../../../../entities/comment/api/comment-api';
 
-export const useUpdateComment = (
-  comment: IComment,
-  onSuccess?: () => void
-) => {
+export const useUpdateComment = (comment: IComment, onSuccess?: () => void) => {
   const queryClient = useQueryClient();
 
-  const initialComment = { body: comment.body };
+  const initialComment = { id: comment.id, body: comment.body };
   const [editComment, setEditComment] =
     useState<Partial<IComment>>(initialComment);
 
   const mutation = useMutation({
-    mutationFn: (updatedData: Partial<IComment>) =>
-      updateCommentApi(updatedData),
+    mutationFn: (comment: Partial<IComment>) => updateCommentApi(comment),
 
     onSuccess: (updatedComment) => {
       queryClient.setQueryData<IComments>(
@@ -41,6 +34,7 @@ export const useUpdateComment = (
     setEditComment((prev) => ({ ...prev, body }));
 
   const updateComment = () => {
+    console.log('clicked');
     mutation.mutate(editComment);
   };
 

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { IAddPost, IPost } from '../../../../entities/post/model/type';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { IAddPost, IPosts } from '../../../../entities/post/model/type';
 import { addPostApi } from '../../../../entities/post/api/post-api';
+import { postModel } from '../../../../entities/post/model/store';
 
 const initialPost: IAddPost = {
   title: '',
@@ -9,14 +10,31 @@ const initialPost: IAddPost = {
   userId: 1,
 };
 
-export const useAddPost = (onSuccess?: (createdPost: IPost) => void) => {
+export const useAddPost = (onSuccess?: () => void) => {
+  const queryClient = useQueryClient();
+
   const [newPost, setNewPost] = useState<IAddPost>(initialPost);
 
   const mutation = useMutation({
     mutationFn: (post: IAddPost) => addPostApi(post),
 
     onSuccess: (createdPost) => {
-      onSuccess?.(createdPost);
+      const newPost = postModel.addResponseToPost(createdPost);
+
+      queryClient.setQueryData<IPosts>(['posts'], (prev) => {
+        if (!prev) {
+          return {
+            posts: [newPost],
+            limit: 10,
+            skip: 0,
+            total: 1,
+          };
+        }
+
+        return postModel.addPost(prev, newPost);
+      });
+
+      onSuccess?.();
       setNewPost(initialPost);
     },
     onError: (error) => {

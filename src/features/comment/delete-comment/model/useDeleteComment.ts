@@ -25,7 +25,9 @@ export const useDeleteComment = (onSuccess?: () => void) => {
     },
   });
 
-  return {
-    deleteComment: mutation.mutate,
+  const deleteComment = (comment: IComment) => {
+    mutation.mutate(comment);
   };
+
+  return { deleteComment };
 };

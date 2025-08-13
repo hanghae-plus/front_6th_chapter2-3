@@ -1,5 +1,11 @@
 import { POST } from '../config/constants';
-import { IAddPost, IPost, IPosts } from '../model/type';
+import {
+  IAddPost,
+  IAddPostResponse,
+  IEditPostResponse,
+  IPost,
+  IPosts,
+} from '../model/type';
 import { createRequest } from '../../../shared/lib/api';
 
 /**
@@ -49,7 +55,9 @@ export const getPostsByTagApi = async (tag: string): Promise<IPosts> => {
 /**
  * 게시물 추가
  */
-export const addPostApi = async (newPost: IAddPost): Promise<IPost> => {
+export const addPostApi = async (
+  newPost: IAddPost
+): Promise<IAddPostResponse> => {
   const response = await fetch(POST.ADD, createRequest('POST', newPost));
 
   if (!response.ok) {
@@ -64,7 +72,7 @@ export const addPostApi = async (newPost: IAddPost): Promise<IPost> => {
  */
 export const updatePostApi = async (
   updatedPost: Partial<IPost>
-): Promise<IPost> => {
+): Promise<IEditPostResponse> => {
   if (!updatedPost.id) {
     throw new Error('게시물 ID 오류');
   }

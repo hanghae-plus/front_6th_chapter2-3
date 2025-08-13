@@ -47,7 +47,7 @@ export const updateCommentApi = async (
 
   const response = await fetch(
     COMMENT.UPDATE(updatedComment.id),
-    createRequest('PUT', updatedComment.body)
+    createRequest('PUT', { body: updatedComment.body })
   );
 
   if (!response.ok) {

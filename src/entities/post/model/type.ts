@@ -24,7 +24,7 @@ export type IPosts = {
 
 export type IAddPost = Pick<IPost, 'title' | 'body' | 'userId'>;
 
-export type IAddProductResponse = Pick<
+export type IAddPostResponse = Pick<
   IPost,
   'id' | 'title' | 'body' | 'userId'
 >;
