@@ -1,5 +1,6 @@
 import {
   addPostComment,
+  deletePost,
   deletePostComment,
   getPostComments,
   getPosts,
@@ -185,6 +186,40 @@ export const useUpdatePost = () => {
           return {
             ...old,
             posts: old.posts.map((item) => (item.id === postId ? post : item)),
+          };
+        },
+      );
+
+      return { previousPosts };
+    },
+  });
+};
+
+// 게시물 삭제
+export const useDeletePost = () => {
+  const [limit] = useLimit();
+  const [skip] = useSkip();
+  const [searchQuery] = useSearchQuery();
+  const [selectedTag] = useTag();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postId: number) => deletePost(postId),
+    onMutate: async (postId) => {
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      });
+
+      const previousPosts = queryClient.getQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+      );
+
+      queryClient.setQueryData(
+        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        (old: PostsResponse) => {
+          return {
+            ...old,
+            posts: old.posts.filter((item) => item.id !== postId),
           };
         },
       );

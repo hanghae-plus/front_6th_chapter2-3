@@ -70,3 +70,9 @@ export const updatePost = async (postId: number, post: Post): Promise<Post> => {
     body: JSON.stringify(post),
   });
 };
+
+export const deletePost = async (postId: number) => {
+  return await remote(`/api/posts/${postId}`, {
+    method: 'DELETE',
+  });
+};

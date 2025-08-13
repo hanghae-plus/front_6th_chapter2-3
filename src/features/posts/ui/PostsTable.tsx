@@ -8,7 +8,12 @@ import {
 import { useEditPostDialog, usePostDialog } from '../model';
 import { useUsers, type UsersResponse } from '@/entities/users';
 import type { Post } from '@/entities/posts';
-import { usePosts, useSearchQuery, useTag } from '@/entities/posts';
+import {
+  useDeletePost,
+  usePosts,
+  useSearchQuery,
+  useTag,
+} from '@/entities/posts';
 import {
   Button,
   Table,
@@ -26,13 +31,9 @@ type PostWithAuthor = Post & { author?: Author };
 
 interface Props {
   onClickOpenUserModal: (user: Author) => void;
-  onClickDeletePost: (postId: number) => void;
 }
 
-export const PostsTable = ({
-  onClickOpenUserModal,
-  onClickDeletePost,
-}: Props) => {
+export const PostsTable = ({ onClickOpenUserModal }: Props) => {
   const [searchQuery] = useSearchQuery();
   const [selectedTag, setSelectedTag] = useTag();
   const { data: postsData, isLoading: postsLoading } = usePosts();
@@ -43,8 +44,9 @@ export const PostsTable = ({
       const author = usersData?.users?.find((user) => user.id === post.userId);
       return { ...post, author };
     }) ?? [];
-  const { open } = usePostDialog();
+  const { open: openPostDialog } = usePostDialog();
   const { open: openEditDialog } = useEditPostDialog();
+  const { mutate: deletePost } = useDeletePost();
 
   if (loading) {
     return <div className="flex justify-center p-4">로딩 중...</div>;
@@ -113,7 +115,11 @@ export const PostsTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => open(post)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openPostDialog(post)}
+                >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button
@@ -126,7 +132,7 @@ export const PostsTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onClickDeletePost(post.id)}
+                  onClick={() => deletePost(post.id)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
