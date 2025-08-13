@@ -1,109 +1,52 @@
-// import { useMutation, useQueryClient } from "@tanstack/react-query"
-// import { createPost, updatePost, deletePost } from "@/features/post/api"
-// import { POST_QUERY_KEYS, type CreatePost, type UpdatePost } from "@/entities/post/model"
+import { mutationOptions, QueryClient } from "@tanstack/react-query"
+import { createPost, updatePost, deletePost } from "@/features/post/api"
+import { POST_QK } from "@/entities/post/model/query-key"
+import { PostFilter, PostPaginatedResponse } from "@/shared/types"
+import { Post } from "@/shared/types"
 
-// /**
-//  * 게시물 생성 뮤테이션 훅
-//  * @returns 게시물 생성 뮤테이션 객체
-//  */
-// export const useCreatePost = () => {
-//   const queryClient = useQueryClient()
+export const postMutations = {
+  keys: {
+    base: () => ["posts"] as const,
+    create: () => ["posts", "create"] as const,
+    update: (id: number) => ["posts", "update", id] as const,
+    remove: (id: number) => ["posts", "remove", id] as const,
+  },
 
-//   return useMutation({
-//     mutationFn: (data: CreatePost) => createPost(data),
-//     onSuccess: (newPost) => {
-//       // 게시물 목록 캐시 무효화
-//       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
+  create: (qc: QueryClient) =>
+    mutationOptions({
+      mutationKey: postMutations.keys.create(),
+      mutationFn: createPost,
+      onSuccess: () => {
+        // 리스트/합성쿼리 모두 리프레시
+        qc.invalidateQueries({ queryKey: POST_QK.all() })
+      },
+    }),
 
-//       // 새 게시물을 캐시에 추가
-//       queryClient.setQueryData(POST_QUERY_KEYS.detail(newPost.id), newPost)
-//     },
-//     onError: (error) => {
-//       console.error("게시물 생성 실패:", error)
-//     },
-//   })
-// }
+  update: (qc: QueryClient) =>
+    mutationOptions({
+      mutationKey: postMutations.keys.base(),
+      mutationFn: ({ id, data }: { id: number; data: Partial<unknown> }) => updatePost(id, data),
+      onSuccess: (updated) => {
+        // 상세는 바로 반영(네트워크 절약) + 리스트는 부분 업데이트 or 무효화
+        qc.setQueryData(POST_QK.detail(updated.id), updated)
+        qc.setQueriesData({ queryKey: POST_QK.list({} as PostFilter).slice(0, 2) }, (prev: PostPaginatedResponse) =>
+          prev?.posts
+            ? { ...prev, posts: prev.posts.map((p: Post) => (p.id === updated.id ? { ...p, ...updated } : p)) }
+            : prev,
+        )
+      },
+    }),
 
-// /**
-//  * 게시물 수정 뮤테이션 훅
-//  * @returns 게시물 수정 뮤테이션 객체
-//  */
-// export const useUpdatePost = () => {
-//   const queryClient = useQueryClient()
-
-//   return useMutation({
-//     mutationFn: ({ id, data }: { id: number; data: UpdatePost }) => updatePost(id, data),
-//     onSuccess: (updatedPost) => {
-//       // 게시물 목록 캐시 무효화
-//       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
-
-//       // 수정된 게시물 캐시 업데이트
-//       queryClient.setQueryData(POST_QUERY_KEYS.detail(updatedPost.id), updatedPost)
-//     },
-//     onError: (error) => {
-//       console.error("게시물 수정 실패:", error)
-//     },
-//   })
-// }
-
-// /**
-//  * 게시물 삭제 뮤테이션 훅
-//  * @returns 게시물 삭제 뮤테이션 객체
-//  */
-// export const useDeletePost = () => {
-//   const queryClient = useQueryClient()
-
-//   return useMutation({
-//     mutationFn: (id: number) => deletePost(id),
-//     onSuccess: (_, deletedId) => {
-//       console.log("삭제 성공, deletedId:", deletedId)
-//       console.log("POST_QUERY_KEYS.lists():", POST_QUERY_KEYS.lists())
-
-//       // 캐시 무효화 제거 (자동 재요청 방지)
-//       // queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
-
-//       // 모든 관련 쿼리 키에 대해 직접 캐시 업데이트
-//       const allQueryKeys = [POST_QUERY_KEYS.lists(), POST_QUERY_KEYS.all]
-
-//       allQueryKeys.forEach((queryKey) => {
-//         queryClient.setQueriesData({ queryKey }, (oldData: unknown) => {
-//           console.log("setQueriesData 콜백 호출됨, queryKey:", queryKey)
-//           console.log("oldData:", oldData)
-//           if (!oldData) return oldData
-
-//           // PostPaginatedResponse 형태인 경우
-//           if (oldData && typeof oldData === "object" && "posts" in oldData) {
-//             const data = oldData as { posts: Array<{ id: number }>; total?: number }
-//             if (Array.isArray(data.posts)) {
-//               console.log("PostPaginatedResponse 형태 처리")
-//               const filteredPosts = data.posts.filter((post) => post.id !== deletedId)
-//               console.log("필터링 후 게시물 수:", filteredPosts.length)
-//               return {
-//                 ...oldData,
-//                 posts: filteredPosts,
-//                 total: data.total ? data.total - 1 : 0, // total도 감소
-//               }
-//             }
-//           }
-
-//           // Post[] 형태인 경우
-//           if (Array.isArray(oldData)) {
-//             console.log("Post[] 형태 처리")
-//             const filteredPosts = oldData.filter((post: { id: number }) => post.id !== deletedId)
-//             console.log("필터링 후 게시물 수:", filteredPosts.length)
-//             return filteredPosts
-//           }
-
-//           console.log("처리되지 않은 데이터 형태")
-//           return oldData
-//         })
-//       })
-
-//       // 상세 게시물 캐시도 제거
-//       queryClient.removeQueries({ queryKey: POST_QUERY_KEYS.detail(deletedId) })
-//     },
-//     onError: (error) => {
-//       console.error("게시물 삭제 실패:", error)
-//     },
-//   })
-// }
+  remove: (qc: QueryClient) =>
+    mutationOptions({
+      mutationKey: postMutations.keys.base(),
+      mutationFn: (id: number) => deletePost(id),
+      onSuccess: (_void, id) => {
+        // 상세 캐시 제거 + 모든 리스트에서 해당 항목 제거
+        qc.removeQueries({ queryKey: POST_QK.detail(id) })
+        qc.setQueriesData({ queryKey: POST_QK.base() }, (prev: PostPaginatedResponse) =>
+          prev?.posts ? { ...prev, posts: prev.posts.filter((p: Post) => p.id !== id) } : prev,
+        )
+      },
+    }),
+}
