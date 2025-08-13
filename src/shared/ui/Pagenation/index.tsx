@@ -1,3 +1,4 @@
+import { FC } from "react"
 import { Button } from "../Button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../Select"
 
@@ -38,4 +39,5 @@ const Pagination: FC<PaginationProps> = ({ skip, limit, total, onPreviousPage, o
     </div>
   )
 }
+
 export default Pagination
