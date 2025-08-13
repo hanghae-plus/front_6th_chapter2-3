@@ -3,7 +3,7 @@ import { deleteCommentApi } from '../../../../entities/comment/api/comment-api';
 import { IComment, IComments } from '../../../../entities/comment/model/type';
 import { commentModel } from '../../../../entities/comment/model/store';
 
-export const useDeleteComment = (onSuccess?: () => void) => {
+export const useDeleteComment = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -17,8 +17,6 @@ export const useDeleteComment = (onSuccess?: () => void) => {
           return commentModel.deleteComment(prev, comment);
         }
       );
-
-      onSuccess?.();
     },
     onError: (error) => {
       console.error('댓글 삭제 오류:', error);
