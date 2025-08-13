@@ -31,6 +31,7 @@ import { commentQueries } from "../entities/comment/api/queries"
 import { CommentItem } from "../entities/comment/model"
 import { CommentList } from "../entities/comment/ui"
 import { useUserProfileDialog } from "../features/user/view-profile/lib/useUserProfileDialog"
+import { useEditComment } from "../features/comment/edit-comment/lib/useEditComment"
 import { PostsTable } from "../widgets/posts-table/ui"
 import { highlightText } from "../shared/lib"
 
@@ -50,14 +51,14 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
-  const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null)
+
   const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({
     body: "",
     postId: null,
     userId: 1,
   })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const { openProfile, overlay: profileOverlay } = useUserProfileDialog()
 
@@ -159,18 +160,7 @@ const PostsManager = () => {
     )
   }
 
-  const updateCommentMutation = useMutation(commentMutations.updateMutation())
-  const updateComment = () => {
-    if (!selectedComment) return
-    updateCommentMutation.mutate(
-      { id: selectedComment.id, postId: selectedPost?.id ?? 0, body: selectedComment.body },
-      {
-        onSuccess: () => {
-          setShowEditCommentDialog(false)
-        },
-      },
-    )
-  }
+  const { updateComment, overlay: editOverlay } = useEditComment()
 
   const deleteCommentMutation = useMutation(commentMutations.deleteMutation())
   const deleteComment = (id: number) => {
@@ -384,21 +374,8 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment((prev) => (prev ? { ...prev, body: e.target.value } : prev))}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 댓글 수정 오버레이 */}
+      {editOverlay}
 
       {/* 게시물 상세 보기 대화상자 */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
@@ -415,9 +392,8 @@ const PostsManager = () => {
                 setNewComment((prev) => ({ ...prev, postId: selectedPost?.id ?? 0 }))
                 setShowAddCommentDialog(true)
               }}
-              onEditComment={(comment) => {
-                setSelectedComment(comment)
-                setShowEditCommentDialog(true)
+              onEditComment={async (comment) => {
+                await updateComment(comment)
               }}
               onDeleteComment={deleteComment}
               onLikeComment={likeComment}
