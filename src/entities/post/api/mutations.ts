@@ -1,7 +1,8 @@
 import { postApi } from "./api"
 import { postQueries } from "./queries"
 import { queryClient } from "../../../shared/config/query-client"
-import type { CreatePostRequest, UpdatePostRequest } from "./api"
+import type { CreatePostRequest, UpdatePostRequest, PostsResponse } from "./api"
+import type { QueryKey } from "@tanstack/react-query"
 
 export const postMutations = {
   addMutation: () => ({
@@ -27,10 +28,28 @@ export const postMutations = {
   deleteMutation: () => ({
     mutationKey: [...postQueries.all(), "delete"] as const,
     mutationFn: (id: number) => postApi.deletePost(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: postQueries.all(),
-      })
+    onMutate: async (id: number) => {
+      const basePostQueries = [postQueries.list(), postQueries.search(), postQueries.listByTag()]
+      const snapshots: Array<[QueryKey, PostsResponse]> = []
+
+      for (const query of basePostQueries) {
+        await queryClient.cancelQueries({ queryKey: query })
+        const pairs = queryClient.getQueriesData<PostsResponse>({ queryKey: query })
+        for (const [key, data] of pairs) {
+          if (!data) continue
+          snapshots.push([key, data])
+          queryClient.setQueryData(key, {
+            ...data,
+            posts: data.posts.filter((post) => post.id !== id),
+            total: Math.max(0, data.total - 1),
+          } as PostsResponse)
+        }
+      }
+
+      return { snapshots }
+    },
+    onError: (_e: unknown, _vars: number, ctx?: { snapshots?: Array<[QueryKey, PostsResponse]> }) => {
+      ctx?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data))
     },
   }),
 }
