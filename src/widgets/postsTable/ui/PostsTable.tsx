@@ -9,18 +9,7 @@ import {
   Button,
 } from '../../../shared/ui';
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
-
-interface PostsTableProps {
-  posts: any[];
-  searchQuery: string;
-  selectedTag: string;
-  highlightText: (text: string, highlight: string) => React.ReactNode;
-  onTagClick: (tag: string) => void;
-  onUserClick: (user: any) => void;
-  onPostDetail: (post: any) => void;
-  onEditPost: (post: any) => void;
-  onDeletePost: (id: number) => void;
-}
+import { PostsTableProps } from '../model/type';
 
 export const PostsTable = ({
   posts,
