@@ -1,5 +1,6 @@
+import type { PostCommentsResponse } from './type';
 import type { PostsResponse, PostsTagsResponse } from '../types';
-import { remote } from '@/shared/api/remote';
+import { remote } from '@/shared/api';
 
 export const getPosts = async (
   limit: number,
@@ -20,4 +21,10 @@ export const getPosts = async (
 
 export const getPostsTags = async (): Promise<PostsTagsResponse> => {
   return await remote('/api/posts/tags');
+};
+
+export const getPostComments = async (
+  postId: number,
+): Promise<PostCommentsResponse> => {
+  return await remote(`/api/comments/post/${postId}`);
 };

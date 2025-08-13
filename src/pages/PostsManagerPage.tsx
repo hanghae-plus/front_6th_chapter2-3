@@ -1,8 +1,18 @@
 import { Edit2, Plus, Search, ThumbsUp, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { PostsTable } from '@/features/posts';
-import { usePosts, usePostsTags, type Post } from '@/entities/posts';
+import { PostDialog, PostsTable } from '@/features/posts';
+import {
+  useLimit,
+  usePosts,
+  usePostsTags,
+  useSearchQuery,
+  useSortBy,
+  useSortOrder,
+  useTag,
+  type Post,
+} from '@/entities/posts';
+import { useSkip } from '@/entities/posts';
 import {
   Button,
   Card,
@@ -26,28 +36,34 @@ import { highlightText } from '@/shared/lib';
 const PostsManager = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  // const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
 
   // const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimit] = useState(
-    parseInt(queryParams.get('limit') || '10'),
-  );
-  const [searchQuery, setSearchQuery] = useState(
-    queryParams.get('search') || '',
-  );
+  // const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
+  const [skip, setSkip] = useSkip();
+  // const [limit, setLimit] = useState(
+  //   parseInt(queryParams.get('limit') || '10'),
+  // );
+  const [limit, setLimit] = useLimit();
+  // const [searchQuery, setSearchQuery] = useState(
+  //   queryParams.get('search') || '',
+  // );
+  const [searchQuery, setSearchQuery] = useSearchQuery();
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
-  const [sortOrder, setSortOrder] = useState(
-    queryParams.get('sortOrder') || 'asc',
-  );
+  // const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
+  const [sortBy, setSortBy] = useSortBy();
+  // const [sortOrder, setSortOrder] = useState(
+  //   queryParams.get('sortOrder') || 'asc',
+  // );
+  const [sortOrder, setSortOrder] = useSortOrder();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
 
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
+  // const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
+  const [selectedTag, setSelectedTag] = useTag();
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
   const [newComment, setNewComment] = useState({
@@ -644,7 +660,7 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog
+      {/* <Dialog
         open={showPostDetailDialog}
         onOpenChange={setShowPostDetailDialog}
       >
@@ -659,7 +675,8 @@ const PostsManager = () => {
             {renderComments(selectedPost?.id)}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <PostDialog />
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

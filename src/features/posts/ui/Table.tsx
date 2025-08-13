@@ -5,6 +5,7 @@ import {
   ThumbsUp,
   Trash2,
 } from 'lucide-react';
+import { usePostModal } from '../model';
 import { useUsers, type UsersResponse } from '@/entities/users';
 import type { Post } from '@/entities/posts';
 import { usePosts } from '@/entities/posts';
@@ -42,7 +43,7 @@ export const PostsTable = ({
   selectedTag = '',
   onClickTag,
   onClickOpenUserModal,
-  onClickOpenPostDetail,
+  // onClickOpenPostDetail,
   onClickOpenEditDialog,
   onClickDeletePost,
 }: Props) => {
@@ -59,6 +60,7 @@ export const PostsTable = ({
       const author = usersData?.users?.find((user) => user.id === post.userId);
       return { ...post, author };
     }) ?? [];
+  const { open } = usePostModal();
 
   if (loading) {
     return <div className="flex justify-center p-4">로딩 중...</div>;
@@ -130,7 +132,8 @@ export const PostsTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onClickOpenPostDetail(post)}
+                  // onClick={() => onClickOpenPostDetail(post)}
+                  onClick={() => open(post)}
                 >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
