@@ -2,30 +2,13 @@ import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from "../components"
+import { Button } from "../components/Button"
+import { Card } from "../components/Card"
+import { Dialog } from "../components/Dialog"
+import { Input } from "../components/Input"
+import { Select } from "../components/Select"
+import { Table } from "../components/Table"
+import { Textarea } from "../components/Textarea"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -346,20 +329,20 @@ const PostsManager = () => {
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
     <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className="w-[150px]">작성자</TableHead>
-          <TableHead className="w-[150px]">반응</TableHead>
-          <TableHead className="w-[150px]">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head className="w-[50px]">ID</Table.Head>
+          <Table.Head>제목</Table.Head>
+          <Table.Head className="w-[150px]">작성자</Table.Head>
+          <Table.Head className="w-[150px]">반응</Table.Head>
+          <Table.Head className="w-[150px]">작업</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
+          <Table.Row key={post.id}>
+            <Table.Cell>{post.id}</Table.Cell>
+            <Table.Cell>
               <div className="space-y-1">
                 <div>{highlightText(post.title, searchQuery)}</div>
 
@@ -367,10 +350,10 @@ const PostsManager = () => {
                   {post.tags?.map((tag) => (
                     <span
                       key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
+                      className={`cursor-pointer rounded-[4px] px-1 text-[9px] font-semibold ${
                         selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
+                          ? "bg-blue-500 text-white hover:bg-blue-600"
+                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
                       }`}
                       onClick={() => {
                         setSelectedTag(tag)
@@ -382,25 +365,25 @@ const PostsManager = () => {
                   ))}
                 </div>
               </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex cursor-pointer items-center space-x-2" onClick={() => openUserModal(post.author)}>
+                <img src={post.author?.image} alt={post.author?.username} className="h-8 w-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
-            </TableCell>
-            <TableCell>
+            </Table.Cell>
+            <Table.Cell>
               <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
+                <ThumbsUp className="h-4 w-4" />
                 <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
+                <ThumbsDown className="h-4 w-4" />
                 <span>{post.reactions?.dislikes || 0}</span>
               </div>
-            </TableCell>
-            <TableCell>
+            </Table.Cell>
+            <Table.Cell>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="w-4 h-4" />
+                  <MessageSquare className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -410,23 +393,23 @@ const PostsManager = () => {
                     setShowEditDialog(true)
                   }}
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-            </TableCell>
-          </TableRow>
+            </Table.Cell>
+          </Table.Row>
         ))}
-      </TableBody>
+      </Table.Body>
     </Table>
   )
 
   // 댓글 렌더링
   const renderComments = (postId) => (
     <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold">댓글</h3>
         <Button
           size="sm"
@@ -435,20 +418,20 @@ const PostsManager = () => {
             setShowAddCommentDialog(true)
           }}
         >
-          <Plus className="w-3 h-3 mr-1" />
+          <Plus className="mr-1 h-3 w-3" />
           댓글 추가
         </Button>
       </div>
       <div className="space-y-1">
         {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
+          <div key={comment.id} className="flex items-center justify-between border-b pb-1 text-sm">
             <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
+              <span className="truncate font-medium">{comment.user.username}:</span>
               <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
+                <ThumbsUp className="h-3 w-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>
               <Button
@@ -459,10 +442,10 @@ const PostsManager = () => {
                   setShowEditCommentDialog(true)
                 }}
               >
-                <Edit2 className="w-3 h-3" />
+                <Edit2 className="h-3 w-3" />
               </Button>
               <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           </div>
@@ -472,23 +455,23 @@ const PostsManager = () => {
   )
 
   return (
-    <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+    <Card className="mx-auto w-full max-w-6xl">
+      <Card.Header>
+        <Card.Title className="flex items-center justify-between">
           <span>게시물 관리자</span>
           <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             게시물 추가
           </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </Card.Title>
+      </Card.Header>
+      <Card.Content>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
           <div className="flex gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
                 <Input
                   placeholder="게시물 검색..."
                   className="pl-8"
@@ -506,37 +489,37 @@ const PostsManager = () => {
                 updateURL()
               }}
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
+              <Select.Trigger className="w-[180px]">
+                <Select.Value placeholder="태그 선택" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="all">모든 태그</Select.Item>
                 {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
+                  <Select.Item key={tag.url} value={tag.slug}>
                     {tag.slug}
-                  </SelectItem>
+                  </Select.Item>
                 ))}
-              </SelectContent>
+              </Select.Content>
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
+              <Select.Trigger className="w-[180px]">
+                <Select.Value placeholder="정렬 기준" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="none">없음</Select.Item>
+                <Select.Item value="id">ID</Select.Item>
+                <Select.Item value="title">제목</Select.Item>
+                <Select.Item value="reactions">반응</Select.Item>
+              </Select.Content>
             </Select>
             <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
+              <Select.Trigger className="w-[180px]">
+                <Select.Value placeholder="정렬 순서" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="asc">오름차순</Select.Item>
+                <Select.Item value="desc">내림차순</Select.Item>
+              </Select.Content>
             </Select>
           </div>
 
@@ -544,18 +527,18 @@ const PostsManager = () => {
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
 
           {/* 페이지네이션 */}
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span>표시</span>
               <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
+                <Select.Trigger className="w-[180px]">
+                  <Select.Value placeholder="10" />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="10">10</Select.Item>
+                  <Select.Item value="20">20</Select.Item>
+                  <Select.Item value="30">30</Select.Item>
+                </Select.Content>
               </Select>
               <span>항목</span>
             </div>
@@ -569,14 +552,14 @@ const PostsManager = () => {
             </div>
           </div>
         </div>
-      </CardContent>
+      </Card.Content>
 
       {/* 게시물 추가 대화상자 */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>새 게시물 추가</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -597,15 +580,15 @@ const PostsManager = () => {
             />
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>게시물 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -620,15 +603,15 @@ const PostsManager = () => {
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>새 댓글 추가</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -637,15 +620,15 @@ const PostsManager = () => {
             />
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
       <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>댓글 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -654,31 +637,31 @@ const PostsManager = () => {
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content className="max-w-3xl">
+          <Dialog.Header>
+            <Dialog.Title>{highlightText(selectedPost?.title, searchQuery)}</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <p>{highlightText(selectedPost?.body, searchQuery)}</p>
             {renderComments(selectedPost?.id)}
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>사용자 정보</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
+            <img src={selectedUser?.image} alt={selectedUser?.username} className="mx-auto h-24 w-24 rounded-full" />
+            <h3 className="text-center text-xl font-semibold">{selectedUser?.username}</h3>
             <div className="space-y-2">
               <p>
                 <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
@@ -701,7 +684,7 @@ const PostsManager = () => {
               </p>
             </div>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
     </Card>
   )
