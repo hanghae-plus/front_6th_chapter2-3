@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { postApi } from "../api"
-import { CreatePost, UpdatePost, PostFilter } from "./schema"
+import { CreatePost, UpdatePost, PostFilter } from "@/entities/post/model/type"
+import { postApi } from "@/entities/post/api"
 
 export const POST_QUERY_KEYS = {
   all: ["posts"] as const,
@@ -8,7 +8,6 @@ export const POST_QUERY_KEYS = {
   list: (filters: PostFilter) => [...POST_QUERY_KEYS.lists(), filters] as const,
   details: () => [...POST_QUERY_KEYS.all, "detail"] as const,
   detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
-  tags: () => [...POST_QUERY_KEYS.all, "tags"] as const,
 }
 
 // 게시물 목록 조회 훅
@@ -48,16 +47,6 @@ export const usePost = (id: number, enabled: boolean = true) => {
     queryFn: () => postApi.getPost(id),
     enabled: enabled && !!id,
     staleTime: 10 * 60 * 1000, // 10분
-  })
-}
-
-// 태그 목록 조회 훅
-export const useTags = () => {
-  return useQuery({
-    queryKey: POST_QUERY_KEYS.tags(),
-    queryFn: () => postApi.getTags(),
-    staleTime: 30 * 60 * 1000, // 30분
-    gcTime: 60 * 60 * 1000, // 1시간
   })
 }
 

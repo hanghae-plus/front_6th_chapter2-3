@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import { Post, CreatePost, UpdatePost, PostFilter, PostPaginatedResponse } from "../model/schema"
+import { Post, CreatePost, UpdatePost, PostFilter, PostPaginatedResponse } from "../model/type"
 
 export const postApi = {
   // 게시물 목록 조회 (페이지네이션)
@@ -47,10 +47,5 @@ export const postApi = {
   // 게시물 삭제
   async deletePost(id: number): Promise<void> {
     return HttpClient.delete<void>(`/posts/${id}`)
-  },
-
-  // 태그 목록 조회
-  async getTags(): Promise<Array<{ slug: string; url: string }>> {
-    return HttpClient.get<Array<{ slug: string; url: string }>>("/posts/tags")
   },
 }

@@ -1,5 +1,5 @@
 // Schema & Types
-export * from "./model/schema"
+export * from "./model/type"
 
 // API
 export * from "./api"
