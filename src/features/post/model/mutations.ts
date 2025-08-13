@@ -40,12 +40,12 @@ export const postMutations = {
     mutationOptions({
       mutationFn: (id: number) => deletePost(id),
       onSuccess: () => {
+        console.log("삭제 성공")
         // 상세 캐시 제거
         qc.removeQueries({ queryKey: POST_QK.detail(id) })
 
         // 모든 관련 쿼리에서 해당 포스트 제거
         qc.setQueriesData({ queryKey: POST_QK.list({}) }, (prev: PostPaginatedResponse) => {
-          if (!prev?.posts) return prev
           return {
             ...prev,
             posts: prev.posts.filter((p: Post) => p.id !== id),
