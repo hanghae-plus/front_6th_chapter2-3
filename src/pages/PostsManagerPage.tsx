@@ -35,6 +35,8 @@ import {
 import { postMutations } from "@/features/post/model/mutations"
 import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenButton"
 import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
+import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
+import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -428,9 +430,7 @@ const PostsManager = () => {
             <TableCell>
               <div className="flex items-center gap-2">
                 {/* 댓글 보기 버튼 */}
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
+                <DetailPostDialogOpenButton onClick={() => openPostDetail(post)} />
                 {/* 수정 버튼 */}
                 <EditPostDialogOpenButton onClick={() => openPostDetail(post)} />
                 {/* 삭제 버튼 */}
@@ -602,7 +602,7 @@ const PostsManager = () => {
 
       {/* ===== 대화상자들 ===== */}
       <AddPostDialog />
-      <EditPostDialog selectedPost={selectedPost} onUpdate={updatePost} />
+      <EditPostDialog selectedPost={selectedPost} />
 
       {/* 댓글 추가 대화상자 */}
       {/* <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
@@ -643,17 +643,7 @@ const PostsManager = () => {
       </Dialog> */}
 
       {/* 게시물 상세 보기 대화상자 */}
-      {/* <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-            {renderComments(selectedPost?.id || 0)}
-          </div>
-        </DialogContent>
-      </Dialog> */}
+      <DetailPostDialog selectedPost={selectedPost} />
 
       {/* 사용자 정보 모달 */}
       {/* <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

@@ -7,10 +7,9 @@ import { postMutations } from "../model/mutations"
 
 interface EditPostDialogProps {
   selectedPost: PostWithAuthor | null
-  onUpdate: (post: PostWithAuthor) => void
 }
 
-export const EditPostDialog = ({ selectedPost, onUpdate }: EditPostDialogProps) => {
+export const EditPostDialog = ({ selectedPost }: EditPostDialogProps) => {
   const queryClient = useQueryClient()
 
   // 로컬 상태로 수정 중인 데이터 관리
@@ -19,16 +18,7 @@ export const EditPostDialog = ({ selectedPost, onUpdate }: EditPostDialogProps) 
   const isOpen = useDialogStore((state) => state.dialogs.EDIT)
   const { hideDialog } = useDialogActions()
 
-  const updatePostMutation = useMutation({
-    ...postMutations.update(queryClient, selectedPost?.id ?? 0),
-    onSuccess: (updatedPost) => {
-      // 성공 시 부모에게 업데이트된 데이터 전달
-      if (selectedPost) {
-        onUpdate({ ...selectedPost, ...updatedPost })
-      }
-      hideDialog("EDIT")
-    },
-  })
+  const updatePostMutation = useMutation(postMutations.update(queryClient))
 
   // selectedPost가 변경될 때마다 로컬 상태 초기화
   useEffect(() => {
@@ -38,6 +28,7 @@ export const EditPostDialog = ({ selectedPost, onUpdate }: EditPostDialogProps) 
   }, [selectedPost])
 
   const handleUpdate = () => {
+    console.log(editingPost)
     if (!editingPost) return
 
     updatePostMutation.mutate({
@@ -47,6 +38,7 @@ export const EditPostDialog = ({ selectedPost, onUpdate }: EditPostDialogProps) 
         body: editingPost.body,
       },
     })
+    hideDialog("EDIT")
   }
 
   const handleClose = () => {

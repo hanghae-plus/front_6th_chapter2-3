@@ -8,7 +8,7 @@ export const createPost = async (data: CreatePost): Promise<Post> => {
 
 // 게시물 수정
 export const updatePost = async (id: number, data: UpdatePost): Promise<Post> => {
-  return HttpClient.put<Post>(`/posts/${id}`, data)
+  return HttpClient.patch<Post>(`/posts/${id}`, data)
 }
 
 // 게시물 삭제
