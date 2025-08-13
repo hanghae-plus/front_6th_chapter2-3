@@ -1,51 +1,34 @@
 import { HttpClient } from "@/shared/api/http"
-import { Post, CreatePost, UpdatePost, PostFilter, PostPaginatedResponse } from "../model/type"
+import type { Post, PostFilter, PostPaginatedResponse } from "../model/type"
 
-export const postApi = {
-  // 게시물 목록 조회 (페이지네이션)
-  async getPosts(filters: PostFilter = {}): Promise<PostPaginatedResponse> {
-    const params = new URLSearchParams()
+// 게시물 목록 조회 (페이지네이션)
+export const getPosts = async (filters: PostFilter = {}): Promise<PostPaginatedResponse> => {
+  const params = new URLSearchParams()
 
-    if (filters.limit) params.set("limit", filters.limit.toString())
-    if (filters.skip) params.set("skip", filters.skip.toString())
-    if (filters.search) params.set("q", filters.search)
-    if (filters.tag && filters.tag !== "all") params.set("tag", filters.tag)
-    if (filters.sortBy && filters.sortBy !== "none") {
-      params.set("sortBy", filters.sortBy)
-      if (filters.sortOrder) params.set("sortOrder", filters.sortOrder)
-    }
+  if (filters.limit) params.set("limit", filters.limit.toString())
+  if (filters.skip) params.set("skip", filters.skip.toString())
+  if (filters.search) params.set("q", filters.search)
+  if (filters.tag && filters.tag !== "all") params.set("tag", filters.tag)
+  if (filters.sortBy && filters.sortBy !== "none") {
+    params.set("sortBy", filters.sortBy)
+    if (filters.sortOrder) params.set("sortOrder", filters.sortOrder)
+  }
 
-    const url = `/posts${params.toString() ? `?${params.toString()}` : ""}`
-    return HttpClient.get<PostPaginatedResponse>(url)
-  },
+  const url = `/posts${params.toString() ? `?${params.toString()}` : ""}`
+  return HttpClient.get<PostPaginatedResponse>(url)
+}
 
-  // 게시물 검색
-  async searchPosts(query: string): Promise<PostPaginatedResponse> {
-    return HttpClient.get<PostPaginatedResponse>(`/posts/search?q=${encodeURIComponent(query)}`)
-  },
+// 게시물 검색
+export const searchPosts = async (query: string): Promise<PostPaginatedResponse> => {
+  return HttpClient.get<PostPaginatedResponse>(`/posts/search?q=${encodeURIComponent(query)}`)
+}
 
-  // 태그별 게시물 조회
-  async getPostsByTag(tag: string): Promise<PostPaginatedResponse> {
-    return HttpClient.get<PostPaginatedResponse>(`/posts/tag/${tag}`)
-  },
+// 태그별 게시물 조회
+export const getPostsByTag = async (tag: string): Promise<PostPaginatedResponse> => {
+  return HttpClient.get<PostPaginatedResponse>(`/posts/tag/${tag}`)
+}
 
-  // 단일 게시물 조회
-  async getPost(id: number): Promise<Post> {
-    return HttpClient.get<Post>(`/posts/${id}`)
-  },
-
-  // 게시물 생성
-  async createPost(data: CreatePost): Promise<Post> {
-    return HttpClient.post<Post>("/posts/add", data)
-  },
-
-  // 게시물 수정
-  async updatePost(id: number, data: UpdatePost): Promise<Post> {
-    return HttpClient.put<Post>(`/posts/${id}`, data)
-  },
-
-  // 게시물 삭제
-  async deletePost(id: number): Promise<void> {
-    return HttpClient.delete<void>(`/posts/${id}`)
-  },
+// 단일 게시물 조회
+export const getPost = async (id: number): Promise<Post> => {
+  return HttpClient.get<Post>(`/posts/${id}`)
 }

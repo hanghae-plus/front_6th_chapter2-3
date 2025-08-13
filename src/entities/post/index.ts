@@ -4,5 +4,5 @@ export * from "./model/type"
 // API
 export * from "./api"
 
-// Hooks
+// Query Hooks (Read 작업만)
 export * from "./model/hook"

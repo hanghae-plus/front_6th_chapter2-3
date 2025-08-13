@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { CreatePost, UpdatePost, PostFilter } from "@/entities/post/model/type"
-import { postApi } from "@/entities/post/api"
+import { useQuery } from "@tanstack/react-query"
+import { getPosts, searchPosts, getPostsByTag, getPost } from "@/entities/post/api"
+import type { PostFilter } from "@/entities/post/model/type"
 
 export const POST_QUERY_KEYS = {
   all: ["posts"] as const,
@@ -10,90 +10,57 @@ export const POST_QUERY_KEYS = {
   detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
 }
 
-// 게시물 목록 조회 훅
+/**
+ * 게시물 목록 조회 훅
+ * @param filters - 게시물 필터링 옵션
+ */
 export const usePosts = (filters: PostFilter = {}) => {
   return useQuery({
     queryKey: POST_QUERY_KEYS.list(filters),
-    queryFn: () => postApi.getPosts(filters),
+    queryFn: () => getPosts(filters),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   })
 }
 
-// 게시물 검색 훅
+/**
+ * 게시물 검색 훅
+ * @param query - 검색어
+ * @param enabled - 쿼리 활성화 여부
+ */
 export const useSearchPosts = (query: string, enabled: boolean = false) => {
   return useQuery({
     queryKey: [...POST_QUERY_KEYS.lists(), "search", query],
-    queryFn: () => postApi.searchPosts(query),
+    queryFn: () => searchPosts(query),
     enabled: enabled && query.length > 0,
     staleTime: 2 * 60 * 1000, // 2분
   })
 }
 
-// 태그별 게시물 조회 훅
+/**
+ * 태그별 게시물 조회 훅
+ * @param tag - 검색할 태그
+ * @param enabled - 쿼리 활성화 여부
+ */
 export const usePostsByTag = (tag: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: [...POST_QUERY_KEYS.lists(), "tag", tag],
-    queryFn: () => postApi.getPostsByTag(tag),
+    queryFn: () => getPostsByTag(tag),
     enabled: enabled && tag !== "all",
     staleTime: 5 * 60 * 1000, // 5분
   })
 }
 
-// 단일 게시물 조회 훅
+/**
+ * 단일 게시물 조회 훅
+ * @param id - 게시물 ID
+ * @param enabled - 쿼리 활성화 여부
+ */
 export const usePost = (id: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: POST_QUERY_KEYS.detail(id),
-    queryFn: () => postApi.getPost(id),
+    queryFn: () => getPost(id),
     enabled: enabled && !!id,
     staleTime: 10 * 60 * 1000, // 10분
-  })
-}
-
-// 게시물 생성 뮤테이션
-export const useCreatePost = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (data: CreatePost) => postApi.createPost(data),
-    onSuccess: (newPost) => {
-      // 게시물 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
-
-      // 새 게시물을 캐시에 추가
-      queryClient.setQueryData(POST_QUERY_KEYS.detail(newPost.id), newPost)
-    },
-  })
-}
-
-// 게시물 수정 뮤테이션
-export const useUpdatePost = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdatePost }) => postApi.updatePost(id, data),
-    onSuccess: (updatedPost) => {
-      // 게시물 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
-
-      // 수정된 게시물 캐시 업데이트
-      queryClient.setQueryData(POST_QUERY_KEYS.detail(updatedPost.id), updatedPost)
-    },
-  })
-}
-
-// 게시물 삭제 뮤테이션
-export const useDeletePost = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (id: number) => postApi.deletePost(id),
-    onSuccess: (_, deletedId) => {
-      // 게시물 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() })
-
-      // 삭제된 게시물 캐시 제거
-      queryClient.removeQueries({ queryKey: POST_QUERY_KEYS.detail(deletedId) })
-    },
   })
 }
