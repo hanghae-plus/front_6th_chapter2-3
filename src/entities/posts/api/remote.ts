@@ -42,3 +42,9 @@ export const patchPostCommentLike = async (
     body: JSON.stringify({ likes }),
   });
 };
+
+export const deletePostComment = async (commentId: number) => {
+  return await remote(`/api/comments/${commentId}`, {
+    method: 'DELETE',
+  });
+};

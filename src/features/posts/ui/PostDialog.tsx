@@ -1,6 +1,7 @@
 import { usePostModal } from '../model';
 import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import {
+  usePostCommentDelete,
   usePostCommentLike,
   usePostComments,
   useSearchQuery,
@@ -19,6 +20,7 @@ export const PostDialog = () => {
   const { opened, post, close } = usePostModal();
   const { data: comments } = usePostComments(post?.id);
   const { mutate: likeComment } = usePostCommentLike();
+  const { mutate: deleteComment } = usePostCommentDelete();
 
   if (!post) {
     return null;
@@ -95,7 +97,12 @@ export const PostDialog = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteComment(comment.id, postId)}
+                      onClick={() =>
+                        deleteComment({
+                          commentId: comment.id,
+                          postId: post.id,
+                        })
+                      }
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>

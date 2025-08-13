@@ -1,13 +1,20 @@
 import {
+  deletePostComment,
   getPostComments,
   getPosts,
   getPostsTags,
   patchPostCommentLike,
 } from './remote';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { PostCommentsResponse } from '../model';
-import { QUERY_KEYS, queryClient } from '@/shared/config';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteComment,
+  getLikes,
+  incrementCommentLike,
+  type PostCommentsResponse,
+} from '../model';
+import { QUERY_KEYS } from '@/shared/config';
 
+// 게시글 목록 가져오기
 export const usePosts = (
   limit: number,
   skip: number,
@@ -20,6 +27,7 @@ export const usePosts = (
   });
 };
 
+// 게시글 태그 목록 가져오기
 export const usePostsTags = () => {
   return useQuery({
     queryKey: QUERY_KEYS.postsTags(),
@@ -27,6 +35,7 @@ export const usePostsTags = () => {
   });
 };
 
+// 개별 게시글 댓글 목록 가져오기
 export const usePostComments = (postId?: number) => {
   return useQuery({
     queryKey: QUERY_KEYS.postComments(postId!),
@@ -35,7 +44,10 @@ export const usePostComments = (postId?: number) => {
   });
 };
 
+// 개별 댓글 좋아요
 export const usePostCommentLike = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({
       commentId,
@@ -47,9 +59,7 @@ export const usePostCommentLike = () => {
       const previousComments: PostCommentsResponse | undefined =
         queryClient.getQueryData(QUERY_KEYS.postComments(postId));
 
-      const likes = previousComments?.comments?.find(
-        (comment) => comment.id === commentId,
-      )?.likes;
+      const likes = getLikes(previousComments?.comments ?? [], commentId);
 
       if (typeof likes !== 'number') {
         throw new Error('Likes not found');
@@ -71,11 +81,37 @@ export const usePostCommentLike = () => {
         (old: PostCommentsResponse) => {
           return {
             ...old,
-            comments: old.comments.map((comment) =>
-              comment.id === commentId
-                ? { ...comment, likes: comment.likes + 1 }
-                : comment,
-            ),
+            comments: incrementCommentLike(old.comments, commentId),
+          };
+        },
+      );
+
+      return { previousComments };
+    },
+  });
+};
+
+export const usePostCommentDelete = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ commentId }: { commentId: number; postId: number }) =>
+      deletePostComment(commentId),
+    onMutate: async ({ commentId, postId }) => {
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.postComments(postId),
+      });
+
+      const previousComments = queryClient.getQueryData(
+        QUERY_KEYS.postComments(postId),
+      );
+
+      queryClient.setQueryData(
+        QUERY_KEYS.postComments(postId),
+        (old: PostCommentsResponse) => {
+          return {
+            ...old,
+            comments: deleteComment(old.comments, commentId),
           };
         },
       );
