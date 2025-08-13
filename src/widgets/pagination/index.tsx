@@ -1,10 +1,9 @@
 import React from "react"
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui"
+import { usePostQueryParams } from "@/shared/hooks/use-post-query-params"
 
 interface PaginationProps {
   total: number
-  skip: number
-  limit: number
   onPrev: () => void
   onNext: () => void
   onLimitChange: (value: number) => void
@@ -13,23 +12,22 @@ interface PaginationProps {
 
 export const Pagination: React.FC<PaginationProps> = ({
   total,
-  skip,
-  limit,
   onPrev,
   onNext,
   onLimitChange,
   limitOptions = [10, 20, 30],
 }) => {
-  const currentStart = Math.min(skip + 1, total)
-  const currentEnd = Math.min(skip + limit, total)
-  const canPrev = skip === 0
-  const canNext = skip + limit >= total
+  const { param } = usePostQueryParams()
+  const currentStart = Math.min(param.skip + 1, total)
+  const currentEnd = Math.min(param.skip + param.limit, total)
+  const canPrev = param.skip === 0
+  const canNext = param.skip + param.limit >= total
 
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
         <span>표시</span>
-        <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
+        <Select value={String(param.limit)} onValueChange={(value) => onLimitChange(Number(value))}>
           <SelectTrigger className="w-[120px]">
             <SelectValue placeholder="limit" />
           </SelectTrigger>
