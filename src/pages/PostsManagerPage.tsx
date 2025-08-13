@@ -25,6 +25,8 @@ import { addPost, deletePost, getPostBySearch, getPostByTag, getPosts, updatePos
 import { getTags } from "../entities/tag/api";
 import { getAllUsers, getUser } from "../entities/user/api";
 import { addComment, deleteComment, getComments, likeComment, updateComment } from "../entities/comment/api";
+import { HighlightText } from "../shared/ui/HighlightText";
+import { Comment } from "../entities/comment/ui/Comment";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -290,21 +292,6 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "");
   }, [location.search]);
 
-  // 하이라이트 함수 추가
-  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
-    if (!text) return null;
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, "gi");
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    );
-  };
-
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
     <Table>
@@ -405,33 +392,17 @@ const PostsManager = () => {
       </div>
       <div className="space-y-1">
         {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">
-                <HighlightText text={comment.body} highlight={searchQuery} />
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => handleLikeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment);
-                  setShowEditCommentDialog(true);
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
+          <Comment
+            key={comment.id}
+            comment={comment}
+            searchQuery={searchQuery}
+            handleLikeComment={() => handleLikeComment(comment.id, postId)}
+            handleDeleteComment={() => handleDeleteComment(comment.id, postId)}
+            handleEditComment={() => {
+              setSelectedComment(comment);
+              setShowEditCommentDialog(true);
+            }}
+          />
         ))}
       </div>
     </div>
