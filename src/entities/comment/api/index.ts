@@ -1,34 +1,25 @@
-import type { CommentFilter, CommentPaginatedResponse } from "@/shared/types/comment.type"
 import { HttpClient } from "@/shared/api/http"
+import type { Comment, CommentFilter, CommentPaginatedResponse } from "@/shared/types"
 
-/**
- * 특정 게시물의 댓글 목록을 가져옵니다
- * @param postId - 게시물 ID
- * @param filters - 필터 옵션
- */
-export const getCommentsByPost = async (postId: number, filters?: CommentFilter): Promise<CommentPaginatedResponse> => {
+export const getCommentsByPost = (postId: number, filters: CommentFilter = {}) => {
   const params = new URLSearchParams()
-  if (filters?.skip !== undefined) params.set("skip", filters.skip.toString())
-  if (filters?.limit !== undefined) params.set("limit", filters.limit.toString())
 
-  const queryString = params.toString()
-  const url = `/api/comments/post/${postId}${queryString ? `?${queryString}` : ""}`
+  if (filters.limit) params.set("limit", filters.limit.toString())
+  if (filters.skip) params.set("skip", filters.skip.toString())
+  if (filters.orderBy) params.set("orderBy", filters.orderBy)
 
+  const url = `/comments/post/${postId}${params.toString() ? `?${params.toString()}` : ""}`
   return HttpClient.get<CommentPaginatedResponse>(url)
 }
 
-/**
- * 특정 사용자의 댓글 목록을 가져옵니다
- * @param userId - 사용자 ID
- * @param filters - 필터 옵션
- */
-export const getCommentsByUser = async (userId: number, filters?: CommentFilter): Promise<CommentPaginatedResponse> => {
-  const params = new URLSearchParams()
-  if (filters?.skip !== undefined) params.set("skip", filters.skip.toString())
-  if (filters?.limit !== undefined) params.set("limit", filters.limit.toString())
+export const getComment = (id: number) => HttpClient.get<Comment>(`/comments/${id}`)
 
-  const queryString = params.toString()
-  const url = `/api/comments/user/${userId}${queryString ? `?${queryString}` : ""}`
+export const createComment = (comment: { body: string; postId: number; userId: number }) =>
+  HttpClient.post<Comment>("/comments", comment)
 
-  return HttpClient.get<CommentPaginatedResponse>(url)
-}
+export const updateComment = (id: number, updates: { body?: string }) =>
+  HttpClient.put<Comment>(`/comments/${id}`, updates)
+
+export const deleteComment = (id: number) => HttpClient.delete(`/comments/${id}`)
+
+export const likeComment = (id: number, likes: number) => HttpClient.patch<Comment>(`/comments/${id}`, { likes })

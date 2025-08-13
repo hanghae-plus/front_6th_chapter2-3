@@ -28,19 +28,9 @@ import {
   Textarea,
 } from "@/shared/ui"
 import { HttpClient } from "@/shared/api/http"
-import { postWithAuthorQueries } from "@/features/post/model/queries"
 import { postQueries } from "@/entities/post/model/queries"
-import {
-  Author,
-  Comment,
-  Tag,
-  CreateComment,
-  CommentPaginatedResponse,
-  PostPaginatedResponse,
-  PostWithAuthor,
-  UserPaginatedResponse,
-  User,
-} from "@/shared/types"
+import { postWithAuthorQueries } from "@/features/post/model/queries"
+import { Author, Comment, Tag, CreateComment, CommentPaginatedResponse, PostWithAuthor, User } from "@/shared/types"
 
 /**
  * 게시물 관리자 컴포넌트

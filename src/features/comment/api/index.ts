@@ -1,4 +1,4 @@
-import type { Comment, CreateComment, UpdateComment, CommentReaction } from "@/entities/comment/model/types"
+import type { Comment, CreateComment, UpdateComment, CommentReaction } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
 
 /**

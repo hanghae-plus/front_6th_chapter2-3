@@ -1,26 +1,27 @@
-// import { useQuery } from "@tanstack/react-query"
-// import { getCommentsByPost, getCommentsByUser } from "@/entities/comment/api"
-// import { COMMENT_QK } from "@/entities/comment/model/query-key"
-// import { CommentFilter } from "@/shared/types/comment.type"
+import { queryOptions } from "@tanstack/react-query"
+import type { CommentFilter } from "@/shared/types"
+import { commentKeys } from "./query-key"
+import { getCommentsByPost, getComment } from "../api"
 
-// // 특정 게시물의 댓글 목록 조회 훅
-// export const useCommentsByPost = (postId: number, filters?: CommentFilter) => {
-//   return useQuery({
-//     queryKey: COMMENT_QK.list(postId, filters),
-//     queryFn: () => getCommentsByPost(postId, filters),
-//     staleTime: 5 * 60 * 1000, // 5분
-//     gcTime: 10 * 60 * 1000, // 10분
-//     enabled: !!postId,
-//   })
-// }
+export const commentQueries = {
+  // 키만 쓰고 싶을 때를 위해 keys는 분리 유지
+  keys: commentKeys,
 
-// // 특정 사용자의 댓글 목록 조회 훅
-// export const useCommentsByUser = (userId: number, filters?: CommentFilter) => {
-//   return useQuery({
-//     queryKey: COMMENT_QK.user(userId, filters),
-//     queryFn: () => getCommentsByUser(userId, filters),
-//     staleTime: 5 * 60 * 1000, // 5분
-//     gcTime: 10 * 60 * 1000, // 10분
-//     enabled: !!userId,
-//   })
-// }
+  listByPost: (postId: number, filters: CommentFilter = {}) =>
+    queryOptions({
+      queryKey: commentKeys.listByPost(postId, filters),
+      queryFn: () => getCommentsByPost(postId, filters),
+      staleTime: 30_000, // 30초
+      gcTime: 10 * 60 * 1000, // 10분
+      enabled: !!postId,
+    }),
+
+  detail: (id: number) =>
+    queryOptions({
+      queryKey: commentKeys.detail(id),
+      queryFn: () => getComment(id),
+      staleTime: 10 * 60 * 1000, // 10분
+      gcTime: 15 * 60 * 1000, // 15분
+      enabled: !!id,
+    }),
+}

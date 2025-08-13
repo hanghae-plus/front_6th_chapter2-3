@@ -49,8 +49,8 @@ export class HttpClient {
   }
 
   // DELETE 요청 (반환 타입을 void로 가정)
-  static async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
-    await this.request<void>("delete", url, undefined, config)
+  static async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("delete", url, undefined, config)
   }
 
   // 페이지네이션 GET 요청

@@ -1,8 +1,9 @@
 import { normalize } from "@/shared/lib/normalizeParams"
-import type { CommentFilter } from "@/shared/types/comment.type"
 
-export const COMMENT_QK = {
+export const commentKeys = {
   base: () => ["comments"] as const,
-  list: (p: CommentFilter) => [...COMMENT_QK.base(), "list", normalize(p as Record<string, unknown>)] as const,
-  detail: (id: number) => [...COMMENT_QK.base(), "detail", id] as const,
-}
+  all: () => [...commentKeys.base(), "all"] as const,
+  listByPost: (postId: number, filters?: { orderBy?: "latest" | "top"; skip?: number; limit?: number }) =>
+    [...commentKeys.base(), "byPost", postId, normalize(filters ?? {})] as const,
+  detail: (id: number) => [...commentKeys.base(), "detail", id] as const,
+} as const

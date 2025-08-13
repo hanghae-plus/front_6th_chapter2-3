@@ -1,8 +1,8 @@
 import { queryOptions } from "@tanstack/react-query"
 import { POST_QK } from "@/entities/post/model/query-key"
-import { postApi } from "@/entities/post/api"
+import { getPosts } from "@/entities/post/api"
 import { HttpClient } from "@/shared/api/http"
-import type { PostFilter, PostPaginatedResponse, UserPaginatedResponse, Post, User, Author } from "@/shared/types"
+import type { PostFilter, PostPaginatedResponse, UserPaginatedResponse, Post, User } from "@/shared/types"
 import { normalize } from "@/shared/lib/normalizeParams"
 
 // 게시물 + 작성자 join 쿼리
@@ -13,12 +13,12 @@ export const postWithAuthorQueries = {
       queryKey: [...POST_QK.list(filters), "withAuthor", normalize({})],
       queryFn: async () => {
         const [base, users] = await Promise.all([
-          postApi.list(filters),
+          getPosts(filters),
           HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`),
         ])
 
         const map = new Map(users.users.map((u: User) => [u.id, u]))
-        const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) as Author }))
+        const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
 
         return { posts, total: base.total }
       },
@@ -34,7 +34,7 @@ export const postWithAuthorQueries = {
         if (!tag || tag === "all") {
           // 기본 목록 쿼리와 동일한 로직
           const [base, users] = await Promise.all([
-            postApi.list(filters),
+            getPosts(filters),
             HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`),
           ])
 
@@ -66,7 +66,7 @@ export const postWithAuthorQueries = {
         if (!query) {
           // 검색어가 없으면 기본 목록 쿼리와 동일한 로직
           const [base, users] = await Promise.all([
-            postApi.list(filters),
+            getPosts(filters),
             HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`),
           ])
 

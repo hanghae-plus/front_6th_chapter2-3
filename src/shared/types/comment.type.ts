@@ -32,6 +32,8 @@ export interface CommentFilter {
   userId?: number
   skip?: number
   limit?: number
+  orderBy?: "latest" | "top"
+  [key: string]: unknown
 }
 
 // 페이지네이션 응답 인터페이스
