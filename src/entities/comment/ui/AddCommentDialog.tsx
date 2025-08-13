@@ -1,14 +1,18 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
 import { Button } from "../../../shared/ui/Button"
 import { Textarea } from "../../../shared/ui/Textarea"
-import { useCommentManagement } from "../../../features.tsx/commentManagement/model/useCommentManagement"
 
-const AddCommentDialog = () => {
-  const { showAddCommentDialog, setShowAddCommentDialog, newComment, setNewComment, handleAddComment } =
-    useCommentManagement()
+interface AddCommentDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onAdd: () => void
+  newComment: { body: string; postId: number | null; userId: number }
+  setNewComment: (comment: { body: string; postId: number | null; userId: number }) => void
+}
 
+const AddCommentDialog = ({ open, onOpenChange, onAdd, newComment, setNewComment }: AddCommentDialogProps) => {
   return (
-    <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 댓글 추가</DialogTitle>
@@ -19,7 +23,7 @@ const AddCommentDialog = () => {
             value={newComment.body}
             onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
           />
-          <Button onClick={handleAddComment}>댓글 추가</Button>
+          <Button onClick={onAdd}>댓글 추가</Button>
         </div>
       </DialogContent>
     </Dialog>
