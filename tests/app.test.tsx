@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import PostsManager from "../src/pages/PostsManagerPage"
+import { PostsManagerPage } from "../src/pages/posts-manager/ui"
 
 const TestWrapper = ({ children }: PropsWithChildren) => <BrowserRouter>{children}</BrowserRouter>
 
@@ -17,7 +17,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     it("애플리케이션이 올바르게 렌더링되고 기본 요소들이 표시된다", async () => {
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -43,7 +43,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     it("테이블 헤더가 올바르게 표시된다", async () => {
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -59,7 +59,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     it("게시물 데이터가 올바르게 렌더링된다", async () => {
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -82,7 +82,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -110,7 +110,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -132,7 +132,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -174,7 +174,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -196,7 +196,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -229,7 +229,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -248,7 +248,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -293,7 +293,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -324,7 +324,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -369,7 +369,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -399,7 +399,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     it("페이지네이션 컨트롤이 올바르게 표시된다", async () => {
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -417,7 +417,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -447,7 +447,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -474,7 +474,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -502,7 +502,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -550,7 +550,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -593,7 +593,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -626,7 +626,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -668,7 +668,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
 
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -701,7 +701,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
 
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -729,7 +729,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
 
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -745,7 +745,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     it("데이터 로딩 중에는 로딩 인디케이터가 표시된다", async () => {
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
@@ -762,7 +762,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       const user = userEvent.setup()
       render(
         <TestWrapper>
-          <PostsManager />
+          <PostsManagerPage />
         </TestWrapper>,
       )
 
