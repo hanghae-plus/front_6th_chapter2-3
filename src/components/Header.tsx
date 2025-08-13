@@ -1,8 +1,13 @@
 import { MessageSquare } from "lucide-react"
+import type { ComponentProps } from "react"
 
-export function Header() {
+import { mergeClasses } from "../utils/classUtils"
+
+type HeaderProps = ComponentProps<"header">
+
+export function Header({ className, ...rest }: HeaderProps) {
   return (
-    <header className="bg-blue-600 p-4 text-white shadow-md">
+    <header className={mergeClasses("bg-blue-600 p-4 text-white shadow-md", className)} {...rest}>
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <MessageSquare className="h-6 w-6" />
