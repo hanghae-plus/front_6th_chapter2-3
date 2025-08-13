@@ -27,6 +27,8 @@ import { getAllUsers, getUser } from "../entities/user/api";
 import { addComment, deleteComment, getComments, likeComment, updateComment } from "../entities/comment/api";
 import { HighlightText } from "../shared/ui/HighlightText";
 import { Comment } from "../entities/comment/ui/Comment";
+import { UserModal } from "../entities/user/ui/UserModal";
+import { Pagination } from "../shared/ui/Pagination";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -479,30 +481,7 @@ const PostsManager = () => {
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
 
           {/* 페이지네이션 */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span>표시</span>
-              <DropdownSelect
-                value={limit.toString()}
-                onChange={(value) => setLimit(Number(value))}
-                options={[
-                  { key: "10", label: 10, value: "10" },
-                  { key: "20", label: 20, value: "20" },
-                  { key: "30", label: 30, value: "30" },
-                ]}
-                placeholder="10"
-              />
-              <span>항목</span>
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination limit={limit} setLimit={setLimit} skip={skip} setSkip={setSkip} total={total} />
         </div>
       </CardContent>
 
@@ -610,38 +589,7 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserModal showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
     </Card>
   );
 };
