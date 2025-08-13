@@ -15,10 +15,24 @@ export const commentMutations = {
     mutationFn: ({ id, body }: { id: number; body: string }) => commentApi.updateComment(id, body),
   }),
 
-  deleteMutation: () => ({
-    mutationKey: [...commentQueries.all(), "delete"] as const,
-    mutationFn: (id: number) => commentApi.deleteComment(id),
-  }),
+  deleteMutation: () =>
+    mutationOptions({
+      mutationKey: [...commentQueries.all(), "delete"] as const,
+      mutationFn: ({ id }: { id: number; postId: number }) => commentApi.deleteComment(id),
+      onMutate: async ({ id, postId }) => {
+        const key = commentQueries.byPost(postId)
+        await queryClient.cancelQueries({ queryKey: key })
+        const previous = queryClient.getQueryData<{ comments: CommentItem[]; total: number }>(key)
+        queryClient.setQueryData(key, (old: { comments: CommentItem[]; total: number }) => ({
+          comments: (old?.comments ?? []).filter((c) => c.id !== id),
+          total: Math.max(0, (old?.total ?? 0) - 1),
+        }))
+        return { previous, key }
+      },
+      onError: (_e, _vars, ctx) => {
+        if (ctx?.previous) queryClient.setQueryData(ctx.key, ctx.previous)
+      },
+    }),
 
   likeMutation: () =>
     mutationOptions({
