@@ -6,12 +6,10 @@ export interface ApiResponse<T> {
 }
 
 // 페이지네이션 응답 타입
-export interface PaginatedResponse<T> {
-  data: T[]
+export interface PaginatedResponse {
   total: number
   skip: number
   limit: number
-  hasMore: boolean
 }
 
 // 에러 응답 타입

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, searchPosts, getPostsByTag, getPost } from "@/entities/post/api"
-import type { PostFilter } from "@/entities/post/model/types"
 import { POST_QUERY_KEYS } from "@/entities/post/model/query-key"
+import { PostFilter } from "@/shared/types"
 
 /**
  * 게시물 목록 조회 훅

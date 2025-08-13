@@ -1,17 +1,14 @@
+import { PaginatedResponse } from "../api/type"
+
 // Comment 인터페이스
 export interface Comment {
   id: number
   body: string
-  postId: number
-  userId: number
   likes: number
-  dislikes: number
-  createdAt?: string
-  updatedAt?: string
   user: {
+    fullName: string
     id: number
     username: string
-    image?: string
   }
 }
 
@@ -36,12 +33,8 @@ export interface CommentFilter {
 }
 
 // 페이지네이션 응답 인터페이스
-export interface CommentPaginatedResponse {
+export interface CommentPaginatedResponse extends PaginatedResponse {
   comments: Comment[]
-  total: number
-  skip: number
-  limit: number
-  hasMore: boolean
 }
 
 // 댓글 반응 업데이트 인터페이스

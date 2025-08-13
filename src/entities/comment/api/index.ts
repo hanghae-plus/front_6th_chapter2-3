@@ -1,4 +1,4 @@
-import type { CommentFilter, CommentPaginatedResponse } from "@/entities/comment/model/types"
+import type { CommentFilter, CommentPaginatedResponse } from "@/shared/types/comment.type"
 import { HttpClient } from "@/shared/api/http"
 
 /**

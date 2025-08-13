@@ -1,4 +1,4 @@
-import type { PostFilter } from "@/entities/post/model/types"
+import type { PostFilter } from "@/shared/types"
 
 export const POST_QUERY_KEYS = {
   all: ["posts"] as const,

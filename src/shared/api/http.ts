@@ -1,51 +1,60 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { AxiosResponse } from "axios"
+import type { AxiosRequestConfig, AxiosResponse } from "axios"
 import { axiosClient } from "@/shared/api/axios-client"
 import { ApiResponse, PaginatedResponse } from "@/shared/api/type"
 
 export class HttpClient {
-  // GET 요청
-  static async get<T>(url: string, config?: any): Promise<T> {
-    const response = await axiosClient.get<ApiResponse<T>>(url, config)
-    console.log("GET 응답:", response.data)
+  private static async request<T>(
+    method: "get" | "post" | "put" | "patch" | "delete",
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
+    try {
+      const response: AxiosResponse<ApiResponse<T>> = await axiosClient.request({
+        method,
+        url,
+        data,
+        ...config,
+      })
 
-    // data 필드가 없는 경우 전체 응답을 반환
-    if (response.data.data !== undefined) {
-      return response.data.data
+      // data 필드가 없는 경우 (예: DELETE 요청의 성공 응답)
+      // 이 경우 T가 void일 수 있습니다.
+      return response.data as T
+    } catch (error) {
+      // 에러 처리를 위한 로직을 여기에 추가
+      console.error(`HTTP request failed for ${url}:`, error)
+      throw error
     }
+  }
 
-    // data 필드가 없는 경우 (더미 데이터 환경 등) 전체 응답을 반환
-    return response.data as T
+  // GET 요청
+  static async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("get", url, undefined, config)
   }
 
   // POST 요청
-  static async post<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await axiosClient.post<ApiResponse<T>>(url, data, config)
-    return response.data.data
+  static async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("post", url, data, config)
   }
 
   // PUT 요청
-  static async put<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await axiosClient.put<ApiResponse<T>>(url, data, config)
-    return response.data.data
+  static async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("put", url, data, config)
   }
 
   // PATCH 요청
-  static async patch<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await axiosClient.patch<ApiResponse<T>>(url, data, config)
-    return response.data.data
+  static async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("patch", url, data, config)
   }
 
-  // DELETE 요청
-  static async delete<T>(url: string, config?: any): Promise<AxiosResponse<ApiResponse<T>>> {
-    console.log("여기 호출")
-    const response = await axiosClient.delete<ApiResponse<T>>(url, config)
-    return response
+  // DELETE 요청 (반환 타입을 void로 가정)
+  static async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.request<void>("delete", url, undefined, config)
   }
 
   // 페이지네이션 GET 요청
-  static async getPaginated<T>(url: string, config?: any): Promise<PaginatedResponse<T>> {
-    const response = await axiosClient.get<ApiResponse<PaginatedResponse<T>>>(url, config)
-    return response.data.data
+  static async getPaginated<T>(url: string, config?: AxiosRequestConfig): Promise<PaginatedResponse & { data: T[] }> {
+    return this.request<PaginatedResponse & { data: T[] }>("get", url, undefined, config)
   }
 }

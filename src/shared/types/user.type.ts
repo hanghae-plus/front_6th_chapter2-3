@@ -1,3 +1,5 @@
+import { PaginatedResponse } from "../api/type"
+
 // User 인터페이스
 export interface User {
   id: number
@@ -24,4 +26,8 @@ export interface Author {
   id: number
   username: string
   image: string
+}
+
+export interface UserPaginatedResponse extends PaginatedResponse {
+  users: User[]
 }

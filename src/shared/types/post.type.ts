@@ -1,3 +1,6 @@
+import { PaginatedResponse } from "@/shared/api/type"
+import { Author } from "./user.type"
+
 export interface Post {
   id: number
   title: string
@@ -8,12 +11,10 @@ export interface Post {
     likes: number
     dislikes: number
   }
-  author?: {
-    id: number
-    username: string
-    image: string
-  }
+  views?: number
 }
+
+// 나중에 entities 폴더에 넣을 예정
 
 // Post 생성 타입
 export interface CreatePost {
@@ -39,13 +40,11 @@ export interface PostFilter {
   limit?: number
 }
 
-// 페이지네이션 응답 타입
-export interface PostPaginatedResponse {
-  posts: Post[]
-  total: number
-  skip: number
-  limit: number
-  hasMore: boolean
+export interface PostWithAuthor extends Post {
+  author: Author
 }
 
-export type DeletePostResponse = Post
+// 페이지네이션 응답 타입
+export interface PostPaginatedResponse extends PaginatedResponse {
+  posts: Post[]
+}

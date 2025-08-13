@@ -26,16 +26,6 @@ import {
   DialogTitle,
   Textarea,
 } from "@/shared/ui"
-import { HttpClient } from "@/shared/api/http"
-import {
-  Author,
-  Comment,
-  Tag,
-  CommentPaginatedResponse,
-  PostPaginatedResponse,
-  PostWithAuthor,
-  UserPaginatedResponse,
-} from "@/shared/types"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -48,7 +38,7 @@ const PostsManager = () => {
 
   // ===== 상태 관리 =====
   // 게시물 관련 상태
-  const [posts, setPosts] = useState<PostWithAuthor[]>([]) // 게시물 목록
+  const [posts, setPosts] = useState([]) // 게시물 목록
   const [total, setTotal] = useState(0) // 전체 게시물 수
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0")) // 페이지네이션 시작 인덱스
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10")) // 페이지당 게시물 수
@@ -76,8 +66,8 @@ const PostsManager = () => {
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새 게시물 데이터
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 }) // 새 댓글 데이터
   const [loading, setLoading] = useState(false) // 로딩 상태
-  const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
-  const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
+  const [tags, setTags] = useState([]) // 태그 목록
+  const [comments, setComments] = useState({}) // 댓글 목록 (게시물 ID별로 그룹화)
 
   // ===== URL 업데이트 함수 =====
   /**
@@ -100,30 +90,34 @@ const PostsManager = () => {
    * 게시물 목록을 가져오는 함수
    * 게시물과 사용자 정보를 함께 가져와서 조합
    */
-  const fetchPosts = async () => {
+  const fetchPosts = () => {
     setLoading(true)
+    let postsData
+    let usersData
 
-    try {
-      const { posts, total } = await HttpClient.get<PostPaginatedResponse>(`/posts?limit=${limit}&skip=${skip}`)
-      const { users } = await HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`)
-
-      console.log("---post---")
-      console.log(posts)
-      const postsWithUsers = posts.map((post) => ({
-        ...post,
-        author: users.find((user) => user.id === post.userId) as Author,
-      }))
-
-      console.log("---postWithUsers---")
-      console.log(postsWithUsers)
-
-      setPosts(postsWithUsers)
-      setTotal(total)
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error)
-    } finally {
-      setLoading(false)
-    }
+    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+      .then((response) => response.json())
+      .then((data) => {
+        postsData = data
+        return fetch("/api/users?limit=0&select=username,image")
+      })
+      .then((response) => response.json())
+      .then((users) => {
+        usersData = users.users
+        // 게시물에 작성자 정보 추가
+        const postsWithUsers = postsData.posts.map((post) => ({
+          ...post,
+          author: usersData.find((user) => user.id === post.userId),
+        }))
+        setPosts(postsWithUsers)
+        setTotal(postsData.total)
+      })
+      .catch((error) => {
+        console.error("게시물 가져오기 오류:", error)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   /**
@@ -131,8 +125,9 @@ const PostsManager = () => {
    */
   const fetchTags = async () => {
     try {
-      const res = await HttpClient.get<Tag[]>(`/posts/tags`)
-      setTags(res)
+      const response = await fetch("/api/posts/tags")
+      const data = await response.json()
+      setTags(data)
     } catch (error) {
       console.error("태그 가져오기 오류:", error)
     }
@@ -250,14 +245,14 @@ const PostsManager = () => {
   /**
    * 특정 게시물의 댓글을 가져오는 함수
    * 이미 불러온 댓글이 있으면 다시 불러오지 않음
-   * 클릭했을 때 모달안에서 들고옴.
    * @param postId - 게시물 ID
    */
-  const fetchComments = async (postId: number) => {
+  const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      const { comments } = await HttpClient.get<CommentPaginatedResponse>(`/comments/post/${postId}`)
-      setComments((prev) => ({ ...prev, [postId]: comments }))
+      const response = await fetch(`/api/comments/post/${postId}`)
+      const data = await response.json()
+      setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
@@ -313,10 +308,11 @@ const PostsManager = () => {
    * @param id - 삭제할 댓글 ID
    * @param postId - 댓글이 속한 게시물 ID
    */
-  const deleteComment = async (id: number, postId: number) => {
+  const deleteComment = async (id, postId) => {
     try {
-      await HttpClient.delete(`/comments/${id}`)
-
+      await fetch(`/api/comments/${id}`, {
+        method: "DELETE",
+      })
       // 삭제된 댓글을 목록에서 제거
       setComments((prev) => ({
         ...prev,
@@ -332,26 +328,20 @@ const PostsManager = () => {
    * @param id - 댓글 ID
    * @param postId - 댓글이 속한 게시물 ID
    */
-  const likeComment = async (id: number, postId: number) => {
+  const likeComment = async (id, postId) => {
     try {
-      // 현재 댓글의 좋아요 수를 가져와서 1 증가
-      const currentComment = comments[postId]?.find((c) => c.id === id)
-      if (!currentComment) {
-        console.error("댓글을 찾을 수 없습니다.")
-        return
-      }
-
-      const updatedLikes = currentComment.likes + 1
-
-      // HttpClient를 사용하여 PATCH 요청
-      const data = await HttpClient.patch<Comment>(`/comments/${id}`, {
-        likes: updatedLikes,
+      const response = await fetch(`/api/comments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
       })
-
+      const data = await response.json()
       // 좋아요 수를 증가시켜 댓글 목록 업데이트
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId].map((comment) => (comment.id === data.id ? { ...data, likes: updatedLikes } : comment)),
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
       }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
@@ -363,7 +353,7 @@ const PostsManager = () => {
    * 게시물 상세 보기 대화상자를 여는 함수
    * @param post - 상세 보기할 게시물
    */
-  const openPostDetail = (post: PostWithAuthor) => {
+  const openPostDetail = (post) => {
     setSelectedPost(post)
     fetchComments(post.id) // 댓글도 함께 가져옴
     setShowPostDetailDialog(true)
@@ -378,6 +368,7 @@ const PostsManager = () => {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
 
+      console.log(userData)
       setSelectedUser(userData)
       setShowUserModal(true)
     } catch (error) {

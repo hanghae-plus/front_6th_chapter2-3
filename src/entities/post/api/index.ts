@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import type { Post, PostFilter, PostPaginatedResponse } from "../model/types"
+import type { Post, PostFilter, PostPaginatedResponse } from "@/shared/types"
 
 // 게시물 목록 조회 (페이지네이션)
 export const getPosts = async (filters: PostFilter = {}): Promise<PostPaginatedResponse> => {
@@ -28,7 +28,6 @@ export const getPosts = async (filters: PostFilter = {}): Promise<PostPaginatedR
     total: 0,
     skip: filters.skip || 0,
     limit: filters.limit || 10,
-    hasMore: false,
   }
 }
 

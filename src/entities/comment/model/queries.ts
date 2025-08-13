@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { getCommentsByPost, getCommentsByUser } from "@/entities/comment/api"
 import { COMMENT_QUERY_KEYS } from "@/entities/comment/model/query-key"
-import { CommentFilter } from "@/entities/comment/model/types"
+import { CommentFilter } from "@/shared/types/comment.type"
 
 // 특정 게시물의 댓글 목록 조회 훅
 export const useCommentsByPost = (postId: number, filters?: CommentFilter) => {
