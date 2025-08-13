@@ -1,4 +1,8 @@
-import { useAddCommentDialog, usePostDialog } from '../model';
+import {
+  useAddCommentDialog,
+  useEditCommentDialog,
+  usePostDialog,
+} from '../model';
 import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import {
   usePostCommentDelete,
@@ -22,6 +26,7 @@ export const PostDialog = () => {
   const { data: comments } = usePostComments(post?.id);
   const { mutate: likeComment } = usePostCommentLike();
   const { mutate: deleteComment } = usePostCommentDelete();
+  const { open: openEditCommentDialog } = useEditCommentDialog();
 
   if (!post) {
     return null;
@@ -90,8 +95,7 @@ export const PostDialog = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSelectedComment(comment);
-                        setShowEditCommentDialog(true);
+                        openEditCommentDialog(comment);
                       }}
                     >
                       <Edit2 className="w-3 h-3" />

@@ -8,6 +8,7 @@ import {
   getPostsTags,
   patchPostCommentLike,
   updatePost,
+  updatePostComment,
 } from './remote';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -23,6 +24,7 @@ import {
   type Post,
   type PostCommentsResponse,
   type PostsResponse,
+  type UpdatePostCommentRequest,
 } from '../model';
 import { QUERY_KEYS } from '@/shared/config';
 
@@ -158,6 +160,47 @@ export const useAddPostComment = () => {
           };
         },
       );
+    },
+  });
+};
+
+// 개별 댓글 수정
+export const useUpdatePostComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      commentId,
+      commentData,
+    }: {
+      commentId: number;
+      commentData: UpdatePostCommentRequest;
+      postId: number;
+    }) => updatePostComment(commentId, commentData),
+    onMutate: async ({ commentId, commentData, postId }) => {
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.postComments(postId),
+      });
+
+      const previousComments = queryClient.getQueryData(
+        QUERY_KEYS.postComments(postId),
+      );
+
+      queryClient.setQueryData(
+        QUERY_KEYS.postComments(postId),
+        (old: PostCommentsResponse) => {
+          return {
+            ...old,
+            comments: old.comments.map((comment) =>
+              comment.id === commentId
+                ? { ...comment, body: commentData.body }
+                : comment,
+            ),
+          };
+        },
+      );
+
+      return { previousComments };
     },
   });
 };

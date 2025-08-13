@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   AddCommentDialog,
   AddPostDialog,
+  EditCommentDialog,
   PostDialog,
   PostsTable,
   useAddPostDialog,
@@ -36,7 +37,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from '@/shared/ui';
 
 const PostsManager = () => {
@@ -632,7 +632,7 @@ const PostsManager = () => {
       <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog
+      {/* <Dialog
         open={showEditCommentDialog}
         onOpenChange={setShowEditCommentDialog}
       >
@@ -651,7 +651,8 @@ const PostsManager = () => {
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <EditCommentDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
       {/* <Dialog

@@ -6,6 +6,8 @@ import type {
   PostCommentsResponse,
   PostsResponse,
   PostsTagsResponse,
+  UpdatePostCommentRequest,
+  UpdatePostCommentResponse,
 } from '../model';
 import { remote } from '@/shared/api';
 
@@ -62,6 +64,17 @@ export const addPostComment = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ body, postId, userId }),
+  });
+};
+
+export const updatePostComment = async (
+  commentId: number,
+  commentData: UpdatePostCommentRequest,
+): Promise<UpdatePostCommentResponse> => {
+  return await remote(`/api/comments/${commentId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(commentData),
   });
 };
 
