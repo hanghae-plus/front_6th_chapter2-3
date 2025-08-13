@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryParameter } from '../../../../shared/hook/useQueryParameter';
 import { IAddPost, IPosts } from '../../../../entities/post/model/type';
 import { addPostApi } from '../../../../entities/post/api/post-api';
 import { postModel } from '../../../../entities/post/model/store';
@@ -12,6 +13,7 @@ const initialPost: IAddPost = {
 
 export const useAddPost = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();
+  const { params } = useQueryParameter();
 
   const [newPost, setNewPost] = useState<IAddPost>(initialPost);
 
@@ -21,7 +23,7 @@ export const useAddPost = (onSuccess?: () => void) => {
     onSuccess: (createdPost) => {
       const newPost = postModel.addResponseToPost(createdPost);
 
-      queryClient.setQueryData<IPosts>(['posts'], (prev) => {
+      queryClient.setQueryData<IPosts>(['posts', params], (prev) => {
         if (!prev) {
           return {
             posts: [newPost],
