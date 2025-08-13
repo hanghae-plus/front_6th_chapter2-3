@@ -22,3 +22,8 @@ export type PostResponse = {
   skip: number
   total: number
 }
+
+export type Tag = {
+  url: string
+  slug: string
+}

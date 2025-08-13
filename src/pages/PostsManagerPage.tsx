@@ -26,44 +26,9 @@ import {
   Textarea,
 } from "../components"
 import { URL_PATH } from "../shared/config/routes"
-import { Post, PostResponse } from "../types/product.type"
-import { User, UserResponse } from "../types/user.type"
-
-// 댓글 타입 정의
-interface Comment {
-  id: number
-  body: string
-  postId: number
-  userId: number
-  likes: number
-  user: {
-    username: string
-  }
-}
-
-// 태그 타입 정의
-interface Tag {
-  url: string
-  slug: string
-}
-
-// 상세 사용자 정보 타입 정의
-interface DetailedUser extends User {
-  firstName?: string
-  lastName?: string
-  age?: number
-  email?: string
-  phone?: string
-  address?: {
-    address: string
-    city: string
-    state: string
-  }
-  company?: {
-    name: string
-    title: string
-  }
-}
+import { Comment } from "../types/comment.type"
+import { Post, PostResponse, Tag } from "../types/product.type"
+import { DetailedUser, User, UserResponse } from "../types/user.type"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -72,21 +37,25 @@ const PostsManager = () => {
 
   // 상태 관리
   const [posts, setPosts] = useState<Post[]>([])
-  const [total, setTotal] = useState(0)
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState<Tag[]>([])
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
+  const [tags, setTags] = useState<Tag[]>([])
+
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null as number | null, userId: 1 })
+  const [selectedUser, setSelectedUser] = useState<DetailedUser | null>(null)
+
+  const [postDraft, setPostDraft] = useState({ title: "", body: "", userId: 1 })
+  const [commentDraft, setCommentDraft] = useState({ body: "", postId: null as number | null, userId: 1 })
+
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<DetailedUser | null>(null)
+
+  const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(0)
 
   const [searchInfo, setSearchInfo] = useState({
     skip: parseInt(queryParams.get("skip") || "0"),
@@ -204,12 +173,12 @@ const PostsManager = () => {
       const response = await fetch(URL_PATH.POSTS.ADD, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
+        body: JSON.stringify(postDraft),
       })
       const data = (await response.json()) as Post
       setPosts([data, ...posts])
       setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
+      setPostDraft({ title: "", body: "", userId: 1 })
     } catch (error) {
       console.error("게시물 추가 오류:", error)
     }
@@ -262,7 +231,7 @@ const PostsManager = () => {
       const response = await fetch(URL_PATH.COMMENTS.ADD, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
+        body: JSON.stringify(commentDraft),
       })
       const data = await response.json()
       setComments((prev) => ({
@@ -270,7 +239,7 @@ const PostsManager = () => {
         [data.postId]: [...(prev[data.postId] || []), data],
       }))
       setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
+      setCommentDraft({ body: "", postId: null, userId: 1 })
     } catch (error) {
       console.error("댓글 추가 오류:", error)
     }
@@ -482,7 +451,7 @@ const PostsManager = () => {
         <Button
           size="sm"
           onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
+            setCommentDraft((prev) => ({ ...prev, postId }))
             setShowAddCommentDialog(true)
           }}
         >
@@ -646,20 +615,20 @@ const PostsManager = () => {
           <div className="space-y-4">
             <Input
               placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+              value={postDraft.title}
+              onChange={(e) => setPostDraft({ ...postDraft, title: e.target.value })}
             />
             <Textarea
               rows={30}
               placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+              value={postDraft.body}
+              onChange={(e) => setPostDraft({ ...postDraft, body: e.target.value })}
             />
             <Input
               type="number"
               placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
+              value={postDraft.userId}
+              onChange={(e) => setPostDraft({ ...postDraft, userId: Number(e.target.value) })}
             />
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
@@ -698,8 +667,8 @@ const PostsManager = () => {
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
+              value={commentDraft.body}
+              onChange={(e) => setCommentDraft({ ...commentDraft, body: e.target.value })}
             />
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
