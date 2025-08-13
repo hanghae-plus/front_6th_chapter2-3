@@ -54,13 +54,19 @@ export const PostTable: React.FC<PostTableProps> = ({
     param.sortBy,
     param.sortOrder,
   )
+
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
 
+  const getPostDataByFilter = () => {
+    if (searchQuery) return searchData
+    if (param.tag && param.tag !== "all") return tagData
+    return postsData
+  }
   // 조건에 따라 사용할 데이터 선택
-  const currentPostsData = searchQuery ? searchData : param.tag && param.tag !== "all" ? tagData : postsData
+  const currentPostsData = getPostDataByFilter()
 
   // 게시물에 작성자 정보 병합
-  const posts = useMemo(() => {
+  const postsWithAuthor = useMemo(() => {
     const base = currentPostsData?.posts || []
     return base.map((post) => ({
       ...post,
@@ -85,7 +91,7 @@ export const PostTable: React.FC<PostTableProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {posts.map((post) => (
+              {postsWithAuthor.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell>{post.id}</TableCell>
                   <TableCell>

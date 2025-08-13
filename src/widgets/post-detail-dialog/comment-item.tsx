@@ -3,7 +3,7 @@ import { Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
 import type { Comment } from "@entities/comment"
 import { LikeCommentButton } from "@/features/like-comment"
-import { RemoveCommentButton } from "@/features/remove-comment"
+import { RemoveCommentButton } from "@/features/remove-comment/ui"
 
 interface CommentItemProps {
   comment: Comment
