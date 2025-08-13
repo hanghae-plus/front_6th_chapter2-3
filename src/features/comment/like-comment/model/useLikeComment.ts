@@ -3,7 +3,7 @@ import { IComment, IComments } from '../../../../entities/comment/model/type';
 import { commentModel } from '../../../../entities/comment/model/store';
 import { likeCommentApi } from '../../../../entities/comment/api/comment-api';
 
-export const useLikeComment = (onSuccess?: () => void) => {
+export const useLikeComment = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -23,8 +23,6 @@ export const useLikeComment = (onSuccess?: () => void) => {
           return commentModel.likeComment(prev, likedComment);
         }
       );
-
-      onSuccess?.();
     },
     onError: (error) => {
       console.error('댓글 좋아요 오류:', error);

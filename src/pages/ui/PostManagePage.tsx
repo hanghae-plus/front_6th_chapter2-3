@@ -18,29 +18,36 @@ import PostPagination from '../../widgets/post-pagination/ui/PostPagination';
 import PostDetail from '../../widgets/post-detail-content/ui/PostDetail';
 
 const PostManagePage = () => {
-  const setShow = useDialogStore((state) => state.setShow);
-  const setContent = useDialogStore((state) => state.setContent);
+  const setPostModal = useDialogStore((state) => state.setPostModal);
 
   const { params } = useQueryParameter();
 
   const handleAddPost = () => {
-    setShow(true);
-    setContent(<AddPostForm />);
+    setPostModal({
+      show: true,
+      content: <AddPostForm />,
+    });
   };
 
   const handlePostClick = (post: IPost) => {
-    setShow(true);
-    setContent(<PostDetail post={post} searchQuery={params.searchQuery} />);
+    setPostModal({
+      show: true,
+      content: <PostDetail post={post} searchQuery={params.searchQuery} />,
+    });
   };
 
   const handleUpdatePost = (post: IPost) => {
-    setShow(true);
-    setContent(<UpdatePostForm post={post} />);
+    setPostModal({
+      show: true,
+      content: <UpdatePostForm post={post} />,
+    });
   };
 
   const handleUserClick = (userId: number) => {
-    setShow(true);
-    setContent(<UserDetail userId={userId} />);
+    setPostModal({
+      show: true,
+      content: <UserDetail userId={userId} />,
+    });
   };
 
   return (

@@ -8,13 +8,20 @@ import {
 } from '../../../../shared/ui/components';
 import { IPost } from '../../../../entities/post/model/type';
 import { useUpdatePost } from '../model/useUpdatePost';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 
 interface UpdatePostFormProps {
   post: IPost;
 }
 
 const UpdatePostForm = ({ post }: UpdatePostFormProps) => {
-  const { editPost, setTitle, setBody, updatePost } = useUpdatePost(post);
+  const setPostModal = useDialogStore((state) => state.setPostModal);
+  const { editPost, setTitle, setBody, updatePost } = useUpdatePost(
+    post,
+    () => {
+      setPostModal({ show: false, content: null });
+    }
+  );
 
   return (
     <DialogContent>

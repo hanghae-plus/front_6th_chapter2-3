@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 
 interface DialogState {
-  show: boolean;
-  setShow: (show: boolean) => void;
-  content: React.ReactNode | null;
-  setContent: (content: React.ReactNode | null) => void;
+  postModal: { show: boolean; content: React.ReactNode | null };
+  commentModal: { show: boolean; content: React.ReactNode | null };
+  setPostModal: (modal: DialogState['postModal']) => void;
+  setCommentModal: (modal: DialogState['commentModal']) => void;
 }
 
 export const useDialogStore = create<DialogState>((set) => ({
-  show: false,
-  setShow: (show) => set({ show }),
-  content: null,
-  setContent: (content) => set({ content }),
+  postModal: { show: false, content: null },
+  commentModal: { show: false, content: null },
+  setPostModal: (modal) => set({ postModal: modal }),
+  setCommentModal: (modal) => set({ commentModal: modal }),
 }));

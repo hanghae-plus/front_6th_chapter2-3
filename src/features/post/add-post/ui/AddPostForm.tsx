@@ -1,3 +1,4 @@
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import {
   Button,
   DialogContent,
@@ -9,7 +10,10 @@ import {
 import { useAddPost } from '../model/useAddPost';
 
 const AddPostForm = () => {
-  const { newPost, setTitle, setBody, setUserId, addPost } = useAddPost();
+  const setPostModal = useDialogStore((state) => state.setPostModal);
+  const { newPost, setTitle, setBody, setUserId, addPost } = useAddPost(() => {
+    setPostModal({ show: false, content: null });
+  });
 
   return (
     <DialogContent>

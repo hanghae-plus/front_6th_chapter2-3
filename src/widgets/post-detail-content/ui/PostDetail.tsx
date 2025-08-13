@@ -12,7 +12,7 @@ import { IComment } from '../../../entities/comment/model/type';
 import { useCommentsQuery } from '../../../entities/comment/model/hook';
 import CommentList from '../../../entities/comment/ui/CommentList';
 import AddCommentForm from '../../../features/comment/add-comment/ui/AddCommentForm';
-import UpdateCommentform from '../../../features/comment/update-comment/ui/UpdateCommentForm';
+import UpdateCommentForm from '../../../features/comment/update-comment/ui/UpdateCommentForm';
 import { useLikeComment } from '../../../features/comment/like-comment/model/useLikeComment';
 import { useDeleteComment } from '../../../features/comment/delete-comment/model/useDeleteComment';
 
@@ -22,20 +22,23 @@ interface PostDetailProps {
 }
 
 const PostDetail = ({ post, searchQuery }: PostDetailProps) => {
-  const setShow = useDialogStore((state) => state.setShow);
-  const setContent = useDialogStore((state) => state.setContent);
+  const setCommentModal = useDialogStore((state) => state.setCommentModal);
 
   const postId = post.id;
   const { data: comments } = useCommentsQuery(postId);
 
   const handleAddComment = () => {
-    setShow(true);
-    setContent(<AddCommentForm postId={postId} />);
+    setCommentModal({
+      show: true,
+      content: <AddCommentForm postId={postId} />,
+    });
   };
 
   const handleUpdateComment = (comment: IComment) => {
-    setShow(true);
-    setContent(<UpdateCommentform comment={comment} />);
+    setCommentModal({
+      show: true,
+      content: <UpdateCommentForm comment={comment} />,
+    });
   };
 
   const { deleteComment } = useDeleteComment();

@@ -7,13 +7,20 @@ import {
 } from '../../../../shared/ui/components';
 import { IComment } from '../../../../entities/comment/model/type';
 import { useUpdateComment } from '../model/useUpdateComment';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 
 interface UpdateCommentForm {
   comment: IComment;
 }
 
 const UpdateCommentForm = ({ comment }: UpdateCommentForm) => {
-  const { editComment, setBody, updateComment } = useUpdateComment(comment);
+  const { setCommentModal } = useDialogStore();
+  const { editComment, setBody, updateComment } = useUpdateComment(
+    comment,
+    () => {
+      setCommentModal({ show: false, content: null });
+    }
+  );
 
   return (
     <DialogContent>

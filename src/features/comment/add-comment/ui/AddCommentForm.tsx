@@ -5,6 +5,7 @@ import {
   DialogTitle,
   Textarea,
 } from '../../../../shared/ui/components';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import { useAddComment } from '../model/useAddComment';
 
 interface AddCommentFormProps {
@@ -12,7 +13,10 @@ interface AddCommentFormProps {
 }
 
 const AddCommentForm = ({ postId }: AddCommentFormProps) => {
-  const { newComment, setBody, addComment } = useAddComment(postId);
+  const { setCommentModal } = useDialogStore();
+  const { newComment, setBody, addComment } = useAddComment(postId, () => {
+    setCommentModal({ show: false, content: null });
+  });
 
   return (
     <DialogContent>
