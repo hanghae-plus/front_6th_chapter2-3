@@ -1,11 +1,13 @@
-import { User } from "../model"
+import { useQuery } from "@tanstack/react-query"
+import { userQueries } from "../../user/api/queries"
 
 interface UserDetailProps {
-  user: User | null
+  userId: number
 }
 
-export const UserDetail = ({ user }: UserDetailProps) => {
-  if (!user) return null
+export const UserDetail = ({ userId }: UserDetailProps) => {
+  const { data: user, isLoading } = useQuery(userQueries.detailQuery(String(userId)))
+  if (isLoading || !user) return null
 
   return (
     <div className="space-y-4">
