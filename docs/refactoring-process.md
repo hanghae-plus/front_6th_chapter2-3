@@ -226,3 +226,77 @@ export * from './constants';
 1. **타입 정의**: TypeScript 타입 에러 해결
 2. **도메인별 상수**: Post, Comment, User 엔티티별 상수 분리
 3. **기능별 상수**: 검색, 정렬, 필터링 관련 상수 세분화
+
+### 2) api, api용 타입 등을 엔티티에 넣은 이유
+
+> feature와 1:1 관계가 아니다
+
+- 1:N 일 때가 더 많고 api의 포함관계는 변동성이 높다.
+
+## ✅ Phase 4: TanStack Query 도입 및 서버상태관리
+
+### 1) TanStack Query 기본 설정
+
+#### 🎯 **커밋 944778b**: feat: tanstack query 설정
+
+- TanStack Query 의존성 추가 (`@tanstack/react-query`)
+- App.tsx에 QueryClient 및 QueryClientProvider 설정
+- 기본 옵션 구성 (staleTime: 5분, retry: 1회)
+
+### 2) FSD 엔티티 구조 구성
+
+#### **엔티티별 디렉토리 구조**
+
+FSD 아키텍처에 따라 `5_entities` 레이어에 도메인별 엔티티 구성:
+
+- `post/`: post.api.ts, post.type.ts, post.constant.ts, post.model.ts, index.ts
+- `user/`: user.api.ts, user.type.ts, user.constant.ts, user.model.ts, index.ts
+
+#### **구현 내용**
+
+- **Post 엔티티**: PostReactions, Post 인터페이스 및 getPosts API 함수
+- **User 엔티티**: User 인터페이스 및 getUsers API 함수
+- **공유 타입**: PaginationResponse, PaginationParams, Nullable, Undefinable 등
+
+#### 🎯 **커밋 895e518**: refactor: FSD 엔티티 폴더 구조 구성 및 게시물 조회, 사용자조회 API 작성
+
+- Post, User 엔티티 도메인별 구조 분리
+- API 함수 및 타입 정의 분리
+- 공유 타입 시스템 구축 (PaginationResponse, 유틸리티 타입)
+- Public API 인덱스 파일 구성
+
+### 3) React Query 훅 및 QueryKey 구조적 관리
+
+#### **QueryKey 팩토리 패턴**
+
+- `QUERY_DOMAINS`: posts, users, comments, tags 도메인 상수
+- `QUERY_OPERATIONS`: list, detail, infinite, search, count 작업 상수
+- 도메인별 QueryKey 팩토리 함수 구현 (postQueryKeys, userQueryKeys)
+
+#### **복합 쿼리 훅**
+
+- `useGetPostsWithAuthor`: useQueries를 활용한 Post+User 데이터 조합
+- useMemo를 통한 데이터 조합 최적화
+- 로딩/에러 상태 통합 관리
+
+#### **QueryKey 구조적 관리의 장점**
+
+1. **일관성**: 도메인별 통일된 QueryKey 패턴
+2. **타입 안전성**: TypeScript 기반 QueryKey 타입 검증
+3. **유지보수성**: 중앙 집중식 QueryKey 관리
+4. **확장성**: 새로운 도메인/작업 추가 용이
+
+#### 🎯 **커밋 ff5f870**: feat: useGetPostsWithAuthor 구현 및 queryKeys 구조 설계
+
+- QueryKey 팩토리 패턴 설계 및 구현
+- useQueries를 활용한 복합 쿼리 훅 구현
+- useMemo를 통한 데이터 조합 최적화
+- 구조적 QueryKey 관리 시스템 구축
+
+#### **현재 상태**
+
+- **서버상태관리**: TanStack Query 기반 서버상태관리 구축
+- **FSD 아키텍처**: 엔티티별 API/타입/쿼리 분리 완료
+- **QueryKey 관리**: 팩토리 패턴 기반 구조적 관리 시스템
+- **복합 쿼리**: useQueries를 활용한 데이터 조합 로직 구현
+- **타입 안전성**: TypeScript 기반 강타입 시스템 구축
