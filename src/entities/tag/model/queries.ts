@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { tagApi } from "../api"
-
+import { getTags } from "@/entities/tag/api"
 export const TAG_QUERY_KEYS = {
   all: ["tags"] as const,
   lists: () => [...TAG_QUERY_KEYS.all, "list"] as const,
@@ -10,7 +9,7 @@ export const TAG_QUERY_KEYS = {
 export const useTags = () => {
   return useQuery({
     queryKey: TAG_QUERY_KEYS.lists(),
-    queryFn: () => tagApi.getTags(),
+    queryFn: () => getTags(),
     staleTime: 30 * 60 * 1000, // 30분
     gcTime: 60 * 60 * 1000, // 1시간
   })
