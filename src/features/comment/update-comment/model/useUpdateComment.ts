@@ -34,7 +34,6 @@ export const useUpdateComment = (comment: IComment, onSuccess?: () => void) => {
     setEditComment((prev) => ({ ...prev, body }));
 
   const updateComment = () => {
-    console.log('clicked');
     mutation.mutate(editComment);
   };
 
