@@ -1,4 +1,4 @@
-import { getPosts } from './remote';
+import { getPosts, getPostsTags } from './remote';
 import { useQuery } from '@tanstack/react-query';
 
 export const usePosts = (
@@ -10,5 +10,12 @@ export const usePosts = (
   return useQuery({
     queryKey: ['posts', limit, skip, searchQuery, selectedTag],
     queryFn: () => getPosts(limit, skip, searchQuery, selectedTag),
+  });
+};
+
+export const usePostsTags = () => {
+  return useQuery({
+    queryKey: ['postsTags'],
+    queryFn: () => getPostsTags(),
   });
 };
