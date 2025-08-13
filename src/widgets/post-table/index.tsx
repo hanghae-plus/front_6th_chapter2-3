@@ -1,10 +1,11 @@
 import React, { useMemo } from "react"
-import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
-import { useDeletePost, useGetPosts, useGetPostsByTag, useGetPostSearch } from "@entities/post"
+import { useGetPosts, useGetPostsByTag, useGetPostSearch } from "@entities/post"
+import { RemovePostButton } from "@/features/remove-post/ui"
 import type { Post } from "@entities/post"
-import { Pagination } from "../pagination"
+import { Pagination } from "@/widgets/pagination"
 import { useGetUsers } from "@/entities/user"
 import { usePostQueryParams } from "@/shared/hooks/use-post-query-params"
 
@@ -54,7 +55,6 @@ export const PostTable: React.FC<PostTableProps> = ({
     param.sortOrder,
   )
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
-  const deletePostMutation = useDeletePost()
 
   // 조건에 따라 사용할 데이터 선택
   const currentPostsData = searchQuery ? searchData : param.tag && param.tag !== "all" ? tagData : postsData
@@ -67,12 +67,6 @@ export const PostTable: React.FC<PostTableProps> = ({
       author: usersData?.users?.find((user) => user.id === post.userId),
     }))
   }, [currentPostsData?.posts, usersData?.users])
-
-  const handleDelete = (postId: number) => {
-    deletePostMutation.mutate(postId, {
-      onError: (error) => console.error("게시물 삭제 오류:", error),
-    })
-  }
 
   return (
     <>
@@ -139,9 +133,7 @@ export const PostTable: React.FC<PostTableProps> = ({
                       <Button variant="ghost" size="sm" onClick={() => onEdit(post)}>
                         <Edit2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <RemovePostButton postId={post.id} />
                     </div>
                   </TableCell>
                 </TableRow>
