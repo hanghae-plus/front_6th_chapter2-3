@@ -1,48 +1,50 @@
-import * as React from "react"
-import { forwardRef } from "react"
-import * as SelectPrimitive from "@radix-ui/react-select"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { Check, ChevronDown, X } from "lucide-react"
-import { cva, VariantProps } from "class-variance-authority"
+import * as React from 'react'
+import * as SelectPrimitive from '@radix-ui/react-select'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Check, ChevronDown, X } from 'lucide-react'
+import { cva, VariantProps } from 'class-variance-authority'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',
   {
     variants: {
       variant: {
-        default: "bg-blue-500 text-white hover:bg-blue-600",
-        destructive: "bg-red-500 text-white hover:bg-red-600",
-        outline: "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-100",
-        secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
-        ghost: "bg-transparent text-gray-700 hover:bg-gray-100",
-        link: "underline-offset-4 hover:underline text-blue-500",
+        default: 'bg-blue-500 text-white hover:bg-blue-600',
+        destructive: 'bg-red-500 text-white hover:bg-red-600',
+        outline: 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-100',
+        secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+        ghost: 'bg-transparent text-gray-700 hover:bg-gray-100',
+        link: 'underline-offset-4 hover:underline text-blue-500',
       },
       size: {
-        default: "h-10 py-2 px-4",
-        sm: "h-8 px-3 rounded-md text-xs",
-        lg: "h-11 px-8 rounded-md",
-        icon: "h-9 w-9",
+        default: 'h-10 py-2 px-4',
+        sm: 'h-8 px-3 rounded-md text-xs',
+        lg: 'h-11 px-8 rounded-md',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: 'default',
+      size: 'default',
     },
   },
 )
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   className?: string
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => {
-  return <button className={buttonVariants({ variant, size, className })} ref={ref} {...props} />
-})
+export const Button = ({ className, variant, size, ...props }: IButtonProps) => {
+  return <button className={buttonVariants({ variant, size, className })} {...props} />
+}
 
-Button.displayName = "Button"
+interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  className?: string
+  type?: string
+  ref?: React.Ref<HTMLInputElement>
+}
 
-// 입력 컴포넌트
-export const Input = forwardRef(({ className, type, ...props }, ref) => {
+export const Input = ({ className, type, ref, ...props }: IInputProps) => {
   return (
     <input
       type={type}
@@ -51,32 +53,52 @@ export const Input = forwardRef(({ className, type, ...props }, ref) => {
       {...props}
     />
   )
-})
-Input.displayName = "Input"
+}
 
-// 카드 컴포넌트
-export const Card = forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
-))
-Card.displayName = "Card"
+interface ICardProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  ref?: React.Ref<HTMLDivElement>
+}
 
-export const CardHeader = forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
-))
-CardHeader.displayName = "CardHeader"
+export const Card = ({ className, ref, ...props }: ICardProps) => {
+  return (
+    <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
+  )
+}
 
-export const CardTitle = forwardRef(({ className, ...props }, ref) => (
-  <h3 ref={ref} className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props} />
-))
-CardTitle.displayName = "CardTitle"
+interface ICardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  ref?: React.Ref<HTMLDivElement>
+}
 
-export const CardContent = forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />
-))
-CardContent.displayName = "CardContent"
+export const CardHeader = ({ className, ref, ...props }: ICardHeaderProps) => {
+  return <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
+}
 
-// 텍스트 영역 컴포넌트
-export const Textarea = forwardRef(({ className, ...props }, ref) => {
+interface ICardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string
+  ref?: React.Ref<HTMLHeadingElement>
+}
+
+export const CardTitle = ({ className, ref, ...props }: ICardTitleProps) => {
+  return <h3 ref={ref} className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props} />
+}
+
+interface ICardContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  ref?: React.Ref<HTMLDivElement>
+}
+
+export const CardContent = ({ className, ref, ...props }: ICardContentProps) => {
+  return <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />
+}
+
+interface ITextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  className?: string
+  ref?: React.Ref<HTMLTextAreaElement>
+}
+
+export const Textarea = ({ className, ref, ...props }: ITextareaProps) => {
   return (
     <textarea
       className={`flex min-h-[150px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
@@ -84,15 +106,19 @@ export const Textarea = forwardRef(({ className, ...props }, ref) => {
       {...props}
     />
   )
-})
-Textarea.displayName = "Textarea"
+}
 
-// 선택 컴포넌트
 export const Select = SelectPrimitive.Root
 export const SelectGroup = SelectPrimitive.Group
 export const SelectValue = SelectPrimitive.Value
 
-export const SelectTrigger = forwardRef(({ className, children, ...props }, ref) => (
+interface ISelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string
+  children?: React.ReactNode
+  ref?: React.Ref<HTMLButtonElement>
+}
+
+export const SelectTrigger = ({ className, children, ref, ...props }: ISelectTriggerProps) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={`flex h-10 items-center justify-between rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
@@ -101,10 +127,16 @@ export const SelectTrigger = forwardRef(({ className, children, ...props }, ref)
     {children}
     <ChevronDown className="h-4 w-4 opacity-50" />
   </SelectPrimitive.Trigger>
-))
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
+)
 
-export const SelectContent = forwardRef(({ className, children, position = "popper", ...props }, ref) => (
+interface ISelectContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  children?: React.ReactNode
+  position?: SelectPrimitive.SelectContentProps['position']
+  ref?: React.Ref<HTMLDivElement>
+}
+
+export const SelectContent = ({ className, children, position = 'popper', ref, ...props }: ISelectContentProps) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
@@ -115,10 +147,16 @@ export const SelectContent = forwardRef(({ className, children, position = "popp
       <SelectPrimitive.Viewport className="p-1">{children}</SelectPrimitive.Viewport>
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
-))
-SelectContent.displayName = SelectPrimitive.Content.displayName
+)
 
-export const SelectItem = forwardRef(({ className, children, ...props }, ref) => (
+interface ISelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  children?: React.ReactNode
+  value: string
+  ref?: React.Ref<HTMLDivElement>
+}
+
+export const SelectItem = ({ className, children, ref, ...props }: ISelectItemProps) => (
   <SelectPrimitive.Item
     ref={ref}
     className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className}`}
@@ -131,8 +169,7 @@ export const SelectItem = forwardRef(({ className, children, ...props }, ref) =>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
-))
-SelectItem.displayName = SelectPrimitive.Item.displayName
+)
 
 // 대화상자 컴포넌트
 export const Dialog = DialogPrimitive.Root
@@ -140,7 +177,13 @@ export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogPortal = DialogPrimitive.Portal
 export const DialogOverlay = DialogPrimitive.Overlay
 
-export const DialogContent = forwardRef(({ className, children, ...props }, ref) => (
+interface IDialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  children?: React.ReactNode
+  ref?: React.Ref<HTMLDivElement>
+}
+
+export const DialogContent = ({ className, children, ref, ...props }: IDialogContentProps) => (
   <DialogPortal>
     <DialogOverlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
     <DialogPrimitive.Content
@@ -155,60 +198,91 @@ export const DialogContent = forwardRef(({ className, children, ...props }, ref)
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-))
-DialogContent.displayName = DialogPrimitive.Content.displayName
-
-export const DialogHeader = ({ className, ...props }) => (
-  <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
 )
-DialogHeader.displayName = "DialogHeader"
 
-export const DialogTitle = forwardRef(({ className, ...props }, ref) => (
+interface IDialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  ref?: React.Ref<HTMLDivElement>
+}
+
+export const DialogHeader = ({ className, ref, ...props }: IDialogHeaderProps) => (
+  <div ref={ref} className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
+)
+
+interface IDialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string
+  ref?: React.Ref<HTMLHeadingElement>
+}
+
+export const DialogTitle = ({ className, ref, ...props }: IDialogTitleProps) => (
   <DialogPrimitive.Title
     ref={ref}
     className={`text-lg font-semibold leading-none tracking-tight ${className}`}
     {...props}
   />
-))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+)
 
 // 테이블 컴포넌트
-export const Table = forwardRef(({ className, ...props }, ref) => (
+interface ITableProps extends React.HTMLAttributes<HTMLTableElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableElement>
+}
+
+export const Table = ({ className, ref, ...props }: ITableProps) => (
   <div className="w-full overflow-auto">
     <table ref={ref} className={`table-fixed w-full caption-bottom text-sm ${className}`} {...props} />
   </div>
-))
-Table.displayName = "Table"
+)
 
-export const TableHeader = forwardRef(({ className, ...props }, ref) => (
+interface ITableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableSectionElement>
+}
+
+export const TableHeader = ({ className, ref, ...props }: ITableHeaderProps) => (
   <thead ref={ref} className={`[&_tr]:border-b ${className}`} {...props} />
-))
-TableHeader.displayName = "TableHeader"
+)
 
-export const TableBody = forwardRef(({ className, ...props }, ref) => (
+interface ITableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableSectionElement>
+}
+
+export const TableBody = ({ className, ref, ...props }: ITableBodyProps) => (
   <tbody ref={ref} className={`[&_tr:last-child]:border-0 ${className}`} {...props} />
-))
-TableBody.displayName = "TableBody"
+)
 
-export const TableRow = forwardRef(({ className, ...props }, ref) => (
+interface ITableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableRowElement>
+}
+
+export const TableRow = ({ className, ref, ...props }: ITableRowProps) => (
   <tr
     ref={ref}
     className={`border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted h-14 ${className}`}
     {...props}
   />
-))
-TableRow.displayName = "TableRow"
+)
 
-export const TableHead = forwardRef(({ className, ...props }, ref) => (
+interface ITableHeadProps extends React.HTMLAttributes<HTMLTableCellElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableCellElement>
+}
+
+export const TableHead = ({ className, ref, ...props }: ITableHeadProps) => (
   <th
     ref={ref}
     className={`h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 ${className}`}
     {...props}
   />
-))
-TableHead.displayName = "TableHead"
+)
 
-export const TableCell = forwardRef(({ className, ...props }, ref) => (
+interface ITableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
+  className?: string
+  ref?: React.Ref<HTMLTableCellElement>
+}
+
+export const TableCell = ({ className, ref, ...props }: ITableCellProps) => (
   <td ref={ref} className={`p-2 align-middle [&:has([role=checkbox])]:pr-0 ${className}`} {...props} />
-))
-TableCell.displayName = "TableCell"
+)
