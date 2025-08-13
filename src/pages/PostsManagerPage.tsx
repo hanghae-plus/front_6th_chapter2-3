@@ -12,11 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -25,6 +20,7 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui";
+import { DropdownSelect } from "../shared/ui/DropdownSelect";
 import { addPost, deletePost, getPostBySearch, getPostByTag, getPosts, updatePost } from "../entities/post/api";
 import { getTags } from "../entities/tag/api";
 import { getAllUsers, getUser } from "../entities/user/api";
@@ -468,46 +464,44 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <Select
+
+            <DropdownSelect
               value={selectedTag}
-              onValueChange={(value) => {
+              onChange={(value) => {
                 setSelectedTag(value);
                 fetchPostsByTag(value);
                 updateURL();
               }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { key: "all", label: "모든 태그", value: "all" },
+                ...tags.map((tag) => ({ key: tag.url, label: tag.slug, value: tag.slug })),
+              ]}
+              placeholder="태그 선택"
+            />
+            <DropdownSelect
+              value={sortBy}
+              onChange={(value) => {
+                setSortBy(value);
+              }}
+              options={[
+                { key: "none", label: "없음", value: "none" },
+                { key: "id", label: "ID", value: "id" },
+                { key: "title", label: "제목", value: "title" },
+                { key: "reactions", label: "반응", value: "reactions" },
+              ]}
+              placeholder="정렬 기준"
+            />
+            <DropdownSelect
+              value={sortOrder}
+              onChange={(value) => {
+                setSortOrder(value);
+              }}
+              options={[
+                { key: "asc", label: "오름차순", value: "asc" },
+                { key: "desc", label: "내림차순", value: "desc" },
+              ]}
+              placeholder="정렬 순서"
+            />
           </div>
 
           {/* 게시물 테이블 */}
@@ -517,16 +511,16 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
+              <DropdownSelect
+                value={limit.toString()}
+                onChange={(value) => setLimit(Number(value))}
+                options={[
+                  { key: "10", label: 10, value: "10" },
+                  { key: "20", label: 20, value: "20" },
+                  { key: "30", label: 30, value: "30" },
+                ]}
+                placeholder="10"
+              />
               <span>항목</span>
             </div>
             <div className="flex gap-2">
