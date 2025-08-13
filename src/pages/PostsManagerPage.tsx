@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
@@ -71,14 +71,13 @@ const PostsManager = () => {
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
   const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
+  const [input, setInput] = useState("")
 
-  // ===== useQuery 훅들 =====
   // 게시물 목록 조회 (with author)
   const postsQuery = useQuery(
     postWithAuthorQueries.list({
       skip,
       limit,
-      search: searchQuery,
       tag: selectedTag,
       sortBy: (sortBy as "id" | "title" | "reactions" | "none") || undefined,
       sortOrder: sortOrder as "asc" | "desc",
@@ -87,6 +86,15 @@ const PostsManager = () => {
 
   // 태그 목록 조회
   const tagsQuery = useQuery(postQueries.tags())
+
+  // 태그 렌더링을 useMemo로 최적화
+  const tagOptions = useMemo(() => {
+    return tags.map((tag) => (
+      <SelectItem key={tag.name} value={tag.name}>
+        {tag.name}
+      </SelectItem>
+    ))
+  }, [tags])
 
   // ===== URL 업데이트 함수 =====
   /**
@@ -540,9 +548,8 @@ const PostsManager = () => {
                 <Input
                   placeholder="게시물 검색..."
                   className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
                 />
               </div>
             </div>
@@ -560,15 +567,11 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.id} value={tag.name}>
-                    {tag.name}
-                  </SelectItem>
-                ))}
+                {tagOptions}
               </SelectContent>
             </Select>
             {/* 정렬 기준 선택 */}
-            <Select value={sortBy} onValueChange={setSortBy}>
+            {/* <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -578,9 +581,9 @@ const PostsManager = () => {
                 <SelectItem value="title">제목</SelectItem>
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
             {/* 정렬 순서 선택 */}
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            {/* <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -588,15 +591,14 @@ const PostsManager = () => {
                 <SelectItem value="asc">오름차순</SelectItem>
                 <SelectItem value="desc">내림차순</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
 
           {/* 게시물 테이블 */}
           {renderPostTable()}
 
           {/* 페이지네이션 컨트롤 */}
-          <div className="flex justify-between items-center">
-            {/* 페이지당 항목 수 선택 */}
+          {/* <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
               <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
@@ -611,7 +613,6 @@ const PostsManager = () => {
               </Select>
               <span>항목</span>
             </div>
-            {/* 이전/다음 페이지 버튼 */}
             <div className="flex gap-2">
               <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
                 이전
@@ -620,14 +621,14 @@ const PostsManager = () => {
                 다음
               </Button>
             </div>
-          </div>
+          </div> */}
         </div>
       </CardContent>
 
       {/* ===== 대화상자들 ===== */}
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      {/* <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 게시물 추가</DialogTitle>
@@ -653,10 +654,10 @@ const PostsManager = () => {
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>게시물 수정</DialogTitle>
@@ -684,10 +685,10 @@ const PostsManager = () => {
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
+      {/* <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 댓글 추가</DialogTitle>
@@ -701,10 +702,10 @@ const PostsManager = () => {
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
+      {/* <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
@@ -722,10 +723,10 @@ const PostsManager = () => {
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+      {/* <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
@@ -735,19 +736,17 @@ const PostsManager = () => {
             {renderComments(selectedPost?.id || 0)}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* 사용자 정보 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
+      {/* <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* 사용자 프로필 이미지 */}
             <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
             <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            {/* 사용자 상세 정보 */}
             <div className="space-y-2">
               <p>
                 <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
@@ -771,7 +770,7 @@ const PostsManager = () => {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </Card>
   )
 }

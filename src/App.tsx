@@ -2,6 +2,7 @@ import { BrowserRouter as Router } from "react-router-dom"
 import { AppProviders } from "@/app/providers"
 import { Header, Footer } from "@/app/ui/"
 import PostsManagerPage from "@/pages/PostsManagerPage"
+// import BasicPage from "@/pages/BasicPage"
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
           <Header />
           <main className="flex-grow container mx-auto px-4 py-8">
             <PostsManagerPage />
+            {/* <BasicPage /> */}
           </main>
           <Footer />
         </div>

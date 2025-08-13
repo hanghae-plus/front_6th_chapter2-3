@@ -4,7 +4,6 @@ import { POST_QK } from "./query-key"
 import { getPosts, getPost, getTags } from "../api"
 
 export const postQueries = {
-  // 키만 쓰고 싶을 때를 위해 keys는 분리 유지
   keys: POST_QK,
 
   list: (filters: PostFilter = {}) =>
