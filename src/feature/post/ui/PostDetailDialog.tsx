@@ -1,21 +1,10 @@
 import React from "react"
 import { Dialog, HighlightText } from "../../../shared/ui"
-import { Post } from "../type"
+import { useSearchQueryStore, useSelectedPostStore } from "../model/store"
 
-export const PostDetailDialog = ({
-  showPostDetailDialog,
-  setShowPostDetailDialog,
-  selectedPost,
-  searchQuery,
-  children
-}: {
-  showPostDetailDialog: boolean
-  setShowPostDetailDialog: React.Dispatch<React.SetStateAction<boolean>>
-  selectedPost: Post
-  searchQuery: string
-  children: React.ReactNode
-}) => {
-
+export const PostDetailDialog = ({ children }: { children: React.ReactNode }) => {
+  const { searchQuery } = useSearchQueryStore()
+  const { showPostDetailDialog, setShowPostDetailDialog, selectedPost } = useSelectedPostStore()
   return (
     <Dialog
       open={showPostDetailDialog}

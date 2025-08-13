@@ -1,19 +1,28 @@
+import { useState } from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { NewPost } from "../type"
+import { useSelectedPostStore } from "../model/store"
 
-export const PostAddDialog = ({
-  showAddDialog,
-  setShowAddDialog,
-  newPost,
-  setNewPost,
-  addPost,
-}: {
-  showAddDialog: boolean
-  setShowAddDialog: React.Dispatch<React.SetStateAction<boolean>>
-  newPost: NewPost
-  setNewPost: React.Dispatch<React.SetStateAction<NewPost>>
-  addPost: () => Promise<void>
-}) => {
+export const PostAddDialog = () => {
+  const { showAddDialog, setShowAddDialog, setPosts, posts } = useSelectedPostStore()
+  const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
+  // 게시물 추가
+  const addPost = async () => {
+    try {
+      const response = await fetch("/api/posts/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPost),
+      })
+      const data = await response.json()
+      setPosts([data, ...posts])
+      setShowAddDialog(false)
+      setNewPost({ title: "", body: "", userId: 1 })
+    } catch (error) {
+      console.error("게시물 추가 오류:", error)
+    }
+  }
+
   return (
     <Dialog open={showAddDialog} handleChange={setShowAddDialog} title="새 게시물 추가">
       <div className="space-y-4">

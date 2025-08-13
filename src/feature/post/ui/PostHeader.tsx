@@ -1,12 +1,10 @@
 import React from "react"
 import { Button, CardHeader, CardTitle } from "../../../shared/ui"
 import { Plus } from "lucide-react"
+import { useSelectedPostStore } from "../model/store"
 
-export const PostHeader = ({
-  setShowAddDialog,
-}: {
-  setShowAddDialog: (value: React.SetStateAction<boolean>) => void
-}) => {
+export const PostHeader = () => {
+  const { setShowAddDialog } = useSelectedPostStore()
   return (
     <CardHeader>
       <CardTitle className="flex items-center justify-between">

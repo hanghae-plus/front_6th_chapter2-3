@@ -1,6 +1,15 @@
 import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react"
-import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../shared/ui"
-import { Post } from "./type"
+import {
+  Button,
+  HighlightText,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../shared/ui"
+import { Post } from "../type"
 
 export const PostTable = ({
   posts,
@@ -21,8 +30,8 @@ export const PostTable = ({
   updateURL: () => void
   openUserModal: (user: any) => Promise<void>
   openPostDetail: (post: any) => void
-  setSelectedPost: React.Dispatch<React.SetStateAction<Post>>
-  setShowEditDialog: React.Dispatch<React.SetStateAction<boolean>>
+  setSelectedPost: (selectedPost: Post) => void
+  setShowEditDialog: (showEditDialog: boolean) => void
   deletePost: (id: any) => Promise<void>
 }) => {
   return (

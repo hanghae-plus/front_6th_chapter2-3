@@ -19,7 +19,7 @@ const PostSearchFilter = ({
   sortBy: string
   sortOrder: string
   tags: Tags
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>
+  setSearchQuery: (setSearchQuery: string) => void
   setSortBy: React.Dispatch<React.SetStateAction<string>>
   setSortOrder: React.Dispatch<React.SetStateAction<string>>
   handleChangeTag: (value: string) => void
@@ -44,7 +44,7 @@ const PostSearchFilter = ({
         placeholder="태그 선택"
         triggerProps={{ className: "w-[180px]" }}
         onValueChange={handleChangeTag}
-        options={[{ name: "모든 태그", value: "all" }, ...tags.map((tag) => ({ name: tag.slug, value: tag.url }))]}
+        options={[{ name: "모든 태그", value: "all" }, ...tags.map((tag) => ({ name: tag.slug, value: tag.slug }))]}
       />
       <Select
         value={sortBy}

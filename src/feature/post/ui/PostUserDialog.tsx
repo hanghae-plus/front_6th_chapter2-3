@@ -1,16 +1,9 @@
 import React from "react"
 import { Dialog } from "../../../shared/ui"
-import { User } from "../../../entities"
+import { useSelectedUserStore } from "../model/store"
 
-export const PostUserDialog = ({
-  showUserModal,
-  setShowUserModal,
-  selectedUser,
-}: {
-  showUserModal: boolean
-  setShowUserModal: React.Dispatch<React.SetStateAction<boolean>>
-  selectedUser: User
-}) => {
+export const PostUserDialog = () => {
+  const { selectedUser, showUserModal, setShowUserModal } = useSelectedUserStore()
   return (
     <Dialog open={showUserModal} handleChange={setShowUserModal} title="사용자 정보">
       <div className="space-y-4">

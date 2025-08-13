@@ -1,20 +1,25 @@
 import React from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
-import { Post } from "../type"
+import { useSelectedPostStore } from "../model/store"
 
-export const PostEditDialog = ({
-  showEditDialog,
-  setShowEditDialog,
-  selectedPost,
-  setSelectedPost,
-  updatePost,
-}: {
-  showEditDialog: boolean
-  setShowEditDialog: React.Dispatch<React.SetStateAction<boolean>>
-  selectedPost: Post
-  setSelectedPost: (value: React.SetStateAction<Post>) => void
-  updatePost: () => Promise<void>
-}) => {
+export const PostEditDialog = () => {
+  const { selectedPost, setSelectedPost, showEditDialog, setShowEditDialog } = useSelectedPostStore()
+  // 게시물 업데이트
+  const updatePost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${selectedPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedPost),
+      })
+      const data = await response.json()
+      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      setShowEditDialog(false)
+    } catch (error) {
+      console.error("게시물 업데이트 오류:", error)
+    }
+  }
+
   return (
     <Dialog open={showEditDialog} handleChange={setShowEditDialog} title="게시물 수정">
       <div className="space-y-4">
