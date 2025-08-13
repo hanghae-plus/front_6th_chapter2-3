@@ -30,7 +30,7 @@ import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
 import { CommentItem } from "../entities/comment/model"
 import { CommentList } from "../entities/comment/ui"
-import { UserDetail } from "../entities/user/ui"
+import { useUserProfileDialog } from "../features/user/view-profile/lib/useUserProfileDialog"
 import { PostsTable } from "../widgets/posts-table/ui"
 import { highlightText } from "../shared/lib"
 
@@ -59,8 +59,7 @@ const PostsManager = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const { openProfile, overlay: profileOverlay } = useUserProfileDialog()
 
   const postQuery = useQuery({
     ...postQueries.listQuery({
@@ -191,16 +190,8 @@ const PostsManager = () => {
     setShowPostDetailDialog(true)
   }
 
-  // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+  const openUserModal = (user: User) => {
+    openProfile(user.id)
   }
 
   const renderPostTable = () => (
@@ -435,15 +426,7 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <UserDetail user={selectedUser} />
-        </DialogContent>
-      </Dialog>
+      {profileOverlay}
     </Card>
   )
 }
