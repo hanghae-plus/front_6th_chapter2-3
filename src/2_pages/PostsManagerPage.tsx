@@ -40,6 +40,9 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import { getPosts } from '@/entities/post/post.api';
+import type { PostWithAuthor } from '@/entities/post/post.type';
+import { getUsers } from '@/entities/user/user.api';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import {
   Button,
@@ -73,7 +76,7 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // ==================== 게시물 관련 상태 ====================
-  const [posts, setPosts] = useState([]); // 게시물 목록 데이터
+  const [posts, setPosts] = useState<PostWithAuthor[]>([]); // 게시물 목록 데이터
   const [total, setTotal] = useState(API_CONSTANTS.REACTIONS.DEFAULT_LIKES); // 전체 게시물 수 (페이지네이션용)
   const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
   const [newPost, setNewPost] = useState({
@@ -158,15 +161,11 @@ const PostsManager = () => {
     let postsData;
     let usersData;
 
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then(response => response.json())
+    getPosts({ limit, skip })
       .then(data => {
-        postsData = data;
-        return fetch(
-          `${API_CONSTANTS.ENDPOINTS.USERS}?limit=0&select=username,image`
-        );
+        postsData = data.posts;
+        return getUsers({ limit: 0, select: 'username,image' });
       })
-      .then(response => response.json())
       .then(users => {
         usersData = users.users;
         const postsWithUsers = postsData.posts.map(post => ({
@@ -235,7 +234,7 @@ const PostsManager = () => {
     try {
       const [postsResponse, usersResponse] = await Promise.all([
         fetch(`/api/posts/tag/${tag}`),
-        fetch(`${API_CONSTANTS.ENDPOINTS.USERS}?limit=0&select=username,image`),
+        fetch(`/api/users?limit=0&select=username,image`),
       ]);
       const postsData = await postsResponse.json();
       const usersData = await usersResponse.json();

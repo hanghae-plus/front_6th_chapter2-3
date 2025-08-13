@@ -5,13 +5,6 @@
  */
 
 export const API_CONSTANTS = {
-  // API 엔드포인트
-  ENDPOINTS: {
-    POSTS: '/api/posts',
-    USERS: '/api/users',
-    COMMENTS: '/api/comments',
-  },
-
   // 기본 사용자 ID
   DEFAULT_USER_ID: 1,
 
