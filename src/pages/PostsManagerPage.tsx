@@ -25,8 +25,8 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
-import { highlightText } from "../shared/libs"
+  highlightText,
+} from "../shared"
 
 const PostsManager = () => {
   const navigate = useNavigate()
