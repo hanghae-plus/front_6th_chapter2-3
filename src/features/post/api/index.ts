@@ -1,4 +1,4 @@
-import type { CreatePost, UpdatePost, Post } from "@/entities/post/model/type"
+import type { CreatePost, UpdatePost, Post } from "@/entities/post/model/types"
 import { HttpClient } from "@/shared/api/http"
 
 // 게시물 생성

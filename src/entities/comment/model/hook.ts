@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { commentApi } from "../api"
-import { Comment, UpdateComment, CommentFilter } from "./schema"
-
-export const COMMENT_QUERY_KEYS = {
-  all: ["comments"] as const,
-  lists: () => [...COMMENT_QUERY_KEYS.all, "list"] as const,
-  list: (postId: number, filters?: CommentFilter) => [...COMMENT_QUERY_KEYS.lists(), postId, filters] as const,
-  details: () => [...COMMENT_QUERY_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...COMMENT_QUERY_KEYS.details(), id] as const,
-  user: (userId: number, filters?: CommentFilter) => [...COMMENT_QUERY_KEYS.all, "user", userId, filters] as const,
-} as const
+import {
+  getCommentsByPost,
+  getCommentsByUser,
+  createComment,
+  updateComment,
+  deleteComment,
+  likeComment,
+  dislikeComment,
+} from "@/entities/comment/api"
+import { COMMENT_QUERY_KEYS } from "@/entities/comment/model/query-key"
+import { Comment, CommentFilter, UpdateComment } from "@/entities/comment/model/types"
 
 // 특정 게시물의 댓글 목록 조회 훅
 export const useCommentsByPost = (postId: number, filters?: CommentFilter) => {
   return useQuery({
     queryKey: COMMENT_QUERY_KEYS.list(postId, filters),
-    queryFn: () => commentApi.getCommentsByPost(postId, filters),
+    queryFn: () => getCommentsByPost(postId, filters),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
     enabled: !!postId,
@@ -27,7 +27,7 @@ export const useCommentsByPost = (postId: number, filters?: CommentFilter) => {
 export const useCommentsByUser = (userId: number, filters?: CommentFilter) => {
   return useQuery({
     queryKey: COMMENT_QUERY_KEYS.user(userId, filters),
-    queryFn: () => commentApi.getCommentsByUser(userId, filters),
+    queryFn: () => getCommentsByUser(userId, filters),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
     enabled: !!userId,
@@ -39,7 +39,7 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: commentApi.createComment,
+    mutationFn: createComment,
     onSuccess: (newComment) => {
       // 해당 게시물의 댓글 목록을 업데이트
       queryClient.setQueryData(
@@ -67,7 +67,7 @@ export const useUpdateComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateComment }) => commentApi.updateComment(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateComment }) => updateComment(id, data),
     onSuccess: (updatedComment) => {
       // 해당 댓글이 속한 게시물의 댓글 목록을 업데이트
       queryClient.setQueriesData(
@@ -94,7 +94,7 @@ export const useDeleteComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, postId }: { id: number; postId: number }) => commentApi.deleteComment(id),
+    mutationFn: ({ id, postId }: { id: number; postId: number }) => deleteComment(id),
     onSuccess: (_, { id, postId }) => {
       // 해당 게시물의 댓글 목록에서 삭제된 댓글 제거
       queryClient.setQueryData(
@@ -120,7 +120,7 @@ export const useLikeComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, postId }: { id: number; postId: number }) => commentApi.likeComment(id),
+    mutationFn: ({ id, postId }: { id: number; postId: number }) => likeComment(id),
     onSuccess: (_, { id, postId }) => {
       // 해당 게시물의 댓글 목록에서 좋아요 수 업데이트
       queryClient.setQueryData(COMMENT_QUERY_KEYS.list(postId), (oldData: { comments: Comment[] } | undefined) => {
@@ -141,7 +141,7 @@ export const useDislikeComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, postId }: { id: number; postId: number }) => commentApi.dislikeComment(id),
+    mutationFn: ({ id, postId }: { id: number; postId: number }) => dislikeComment(id),
     onSuccess: (_, { id, postId }) => {
       // 해당 게시물의 댓글 목록에서 싫어요 수 업데이트
       queryClient.setQueryData(COMMENT_QUERY_KEYS.list(postId), (oldData: { comments: Comment[] } | undefined) => {

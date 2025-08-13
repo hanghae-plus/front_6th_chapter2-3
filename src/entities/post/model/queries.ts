@@ -1,14 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, searchPosts, getPostsByTag, getPost } from "@/entities/post/api"
-import type { PostFilter } from "@/entities/post/model/type"
-
-export const POST_QUERY_KEYS = {
-  all: ["posts"] as const,
-  lists: () => [...POST_QUERY_KEYS.all, "list"] as const,
-  list: (filters: PostFilter) => [...POST_QUERY_KEYS.lists(), filters] as const,
-  details: () => [...POST_QUERY_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
-}
+import type { PostFilter } from "@/entities/post/model/types"
+import { POST_QUERY_KEYS } from "@/entities/post/model/query-key"
 
 /**
  * 게시물 목록 조회 훅
@@ -30,7 +23,7 @@ export const usePosts = (filters: PostFilter = {}) => {
  */
 export const useSearchPosts = (query: string, enabled: boolean = false) => {
   return useQuery({
-    queryKey: [...POST_QUERY_KEYS.lists(), "search", query],
+    queryKey: POST_QUERY_KEYS.search(query),
     queryFn: () => searchPosts(query),
     enabled: enabled && query.length > 0,
     staleTime: 2 * 60 * 1000, // 2분
@@ -44,7 +37,7 @@ export const useSearchPosts = (query: string, enabled: boolean = false) => {
  */
 export const usePostsByTag = (tag: string, enabled: boolean = true) => {
   return useQuery({
-    queryKey: [...POST_QUERY_KEYS.lists(), "tag", tag],
+    queryKey: POST_QUERY_KEYS.tag(tag),
     queryFn: () => getPostsByTag(tag),
     enabled: enabled && tag !== "all",
     staleTime: 5 * 60 * 1000, // 5분
