@@ -25,7 +25,7 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
+import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
 import { postMutations } from "../entities/post/api/mutations"
@@ -40,7 +40,6 @@ import { UserProfile } from "../entities/user/ui"
 import { highlightText } from "../shared/lib"
 
 const PostsManager = () => {
-  const queryClient = useQueryClient()
   const [queryParams, setQueryParams] = useQueryStates({
     skip: parseAsString.withDefault("0"),
     limit: parseAsString.withDefault("10"),
@@ -158,8 +157,7 @@ const PostsManager = () => {
     addCommentMutation.mutate(
       { body: newComment.body, postId: newComment.postId, userId: newComment.userId },
       {
-        onSuccess: (data) => {
-          queryClient.invalidateQueries({ queryKey: commentQueries.byPostQuery(data.postId).queryKey })
+        onSuccess: () => {
           setShowAddCommentDialog(false)
           setNewComment({ body: "", postId: null, userId: 1 })
         },
@@ -173,10 +171,8 @@ const PostsManager = () => {
     updateCommentMutation.mutate(
       { id: selectedComment.id, postId: selectedPost?.id ?? 0, body: selectedComment.body },
       {
-        onSuccess: (data) => {
-          queryClient.invalidateQueries({ queryKey: commentQueries.byPostQuery(data.postId).queryKey })
-          setShowAddCommentDialog(false)
-          setNewComment({ body: "", postId: null, userId: 1 })
+        onSuccess: () => {
+          setShowEditCommentDialog(false)
         },
       },
     )
