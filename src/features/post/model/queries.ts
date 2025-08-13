@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query"
 import { POST_QK } from "@/entities/post/model/query-key"
 import { getPosts } from "@/entities/post/api"
 import { HttpClient } from "@/shared/api/http"
-import type { PostFilter, PostPaginatedResponse, UserPaginatedResponse, Post, User } from "@/shared/types"
+import type { PostFilter, PostPaginatedResponse, UserPaginatedResponse, Post, User, Author } from "@/shared/types"
 import { normalize } from "@/shared/lib/normalizeParams"
 
 // 게시물 + 작성자 join 쿼리
@@ -18,7 +18,7 @@ export const postWithAuthorQueries = {
         ])
 
         const map = new Map(users.users.map((u: User) => [u.id, u]))
-        const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
+        const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) as Author }))
 
         return { posts, total: base.total }
       },

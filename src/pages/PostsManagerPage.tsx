@@ -2,7 +2,10 @@ import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-
+import { postWithAuthorQueries } from "@/features/post/model/queries"
+import { postQueries } from "@/entities/post/model/queries"
+import { Author, Comment, Tag, CreateComment, CommentPaginatedResponse, PostWithAuthor, User } from "@/shared/types"
+import { HttpClient } from "@/shared/api/http"
 import {
   Button,
   Input,
@@ -27,10 +30,6 @@ import {
   DialogTitle,
   Textarea,
 } from "@/shared/ui"
-import { HttpClient } from "@/shared/api/http"
-import { postQueries } from "@/entities/post/model/queries"
-import { postWithAuthorQueries } from "@/features/post/model/queries"
-import { Author, Comment, Tag, CreateComment, CommentPaginatedResponse, PostWithAuthor, User } from "@/shared/types"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -70,7 +69,6 @@ const PostsManager = () => {
   // 데이터 상태
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새 게시물 데이터
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
-  const [loading, setLoading] = useState(false) // 로딩 상태
   const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
 
@@ -594,7 +592,7 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {renderPostTable()}
 
           {/* 페이지네이션 컨트롤 */}
           <div className="flex justify-between items-center">

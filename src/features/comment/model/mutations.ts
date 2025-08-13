@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createComment, updateComment, deleteComment, likeComment } from "@/features/comment/api"
 import { commentKeys } from "@/entities/comment/model/query-key"
-import { createComment, updateComment, deleteComment, likeComment } from "@/entities/comment/api"
 import type { CreateComment, UpdateComment } from "@/shared/types"
 
 // 댓글 생성 뮤테이션
