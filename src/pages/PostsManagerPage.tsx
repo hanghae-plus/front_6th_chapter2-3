@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+
 import {
   Button,
   Card,
@@ -25,6 +26,7 @@ import {
   TableRow,
   Textarea,
 } from "../components"
+import { highlightText } from "../shared/libs"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -325,21 +327,6 @@ const PostsManager = () => {
     setSortOrder(params.get("sortOrder") || "asc")
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
-
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
 
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
