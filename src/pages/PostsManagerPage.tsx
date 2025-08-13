@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
-import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { Button, CardHeader, CardTitle, Card, CardContent } from "../shared/ui"
+import { Card, CardContent } from "../shared/ui"
 import { PostTable } from "../feature/post/ui/PostTable"
 import { Author } from "../shared/types"
 import { INIT_POST } from "../shared/data"
@@ -21,6 +20,7 @@ import { NewComment } from "../feature/comment/type"
 import { NewPost, Post } from "../feature/post/type"
 import { CommentAddDialog } from "../feature"
 import { CommentEditDialog } from "../feature/comment/ui/CommentEditDialog"
+import { Comments } from "../feature/comment/ui/Comments"
 import { PostAddDialog } from "../feature/post/ui/PostAddDialog"
 import { PostEditDialog } from "../feature/post/ui/PostEditDialog"
 import { PostDetailDialog } from "../feature/post/ui/PostDetailDialog"
@@ -424,7 +424,9 @@ const PostsManager = () => {
       <CommentEditDialog {...commentEditProps} />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <PostDetailDialog {...postDetailProps} />
+      <PostDetailDialog {...postDetailProps}>
+        <Comments {...commentsProps} /> 
+      </PostDetailDialog>
 
       {/* 사용자 모달 */}
       <PostUserDialog {...postUserProps} />
