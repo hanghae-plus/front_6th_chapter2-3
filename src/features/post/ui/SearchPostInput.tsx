@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Input } from "@/shared/ui"
 
-export const SearchPost = () => {
+export const SearchPostInput = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [, setSearchParams] = useSearchParams()
 

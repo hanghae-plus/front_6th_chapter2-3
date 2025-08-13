@@ -2,12 +2,12 @@ import { create } from "zustand"
 
 interface DialogState {
   dialogs: {
-    add: boolean
-    edit: boolean
-    addComment: boolean
-    editComment: boolean
-    postDetail: boolean
-    userInfo: boolean
+    ADD: boolean
+    EDIT: boolean
+    ADD_COMMENT: boolean
+    EDIT_COMMENT: boolean
+    POST_DETAIL: boolean
+    USER_INFO: boolean
   }
 }
 
@@ -50,12 +50,12 @@ const dialogReducer = (state: DialogState, action: DialogAction): DialogState =>
       return {
         ...state,
         dialogs: {
-          add: false,
-          edit: false,
-          addComment: false,
-          editComment: false,
-          postDetail: false,
-          userInfo: false,
+          ADD: false,
+          EDIT: false,
+          ADD_COMMENT: false,
+          EDIT_COMMENT: false,
+          POST_DETAIL: false,
+          USER_INFO: false,
         },
       }
 
@@ -70,12 +70,12 @@ export const useDialogStore = create<
   }
 >((set) => ({
   dialogs: {
-    add: false,
-    edit: false,
-    addComment: false,
-    editComment: false,
-    postDetail: false,
-    userInfo: false,
+    ADD: false,
+    EDIT: false,
+    ADD_COMMENT: false,
+    EDIT_COMMENT: false,
+    POST_DETAIL: false,
+    USER_INFO: false,
   },
   dispatch: (action) => set((state) => dialogReducer(state, action)),
 }))

@@ -9,7 +9,7 @@ export const AddPostDialog = () => {
   const queryClient = useQueryClient()
   const createPostMutation = useMutation(postMutations.create(queryClient))
 
-  const isOpen = useDialogStore((state) => state.dialogs.add)
+  const isOpen = useDialogStore((state) => state.dialogs.ADD)
   const { hideDialog } = useDialogActions()
 
   const [newPost, setNewPost] = useState<CreatePost>({
@@ -30,7 +30,7 @@ export const AddPostDialog = () => {
       await createPostMutation.mutateAsync(newPost)
       // 성공 시 폼 초기화
       setNewPost({ title: "", body: "", userId: 1 })
-      hideDialog("add")
+      hideDialog("ADD")
     } catch (error) {
       console.error("게시물 추가 실패:", error)
     } finally {
@@ -40,11 +40,11 @@ export const AddPostDialog = () => {
 
   const handleCancel = () => {
     setNewPost({ title: "", body: "", userId: 1 })
-    hideDialog("add")
+    hideDialog("ADD")
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && hideDialog("add")}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && hideDialog("ADD")}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>

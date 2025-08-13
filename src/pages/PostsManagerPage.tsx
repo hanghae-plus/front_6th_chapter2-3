@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { AddPostDialog } from "@/features/post/ui/AddPostDialog"
+import { AddPostDialogOpenButton } from "@/features/post/ui/AddPostDialogOpenButton"
 import { postWithAuthorQueries } from "@/features/post/model/queries"
 import { postQueries } from "@/entities/post/model/queries"
 import { Author, Comment, Tag, CreateComment, CommentPaginatedResponse, PostWithAuthor, User } from "@/shared/types"
@@ -31,6 +33,8 @@ import {
   Textarea,
 } from "@/shared/ui"
 import { postMutations } from "@/features/post/model/mutations"
+import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenButton"
+import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -208,24 +212,6 @@ const PostsManager = () => {
       setComments((prev) => ({ ...prev, [postId]: comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  /**
-   * 새 댓글을 추가하는 함수
-   */
-  const addComment = async () => {
-    try {
-      const data = await HttpClient.post<Comment>("/comments", newComment)
-      // 새 댓글을 해당 게시물의 댓글 목록에 추가
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: 0, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
     }
   }
 
@@ -446,16 +432,7 @@ const PostsManager = () => {
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 {/* 수정 버튼 */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post)
-                    setShowEditDialog(true)
-                  }}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
+                <EditPostDialogOpenButton onClick={() => openPostDetail(post)} />
                 {/* 삭제 버튼 */}
                 <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
                   <Trash2 className="w-4 h-4" />
@@ -532,10 +509,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            게시물 추가
-          </Button>
+          <AddPostDialogOpenButton />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -627,66 +601,8 @@ const PostsManager = () => {
       </CardContent>
 
       {/* ===== 대화상자들 ===== */}
-
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 게시물 수정 대화상자 */}
-      {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => {
-                if (selectedPost) {
-                  setSelectedPost({ ...selectedPost, title: e.target.value })
-                }
-              }}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => {
-                if (selectedPost) {
-                  setSelectedPost({ ...selectedPost, body: e.target.value })
-                }
-              }}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog> */}
+      <AddPostDialog />
+      <EditPostDialog selectedPost={selectedPost} onUpdate={updatePost} />
 
       {/* 댓글 추가 대화상자 */}
       {/* <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>

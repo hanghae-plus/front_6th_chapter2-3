@@ -1,8 +1,7 @@
 import { mutationOptions, QueryClient } from "@tanstack/react-query"
 import { createPost, updatePost, deletePost } from "@/features/post/api"
 import { POST_QK } from "@/entities/post/model/query-key"
-import { PostFilter, PostPaginatedResponse } from "@/shared/types"
-import { Post } from "@/shared/types"
+import { PostPaginatedResponse, Post } from "@/shared/types"
 
 export const postMutations = {
   keys: {
@@ -16,37 +15,85 @@ export const postMutations = {
     mutationOptions({
       mutationKey: postMutations.keys.create(),
       mutationFn: createPost,
-      onSuccess: () => {
-        // 리스트/합성쿼리 모두 리프레시
-        qc.invalidateQueries({ queryKey: POST_QK.all() })
+      onSuccess: (newPost) => {
+        console.log(newPost)
+        console.log("포스트 생성 성공")
+
+        // 1. withAuthor가 포함된 쿼리들 (작성자 정보 포함)
+        qc.setQueriesData({ queryKey: POST_QK.base() }, (old: PostPaginatedResponse | undefined) => {
+          if (!old?.posts) return old
+          return {
+            ...old,
+            posts: [newPost, ...old.posts],
+            total: old.total + 1,
+          }
+        })
+
+        // 3. 태그별 쿼리들 (해당 태그가 있는 경우)
+        if (newPost.tags && newPost.tags.length > 0) {
+          newPost.tags.forEach((tag) => {
+            qc.setQueriesData(
+              { queryKey: [...POST_QK.base(), "byTag", tag] },
+              (old: PostPaginatedResponse | undefined) => {
+                if (!old?.posts) return old
+                return {
+                  ...old,
+                  posts: [newPost, ...old.posts],
+                  total: old.total + 1,
+                }
+              },
+            )
+          })
+        }
+
+        // 4. 검색 쿼리들 (제목이나 내용에 검색어가 포함된 경우)
+        qc.setQueriesData({ queryKey: [...POST_QK.base(), "search"] }, (old: PostPaginatedResponse | undefined) => {
+          if (!old?.posts) return old
+          return {
+            ...old,
+            posts: [newPost, ...old.posts],
+            total: old.total + 1,
+          }
+        })
       },
     }),
 
-  update: (qc: QueryClient) =>
+  update: (qc: QueryClient, id: number) =>
     mutationOptions({
-      mutationKey: postMutations.keys.base(),
+      mutationKey: postMutations.keys.update(id),
       mutationFn: ({ id, data }: { id: number; data: Partial<unknown> }) => updatePost(id, data),
       onSuccess: (updated) => {
-        // 상세는 바로 반영(네트워크 절약) + 리스트는 부분 업데이트 or 무효화
+        // 상세는 바로 반영(네트워크 절약)
         qc.setQueryData(POST_QK.detail(updated.id), updated)
-        qc.setQueriesData({ queryKey: POST_QK.list({} as PostFilter).slice(0, 2) }, (prev: PostPaginatedResponse) =>
-          prev?.posts
-            ? { ...prev, posts: prev.posts.map((p: Post) => (p.id === updated.id ? { ...p, ...updated } : p)) }
-            : prev,
-        )
+
+        // 모든 관련 쿼리에서 해당 포스트 업데이트
+        qc.setQueriesData({ queryKey: POST_QK.base() }, (prev: PostPaginatedResponse | undefined) => {
+          if (!prev?.posts) return prev
+          return {
+            ...prev,
+            posts: prev.posts.map((p: Post) => (p.id === updated.id ? { ...p, ...updated } : p)),
+          }
+        })
       },
     }),
 
-  remove: (qc: QueryClient) =>
+  remove: (qc: QueryClient, id: number) =>
     mutationOptions({
-      mutationKey: postMutations.keys.base(),
+      mutationKey: postMutations.keys.remove(id),
       mutationFn: (id: number) => deletePost(id),
       onSuccess: (_void, id) => {
-        // 상세 캐시 제거 + 모든 리스트에서 해당 항목 제거
+        // 상세 캐시 제거
         qc.removeQueries({ queryKey: POST_QK.detail(id) })
-        qc.setQueriesData({ queryKey: POST_QK.base() }, (prev: PostPaginatedResponse) =>
-          prev?.posts ? { ...prev, posts: prev.posts.filter((p: Post) => p.id !== id) } : prev,
-        )
+
+        // 모든 관련 쿼리에서 해당 포스트 제거
+        qc.setQueriesData({ queryKey: POST_QK.base() }, (prev: PostPaginatedResponse | undefined) => {
+          if (!prev?.posts) return prev
+          return {
+            ...prev,
+            posts: prev.posts.filter((p: Post) => p.id !== id),
+            total: prev.total - 1,
+          }
+        })
       },
     }),
 }
