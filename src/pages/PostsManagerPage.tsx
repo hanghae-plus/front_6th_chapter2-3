@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { postWithAuthorQueries } from "@/features/post/model/queries"
 import { postQueries } from "@/entities/post/model/queries"
 import { Author, Comment, Tag, CreateComment, CommentPaginatedResponse, PostWithAuthor, User } from "@/shared/types"
@@ -30,6 +30,7 @@ import {
   DialogTitle,
   Textarea,
 } from "@/shared/ui"
+import { postMutations } from "@/features/post/model/mutations"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -83,6 +84,10 @@ const PostsManager = () => {
       sortOrder: sortOrder as "asc" | "desc",
     }),
   )
+
+  const queryClient = useQueryClient()
+
+  const createPostMutation = useMutation(postMutations.create(queryClient))
 
   // 태그 목록 조회
   const tagsQuery = useQuery(postQueries.tags())
@@ -142,13 +147,9 @@ const PostsManager = () => {
    */
   const addPost = async () => {
     try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts]) // 새 게시물을 목록 맨 앞에 추가
+      const data = await createPostMutation.mutateAsync(newPost)
+      setPosts([data, ...posts])
+      // setPosts([data, ...posts]) // 새 게시물을 목록 맨 앞에 추가
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -628,7 +629,7 @@ const PostsManager = () => {
       {/* ===== 대화상자들 ===== */}
 
       {/* 게시물 추가 대화상자 */}
-      {/* <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 게시물 추가</DialogTitle>
@@ -654,7 +655,7 @@ const PostsManager = () => {
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
 
       {/* 게시물 수정 대화상자 */}
       {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
