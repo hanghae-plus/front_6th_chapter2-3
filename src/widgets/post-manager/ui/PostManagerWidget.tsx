@@ -17,6 +17,8 @@ import {
 } from '@/entities/post/model/usePosts';
 import { PostTable } from '@/entities/post/ui/PostTable';
 import { useFetchAllUsers, useFetchUserById } from '@/entities/user/model/useUsers';
+import { CreateCommentDialog } from '@/features/comment-create/ui/CreateCommentDialog';
+import { EditCommentDialog } from '@/features/comment-edit/ui/EditCommentDialog';
 import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
@@ -29,7 +31,6 @@ import { Pagination } from '@/features/post-pagination/ui/Pagination';
 import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { PostSearch } from '@/features/post-search/ui/PostSearch';
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -38,9 +39,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Textarea,
   HighlightText,
 } from '@/shared/ui';
+import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
 
 export const PostManagerWidget = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
@@ -192,65 +193,42 @@ export const PostManagerWidget = () => {
       />
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CreateCommentDialog
+        showAddCommentDialog={showAddCommentDialog}
+        setShowAddCommentDialog={setShowAddCommentDialog}
+        newComment={newComment}
+        setNewComment={setNewComment}
+        addComment={addComment}
+      />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={selectedComment?.body || ''}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCommentDialog
+        showEditCommentDialog={showEditCommentDialog}
+        setShowEditCommentDialog={setShowEditCommentDialog}
+        selectedComment={selectedComment}
+        updateComment={updateComment}
+        setSelectedComment={setSelectedComment}
+      />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className='max-w-3xl'>
-          <DialogHeader>
-            <DialogTitle>
-              <HighlightText text={selectedPost?.title} highlight={searchQuery} />
-            </DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <p>
-              <HighlightText text={selectedPost?.body} highlight={searchQuery} />
-            </p>
-            <CommentList
-              postId={selectedPostId}
-              setNewComment={setNewComment}
-              setShowAddCommentDialog={setShowAddCommentDialog}
-              comments={comments}
-              searchQuery={searchQuery}
-              likeComment={likeComment}
-              setSelectedComment={setSelectedComment}
-              setShowEditCommentDialog={setShowEditCommentDialog}
-              deleteComment={deleteComment}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DetailPostDialog
+        showPostDetailDialog={showPostDetailDialog}
+        setShowPostDetailDialog={setShowPostDetailDialog}
+        selectedPost={selectedPost}
+        searchQuery={searchQuery}
+      >
+        <CommentList
+          postId={selectedPostId}
+          setNewComment={setNewComment}
+          setShowAddCommentDialog={setShowAddCommentDialog}
+          comments={comments}
+          searchQuery={searchQuery}
+          likeComment={likeComment}
+          setSelectedComment={setSelectedComment}
+          setShowEditCommentDialog={setShowEditCommentDialog}
+          deleteComment={deleteComment}
+        />
+      </DetailPostDialog>
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
