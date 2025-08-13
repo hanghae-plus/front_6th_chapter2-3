@@ -8,10 +8,10 @@ import {
   SelectValue,
 } from '../../../shared/ui/components';
 import { useQueryParameter } from '../../../shared/hook/useQueryParameter';
-import { useTagsQuery } from '../../../entities/tag/model/hook';
+import { usePostTagsQuery } from '../../../entities/post/model/hook';
 
 const PostFilter = () => {
-  const { data: tags } = useTagsQuery();
+  const { data: tags } = usePostTagsQuery();
 
   const {
     searchQuery,

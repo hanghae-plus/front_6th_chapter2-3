@@ -13,14 +13,14 @@ interface PostListProps {
   // 유저 클릭 함수
   onClickUser: (userId: number) => void;
   // 게시물 상세보기 함수
-  onClickPost: () => void;
+  onClickPost: (post: IPost) => void;
 
   // 태그 클릭 함수
   onClickTag: (value: string) => void;
   // 게시물 수정
-  onUpdatePost: () => void;
+  onUpdatePost: (post: IPost) => void;
   // 게시물 삭제
-  onDeletePost: (id: number) => void;
+  onDeletePost: (post: IPost) => void;
 }
 
 const PostList = ({

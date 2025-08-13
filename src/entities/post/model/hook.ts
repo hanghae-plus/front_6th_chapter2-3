@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { IPosts } from './type';
+import { IPosts, IPostTag } from './type';
 import {
   getPostsApi,
   getPostsBySearchApi,
   getPostsByTagApi,
+  getPostTagsApi,
 } from '../api/post-api';
 
 /**
@@ -13,6 +14,16 @@ export const usePostsQuery = (limit: number, skip: number) => {
   return useQuery<IPosts>({
     queryKey: ['posts', limit, skip],
     queryFn: () => getPostsApi(limit, skip),
+  });
+};
+
+/**
+ * 게시물 태그 목록 조회
+ */
+export const usePostTagsQuery = () => {
+  return useQuery<IPostTag[]>({
+    queryKey: ['tags'],
+    queryFn: getPostTagsApi,
   });
 };
 

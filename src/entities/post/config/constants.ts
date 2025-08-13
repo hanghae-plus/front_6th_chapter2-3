@@ -1,6 +1,8 @@
 export const POST = {
   LIST: (limit: number, skip: number) =>
     `/api/posts?limit=${limit}&skip=${skip}`,
+  TAG_LIST: '/api/posts/tags',
+
   BY_SEARCH: (searchQuery: string) => `/api/posts/search?q=${searchQuery}`,
   BY_TAG: (tag: string) => `/api/posts/tag/${tag}`,
 

@@ -1,4 +1,3 @@
-import { IPost } from '../model/type';
 import {
   Edit2,
   MessageSquare,
@@ -8,7 +7,8 @@ import {
 } from 'lucide-react';
 import { Button, TableCell, TableRow } from '../../../shared/ui/components';
 import { HighlightText } from '../../../shared/ui/HighlightText';
-import TagItem from '../../tag/ui/TagItem';
+import { IPost } from '../model/type';
+import PostTagItem from './PostTagItem';
 
 interface PostItemProps {
   // 게시물 데이터
@@ -21,14 +21,14 @@ interface PostItemProps {
   // 유저 클릭 함수
   onClickUser: (userId: number) => void;
   // 게시물 상세보기 함수
-  onClickPost: () => void;
+  onClickPost: (post: IPost) => void;
 
   // 태그 클릭 함수
   onClickTag: (value: string) => void;
   // 게시물 수정
   onUpdatePost: (post: IPost) => void;
   // 게시물 삭제
-  onDeletePost: (id: number) => void;
+  onDeletePost: (post: IPost) => void;
 }
 
 const PostItem = ({
@@ -50,7 +50,7 @@ const PostItem = ({
 
           <div className="flex flex-wrap gap-1">
             {post.tags?.map((tag) => (
-              <TagItem
+              <PostTagItem
                 key={tag}
                 tag={tag}
                 selectedTag={selectedTag}
@@ -83,17 +83,13 @@ const PostItem = ({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onClickPost}>
+          <Button variant="ghost" size="sm" onClick={() => onClickPost(post)}>
             <MessageSquare className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={() => onUpdatePost(post)}>
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDeletePost(post.id)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onDeletePost(post)}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

@@ -15,6 +15,12 @@ export type IPost = {
   author?: IUserSummary;
 };
 
+export type IPostTag = {
+  name: string;
+  slug: string;
+  url: string;
+};
+
 export type IPosts = {
   limit: number;
   posts: IPost[];
@@ -24,10 +30,7 @@ export type IPosts = {
 
 export type IAddPost = Pick<IPost, 'title' | 'body' | 'userId'>;
 
-export type IAddPostResponse = Pick<
-  IPost,
-  'id' | 'title' | 'body' | 'userId'
->;
+export type IAddPostResponse = Pick<IPost, 'id' | 'title' | 'body' | 'userId'>;
 
 export type IEditPost = IPost;
 

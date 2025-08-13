@@ -5,6 +5,7 @@ import {
   IEditPostResponse,
   IPost,
   IPosts,
+  IPostTag,
 } from '../model/type';
 import { createRequest } from '../../../shared/lib/api';
 
@@ -19,6 +20,19 @@ export const getPostsApi = async (
 
   if (!response.ok) {
     throw new Error('게시물 가져오기 오류');
+  }
+
+  return response.json();
+};
+
+/**
+ * 게시물 태그 목록 조회
+ */
+export const getPostTagsApi = async (): Promise<IPostTag[]> => {
+  const response = await fetch(POST.TAG_LIST);
+
+  if (!response.ok) {
+    throw new Error('태그 가져오기 오류');
   }
 
   return response.json();

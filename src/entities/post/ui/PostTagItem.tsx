@@ -1,4 +1,4 @@
-interface TagItemProps {
+interface PostTagItemProps {
   // 태그 문자열
   tag: string;
   // 게시물 필터 태그
@@ -7,7 +7,7 @@ interface TagItemProps {
   onClickTag: (value: string) => void;
 }
 
-const TagItem = ({ tag, selectedTag, onClickTag }: TagItemProps) => {
+const PostTagItem = ({ tag, selectedTag, onClickTag }: PostTagItemProps) => {
   return (
     <span
       className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
@@ -22,4 +22,4 @@ const TagItem = ({ tag, selectedTag, onClickTag }: TagItemProps) => {
   );
 };
 
-export default TagItem;
+export default PostTagItem;
