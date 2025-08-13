@@ -171,7 +171,7 @@ const PostsManager = () => {
   const updateComment = () => {
     if (!selectedComment) return
     updateCommentMutation.mutate(
-      { id: selectedComment.id, body: selectedComment.body },
+      { id: selectedComment.id, postId: selectedPost?.id ?? 0, body: selectedComment.body },
       {
         onSuccess: (data) => {
           queryClient.invalidateQueries({ queryKey: commentQueries.byPostQuery(data.postId).queryKey })
@@ -184,7 +184,7 @@ const PostsManager = () => {
 
   const deleteCommentMutation = useMutation(commentMutations.deleteMutation())
   const deleteComment = (id: number) => {
-    deleteCommentMutation.mutate(id)
+    deleteCommentMutation.mutate({ id, postId: selectedPost?.id ?? 0 })
   }
 
   const likeCommentMutation = useMutation({

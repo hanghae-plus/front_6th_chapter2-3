@@ -10,10 +10,31 @@ export const commentMutations = {
     mutationFn: (comment: AddCommentRequest) => commentApi.addComment(comment),
   }),
 
-  updateMutation: () => ({
-    mutationKey: [...commentQueries.all(), "update"] as const,
-    mutationFn: ({ id, body }: { id: number; body: string }) => commentApi.updateComment(id, body),
-  }),
+  updateMutation: () =>
+    mutationOptions({
+      mutationKey: [...commentQueries.all(), "update"] as const,
+      mutationFn: ({ id, body }: { id: number; postId: number; body: string }) => commentApi.updateComment(id, body),
+      onMutate: async ({ id, postId, body }) => {
+        const key = commentQueries.byPost(postId)
+        await queryClient.cancelQueries({ queryKey: key })
+        const previous = queryClient.getQueryData<{ comments: CommentItem[]; total: number }>(key)
+        queryClient.setQueryData(key, (old: { comments: CommentItem[]; total: number }) => ({
+          comments: (old?.comments ?? []).map((c) => (c.id === id ? { ...c, body } : c)),
+          total: old?.total ?? 0,
+        }))
+        return { previous, key }
+      },
+      onError: (_e, _vars, ctx) => {
+        if (ctx?.previous) queryClient.setQueryData(ctx.key, ctx.previous)
+      },
+      onSuccess: (updated, _vars, ctx) => {
+        if (!ctx) return
+        queryClient.setQueryData(ctx.key, (old: { comments: CommentItem[]; total: number }) => ({
+          comments: (old?.comments ?? []).map((c) => (c.id === updated.id ? updated : c)),
+          total: old?.total ?? 0,
+        }))
+      },
+    }),
 
   deleteMutation: () =>
     mutationOptions({
