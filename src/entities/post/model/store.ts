@@ -34,6 +34,9 @@ export const postModel = {
     };
   },
 
+  /**
+   * 게시글 작성 응답 데이터를 IPost 타입 객체로 변환
+   */
   addResponseToPost: (res: IAddPostResponse): IPost => {
     return {
       ...res,
@@ -46,6 +49,9 @@ export const postModel = {
     };
   },
 
+  /**
+   * 게시글 수정 응답 데이터를 IPost 타입 객체로 변환
+   */
   editResponseToPost: (res: IEditPostResponse): IPost => {
     return {
       ...res,
