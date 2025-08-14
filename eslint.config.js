@@ -8,7 +8,7 @@ import tseslint from 'typescript-eslint';
 import js from '@eslint/js';
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'vite.config.ts', 'vitest.config.ts', 'vite-env.d.ts'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -96,24 +96,6 @@ export default tseslint.config(
       'import/prefer-default-export': 'off',
       'import/no-unresolved': 'error',
       'import/no-duplicates': 'error',
-      'import/order': [
-        'error',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-          ],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-        },
-      ],
 
       // TypeScript 관련 규칙
       '@typescript-eslint/no-unused-vars': [

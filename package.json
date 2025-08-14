@@ -15,7 +15,7 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "prepare": "husky",
-    "gh-pages": "pnpm run build && mv dist/index.html && gh-pages -d dist"
+    "gh-pages": "pnpm run build && gh-pages -d dist"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.85.0",

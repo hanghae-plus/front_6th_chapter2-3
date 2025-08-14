@@ -3,9 +3,27 @@ import { defineConfig } from 'vite';
 
 import react from '@vitejs/plugin-react';
 
+const base =
+  process.env.NODE_ENV === 'production' ? '/front_6th_chapter2-3/' : '';
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base,
+  publicDir: 'public',
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
   resolve: {
     alias: {
       '@/app': path.resolve(__dirname, './src/1_app'),
@@ -21,15 +39,6 @@ export default defineConfig({
       '@/shared': path.resolve(__dirname, './src/6_shared'),
       '@/shared/*': path.resolve(__dirname, './src/6_shared/*'),
       '@': path.resolve(__dirname, './src'),
-    },
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://dummyjson.com',
-        changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, ''),
-      },
     },
   },
 });

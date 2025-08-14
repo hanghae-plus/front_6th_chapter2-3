@@ -25,28 +25,6 @@ export const useCachedPostsQueryKey = () => {
     sortOrder,
   });
 
-  if (queryType === POST_QUERY_TYPE.SEARCH) {
-    const paramsWithSearch: ParamsWithSearch = {
-      limit,
-      skip,
-      sortBy,
-      sortOrder,
-      searchQuery,
-    };
-    setParams(paramsWithSearch);
-  }
-
-  if (queryType === POST_QUERY_TYPE.TAG) {
-    const paramsWithTag: ParamsWithTag = {
-      limit,
-      skip,
-      sortBy,
-      sortOrder,
-      selectedTag,
-    };
-    setParams(paramsWithTag);
-  }
-
   useEffect(() => {
     if (queryType === POST_QUERY_TYPE.SEARCH) {
       const paramsWithSearch: ParamsWithSearch = {
