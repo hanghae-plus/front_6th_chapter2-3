@@ -1,20 +1,20 @@
 import { useState, useMemo } from 'react'
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
-import { fetchPosts, fetchPostsBySearch, fetchTags, IPost, ITag } from '@entities/post'
-import { fetchUsers } from '@entities/user'
+import { useTagsQuery } from '@features/post/get-post-tags'
+import { useBasicUsers } from '@features/get-user'
+import { usePostsBasic, usePostsBySearch, usePostsByTag } from '@features/post/get-post'
+import { useAddPostMutation } from '@features/post/create-post'
+import { useUpdatePostMutation } from '@features/post/update-post'
+import { useDeletePostMutation } from '@features/post/delete-post'
+import { useCommentsQuery } from '@features/comment/get-comment'
+import { useAddCommentMutation } from '@features/comment/create-comment'
+import { useUpdateCommentMutation } from '@features/comment/update-comment'
+import { useDeleteCommentMutation } from '@features/comment/delete-comment'
+import { useLikeCommentMutation } from '@features/comment/like-comment'
+import { IPost, INewPost } from '@entities/post'
 import { IUserDetail } from '@entities/user'
-import {
-  deleteComment,
-  fetchComments,
-  IComment,
-  ICommentRequest,
-  addComment,
-  updateComment,
-  likeComment,
-} from '@entities/comment'
-import { addPost, deletePost, updatePost, INewPost } from '@entities/post'
+import { IComment } from '@entities/comment'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared/ui/Table'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/Card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/ui/Dialog'
@@ -29,7 +29,6 @@ const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
-  const queryClient = useQueryClient()
 
   // 상태 관리
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'))
@@ -57,37 +56,27 @@ const PostsManager = () => {
   const [selectedUser, setSelectedUser] = useState<IUserDetail | null>(null)
 
   // 태그 목록 쿼리
-  const { data: tags = [] } = useQuery({
-    queryKey: ['tags'],
-    queryFn: async (): Promise<ITag[]> => {
-      return await fetchTags()
-    },
-  })
+  const { data: tags = [] } = useTagsQuery()
 
   // 사용자 목록 쿼리 (독립적 캐싱)
-  const { data: usersData } = useQuery({
-    queryKey: ['users', 'basic'],
-    queryFn: () => fetchUsers({ limit: 0 }),
-  })
+  const { data: usersData } = useBasicUsers()
 
   // 기본 게시물 목록 쿼리
-  const { data: basicPostsData, isLoading: isBasicLoading } = useQuery({
-    queryKey: ['posts', 'basic', { limit, skip }],
-    queryFn: () => fetchPosts({ limit, skip }),
+  const { data: basicPostsData, isLoading: isBasicLoading } = usePostsBasic({
+    limit,
+    skip,
     enabled: !searchQuery && (!selectedTag || selectedTag === 'all'),
   })
 
   // 검색 게시물 쿼리
-  const { data: searchPostsData, isLoading: isSearchLoading } = useQuery({
-    queryKey: ['posts', 'search', { query: searchQuery }],
-    queryFn: () => fetchPostsBySearch({ query: searchQuery }),
+  const { data: searchPostsData, isLoading: isSearchLoading } = usePostsBySearch({
+    query: searchQuery,
     enabled: !!searchQuery,
   })
 
   // 태그별 게시물 쿼리
-  const { data: tagPostsData, isLoading: isTagLoading } = useQuery({
-    queryKey: ['posts', 'tag', { tag: selectedTag }],
-    queryFn: () => fetchPostsByTag(selectedTag),
+  const { data: tagPostsData, isLoading: isTagLoading } = usePostsByTag({
+    tag: selectedTag,
     enabled: !!selectedTag && selectedTag !== 'all' && !searchQuery,
   })
 
@@ -114,95 +103,28 @@ const PostsManager = () => {
     return { posts: withAuthors, total: rawPostsData.total }
   }, [rawPostsData, usersData])
 
-  // 댓글 목록 쿼리
-  const useCommentsQuery = (postId: number) => {
-    return useQuery({
-      queryKey: ['comments', postId],
-      queryFn: async (): Promise<IComment[]> => {
-        const { comments } = await fetchComments(postId)
-        return comments
-      },
-      enabled: !!postId,
-    })
-  }
+  // 댓글 목록 훅은 features로 이동됨
 
   // 게시물 추가 뮤테이션
-  const addPostMutation = useMutation({
-    mutationFn: async (newPost: INewPost) => {
-      return await addPost(newPost)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
-      setShowAddDialog(false)
-      setNewPost({ title: '', body: '', userId: 1 })
-    },
-  })
+  const addPostMutation = useAddPostMutation()
 
   // 게시물 수정 뮤테이션
-  const updatePostMutation = useMutation({
-    mutationFn: async (post: IPost) => {
-      return await updatePost(post)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
-      setShowEditDialog(false)
-    },
-  })
+  const updatePostMutation = useUpdatePostMutation()
 
   // 게시물 삭제 뮤테이션
-  const deletePostMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await deletePost({ id })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
-    },
-  })
+  const deletePostMutation = useDeletePostMutation()
 
   // 댓글 추가 뮤테이션
-  const addCommentMutation = useMutation({
-    mutationFn: async (comment: ICommentRequest) => {
-      return await addComment(comment)
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', data.postId] })
-      setShowAddCommentDialog(false)
-      setNewComment({ body: '', postId: null, userId: 1 })
-    },
-  })
+  const addCommentMutation = useAddCommentMutation()
 
   // 댓글 수정 뮤테이션
-  const updateCommentMutation = useMutation({
-    mutationFn: async (comment: IComment) => {
-      return await updateComment(comment)
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', data.postId] })
-      setShowEditCommentDialog(false)
-    },
-  })
+  const updateCommentMutation = useUpdateCommentMutation()
 
   // 댓글 삭제 뮤테이션
-  const deleteCommentMutation = useMutation({
-    mutationFn: async ({ id, postId }: { id: number; postId: number }) => {
-      await deleteComment(id)
-      return postId
-    },
-    onSuccess: (postId) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] })
-    },
-  })
+  const deleteCommentMutation = useDeleteCommentMutation()
 
   // 댓글 좋아요 뮤테이션
-  const likeCommentMutation = useMutation({
-    mutationFn: async ({ id, likes, postId }: { id: number; likes: number; postId: number }) => {
-      await likeComment(id, likes)
-      return postId
-    },
-    onSuccess: (postId) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] })
-    },
-  })
+  const likeCommentMutation = useLikeCommentMutation()
 
   // 현재 게시물 목록과 총 개수
   const posts = postsData?.posts || []
@@ -225,8 +147,8 @@ const PostsManager = () => {
     updateURL()
   }
 
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = (tag: string) => {
+  // 태그 선택 처리
+  const handleSelectTag = (tag: string) => {
     setSelectedTag(tag === 'all' ? '' : tag)
     updateURL()
   }
@@ -443,7 +365,7 @@ const PostsManager = () => {
               value={selectedTag}
               onValueChange={(value) => {
                 setSelectedTag(value)
-                fetchPostsByTag(value)
+                handleSelectTag(value)
                 updateURL()
               }}
             >
@@ -538,7 +460,17 @@ const PostsManager = () => {
                 setNewPost({ ...newPost, userId: Number(e.target.value) })
               }
             />
-            <Button onClick={() => addPostMutation.mutate(newPost)} disabled={addPostMutation.isPending}>
+            <Button
+              onClick={() =>
+                addPostMutation.mutate(newPost, {
+                  onSuccess: () => {
+                    setShowAddDialog(false)
+                    setNewPost({ title: '', body: '', userId: 1 })
+                  },
+                })
+              }
+              disabled={addPostMutation.isPending}
+            >
               {addPostMutation.isPending ? '추가 중...' : '게시물 추가'}
             </Button>
           </div>
@@ -566,7 +498,9 @@ const PostsManager = () => {
               onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })}
             />
             <Button
-              onClick={() => selectedPost && updatePostMutation.mutate(selectedPost)}
+              onClick={() =>
+                selectedPost && updatePostMutation.mutate(selectedPost, { onSuccess: () => setShowEditDialog(false) })
+              }
               disabled={updatePostMutation.isPending}
             >
               {updatePostMutation.isPending ? '수정 중...' : '게시물 업데이트'}
@@ -590,11 +524,19 @@ const PostsManager = () => {
             <Button
               onClick={() =>
                 newComment.postId &&
-                addCommentMutation.mutate({
-                  body: newComment.body,
-                  postId: newComment.postId,
-                  userId: newComment.userId,
-                })
+                addCommentMutation.mutate(
+                  {
+                    body: newComment.body,
+                    postId: newComment.postId,
+                    userId: newComment.userId,
+                  },
+                  {
+                    onSuccess: () => {
+                      setShowAddCommentDialog(false)
+                      setNewComment({ body: '', postId: null, userId: 1 })
+                    },
+                  },
+                )
               }
               disabled={addCommentMutation.isPending}
             >
@@ -617,7 +559,10 @@ const PostsManager = () => {
               onChange={(e) => selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })}
             />
             <Button
-              onClick={() => selectedComment && updateCommentMutation.mutate(selectedComment)}
+              onClick={() =>
+                selectedComment &&
+                updateCommentMutation.mutate(selectedComment, { onSuccess: () => setShowEditCommentDialog(false) })
+              }
               disabled={updateCommentMutation.isPending}
             >
               {updateCommentMutation.isPending ? '수정 중...' : '댓글 업데이트'}
