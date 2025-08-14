@@ -3,13 +3,12 @@ import { CardContent } from "../../shared/ui"
 import PostSearchFilter from "./ui/PostSearchFilter"
 import { Pagination } from "../../widgets"
 import { PostTable } from "./ui/PostTable"
-import { DeletePost, Post } from "./type"
+import { Post } from "./type"
 import { getTags, Tags } from "../../entities"
 import { getComments, getPosts, getPostsByTag, getSeachPosts, getUser, getUsers } from "../../entities"
 import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedPostStore, useSelectedUserStore } from "./model/store"
 import { useCommentStore } from "../comment/model/store"
-import { requestApi } from "../../shared/lib"
 import { useURL } from "../../shared/hook/useURL"
 
 export const PostList = () => {
@@ -56,20 +55,6 @@ export const PostList = () => {
       }
     } catch (error) {
       console.error("태그 가져오기 오류:", error)
-    }
-  }
-
-  // 게시물 삭제
-  const deletePost = async (id: number) => {
-    try {
-      const { result } = await requestApi<DeletePost>(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      if (result) {
-        setPosts(posts.filter((post) => post.id !== id))
-      }
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
     }
   }
 
@@ -203,7 +188,6 @@ export const PostList = () => {
     openPostDetail,
     setSelectedPost,
     setShowEditDialog,
-    deletePost,
   }
 
   const paginationProps = {

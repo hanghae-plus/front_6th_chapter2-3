@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "../../../shared/ui"
 import { Post } from "../type"
+import { usePost } from "../model/hook"
 
 export const PostTable = ({
   posts,
@@ -21,7 +22,6 @@ export const PostTable = ({
   openPostDetail,
   setSelectedPost,
   setShowEditDialog,
-  deletePost,
 }: {
   posts: Array<Post>
   searchQuery: string
@@ -32,8 +32,9 @@ export const PostTable = ({
   openPostDetail: (post: any) => void
   setSelectedPost: (selectedPost: Post) => void
   setShowEditDialog: (showEditDialog: boolean) => void
-  deletePost: (id: any) => Promise<void>
 }) => {
+  const { deletePost } = usePost()
+
   return (
     <Table>
       <TableHeader>
