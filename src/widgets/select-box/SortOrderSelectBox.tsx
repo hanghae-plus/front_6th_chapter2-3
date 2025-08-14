@@ -6,8 +6,9 @@ export const SortOrderSelectBox = () => {
 
   const handleSortOrderChange = (value: string) => {
     setSearchParams((prev) => {
-      prev.set("sortOrder", value)
-      return prev
+      const newParams = new URLSearchParams(prev)
+      newParams.set("sortOrder", value)
+      return newParams
     })
   }
 

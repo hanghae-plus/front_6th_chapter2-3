@@ -6,8 +6,24 @@ export const SortSelectBox = () => {
 
   const handleSortByChange = (value: string) => {
     setSearchParams((prev) => {
-      prev.set("sortBy", value)
-      return prev
+      const newParams = new URLSearchParams(prev)
+
+      if (value === "none") {
+        newParams.delete("sortBy")
+        newParams.delete("sortOrder")
+      } else {
+        newParams.set("sortBy", value)
+
+        // reactions를 선택했을 때는 기본적으로 내림차순(좋아요 많은 순)으로 설정
+        if (value === "reactions") {
+          newParams.set("sortOrder", "desc")
+        } else {
+          // 다른 정렬 기준은 기본값으로 설정
+          newParams.set("sortOrder", "asc")
+        }
+      }
+
+      return newParams
     })
   }
 

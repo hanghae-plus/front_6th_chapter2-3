@@ -49,14 +49,27 @@ export function usePosts() {
     select: (data) => {
       if (!data) return data
 
-      const { searchQuery, selectedTag, skip, limit } = filters
+      const { searchQuery, selectedTag, skip, limit, sortBy, sortOrder } = filters
 
-      // 태그 필터링이나 검색 시 백엔드에서 페이지네이션이 제대로 작동하지 않는 경우
-      // 클라이언트 사이드에서 페이지네이션 적용
-      if ((searchQuery || (selectedTag && selectedTag !== "all")) && data.posts.length > limit) {
+      const sortedPosts = [...data.posts]
+
+      if (sortBy === "reactions") {
+        sortedPosts.sort((a, b) => {
+          const aLikes = a.reactions?.likes || 0
+          const bLikes = b.reactions?.likes || 0
+
+          if (sortOrder === "desc") {
+            return bLikes - aLikes // 내림차순 (좋아요 많은 순)
+          } else {
+            return aLikes - bLikes // 오름차순 (좋아요 적은 순)
+          }
+        })
+      }
+
+      if ((searchQuery || (selectedTag && selectedTag !== "all")) && sortedPosts.length > limit) {
         const startIndex = skip
         const endIndex = startIndex + limit
-        const paginatedPosts = data.posts.slice(startIndex, endIndex)
+        const paginatedPosts = sortedPosts.slice(startIndex, endIndex)
 
         return {
           posts: paginatedPosts,
@@ -64,7 +77,10 @@ export function usePosts() {
         }
       }
 
-      return data
+      return {
+        posts: sortedPosts,
+        total: data.total,
+      }
     },
   })
 

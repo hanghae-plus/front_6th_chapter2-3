@@ -1,10 +1,10 @@
 import { useState } from "react"
+import { useCommentActions } from "@/features/comment/comment-actions"
 import { Comment } from "@/entities/comment/model"
 import { useDialogActions } from "@/shared/model"
 import { CommentHeader } from "./CommentHeader"
 import { CommentList } from "./CommentList"
 import { CommentDialogs } from "./CommentDialogs"
-import { useCommentActions } from "../model/useCommentActions"
 
 interface CommentSectionProps {
   postId: number
