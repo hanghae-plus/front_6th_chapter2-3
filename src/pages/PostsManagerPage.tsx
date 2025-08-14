@@ -29,9 +29,6 @@ const PostsManager = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  // 상태 관리
-  // const [posts, setPosts] = useState<any[]>([]);
-  // const [total, setTotal] = useState(0);
   const {
     posts,
     total,
@@ -74,26 +71,9 @@ const PostsManager = () => {
 
   const { openDialog, closeDialog } = useDialogStore();
 
-  // URL 업데이트 함수
-  // const updateURL = () => {
-  //   const params = new URLSearchParams();
-  //   if (skip) params.set('skip', skip.toString());
-  //   if (limit) params.set('limit', limit.toString());
-  //   if (searchQuery) params.set('search', searchQuery);
-  //   if (sortBy) params.set('sortBy', sortBy);
-  //   if (sortOrder) params.set('sortOrder', sortOrder);
-  //   if (selectedTag) params.set('tag', selectedTag);
-  //   navigate(`?${params.toString()}`);
-  // };
-
-  // 게시물 가져오기 (store의 fetchPosts를 사용하도록 변경 필요)
   const fetchPosts = () => {
     fetchPostsFromStore(limit, skip.toString());
   };
-
-  // 태그 가져오기는 이제 useTagsStore에서 처리
-  // const fetchTags = async () => { ... } // → useTagsStore.fetchTags로 대체
-
   // 게시물 검색
   const searchPosts = async () => {
     if (!searchQuery) {
