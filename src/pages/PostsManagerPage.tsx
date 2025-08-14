@@ -48,20 +48,7 @@ const PostsManager = () => {
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
 
   // 선택된 항목 상태
-  const [selectedPost, setSelectedPost] = useState<PostWithAuthor>({
-    author: {
-      id: 0,
-      username: "",
-      image: "",
-    },
-    id: 0,
-    title: "",
-    body: "",
-    userId: 0,
-    tags: [],
-    reactions: { likes: 0, dislikes: 0 },
-    views: 0,
-  }) // 선택된 게시물
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null) // 선택된 게시물 ID
 
   // 데이터 상태
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
@@ -116,11 +103,10 @@ const PostsManager = () => {
   // ===== UI 관련 함수들 =====
   /**
    * 게시물 상세 보기 대화상자를 여는 함수
-   * @param post - 상세 보기할 게시물
+   * @param postId - 상세 보기할 게시물 ID
    */
-  const openPostDetail = (post: PostWithAuthor) => {
-    setSelectedPost(post)
-    fetchComments(post.id) // 댓글도 함께 가져옴
+  const openPostDetail = (postId: number) => {
+    setSelectedPostId(postId)
   }
 
   // ===== useEffect 훅들 =====
@@ -233,8 +219,8 @@ const PostsManager = () => {
             {/* 게시물 작업 버튼들 */}
             <TableCell>
               <div className="flex items-center gap-2">
-                <DetailPostDialogOpenButton onClick={() => openPostDetail(post)} />
-                <EditPostDialogOpenButton onClick={() => openPostDetail(post)} />
+                <DetailPostDialogOpenButton onClick={() => openPostDetail(post.id)} />
+                <EditPostDialogOpenButton onClick={() => openPostDetail(post.id)} />
                 <DeletePostButton post={post} />
               </div>
             </TableCell>
@@ -272,8 +258,8 @@ const PostsManager = () => {
       </CardContent>
 
       <AddPostDialog />
-      <EditPostDialog selectedPost={selectedPost} />
-      <DetailPostDialog selectedPost={selectedPost} />
+      <EditPostDialog postId={selectedPostId} />
+      <DetailPostDialog postId={selectedPostId} />
     </Card>
   )
 }

@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
 import { PostWithAuthor } from "@/shared/types"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import { postMutations } from "../model/mutations"
+import { postWithAuthorQueries } from "../model/queries"
 
 interface EditPostDialogProps {
-  selectedPost: PostWithAuthor | null
+  postId: number | null
 }
 
-export const EditPostDialog = ({ selectedPost }: EditPostDialogProps) => {
+export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
   const queryClient = useQueryClient()
 
   // 로컬 상태로 수정 중인 데이터 관리
@@ -20,12 +21,17 @@ export const EditPostDialog = ({ selectedPost }: EditPostDialogProps) => {
 
   const updatePostMutation = useMutation(postMutations.update(queryClient))
 
-  // selectedPost가 변경될 때마다 로컬 상태 초기화
+  // postId가 있을 때만 쿼리 실행
+  const { data, isLoading, error } = useQuery(
+    postId ? postWithAuthorQueries.detail(postId) : { queryKey: ["no-query"], enabled: false },
+  )
+
+  // data가 변경될 때마다 로컬 상태 초기화
   useEffect(() => {
-    if (selectedPost) {
-      setEditingPost({ ...selectedPost })
+    if (data?.post) {
+      setEditingPost({ ...data.post })
     }
-  }, [selectedPost])
+  }, [data])
 
   const handleUpdate = () => {
     console.log(editingPost)
@@ -47,7 +53,27 @@ export const EditPostDialog = ({ selectedPost }: EditPostDialogProps) => {
     setEditingPost(null)
   }
 
-  if (!editingPost) return null
+  if (!postId || !isOpen) return null
+
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => handleClose()}>
+        <DialogContent>
+          <div className="flex justify-center p-8">로딩 중...</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  if (error || !data || !editingPost) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => handleClose()}>
+        <DialogContent>
+          <div className="flex justify-center p-8 text-red-500">데이터를 불러오는데 실패했습니다.</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
