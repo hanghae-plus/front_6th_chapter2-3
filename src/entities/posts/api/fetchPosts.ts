@@ -1,5 +1,5 @@
 import fetchClient from "../../../shared/api/fetchClient"
-import { PostApi } from "./types"
+import { PostDTO } from "./types"
 import { User } from "../../users/api/types"
 
 type FetchPostsReq = {
@@ -8,7 +8,7 @@ type FetchPostsReq = {
 }
 
 type FetchPostsRes = {
-  posts: (PostApi & { author: User })[]
+  posts: (PostDTO & { author: User })[]
   total: number
 }
 

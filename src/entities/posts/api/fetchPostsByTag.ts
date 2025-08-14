@@ -1,12 +1,12 @@
 import fetchClient from "../../../shared/api/fetchClient"
-import { PostApi } from "./types"
+import { PostDTO } from "./types"
 
 type FetchPostsByTagReq = {
   tag: string
 }
 
 type FetchPostsByTagRes = {
-  posts: PostApi[]
+  posts: PostDTO[]
   total: number
 }
 
