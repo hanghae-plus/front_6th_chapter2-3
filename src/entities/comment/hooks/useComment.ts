@@ -7,15 +7,23 @@ import {
   updateCommentApi,
 } from "../api/comment-api"
 import { loadingAtom } from "../../../shared/model/store"
+import {
+  commentsAtom,
+  selectedCommentAtom,
+  newCommentAtom,
+  showAddCommentDialogAtom,
+  showEditCommentDialogAtom,
+} from "../model/store"
 import { useAtom } from "jotai"
 
 export const useComment = () => {
   const [loading, setLoading] = useAtom(loadingAtom)
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+
+  const [comments, setComments] = useAtom(commentsAtom)
+  const [selectedComment, setSelectedComment] = useAtom(selectedCommentAtom)
+  const [newComment, setNewComment] = useAtom(newCommentAtom)
+  const [showAddCommentDialog, setShowAddCommentDialog] = useAtom(showAddCommentDialogAtom)
+  const [showEditCommentDialog, setShowEditCommentDialog] = useAtom(showEditCommentDialogAtom)
 
   // 댓글 가져오기
   const fetchComments = async (postId) => {

@@ -52,22 +52,7 @@ const PostsManager = () => {
     fetchTags,
   } = usePost()
 
-  const {
-    comments,
-    selectedComment,
-    setSelectedComment,
-    newComment,
-    setNewComment,
-    showAddCommentDialog,
-    setShowAddCommentDialog,
-    showEditCommentDialog,
-    setShowEditCommentDialog,
-    fetchComments,
-    addComment,
-    updateComment,
-    deleteComment,
-    likeComment,
-  } = useComment()
+  const { fetchComments } = useComment()
 
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
@@ -245,32 +230,13 @@ const PostsManager = () => {
         setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
-        setNewComment={setNewComment}
-        setShowAddCommentDialog={setShowAddCommentDialog}
-        comments={comments}
-        setSelectedComment={setSelectedComment}
-        setShowEditCommentDialog={setShowEditCommentDialog}
-        deleteComment={deleteComment}
-        likeComment={likeComment}
       />
 
       {/* 댓글 추가 대화상자 */}
-      <CommentAddDialog
-        showAddCommentDialog={showAddCommentDialog}
-        setShowAddCommentDialog={setShowAddCommentDialog}
-        newComment={newComment}
-        setNewComment={setNewComment}
-        addComment={addComment}
-      />
+      <CommentAddDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <CommentEditDialog
-        showEditCommentDialog={showEditCommentDialog}
-        setShowEditCommentDialog={setShowEditCommentDialog}
-        selectedComment={selectedComment}
-        setSelectedComment={setSelectedComment}
-        updateComment={updateComment}
-      />
+      <CommentEditDialog />
 
       {/* 사용자 모달 */}
       <UserInfoDialog showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />

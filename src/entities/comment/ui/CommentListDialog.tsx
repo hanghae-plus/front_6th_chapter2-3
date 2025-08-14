@@ -1,22 +1,21 @@
 import { highlightText } from "../../../shared/lib/highlight-text"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../widgets/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { useComment } from "../hooks/useComment"
 
 // 게시물 테이블 렌더링
 export const CommentListDialog = (props) => {
   const {
-    showPostDetailDialog,
-    setShowPostDetailDialog,
-    selectedPost,
-    searchQuery,
-    setNewComment,
-    setShowAddCommentDialog,
     comments,
     setSelectedComment,
+    setNewComment,
+    setShowAddCommentDialog,
     setShowEditCommentDialog,
     deleteComment,
     likeComment,
-  } = props
+  } = useComment()
+
+  const { showPostDetailDialog, setShowPostDetailDialog, selectedPost, searchQuery } = props
 
   return (
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>

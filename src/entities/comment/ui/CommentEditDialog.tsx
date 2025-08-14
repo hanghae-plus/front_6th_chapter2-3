@@ -1,8 +1,10 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../widgets/ui"
+import { useComment } from "../hooks/useComment"
 
 // 게시물 테이블 렌더링
-export const CommentEditDialog = (props) => {
-  const { showEditCommentDialog, setShowEditCommentDialog, selectedComment, setSelectedComment, updateComment } = props
+export const CommentEditDialog = () => {
+  const { selectedComment, setSelectedComment, showEditCommentDialog, setShowEditCommentDialog, updateComment } =
+    useComment()
 
   return (
     <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
