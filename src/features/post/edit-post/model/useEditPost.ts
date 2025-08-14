@@ -11,7 +11,11 @@ export const useEditPost = () => {
     const updated = await openEdit(initial)
     if (!updated) return
 
-    editMutation.mutate({ id: updated.id, post: updated })
+    editMutation.mutate({
+      id: updated.id,
+      post: updated,
+      isTemporary: initial.isTemporary,
+    })
   }
 
   return { editPost, overlay, isPending: editMutation.isPending }

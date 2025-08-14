@@ -13,7 +13,7 @@ interface PostsTableProps {
   onOpenUser: (user: User | undefined) => void
   onOpenDetail: (post: Post) => void
   onEdit: (post: Post) => void
-  onDelete: (id: number) => void
+  onDelete: (post: Post) => void
   isLoading: boolean
 }
 
@@ -46,7 +46,15 @@ export const PostsTable = ({
       <TableBody>
         {posts.map((post) => (
           <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
+            <TableCell>
+              {post.isTemporary ? (
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                  NEW
+                </span>
+              ) : (
+                post.id
+              )}
+            </TableCell>
             <TableCell>
               <div className="space-y-1">
                 <div>{highlightText(post.title, searchQuery)}</div>
@@ -80,7 +88,7 @@ export const PostsTable = ({
                 <Button variant="ghost" size="sm" onClick={() => onEdit(post)}>
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => onDelete(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => onDelete(post)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

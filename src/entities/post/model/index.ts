@@ -10,6 +10,7 @@ export interface Post {
   userId: number
   tags?: string[]
   reactions?: Reactions
+  isTemporary?: boolean
 }
 
 export interface Tag {

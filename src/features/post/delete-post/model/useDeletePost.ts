@@ -1,11 +1,15 @@
 import { useMutation } from "@tanstack/react-query"
 import { postMutations } from "@entities/post/api/mutations"
+import type { Post } from "@entities/post/model"
 
 export const useDeletePost = () => {
   const deletePostMutation = useMutation(postMutations.deleteMutation())
 
-  const deletePost = (id: number) => {
-    deletePostMutation.mutate(id)
+  const deletePost = (post: Post) => {
+    deletePostMutation.mutate({
+      id: post.id,
+      isTemporary: post.isTemporary,
+    })
   }
 
   return {
