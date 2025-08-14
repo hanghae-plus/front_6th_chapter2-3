@@ -1,6 +1,11 @@
 import { PaginationResponse } from '@/shared/types';
 
-import { Comment, CreatedComment, DeletedComment } from './comment.type';
+import {
+  Comment,
+  CommentToCreate,
+  CreatedComment,
+  DeletedComment,
+} from './comment.type';
 
 interface GetCommentsResponse extends PaginationResponse {
   comments: Comment[];
@@ -14,7 +19,7 @@ export const getComments = async (
 };
 
 export const createComment = async (
-  newComment: Omit<Comment, 'id'>
+  newComment: CommentToCreate
 ): Promise<CreatedComment> => {
   const response = await fetch('/api/comments/add', {
     method: 'POST',

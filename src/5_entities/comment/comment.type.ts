@@ -9,9 +9,15 @@ export interface Comment {
   likes: number;
 }
 
+export interface CommentToCreate {
+  body: string;
+  postId: number;
+  userId: number;
+}
+
 export interface DeletedComment extends Comment {
   isDeleted: boolean;
   deletedOn: string;
 }
 
-export type CreatedComment = Omit<Comment, 'likes'>;
+export type CreatedComment = CommentToCreate;

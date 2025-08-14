@@ -1,6 +1,7 @@
 import type { Post } from '@/entities/post';
 import type { User } from '@/entities/user';
-import type { PostWithAuthor } from '@/features/posts-list';
+
+import { PostWithAuthor } from '../types';
 
 export const getPostsWithAuthor = (
   posts: Post[],

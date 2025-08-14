@@ -33,10 +33,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 
 import type { User } from '@/entities/user';
-import { PostDetailDialog } from '@/features/post-management';
+import { AddCommentDialog } from '@/features/comment-management';
+import { PostDetailDialog, PostTable } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
-import { PostTable } from '@/features/posts-list';
 import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { useUIStore } from '@/shared/lib/store/UIStore';
@@ -432,26 +432,7 @@ const PostsManager = () => {
       <EditPostFormDialog />
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={newComment.body}
-              onChange={e =>
-                setNewComment({ ...newComment, body: e.target.value })
-              }
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
       <Dialog

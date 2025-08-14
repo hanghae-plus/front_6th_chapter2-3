@@ -10,7 +10,12 @@ import {
   patchComment,
   updateComment,
 } from './comment.api';
-import { Comment, CreatedComment, DeletedComment } from './comment.type';
+import {
+  Comment,
+  CommentToCreate,
+  CreatedComment,
+  DeletedComment,
+} from './comment.type';
 
 export const useGetCommentsQuery = (postId: Nullable<number>) => {
   return useQuery({
@@ -27,43 +32,35 @@ export const useCreateCommentMutation = ({
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newComment: Omit<Comment, 'id'>) => createComment(newComment),
+    mutationFn: (newComment: CommentToCreate) => createComment(newComment),
     onMutate: async newComment => {
       await queryClient.cancelQueries({
-        queryKey: queryKeys.comments.lists(),
+        queryKey: queryKeys.comments.list(newComment.postId),
       });
 
       const previousComments = queryClient.getQueryData(
-        queryKeys.comments.lists()
+        queryKeys.comments.list(newComment.postId)
       );
-
-      queryClient.setQueryData(queryKeys.comments.lists(), (old: any) => {
-        if (!old) {
-          return {
-            comments: [newComment],
-            total: 1,
-            skip: 0,
-            limit: 10,
-          };
-        }
-
-        return {
-          ...old,
-          comments: [newComment, ...(old.comments || [])],
-        };
-      });
 
       return { previousComments };
     },
-    onError: (error, __, context) => {
+    onError: (error, { postId }, context) => {
       queryClient.setQueryData(
-        queryKeys.comments.lists(),
+        queryKeys.comments.list(postId),
         context?.previousComments
       );
       onError?.(error);
     },
     onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.comments.lists() });
+      queryClient.setQueryData(
+        queryKeys.comments.list(data.postId),
+        (old: any) => {
+          return {
+            ...old,
+            comments: [data, ...(old.comments || [])],
+          };
+        }
+      );
       onSuccess?.(data);
     },
   });
