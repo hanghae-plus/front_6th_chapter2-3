@@ -1,6 +1,6 @@
 import { BrowserRouter as Router } from "react-router-dom"
-import Header from "./components/Header.tsx"
-import Footer from "./components/Footer.tsx"
+import Header from "./widgets/Header.tsx"
+import Footer from "./widgets/Footer.tsx"
 import PostsManagerPage from "./pages/PostsManagerPage.tsx"
 
 const App = () => {
