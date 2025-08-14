@@ -60,12 +60,16 @@ export const PostsTable = ({
             <TableCell>
               <div
                 className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => onUserClick(post.author)}
+                onClick={() => post.author && onUserClick(post.author)}
               >
                 <img
                   src={post.author?.image}
-                  alt={post.author?.username}
-                  className='w-8 h-8 rounded-full'
+                  alt={post.author?.username || 'User'}
+                  className='w-8 h-8 rounded-full object-cover'
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://via.placeholder.com/32x32/cccccc/666666?text=U';
+                  }}
                 />
                 <span>{post.author?.username}</span>
               </div>

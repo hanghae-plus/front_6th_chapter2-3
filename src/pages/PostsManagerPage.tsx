@@ -9,7 +9,8 @@ import { EditCommentDialog } from '../features/comment/update-comment/ui/EditCom
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
-import { usePostsManager } from './PostsManagerPage/model/hooks';
+import { usePostsManager } from './PostsManagerPage/hooks';
+import { highlightText } from '../shared/utils/text';
 
 const PostsManager = () => {
   const {
@@ -20,7 +21,6 @@ const PostsManager = () => {
     limit,
     setSkip,
     setLimit,
-    highlightText,
     openUserModal,
     openPostDetail,
     handleEditPost,

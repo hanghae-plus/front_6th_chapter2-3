@@ -1,4 +1,6 @@
+import { fetchUserBasic } from '../../../../entities/user/api/api';
 import { FilterApiParams } from '../model/type';
+
 export const fetchFilteredPosts = async (params: FilterApiParams) => {
   const { limit, skip, search, sortBy, sortOrder, tag } = params;
 
@@ -27,11 +29,21 @@ export const fetchFilteredPosts = async (params: FilterApiParams) => {
   const finalUrl = `${apiUrl}?${searchParams.toString()}`;
 
   try {
-    const response = await fetch(finalUrl);
-    if (!response.ok) {
-      throw new Error(`게시물 조회 실패: ${response.status}`);
+    const [postsResponse, usersResponse] = await Promise.all([fetch(finalUrl), fetchUserBasic()]);
+
+    if (!postsResponse.ok) {
+      throw new Error(`게시물 조회 실패: ${postsResponse.status}`);
     }
-    return await response.json();
+
+    const postsData = await postsResponse.json();
+
+    return {
+      posts: postsData.posts.map((post: any) => ({
+        ...post,
+        author: usersResponse.users.find((user: any) => user.id === post.userId),
+      })),
+      total: postsData.total,
+    };
   } catch (error) {
     console.error('필터링된 게시물 조회 오류:', error);
     throw error;

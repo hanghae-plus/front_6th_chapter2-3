@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import { UserDetail } from './type';
 
 interface UserState {
-  selectedUser: any | null;
-  setSelectedUser: (user: any | null) => void;
+  selectedUser: UserDetail | null;
+  setSelectedUser: (user: UserDetail | null) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({

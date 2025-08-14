@@ -20,21 +20,3 @@ export const fetchPostComments = async (postId: number) => {
     throw error;
   }
 };
-
-/**
- * 사용자 상세 정보 가져오기
- */
-export const fetchUserDetail = async (userId: number) => {
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-
-    if (!response.ok) {
-      throw new Error('사용자 정보 가져오기 실패');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('사용자 정보 가져오기 오류:', error);
-    throw error;
-  }
-};
