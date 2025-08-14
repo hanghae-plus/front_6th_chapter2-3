@@ -6,6 +6,9 @@ import type {
   updatePostRequestSchema,
 } from "../model"
 import {
+  getPostsBySlugRequestParamsSchema,
+} from "../model"
+import {
   addPostResponseSchema,
   deletePostResponseSchema,
   getPostsRequestParamsSchema,
@@ -32,8 +35,11 @@ export const getPostTags = async () => {
   return getPostTagsResponseSchema.parse(response.data)
 }
 
-export const getPostsBySlug = async (slug: string) => {
-  const response = await httpClient.get<z.infer<typeof getPostsResponseSchema>>(`/api/posts/tags/${slug}`)
+export const getPostsBySlug = async (requestParams: z.infer<typeof getPostsBySlugRequestParamsSchema>) => {
+  const parsedRequestParams = getPostsBySlugRequestParamsSchema.parse(requestParams)
+  const response = await httpClient.get<z.infer<typeof getPostsResponseSchema>>(`/api/posts/tag/${parsedRequestParams.slug}`, {
+    params: getPostsRequestParamsSchema.parse(parsedRequestParams),
+  })
 
   return getPostsResponseSchema.parse(response.data)
 }

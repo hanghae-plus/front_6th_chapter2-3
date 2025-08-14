@@ -9,6 +9,10 @@ export const getPostsRequestParamsSchema = z.object({
   order: z.enum(["asc", "desc"]).optional(),
 })
 
+export const getPostsBySlugRequestParamsSchema = getPostsRequestParamsSchema.extend({
+  slug: z.string(),
+})
+
 export const addPostRequestSchema = postSchema.pick({
   title: true,
   body: true,

@@ -25,12 +25,20 @@ export const PostListTable = ({
 }: Props) => {
   const postListFilter = usePostListFilterQueryParams()
   const { deletePost, likePost, dislikePost, undoLikePost, undoDislikePost } = usePostMutations({
-    queryParams : postListFilter.queryParams,
+    queryParams : { ... postListFilter.queryParams, slug: postListFilter.queryParams.selectedTag },
   })
   const [commentsMap, setCommentsMap] = useState<CommentsMap>({})
 
   const postsQuery = useQuery({
     ...postEntityQueries.getPosts({ ...postListFilter.queryParams }),
+  })
+
+  const postsByTagQuery = useQuery({
+    ...postEntityQueries.getPostsBySlug({
+      ...postListFilter.queryParams,
+      slug: postListFilter.queryParams.selectedTag,
+    }),
+    enabled: !!postListFilter.queryParams.selectedTag,
   })
 
   const usersQuery = useQuery({
@@ -42,7 +50,9 @@ export const PostListTable = ({
     }),
   })
 
-  const postWithAuthors = postsQuery.data?.posts.map((post) => ({
+  const posts = postListFilter.queryParams.selectedTag ? postsByTagQuery.data : postsQuery.data
+
+  const postWithAuthors = posts?.posts.map((post) => ({
     ...post,
     author: usersQuery.data?.data.find((user) => user.id === post.userId),
   }))

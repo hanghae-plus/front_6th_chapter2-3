@@ -12,10 +12,12 @@ import { Plus } from "lucide-react"
 import { useState } from "react"
 
 const PostManagementView = () => {
-  const { queryParams } = usePostListFilterQueryParams()
+  const postListFilter = usePostListFilterQueryParams()
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
 
-  const { addPost, updatePost } = usePostMutations({ queryParams })
+  const { addPost, updatePost } = usePostMutations({
+    queryParams : { ... postListFilter.queryParams, slug: postListFilter.queryParams.selectedTag },
+  })
   const { deleteComment, likeComment } = useCommentMutations({
     postId: selectedPostId as number,
   })
@@ -24,7 +26,7 @@ const PostManagementView = () => {
     setSelectedPostId(post.id)
     openPostDetailDialog({
       post: post,
-      searchQuery: queryParams.searchQuery,
+      searchQuery: postListFilter.queryParams.searchQuery,
       onDeleteComment: (commentId) => deleteComment.mutate({ id: commentId }),
       onLikeComment: (commentId, likes) => likeComment.mutate({ id: commentId, likes }),
       onCloseCallback: () => setSelectedPostId(null),

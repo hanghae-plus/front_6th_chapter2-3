@@ -1,13 +1,13 @@
 import { addPost as addPostAction, deletePost as deletePostAction, updatePost as updatePostAction } from "../api"
 import { postEntityQueries } from "../api"
 import { optimisticAddPost, optimisticDeletePost, optimisticDislikePost, optimisticLikePost, optimisticUndoDislikePost, optimisticUndoLikePost, optimisticUpdatePost } from "../libs"
-import type { getPostsRequestParamsSchema } from "../model"
+import type { getPostsBySlugRequestParamsSchema } from "../model"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type z from "zod"
 
 type UsePostMutationsParams = {
-  queryParams?: z.infer<typeof getPostsRequestParamsSchema>
+  queryParams?: z.infer<typeof getPostsBySlugRequestParamsSchema>
 }
 
 export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) => {
@@ -19,7 +19,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 추가 오류:", error)
     },
     onSuccess: (addPostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticAddPost(prevPostResponse, addPostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticAddPost(prevPostResponse, addPostResponse),
@@ -34,7 +41,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 업데이트 오류:", error)
     },
     onSuccess: (updatePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticUpdatePost(prevPostResponse, updatePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticUpdatePost(prevPostResponse, updatePostResponse),
@@ -49,7 +63,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 삭제 오류:", error)
     },
     onSuccess: (deletePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticDeletePost(prevPostResponse, deletePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticDeletePost(prevPostResponse, deletePostResponse),
@@ -64,7 +85,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 좋아요 오류:", error)
     },
     onSuccess: (likePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticLikePost(prevPostResponse, likePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticLikePost(prevPostResponse, likePostResponse),
