@@ -36,6 +36,7 @@ import { useSortMode } from "../features/posts/fetch-posts-by-mode/sort-mode/use
 import { useAddPost } from "../features/posts/add-post/useAddPost.ts"
 import { useUpdatePost } from "../features/posts/update-post/useUpdatePost.ts"
 import { useDetailPost } from "../features/posts/detail-post/useDetailPost.ts"
+import { useDeletePost } from "../features/posts/delete-post/useDeletePost.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -84,6 +85,7 @@ const PostsManager = () => {
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
   const detailPost = useDetailPost()
+  const deletePost = useDeletePost()
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -102,16 +104,16 @@ const PostsManager = () => {
   // }
 
   // 게시물 삭제
-  const deletePost = async (id) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      // setPosts(posts.filter((post) => post.id !== id))
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
+  // const deletePost = async (id) => {
+  //   try {
+  //     await fetch(`/api/posts/${id}`, {
+  //       method: "DELETE",
+  //     })
+  //     // setPosts(posts.filter((post) => post.id !== id))
+  //   } catch (error) {
+  //     console.error("게시물 삭제 오류:", error)
+  //   }
+  // }
 
   // 댓글 가져오기
   const fetchComments = async (postId) => {
@@ -381,7 +383,7 @@ const PostsManager = () => {
                 },
                 onOpenDetail: (post) => detailPost.actions.detail(post),
                 onEdit: (post) => updatePost.action.edit(post),
-                onDelete: (id) => deletePost(id),
+                onDelete: (id) => deletePost.action.delete(id),
                 onAuthorClick: (author) => author && openUserModal(author),
               }}
             />
