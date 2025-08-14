@@ -36,3 +36,12 @@ export interface UpdatePost {
   title: string
   userId: number
 }
+
+/**
+ * 태그 타입
+ */
+export interface Tag {
+  name: string
+  slug: string
+  url: string
+}
