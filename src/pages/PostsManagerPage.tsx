@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Card, CardContent } from '../shared/ui';
 import { PostsTable } from '../widgets/postsTable/ui/PostsTable';
 import { PostsFilter } from '../widgets/postsFilter/ui/PostsFilter';
@@ -10,55 +8,28 @@ import { AddCommentDialog } from '../features/comment/add-comment/ui/AddCommentD
 import { EditCommentDialog } from '../features/comment/update-comment/ui/EditCommentDialog';
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
-import { deletePost as deletePostAPI } from '../features/posts/delete-post/api/api';
 
 import { usePostsStore } from '../entities/post/model/store';
-import { useTagsStore } from '../entities/tags/model/store';
 import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 import { useDialogStore } from '../shared/store/dialog';
 import { DIALOG_KEYS } from '../shared/constant/dialog';
 import { useViewUser } from '../features/user/view-user/model/hooks';
-import { usePostsUrlParams } from '../features/posts/list-posts/model/hooks';
 import { useViewPost } from '../features/posts/view-post/model/hooks';
-import { usePostsFilter } from '../features/posts/filter-posts/model/hooks';
+import { useDeletePost } from '../features/posts/delete-post/model/hooks';
+import { usePagination } from '../features/posts/pagination/model/hooks';
+import { usePostsInitialization } from '../features/posts/initialization/model/hooks';
 
 const PostsManager = () => {
-  const location = useLocation();
-
   const { posts, total, loading, setSelectedPost } = usePostsStore();
-  const { fetchTags: fetchTagsFromStore } = useTagsStore();
-
-  const { skip, limit, setSkip, setLimit } = usePostsUrlParams();
-
-  const { applyFilters } = usePostsFilter();
 
   const { openUserModal } = useViewUser();
   const { openPostDetail } = useViewPost();
+  const { deletePost } = useDeletePost();
+  const { skip, limit, setSkip, setLimit } = usePagination();
   const { openDialog } = useDialogStore();
 
-  const deletePost = async (id: number) => {
-    try {
-      await deletePostAPI(id);
-      applyFilters();
-    } catch (error) {
-      console.error('게시물 삭제 오류:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTagsFromStore();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [skip, limit, applyFilters]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || '0'));
-    setLimit(parseInt(params.get('limit') || '10'));
-  }, [location.search]);
+  usePostsInitialization();
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
