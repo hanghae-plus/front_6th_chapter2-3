@@ -1,14 +1,7 @@
 import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs"
 
-export type BaseListQueryParams = {
-  skip: number
-  limit: number
-  searchQuery: string
-  order: "asc" | "desc"
-}
-
 export const useListQueryParams = () => {
-  const [queryParams, setQueryParams] = useQueryStates<BaseListQueryParams>({
+  const [queryParams, setQueryParams] = useQueryStates({
     skip: parseAsInteger.withDefault(0),
     limit: parseAsInteger.withDefault(10),
     searchQuery: parseAsString.withDefault(""),
