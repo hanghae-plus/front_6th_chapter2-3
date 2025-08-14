@@ -1,6 +1,5 @@
+import { Post, POST_CONSTANTS } from '@/entities/post';
 import { PaginationResponse } from '@/shared/types';
-
-import { Post } from './post.type';
 
 export interface GetPostsParams {
   limit: number;
@@ -12,8 +11,8 @@ export interface GetPostsResponse extends PaginationResponse {
 }
 
 export const getPosts = async ({
-  limit,
-  skip,
+  limit = POST_CONSTANTS.DEFAULT_LIMIT,
+  skip = POST_CONSTANTS.DEFAULT_SKIP,
 }: GetPostsParams): Promise<GetPostsResponse> => {
   const response = await fetch(`/api/posts?limit=${limit}&skip=${skip}`);
   return response.json();
@@ -39,10 +38,33 @@ export const getPostsBySearch = async ({
   return response.json();
 };
 
-export const postPost = async () => {};
+export interface CreatePostParams {
+  newPost: Pick<Post, 'title' | 'body' | 'userId'>;
+}
 
-export const putPost = async () => {};
+export const createPost = async ({
+  newPost,
+}: CreatePostParams): Promise<Post> => {
+  const response = await fetch('/api/posts/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newPost),
+  });
+  return response.json();
+};
 
-export const deletePost = async () => {};
+export const putPost = async (updatedPost: Post): Promise<Post> => {
+  const response = await fetch(`/api/posts/${updatedPost.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedPost),
+  });
+  return response.json();
+};
 
-export const getPost = async () => {};
+export const deletePost = async (postId: number) => {
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: 'DELETE',
+  });
+  return response.json();
+};
