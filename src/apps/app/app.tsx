@@ -1,4 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom';
+import { DialogPortal } from '@/shared/utils';
 import { PostsManagerPage } from '@/pages/home';
 import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
@@ -13,6 +14,7 @@ export function App() {
         </main>
         <Footer />
       </div>
+      <DialogPortal />
     </Router>
   );
 }

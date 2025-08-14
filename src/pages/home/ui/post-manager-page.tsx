@@ -56,7 +56,7 @@ export function PostsManagerPage() {
   const { tags } = useTags();
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  // 댓글 입력 상태는 feature dialog 내부에서 관리
+
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const postDetail = usePostDetail();
@@ -71,25 +71,16 @@ export function PostsManagerPage() {
     sortOrder: (sortOrder as any) || 'asc',
   });
 
-  // URL 업데이트 함수
   const updateURL = () => {
     updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
   };
 
-  // 게시물 추가/수정은 feature UI에서 처리
-
-  // 게시물 삭제 후처리 (feature에서 삭제 수행 후 호출됨)
   const onPostDeleted = async (_id: number) => {
     void refetch();
   };
 
-  // 댓글 데이터는 useComments 훅에서 관리
-
-  // 댓글 기능 훅 사용
   const commentsFeature = useComments(selectedPost?.id ?? null);
-  // 댓글 추가/수정은 feature dialog에서 처리
 
-  // 댓글 삭제
   const deleteComment = async (id: number) => {
     try {
       await commentsFeature.remove(id);
@@ -98,7 +89,6 @@ export function PostsManagerPage() {
     }
   };
 
-  // 댓글 좋아요
   const likeComment = async (id: number) => {
     try {
       await commentsFeature.like(id);
@@ -107,19 +97,15 @@ export function PostsManagerPage() {
     }
   };
 
-  // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
     setSelectedPost(post);
     postDetail.show(post);
   };
 
-  // 사용자 모달 열기 (feature 사용)
   const openUserModal = async (user: User) => {
     if (!user?.id) return;
     await userModal.show(user.id);
   };
-
-  // 태그는 useTags 훅에서 초기 로딩
 
   useEffect(() => {
     updateURL();
@@ -149,7 +135,6 @@ export function PostsManagerPage() {
     setSkip,
   ]);
 
-  // 게시물 테이블 렌더링 (Feature UI 사용)
   const renderPostTable = () => (
     <PostTable
       posts={posts}
@@ -170,7 +155,6 @@ export function PostsManagerPage() {
     />
   );
 
-  // 댓글 렌더링
   const renderComments = () => (
     <div className='mt-2'>
       <div className='flex items-center justify-between mb-2'>
@@ -210,7 +194,6 @@ export function PostsManagerPage() {
       </Card.Header>
       <Card.Content>
         <div className='flex flex-col gap-4'>
-          {/* 검색 및 필터 컨트롤 (Feature UI 사용) */}
           <div className='flex gap-4'>
             <div className='flex-1'>
               <SearchInput value={searchQuery} onChange={setQuery} onEnter={() => void refetch()} />
@@ -231,10 +214,8 @@ export function PostsManagerPage() {
             />
           </div>
 
-          {/* 게시물 테이블 */}
           {loading ? <div className='flex justify-center p-4'>로딩 중...</div> : renderPostTable()}
 
-          {/* 페이지네이션 (Feature UI 사용) */}
           <PaginationControls
             limit={limit}
             skip={skip}
@@ -260,7 +241,6 @@ export function PostsManagerPage() {
         onSuccess={() => void commentsFeature.refetch()}
       />
 
-      {/* 게시물 상세 보기 대화상자 (Feature UI) */}
       <PostDetailDialog
         open={postDetail.open}
         post={postDetail.post}
@@ -272,7 +252,6 @@ export function PostsManagerPage() {
         {postDetail.post ? renderComments() : null}
       </PostDetailDialog>
 
-      {/* Feature Dialogs */}
       <AddPostDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
@@ -285,7 +264,6 @@ export function PostsManagerPage() {
         onSuccess={() => void refetch()}
       />
 
-      {/* 사용자 모달 (Feature UI 사용) */}
       <UserModal
         open={userModal.open}
         user={userModal.user}
