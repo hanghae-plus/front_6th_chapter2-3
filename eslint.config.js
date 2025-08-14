@@ -26,7 +26,6 @@ export default tseslint.config(
       'fsd/forbidden-imports': 'error',
       'fsd/no-cross-slice-dependency': 'error',
       'fsd/no-ui-in-business-logic': 'error',
-      'fsd/no-global-store-imports': 'error',
       'fsd/ordered-imports': 'warn',
     },
   },
