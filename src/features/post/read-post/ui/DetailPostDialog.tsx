@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react"
 import { Plus } from "lucide-react"
-import { useQueryClient } from "@tanstack/react-query"
 import { useComments } from "@/features/comment/read-comment/model/useComments"
 import { useCreateComment } from "@/features/comment/create-comment/model"
+import { useUpdateComment } from "@/features/comment/update-comment/model"
+import { useDeleteComment } from "@/features/comment/delete-comment/model"
+import { useLikeComment } from "@/features/comment/like-comment/model"
 import { AddCommentDialog } from "@/features/comment/create-comment/ui"
 import { CommentItem } from "@/entities/comment/ui"
-import { commentKeys } from "@/entities/comment/model/query-key"
-import { Comment, CreateComment } from "@/shared/types"
-import { HttpClient } from "@/shared/api/http"
+import { Comment, CreateComment } from "@/entities/comment/model"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, EditCommentDialog } from "@/shared/ui"
 import { usePostDetail } from "../model"
@@ -21,7 +21,6 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const isEditCommentOpen = useDialogStore((state) => state.dialogs.EDIT_COMMENT)
   const isAddCommentOpen = useDialogStore((state) => state.dialogs.ADD_COMMENT)
   const { hideDialog, showDialog } = useDialogActions()
-  const queryClient = useQueryClient()
 
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
 
@@ -36,6 +35,9 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const { data, isLoading, error } = usePostDetail(postId)
   const { data: commentsData } = useComments(postId)
   const createCommentMutation = useCreateComment()
+  const updateCommentMutation = useUpdateComment()
+  const deleteCommentMutation = useDeleteComment()
+  const likeCommentMutation = useLikeComment()
 
   // postId가 없거나 다이얼로그가 닫혀있으면 렌더링하지 않음
   if (!postId || !isOpen) return null
@@ -84,52 +86,44 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     }
   }
 
-  // TODO : 댓글 추가 으로 분리
   const updateComment = async (commentId: number, body: string) => {
     if (!postId) return
 
     try {
-      await HttpClient.put<Comment>(`/comments/${commentId}`, {
-        body: body,
+      await updateCommentMutation.mutateAsync({
+        commentId,
+        body,
       })
-
-      // 댓글 수정 후 쿼리 무효화하여 데이터 새로고침
-      queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
-      queryClient.invalidateQueries({ queryKey: commentKeys.listByPost(postId) })
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
   }
 
-  // TODO : 댓글 삭제 훅으로 분리
   const deleteComment = async (id: number) => {
     if (!postId) return
 
     try {
-      await HttpClient.delete(`/comments/${id}`)
-
-      // 댓글 삭제 후 쿼리 무효화하여 데이터 새로고침
-      queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
+      await deleteCommentMutation.mutateAsync({
+        commentId: id,
+        postId: postId,
+      })
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
   }
 
-  // TODO: 댓글 좋아요 훅으로 분리
   const likeComment = async (id: number) => {
     if (!postId) return
 
     try {
-      const comment = commentsData?.comments?.find((c) => c.id === id)
+      const comment = commentsData?.comments?.find((c: Comment) => c.id === id)
       if (!comment) return
 
-      await HttpClient.patch<Comment>(`/comments/${id}`, {
-        likes: comment.likes + 1,
+      await likeCommentMutation.mutateAsync({
+        commentId: id,
+        postId: postId,
+        currentLikes: comment.likes,
       })
-
-      // 좋아요 후 쿼리 무효화하여 데이터 새로고침
-      queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
-      queryClient.invalidateQueries({ queryKey: commentKeys.listByPost(postId) })
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
@@ -153,12 +147,12 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
           <div className="text-center py-4">댓글 로딩 중...</div>
         ) : (
           <div className="space-y-1">
-            {commentsData.comments?.map((comment) => (
+            {commentsData.comments?.map((comment: Comment) => (
               <CommentItem
                 key={comment.id}
                 comment={comment}
                 onLike={likeComment}
-                onEdit={(comment) => {
+                onEdit={(comment: Comment) => {
                   setSelectedComment(comment)
                   showDialog("EDIT_COMMENT")
                 }}

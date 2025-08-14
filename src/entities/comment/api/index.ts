@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import type { Comment, CommentPaginatedResponse, CreateComment } from "@/shared/types"
+import { Comment, CommentPaginatedResponse, CreateComment } from "../model"
 
 // 댓글 목록 조회
 export const getCommentsByPost = (postId: number) => {

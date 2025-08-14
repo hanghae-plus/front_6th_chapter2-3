@@ -1,0 +1,1 @@
+export { useDeleteComment } from "./useDeleteComment"
