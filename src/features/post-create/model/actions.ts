@@ -7,12 +7,14 @@ import type { PostsApiResponse, Post } from "../../../entities/post/model"
 import { useAtomValue, useSetAtom } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
 import { listSortOrderAtom } from "../../../shared/lib/viewAtoms"
+import { toastsAtom } from "../../../shared/lib/toastAtoms"
 
 export const usePostCreate = () => {
   const [newPostData, setNewPostData] = useAtom(newPostDataAtom)
   const setLocalCreated = useSetAtom(localCreatedPostIdsAtom)
   const sortOrder = useAtomValue(listSortOrderAtom)
   const [showDialog, setShowDialog] = useAtom(showAddPostDialogAtom)
+  const setToasts = useSetAtom(toastsAtom)
   const queryClient = useQueryClient()
 
   const addPostMutation = useMutation({
@@ -39,6 +41,20 @@ export const usePostCreate = () => {
         const posts = sortOrder === "desc" ? [createdNormalized, ...data.posts] : [...data.posts] // asc는 현재 페이지에는 추가하지 않음(마지막 페이지에만 나타나야 함)
         return { ...data, posts, total: (data.total ?? 0) + 1 }
       })
+
+      if (sortOrder === "asc") {
+        const id = `${Date.now()}`
+        setToasts((prev) => [
+          ...prev,
+          {
+            id,
+            message: "새 게시물이 생성되었습니다 · 마지막 페이지에서 확인",
+            type: "success",
+            createdAt: Date.now(),
+            durationMs: 3500,
+          },
+        ])
+      }
     },
     onSettled: () => {
       setShowDialog(false)
