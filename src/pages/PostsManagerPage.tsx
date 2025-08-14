@@ -25,52 +25,36 @@ import {
   TableRow,
   Textarea,
 } from "../components"
+import { atom, useAtom } from "jotai"
+import type { Post } from "../entities/Post"
 
-const PostsManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+const postsAtom = atom([])
 
-  // 상태 관리
-  const [posts, setPosts] = useState([])
+function usePosts({
+  limit,
+  skip,
+  sortBy,
+  sortOrder,
+  selectedTag,
+  searchQuery,
+  updateURL,
+}: {
+  limit: number
+  skip: number
+  sortBy: string
+  sortOrder: string
+  selectedTag: string
+  searchQuery: string
+  updateURL: () => void
+}) {
+  const [posts, setPosts] = useAtom(postsAtom)
   const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
-
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
-  }
 
   // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true)
-    let postsData
+    let postsData: PostResponse
     let usersData
 
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
@@ -95,35 +79,6 @@ const PostsManager = () => {
       .finally(() => {
         setLoading(false)
       })
-  }
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
   }
 
   // 태그별 게시물 가져오기
@@ -152,6 +107,102 @@ const PostsManager = () => {
       console.error("태그별 게시물 가져오기 오류:", error)
     }
     setLoading(false)
+  }
+
+  // 게시물 검색
+  const searchPosts = async () => {
+    if (!searchQuery) {
+      fetchPosts()
+      return
+    }
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
+      const data = await response.json()
+      setPosts(data.posts)
+      setTotal(data.total)
+    } catch (error) {
+      console.error("게시물 검색 오류:", error)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    if (selectedTag) {
+      fetchPostsByTag(selectedTag)
+    } else {
+      fetchPosts()
+    }
+    updateURL()
+  }, [skip, limit, sortBy, sortOrder, selectedTag])
+
+  return {
+    posts,
+    setPosts,
+    total,
+    loading,
+    fetchPostsByTag,
+    searchPosts,
+  }
+}
+
+const PostsManager = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const queryParams = new URLSearchParams(location.search)
+
+  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
+  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
+  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
+  const [selectedPost, setSelectedPost] = useState(null)
+  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
+  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  const [tags, setTags] = useState([])
+  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
+  const [comments, setComments] = useState({})
+  const [selectedComment, setSelectedComment] = useState(null)
+  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
+  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+  const [showUserModal, setShowUserModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+
+  // URL 업데이트 함수
+  const updateURL = () => {
+    const params = new URLSearchParams()
+    if (skip) params.set("skip", skip.toString())
+    if (limit) params.set("limit", limit.toString())
+    if (searchQuery) params.set("search", searchQuery)
+    if (sortBy) params.set("sortBy", sortBy)
+    if (sortOrder) params.set("sortOrder", sortOrder)
+    if (selectedTag) params.set("tag", selectedTag)
+    navigate(`?${params.toString()}`)
+  }
+
+  // Post 엔티티 기준으로 필요한 인자를 받고 반환하는 커스텀 훅으로 분리
+  const { posts, setPosts, total, loading, fetchPostsByTag, searchPosts } = usePosts({
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
+    selectedTag,
+    searchQuery,
+    updateURL,
+  })
+
+  // 태그 가져오기
+  const fetchTags = async () => {
+    try {
+      const response = await fetch("/api/posts/tags")
+      const data = await response.json()
+      setTags(data)
+    } catch (error) {
+      console.error("태그 가져오기 오류:", error)
+    }
   }
 
   // 게시물 추가
@@ -268,7 +319,6 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
     try {
-
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -277,7 +327,9 @@ const PostsManager = () => {
       const data = await response.json()
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId].map((comment) => (comment.id === data.id ? {...data, likes: comment.likes + 1} : comment)),
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
       }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
@@ -306,15 +358,6 @@ const PostsManager = () => {
   useEffect(() => {
     fetchTags()
   }, [])
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
-    updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
