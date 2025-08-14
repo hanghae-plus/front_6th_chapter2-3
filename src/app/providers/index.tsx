@@ -1,18 +1,20 @@
 import { BrowserRouter as Router } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ReactNode } from 'react'
 import { shouldRetry, handleQueryError, handleMutationError } from '@shared/lib/error-handler'
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: handleQueryError,
+  }),
+  mutationCache: new MutationCache({
+    onError: handleMutationError,
+  }),
   defaultOptions: {
     queries: {
       retry: shouldRetry,
       refetchOnWindowFocus: false,
-      onError: handleQueryError,
-    },
-    mutations: {
-      onError: handleMutationError,
     },
   },
 })
