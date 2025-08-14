@@ -6,8 +6,9 @@ import {
   useGetPostsQuery,
 } from '@/entities/post';
 import { useGetUsersQuery } from '@/entities/user';
-import type { PostWithAuthor } from '@/features/posts-list';
-import { getPostsWithAuthor } from '@/features/posts-list/lib/posts-utils';
+
+import { getPostsWithAuthor } from '../lib/post.util';
+import { PostWithAuthor } from '../types';
 
 interface Props {
   tag: string;

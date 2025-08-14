@@ -42,12 +42,13 @@ import {
 
 import { useDeletePostMutation, usePutPostMutation } from '@/entities/post';
 import type { User } from '@/entities/user';
-import { AddPostFormDialog } from '@/features/add-post/ui/AddPostFormDialog';
+import { PostDetailDialog } from '@/features/post-management';
+import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { useFilteredPosts } from '@/features/posts-list';
 import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText } from '@/shared/lib';
-import { useDialogStore } from '@/shared/lib/store/dialogStore';
+import { useUIStore } from '@/shared/lib/store/UIStore';
 import {
   Button,
   Card,
@@ -151,7 +152,7 @@ const PostsManager = () => {
     setShowEditCommentDialog,
     setShowPostDetailDialog,
     setShowUserModal,
-  } = useDialogStore();
+  } = useUIStore();
 
   const { posts } = useFilteredPosts({
     tag: selectedTag,
@@ -181,6 +182,7 @@ const PostsManager = () => {
    */
   const fetchComments = async postId => {
     if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
+
     try {
       const response = await fetch(`/api/comments/post/${postId}`);
       const data = await response.json();
@@ -278,7 +280,9 @@ const PostsManager = () => {
             API_CONSTANTS.REACTIONS.LIKE_INCREMENT,
         }),
       });
+
       const data = await response.json();
+
       setComments(prev => ({
         ...prev,
         [postId]: prev[postId].map(comment =>
@@ -465,75 +469,6 @@ const PostsManager = () => {
         ))}
       </TableBody>
     </Table>
-  );
-
-  /**
-   * 댓글 목록 렌더링
-   * - 특정 게시물의 댓글들을 표시
-   * - 댓글 추가, 수정, 삭제, 좋아요 기능 포함
-   * - 검색어 하이라이트 적용
-   * - 작성자명과 댓글 내용 표시
-   */
-  const renderComments = postId => (
-    <div className='mt-2'>
-      <div className='flex items-center justify-between mb-2'>
-        <h3 className='text-sm font-semibold'>댓글</h3>
-        <Button
-          size='sm'
-          onClick={() => {
-            setNewComment(prev => ({ ...prev, postId }));
-            setShowAddCommentDialog(true);
-          }}
-        >
-          <Plus className={`${UI_CONSTANTS.ICON_SIZES.SMALL} mr-1`} />
-          댓글 추가
-        </Button>
-      </div>
-      <div className='space-y-1'>
-        {comments[postId]?.map(comment => (
-          <div
-            key={comment.id}
-            className='flex items-center justify-between text-sm border-b pb-1'
-          >
-            <div className='flex items-center space-x-2 overflow-hidden'>
-              <span className='font-medium truncate'>
-                {comment.user.username}:
-              </span>
-              <span className='truncate'>
-                {highlightText(comment.body, searchQuery)}
-              </span>
-            </div>
-            <div className='flex items-center space-x-1'>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => likeComment(comment.id, postId)}
-              >
-                <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.SMALL} />
-                <span className='ml-1 text-xs'>{comment.likes}</span>
-              </Button>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => {
-                  setSelectedComment(comment);
-                  setShowEditCommentDialog(true);
-                }}
-              >
-                <Edit2 className={UI_CONSTANTS.ICON_SIZES.SMALL} />
-              </Button>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => deleteComment(comment.id, postId)}
-              >
-                <Trash2 className={UI_CONSTANTS.ICON_SIZES.SMALL} />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 
   return (
@@ -724,22 +659,7 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog
-        open={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
-      >
-        <DialogContent className='max-w-3xl'>
-          <DialogHeader>
-            <DialogTitle>
-              {highlightText(selectedPost?.title, searchQuery)}
-            </DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDetailDialog />
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

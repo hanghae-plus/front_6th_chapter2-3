@@ -1,7 +1,12 @@
-interface PaginationResponse {
+import { Post } from '@/entities/post';
+
+export interface PaginationResponse {
   total: number;
   skip: number;
   limit: number;
 }
 
-export type { PaginationResponse };
+export interface MutationProps<T> {
+  onError?: (error: Error) => void;
+  onSuccess?: (data: T) => void;
+}

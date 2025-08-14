@@ -1,1 +1,1 @@
-export { SelectTag } from './ui/SelectTag';
+export { SelectTag } from '../filter-posts/ui/SelectTag';

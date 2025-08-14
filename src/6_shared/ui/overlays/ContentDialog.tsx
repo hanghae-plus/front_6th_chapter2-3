@@ -1,9 +1,11 @@
+import { ReactNode } from 'react';
+
 import { DialogProps } from '@radix-ui/react-dialog';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './Dialog';
 
 interface ContentDialogProps extends DialogProps {
-  title: string;
+  title: ReactNode;
 }
 
 export const ContentDialog = ({

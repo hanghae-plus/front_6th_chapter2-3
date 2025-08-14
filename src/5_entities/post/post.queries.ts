@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/lib';
+import { MutationProps } from '@/shared/types';
 
 import {
   createPost,
@@ -36,15 +37,10 @@ export const useGetPostsBySearchQuery = (search: string) => {
   });
 };
 
-interface MutationProps {
-  onError?: (error: Error) => void;
-  onSuccess?: (data: Post) => void;
-}
-
 export const useCreatePostMutation = ({
   onError,
   onSuccess,
-}: MutationProps) => {
+}: MutationProps<Post>) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -65,6 +61,7 @@ export const useCreatePostMutation = ({
             limit: 10,
           };
         }
+
         return {
           ...old,
           posts: [newPost, ...(old.posts || [])],
@@ -84,7 +81,10 @@ export const useCreatePostMutation = ({
   });
 };
 
-export const usePutPostMutation = ({ onError, onSuccess }: MutationProps) => {
+export const usePutPostMutation = ({
+  onError,
+  onSuccess,
+}: MutationProps<Post>) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -124,7 +124,7 @@ export const usePutPostMutation = ({ onError, onSuccess }: MutationProps) => {
 export const useDeletePostMutation = ({
   onError,
   onSuccess,
-}: MutationProps) => {
+}: MutationProps<Post>) => {
   const queryClient = useQueryClient();
 
   return useMutation({

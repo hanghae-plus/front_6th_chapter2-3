@@ -47,8 +47,16 @@ const tagQueryKeys = {
   lists: () => [QUERY_DOMAINS.TAGS, QUERY_OPERATIONS.LIST] as const,
 } as const;
 
+const commentQueryKeys = {
+  all: [QUERY_DOMAINS.COMMENTS] as const,
+
+  lists: () => [QUERY_DOMAINS.COMMENTS, QUERY_OPERATIONS.LIST] as const,
+  list: (postId: number) => [...commentQueryKeys.lists(), postId] as const,
+} as const;
+
 export const queryKeys = {
   posts: postQueryKeys,
   users: userQueryKeys,
   tags: tagQueryKeys,
+  comments: commentQueryKeys,
 } as const;
