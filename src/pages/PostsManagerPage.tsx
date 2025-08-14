@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  PaginationBar,
 } from "../shared/ui"
 import { usePostsBrowseParams, PostsFilterBar } from "../features/post/browse-posts"
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
@@ -142,14 +143,7 @@ const PostsManager = () => {
               </Select>
               <span>항목</span>
             </div>
-            <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => stepPrev()}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => stepNext()}>
-                다음
-              </Button>
-            </div>
+            <PaginationBar skip={skip} limit={limit} total={total} onPrev={stepPrev} onNext={stepNext} />
           </div>
         </div>
       </CardContent>

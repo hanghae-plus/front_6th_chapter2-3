@@ -25,3 +25,5 @@ export type {
   TableHeadProps,
   TableCellProps,
 } from "./table"
+
+export { PaginationBar } from "./pagination/PaginationBar"
