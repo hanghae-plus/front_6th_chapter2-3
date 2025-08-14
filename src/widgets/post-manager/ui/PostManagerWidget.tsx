@@ -22,8 +22,6 @@ import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
 import { DeletePostButton } from '@/features/post-delete/ui/DeletePostButton';
-import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
-import { ViewPostDetailButton } from '@/features/post-detail/ui/ViewPostDetailButton';
 import { EditPostButton } from '@/features/post-edit/ui/EditPostButton';
 import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
@@ -32,6 +30,8 @@ import { usePagination } from '@/features/post-pagination/model/usePagination';
 import { Pagination } from '@/features/post-pagination/ui/Pagination';
 import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { PostSearch } from '@/features/post-search/ui/PostSearch';
+import { ViewPostButton } from '@/features/post-view/ui/ViewPostButton';
+import { ViewPostDialog } from '@/features/post-view/ui/ViewPostDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileDialog';
 
@@ -135,7 +135,7 @@ export const PostManagerWidget = () => {
               setSelectedTag={setSelectedTag}
               renderActions={(post) => (
                 <>
-                  <ViewPostDetailButton postId={post?.id} />
+                  <ViewPostButton postId={post?.id} />
                   <EditPostButton post={post} />
                   <DeletePostButton postId={post?.id} />
                 </>
@@ -185,7 +185,7 @@ export const PostManagerWidget = () => {
       />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <DetailPostDialog
+      <ViewPostDialog
         showPostDetailDialog={showPostDetailDialog}
         setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
@@ -202,7 +202,7 @@ export const PostManagerWidget = () => {
           setShowEditCommentDialog={setShowEditCommentDialog}
           deleteComment={deleteComment}
         />
-      </DetailPostDialog>
+      </ViewPostDialog>
 
       {/* 사용자 모달 */}
       <UserProfileDialog

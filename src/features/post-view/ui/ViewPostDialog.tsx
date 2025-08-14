@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, HighlightText } from '@/shared/ui';
 
-export const DetailPostDialog = ({
+export const ViewPostDialog = ({
   showPostDetailDialog,
   setShowPostDetailDialog,
   selectedPost,

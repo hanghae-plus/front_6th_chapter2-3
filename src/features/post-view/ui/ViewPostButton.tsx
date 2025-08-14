@@ -6,7 +6,7 @@ interface DeletePostButtonProps {
   postId: number;
 }
 
-export const ViewPostDetailButton = ({ postId }: DeletePostButtonProps) => {
+export const ViewPostButton = ({ postId }: DeletePostButtonProps) => {
   function openPostDetail(post: any): void {}
 
   return (
