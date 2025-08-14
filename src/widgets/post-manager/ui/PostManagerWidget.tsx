@@ -36,19 +36,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileDialog';
 
 export const PostManagerWidget = () => {
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
+  const { searchQuery } = usePostSearch();
+  const { selectedTag, setSelectedTag } = usePostFilter();
+
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
 
-  const [selectedPostId, setSelectedPostId] = useState(null);
-  const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedComment, setSelectedComment] = useState(null);
 
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
   const { skip, limit, setSkip, setLimit } = usePagination();
-  const { selectedTag, setSelectedTag } = usePostFilter();
-  const { searchQuery } = usePostSearch();
 
   const { data: tagsData } = useFetchTags();
   const { data: searchData } = useSearchPosts(searchQuery);
@@ -68,11 +69,8 @@ export const PostManagerWidget = () => {
     handleSubmit,
   } = useCreatePost();
 
-  const { data: comments } = useFetchComments(selectedPostId);
   const { mutate: addComment } = useAddComment();
   const { mutate: updateComment } = useUpdateComment();
-  const { mutate: deleteComment } = useDeleteComment();
-  const { mutate: likeComment } = useLikeComment();
 
   const { data: usersData } = useFetchAllUsers();
   const { data: user } = useFetchUserById(selectedUserId);
@@ -171,17 +169,7 @@ export const PostManagerWidget = () => {
 
       {/* 게시물 상세 보기 대화상자 */}
       <ViewPostDialog>
-        <CommentList
-          postId={selectedPostId}
-          setNewComment={setNewComment}
-          setShowAddCommentDialog={setShowAddCommentDialog}
-          comments={comments}
-          searchQuery={searchQuery}
-          likeComment={likeComment}
-          setSelectedComment={setSelectedComment}
-          setShowEditCommentDialog={setShowEditCommentDialog}
-          deleteComment={deleteComment}
-        />
+        <CommentList />
       </ViewPostDialog>
 
       {/* 사용자 모달 */}

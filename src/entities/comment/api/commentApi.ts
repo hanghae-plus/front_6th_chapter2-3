@@ -39,7 +39,7 @@ export const updateComment = async ({
   return response.json();
 };
 
-export const deleteComment = async (commentId: number): Promise<{ isDeleted: boolean }> => {
+export const deleteComment = async (commentId: number): Promise<Comment> => {
   const response = await fetch(`${API_BASE_URL}/${commentId}`, {
     method: 'DELETE',
   });
