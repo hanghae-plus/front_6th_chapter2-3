@@ -4,4 +4,5 @@ export interface CommentItem {
   postId: number
   likes: number
   user: { username: string }
+  isTemporary?: boolean
 }

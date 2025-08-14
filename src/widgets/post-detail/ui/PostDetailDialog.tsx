@@ -29,8 +29,10 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
   const { likeComment } = useLikeComment()
 
   const handleLike = (id: number) => {
-    const currentLikes = comments.find((c: CommentItem) => c.id === id)?.likes ?? 0
-    likeComment(post.id, id, currentLikes)
+    const comment = comments.find((c: CommentItem) => c.id === id)
+    if (comment) {
+      likeComment(comment)
+    }
   }
 
   return (
@@ -48,7 +50,12 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
             onEditComment={async (comment) => {
               await updateComment(comment)
             }}
-            onDeleteComment={(id) => deleteComment(post.id, id)}
+            onDeleteComment={(id) => {
+              const comment = comments.find((c: CommentItem) => c.id === id)
+              if (comment) {
+                deleteComment(comment)
+              }
+            }}
             onLikeComment={handleLike}
           />
         </div>

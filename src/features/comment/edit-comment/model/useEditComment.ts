@@ -10,7 +10,12 @@ export const useEditComment = () => {
   const updateComment = async (comment: CommentItem) => {
     const nextBody = await openEdit(comment.body)
     if (nextBody == null) return
-    updateCommentMutation.mutate({ id: comment.id, postId: comment.postId, body: nextBody })
+    updateCommentMutation.mutate({
+      id: comment.id,
+      postId: comment.postId,
+      body: nextBody,
+      isTemporary: comment.isTemporary,
+    })
   }
 
   return { updateComment, overlay, isPending: updateCommentMutation.isPending }

@@ -1,11 +1,17 @@
 import { useMutation } from "@tanstack/react-query"
 import { commentMutations } from "@entities/comment/api/mutations"
+import type { CommentItem } from "@entities/comment/model"
 
 export const useLikeComment = () => {
   const likeMutation = useMutation({ ...commentMutations.likeMutation() })
 
-  const likeComment = (postId: number, id: number, currentLikes: number) => {
-    likeMutation.mutate({ id, postId, likes: currentLikes + 1 })
+  const likeComment = (comment: CommentItem) => {
+    likeMutation.mutate({
+      id: comment.id,
+      postId: comment.postId,
+      likes: comment.likes + 1,
+      isTemporary: comment.isTemporary,
+    })
   }
 
   return { likeComment, isPending: likeMutation.isPending }
