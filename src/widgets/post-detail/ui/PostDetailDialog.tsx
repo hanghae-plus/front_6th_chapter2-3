@@ -8,6 +8,7 @@ import { commentMutations } from "../../../entities/comment/api/mutations"
 import type { CommentItem } from "../../../entities/comment/model"
 import { useAddComment } from "../../../features/comment/add-comment"
 import { useEditComment } from "../../../features/comment/edit-comment/lib/useEditComment"
+import { useDeleteComment } from "../../../features/comment/delete-comment"
 
 interface PostDetailDialogProps {
   isOpen: boolean
@@ -24,11 +25,7 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
 
   const { addComment, overlay: addCommentOverlay } = useAddComment()
   const { updateComment, overlay: editOverlay } = useEditComment()
-
-  const deleteCommentMutation = useMutation(commentMutations.deleteMutation())
-  const deleteComment = (id: number) => {
-    deleteCommentMutation.mutate({ id, postId: post.id })
-  }
+  const { deleteComment } = useDeleteComment()
 
   const likeCommentMutation = useMutation({ ...commentMutations.likeMutation() })
   const likeComment = (id: number) => {
@@ -51,7 +48,7 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
             onEditComment={async (comment) => {
               await updateComment(comment)
             }}
-            onDeleteComment={deleteComment}
+            onDeleteComment={(id) => deleteComment(post.id, id)}
             onLikeComment={likeComment}
           />
         </div>
