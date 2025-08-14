@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
@@ -12,10 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shared/ui"
-import {highlightText} from "../shared/lib/text-utils"
-import { getPosts } from "../entities/post/api/api.ts"
-import { Post } from "../entities/post/model/types.ts"
-import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm } from "../features"
+import { getPosts } from "../entities/post/api/api"
+import { Post } from "../entities/post/model/types"
+import { Comment } from "../entities/comment/model/types"
+import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm, PostDetail } from "../features"
+import { Tag } from "../entities/tag/model/types"
+import { User } from "../entities/user/model/types"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -23,7 +25,7 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState(0)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
@@ -35,16 +37,16 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState([])
+  const [tags, setTags] = useState<Tag[]>([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
+  const [comments, setComments] = useState<Record<number, Comment[]>>({})
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -242,7 +244,7 @@ const PostsManager = () => {
   }
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
+  const deleteComment = async (id: number, postId: number) => {
     try {
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
@@ -257,7 +259,7 @@ const PostsManager = () => {
   }
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
+  const likeComment = async (id: number, postId: number) => {
     try {
 
       const response = await fetch(`/api/comments/${id}`, {
@@ -418,7 +420,7 @@ const PostsManager = () => {
             limit={limit}
             onClickPrev={()=> setSkip(Math.max(0, skip - limit))}
             onClickNext={() => setSkip(skip + limit)}
-            onChangeLimit={(value:string) => setLimit(value)}
+            onChangeLimit={(value:string) => setLimit(Number(value))}
           />
         </div>
       </CardContent>
