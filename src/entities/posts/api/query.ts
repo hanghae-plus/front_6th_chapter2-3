@@ -32,7 +32,7 @@ import {
   updatePost,
   updatePostComment,
 } from './remote';
-import { QUERY_KEYS } from '@/shared/config';
+import { POST_QUERY_KEYS } from './query-keys';
 
 // 게시글 목록 가져오기
 export const usePosts = () => {
@@ -44,7 +44,7 @@ export const usePosts = () => {
   const [sortOrder] = useSortOrder();
 
   return useQuery({
-    queryKey: QUERY_KEYS.posts(
+    queryKey: POST_QUERY_KEYS.posts(
       limit,
       skip,
       searchQuery,
@@ -60,7 +60,7 @@ export const usePosts = () => {
 // 게시글 태그 목록 가져오기
 export const usePostsTags = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.postsTags(),
+    queryKey: POST_QUERY_KEYS.postsTags(),
     queryFn: () => getPostsTags(),
   });
 };
@@ -68,7 +68,7 @@ export const usePostsTags = () => {
 // 개별 게시글 댓글 목록 가져오기
 export const usePostComments = (postId?: number) => {
   return useQuery({
-    queryKey: QUERY_KEYS.postComments(postId!),
+    queryKey: POST_QUERY_KEYS.postComments(postId!),
     enabled: !!postId,
     queryFn: () => getPostComments(postId!),
   });
@@ -87,7 +87,7 @@ export const usePostCommentLike = () => {
       postId: number;
     }) => {
       const previousComments: PostCommentsResponse | undefined =
-        queryClient.getQueryData(QUERY_KEYS.postComments(postId));
+        queryClient.getQueryData(POST_QUERY_KEYS.postComments(postId));
 
       const likes = getLikes(previousComments?.comments ?? [], commentId);
 
@@ -99,15 +99,15 @@ export const usePostCommentLike = () => {
     },
     onMutate: async ({ commentId, postId }) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.postComments(postId),
+        queryKey: POST_QUERY_KEYS.postComments(postId),
       });
 
       const previousComments = queryClient.getQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
       );
 
       queryClient.setQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
         (old: PostCommentsResponse) => {
           return {
             ...old,
@@ -130,15 +130,15 @@ export const usePostCommentDelete = () => {
       deletePostComment(commentId),
     onMutate: async ({ commentId, postId }) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.postComments(postId),
+        queryKey: POST_QUERY_KEYS.postComments(postId),
       });
 
       const previousComments = queryClient.getQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
       );
 
       queryClient.setQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
         (old: PostCommentsResponse) => {
           return {
             ...old,
@@ -168,7 +168,7 @@ export const useAddPostComment = () => {
     }) => addPostComment(postId, userId, body),
     onSuccess: (data, { postId }) => {
       queryClient.setQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
         (old: PostCommentsResponse) => {
           return {
             ...old,
@@ -195,15 +195,15 @@ export const useUpdatePostComment = () => {
     }) => updatePostComment(commentId, commentData),
     onMutate: async ({ commentId, commentData, postId }) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.postComments(postId),
+        queryKey: POST_QUERY_KEYS.postComments(postId),
       });
 
       const previousComments = queryClient.getQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
       );
 
       queryClient.setQueryData(
-        QUERY_KEYS.postComments(postId),
+        POST_QUERY_KEYS.postComments(postId),
         (old: PostCommentsResponse) => {
           return {
             ...old,
