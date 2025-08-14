@@ -1,1 +1,1 @@
-export {};
+export * from './tag-filter-select';
