@@ -9,10 +9,11 @@ import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedUserStore } from "./model/store"
 import { useURL } from "../../shared/hook/useURL"
 import { userPostInfo } from "./model/hook"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "../../shared/constants/query"
 
 export const PostList = () => {
+  const queryClient = useQueryClient()
   const [tags, setTags] = useState<Tags>([])
   const { setSelectedUser, setShowUserModal } = useSelectedUserStore()
   const { searchQuery, setSearchQuery } = useSearchQueryStore()
@@ -64,15 +65,18 @@ export const PostList = () => {
 
   // 사용자 모달 열기
   const openUserModal = async (user: Author) => {
-    try {
-      const { result, data: userData } = await getUser(user.id)
-      if (result && userData) {
-        setSelectedUser(userData)
-        setShowUserModal(true)
-      }
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+    const userData = await queryClient.fetchQuery({
+      queryKey: QUERY_KEYS.getUser(user.id),
+      queryFn: async () => {
+        const { result, data } = await getUser(user.id)
+        if (result && data) return data
+        throw new Error("사용자 정보를 가져올 수 없습니다")
+      },
+      staleTime: 5 * 60 * 1000,
+    })
+    
+    setSelectedUser(userData)
+    setShowUserModal(true)
   }
 
   const postTableProps = {

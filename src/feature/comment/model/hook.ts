@@ -2,8 +2,11 @@ import { requestApi } from "../../../shared/lib"
 import { DeleteComment, UpsertComment } from "../type"
 import { useCommentStore } from "./store"
 import { Comment, getComments } from "../../../entities"
+import { QUERY_KEYS } from "../../../shared/constants/query"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const useComment = () => {
+  const queryClient = useQueryClient()
   const {
     comments,
     setComments,
@@ -18,16 +21,33 @@ export const useComment = () => {
   const fetchComments = async (postId: number) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      setComments([])
-      const { result, data: commentData } = await getComments(postId)
-      if (result && commentData) {
-        console.log("commentData")
-        console.log(commentData)
+      // 로딩 상태 표시
+      setComments((prev) => ({ ...prev, [postId]: [] }))
+      
+      // TanStack Query로 데이터 가져오기
+      const commentData = await queryClient.fetchQuery({
+        queryKey: QUERY_KEYS.getComments(postId),
+        queryFn: async () => {
+          console.log(`Fetching comments for post ${postId}`)
+          const { result, data } = await getComments(postId)
+          if (result && data) {
+            console.log("commentData")
+            console.log(data)
+            return data.comments
+          }
+          throw new Error("댓글을 가져올 수 없습니다")
+        },
+        staleTime: 2 * 60 * 1000, // 2분
+        gcTime: 5 * 60 * 1000, // 5분
+      })
 
-        setComments((prev) => ({ ...prev, [postId]: commentData.comments }))
-      }
+      // Zustand store에 저장
+      setComments((prev) => ({ ...prev, [postId]: commentData }))
+      
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
+      // 에러 시 빈 배열로 설정
+      setComments((prev) => ({ ...prev, [postId]: [] }))
     }
   }
 
