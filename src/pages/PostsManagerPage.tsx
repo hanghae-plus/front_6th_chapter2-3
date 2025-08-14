@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
+} from "../shared/ui"
 import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../entities/posts/api"
 import { fetchTagsApi } from "../entities/tags/api"
 import { fetchUserApi, fetchUsersApi } from "../entities/users/api"

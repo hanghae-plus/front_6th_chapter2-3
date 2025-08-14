@@ -1,4 +1,4 @@
-import fetchClient from "../../../shared/utils/fetchClient"
+import fetchClient from "../../../shared/api/fetchClient"
 import { Comment } from "./types"
 
 export const likeCommentApi = async (id: number, likes: number): Promise<Comment> => {

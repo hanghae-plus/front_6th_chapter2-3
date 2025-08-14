@@ -1,5 +1,5 @@
 import React from "react"
-import { Button } from "../../../../../components"
+import { Button } from "../../../../../shared/ui"
 import { Plus } from "lucide-react"
 
 type Props = {
