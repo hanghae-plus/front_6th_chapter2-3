@@ -28,8 +28,11 @@ export const deleteComment = async (id: number) => {
     method: 'DELETE',
   });
   return response.json();
-}
+};
 
 // export const patchLikeComment = async (id: number) => {
 
 // }
+
+export * from './mutations';
+export * from './queries';
