@@ -8,14 +8,11 @@ import {
   Button,
   Textarea,
 } from '../../../../shared/ui';
-import { EditCommentDialogProps } from '../model/type';
+import { useEditComment } from '../model/hooks';
 
-export const EditCommentDialog = ({
-  selectedComment,
-  onCommentChange,
-  onSubmit,
-}: EditCommentDialogProps) => {
+export const EditCommentDialog = () => {
   const { isDialogOpen, closeDialog } = useDialogStore();
+  const { selectedComment, setSelectedComment, updateComment } = useEditComment();
   return (
     <Dialog
       open={isDialogOpen(DIALOG_KEYS.EDIT_COMMENT)}
@@ -29,9 +26,11 @@ export const EditCommentDialog = ({
           <Textarea
             placeholder='댓글 내용'
             value={selectedComment?.body || ''}
-            onChange={(e) => onCommentChange({ ...selectedComment, body: e.target.value })}
+            onChange={(e) =>
+              selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })
+            }
           />
-          <Button onClick={onSubmit}>댓글 업데이트</Button>
+          <Button onClick={updateComment}>댓글 업데이트</Button>
         </div>
       </DialogContent>
     </Dialog>

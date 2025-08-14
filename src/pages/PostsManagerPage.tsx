@@ -150,23 +150,6 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch('/api/comments/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newComment),
-      });
-      const data = await response.json();
-      addCommentToPost(data.postId, data);
-      setShowAddCommentDialog(false);
-      setNewComment({ body: '', postId: null, userId: 1 });
-    } catch (error) {
-      console.error('댓글 추가 오류:', error);
-    }
-  };
-
   // 댓글 업데이트
   const updateComment = async () => {
     if (!selectedComment) return;
@@ -348,11 +331,7 @@ const PostsManager = () => {
       <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <EditCommentDialog
-        selectedComment={selectedComment}
-        onCommentChange={setSelectedComment}
-        onSubmit={updateComment}
-      />
+      <EditCommentDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
