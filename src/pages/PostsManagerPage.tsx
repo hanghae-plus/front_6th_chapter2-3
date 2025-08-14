@@ -1,28 +1,21 @@
 import { Card, CardContent } from "../shared/ui"
 
-import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
-import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hooks/useFetchPostsByMode.ts"
-import { useSearchMode } from "../features/posts/fetch-posts-by-mode/hooks/useSearchMode.ts"
-import { useTagMode } from "../features/posts/fetch-posts-by-mode/hooks/useTagMode.ts.ts"
-import { useAddPost } from "../features/posts/hooks/useAddPost.ts"
-import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
-import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
-import { useDeletePost } from "../features/posts/hooks/useDeletePost.ts"
-import { useAddComment } from "../features/comment/hooks/useAddComment.ts"
-import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
-import { useDeleteComment } from "../features/comment/hooks/useDeleteComment.ts"
-import { useLikeComment } from "../features/comment/hooks/useLikeComment.ts"
-import { useOpenUser } from "../features/user/hooks/useOpenUser.ts"
-import AddPostModal from "../features/posts/ui/modals/AddPostModal.tsx"
-import UpdatePostModal from "../features/posts/ui/modals/UpdatePostModal.tsx"
-import AddCommentModal from "../features/comment/ui/modals/AddCommentModal.tsx"
-import UpdateCommentModal from "../features/comment/ui/modals/UpdateCommentModal.tsx"
-import DetailPostModal from "../features/posts/ui/modals/DetailPostModal.tsx"
-import DetailUserModal from "../features/user/ui/modals/DetailUserModal.tsx"
-import PaginationControls from "../widgets/pagination/ui/PaginationControls.tsx"
-import TableLoading from "../features/posts/ui/loading/TableLoading.tsx"
-import PostFilter from "../widgets/post-filter/ui/PostFilter.tsx"
-import PostManagerHeader from "../widgets/post-manager-header/ui/PostManagerHeader.tsx"
+// 위젯 컴포넌트들
+import { PostsTable, PaginationControls, PostFilter, PostManagerHeader } from "../widgets"
+
+// 훅들
+import { useFetchPostsByMode, useSearchMode, useTagMode } from "../features/posts/fetch-posts-by-mode/hooks"
+import { useAddPost, useUpdatePost, useDetailPost, useDeletePost } from "../features/posts/hooks"
+import { useAddComment, useUpdateComment, useDeleteComment, useLikeComment } from "../features/comment/hooks"
+import { useOpenUser } from "../features/user/hooks"
+
+// 모달 컴포넌트들
+import { AddPostModal, UpdatePostModal, DetailPostModal } from "../features/posts/ui/modals"
+import { AddCommentModal, UpdateCommentModal } from "../features/comment/ui/modals"
+import { DetailUserModal } from "../features/user/ui/modals"
+
+// 기타 UI 컴포넌트들
+import { TableLoading } from "../features/posts/ui/loading"
 
 const PostsManager = () => {
   // 게시물 조회 관련 훅들
