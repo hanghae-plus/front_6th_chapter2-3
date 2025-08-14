@@ -18,7 +18,7 @@ export const usePostsUrlParams = () => {
     setSearchQuery(getParam('search') || '');
     setSortBy(getParam('sortBy') || '');
     setSortOrder(getParam('sortOrder') || 'asc');
-  }, [location.search]);
+  }, [location.search, getParam]);
 
   const updatePostsURL = (params?: {
     skip?: number;
