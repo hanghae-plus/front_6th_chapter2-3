@@ -3,7 +3,6 @@ import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import { useDeleteComment, useFetchComments, useLikeComment } from '../model/useComments';
 
 import { useCommentDialogStore } from '@/entities/comment/model/commentDialogStore';
-import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
 import { Button, HighlightText } from '@/shared/ui';
 
@@ -11,7 +10,6 @@ export const CommentList = () => {
   const { postToView } = useViewPostStore();
   const { data: comments } = useFetchComments(postToView?.id || null);
 
-  const { searchQuery } = usePostSearch();
   const { openAddDialog, openEditDialog } = useCommentDialogStore();
 
   const { mutate: deleteComment } = useDeleteComment();
@@ -34,7 +32,7 @@ export const CommentList = () => {
             <div className='flex items-center space-x-2 overflow-hidden'>
               <span className='font-medium truncate'>{comment.user.username}:</span>
               <span className='truncate'>
-                <HighlightText text={comment.body} highlight={searchQuery} />
+                <HighlightText text={comment.body} />
               </span>
             </div>
             <div className='flex items-center space-x-1'>

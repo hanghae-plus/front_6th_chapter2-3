@@ -1,15 +1,18 @@
+import { usePostSearch } from '@/features/post-search/model/usePostSearch';
+
 interface HighlightTextProps {
   text: string;
-  highlight: string;
 }
 
-export const HighlightText = ({ text, highlight }: HighlightTextProps) => {
+export const HighlightText = ({ text }: HighlightTextProps) => {
+  const { searchQuery } = usePostSearch();
+
   if (!text) return null;
-  if (!highlight.trim()) {
+  if (!searchQuery.trim()) {
     return <span>{text}</span>;
   }
 
-  const regex = new RegExp(`(${highlight})`, 'gi');
+  const regex = new RegExp(`(${searchQuery})`, 'gi');
   const parts = text.split(regex);
 
   return (
