@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
-import { IPost, ITag } from '@entities/post'
+import { fetchTags, IPost, ITag } from '@entities/post'
 import { IUserDetail } from '@entities/user'
 import {
   deleteComment,
@@ -59,7 +59,7 @@ const PostsManager = () => {
   const { data: tags = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async (): Promise<ITag[]> => {
-      return await http.get<ITag[]>('/posts/tags')
+      return await fetchTags()
     },
   })
 

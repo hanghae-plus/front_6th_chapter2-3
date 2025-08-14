@@ -1,4 +1,4 @@
-import { IPost } from './model'
+import { IPost, ITag } from './model'
 import { http } from '@shared/lib/http-client'
 
 /**
@@ -29,7 +29,7 @@ export async function fetchPostsBySearch({ query }: { query: string }) {
  * @param tag - 태그
  * @returns 게시물 목록
  */
-export async function fetchPostsByTag({ tag }: { tag: string }) {
+export async function fetchPostsByTag(tag: string) {
   const response = await http.get(`/posts/tag/${tag}`)
   return response
 }
@@ -68,5 +68,10 @@ export async function updatePost({ id, ...body }: IPost) {
  */
 export async function deletePost({ id }: { id: number }) {
   const response = await http.delete(`/posts/${id}`)
+  return response
+}
+
+export async function fetchTags() {
+  const response = await http.get<ITag[]>(`/posts/tags`)
   return response
 }
