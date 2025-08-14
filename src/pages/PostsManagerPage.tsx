@@ -1,6 +1,4 @@
-import { Plus } from "lucide-react"
-
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
+import { Card, CardContent } from "../shared/ui"
 
 import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
 import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hooks/useFetchPostsByMode.ts"
@@ -8,7 +6,6 @@ import { useSearchMode } from "../features/posts/fetch-posts-by-mode/hooks/useSe
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/hooks/useTagMode.ts.ts"
 import { useTagsQuery } from "../entities/post/hook.ts"
 import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/hooks/usePageNavigateMode.ts"
-import { useSortMode } from "../features/posts/fetch-posts-by-mode/hooks/useSortMode.ts"
 import { useAddPost } from "../features/posts/hooks/useAddPost.ts"
 import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
 import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
@@ -27,18 +24,16 @@ import DetailPostModal from "../features/posts/ui/modals/DetailPostModal.tsx"
 import DetailUserModal from "../features/user/ui/modals/DetailUserModal.tsx"
 import PaginationBar from "../widgets/pagination/PaginationBar.tsx"
 import TableLoading from "../features/posts/ui/loading/TableLoading.tsx"
-import OrderSelect from "../features/posts/ui/selects/OrderSelect.tsx"
-import SortBySelect from "../features/posts/ui/selects/SortBySelect.tsx"
+import SortControls from "../features/posts/ui/selects/SortControls.tsx"
 import TagSelect from "../features/posts/ui/selects/TagSelect.tsx"
 import SearchInput from "../features/posts/ui/search/SearchInput.tsx"
-import PostManagerHeader from "../features/posts/ui/post-manager/PostManagerHeader.tsx"
+import PostManagerHeader from "../widgets/post-manager-header/ui/PostManagerHeader.tsx"
 
 const PostsManager = () => {
   const posts = useFetchPostsByMode()
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
   const pageNavigateMode = usePageNavigateMode()
-  const sortMode = useSortMode()
   const limitMode = useLimitMode()
   const tags = useTagsQuery()
 
@@ -63,8 +58,7 @@ const PostsManager = () => {
           <div className="flex gap-4">
             <SearchInput searchMode={searchMode} />
             <TagSelect tagMode={tagMode} tags={tags.data || []} />
-            <SortBySelect sortMode={sortMode} />
-            <OrderSelect sortMode={sortMode} />
+            <SortControls />
           </div>
 
           {/* 게시물 테이블 */}

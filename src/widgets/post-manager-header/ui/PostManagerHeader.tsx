@@ -1,5 +1,5 @@
-import { CardHeader, CardTitle } from "../../../../shared/ui"
-import { Button } from "../../../../shared/ui"
+import { CardHeader, CardTitle } from "../../../shared/ui"
+import { Button } from "../../../shared/ui"
 import { Plus } from "lucide-react"
 
 interface PostManagerHeaderProps {
