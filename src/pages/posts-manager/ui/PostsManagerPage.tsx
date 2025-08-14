@@ -1,16 +1,16 @@
 import { Plus } from "lucide-react"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostsBrowseParams, PostsFilterBar } from "@features/post/browse-posts"
-import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
+import { useQuery, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "@entities/post/api/queries"
 import { userQueries } from "@entities/user/api/queries"
-import { postMutations } from "@entities/post/api/mutations"
 import { Post } from "@entities/post/model"
 import { User } from "@entities/user/model"
 import { useUserProfileDialog } from "@features/user/view-profile/lib/useUserProfileDialog"
 import { PostsTable } from "@widgets/posts-table/ui"
 import { useAddPost } from "@features/post/add-post"
 import { useEditPost } from "@features/post/edit-post"
+import { useDeletePost } from "@features/post/delete-post"
 import { usePostDetailDialog } from "@widgets/post-detail"
 import { PostsPagination } from "@widgets/posts-pagination"
 
@@ -70,10 +70,7 @@ const PostsManager = () => {
     })) ?? []
   const total = active.data?.total ?? 0
 
-  const deletePostMutation = useMutation(postMutations.deleteMutation())
-  const deletePost = (id: number) => {
-    deletePostMutation.mutate(id)
-  }
+  const { deletePost } = useDeletePost()
 
   const { openDetail, overlay: detailOverlay } = usePostDetailDialog()
 
