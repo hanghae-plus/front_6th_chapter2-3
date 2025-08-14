@@ -1,3 +1,5 @@
+import { Post } from '../types';
+
 // 게시물 관련 비즈니스 로직 함수들 (usePostFeature에서만 사용)
 
 // 게시물 검색 비즈니스 로직
@@ -56,4 +58,14 @@ export const fetchPostsByTag = async (
     console.error('태그별 게시물 가져오기 오류:', error);
   }
   setLoading(false);
+};
+
+// 게시물 상세 보기와 댓글 가져오기 결합
+export const openPostDetailWithComments = (
+  post: Post,
+  openPostDetail: (post: Post) => void,
+  handleFetchComments: (postId: number) => void,
+) => {
+  openPostDetail(post);
+  handleFetchComments(post.id);
 };
