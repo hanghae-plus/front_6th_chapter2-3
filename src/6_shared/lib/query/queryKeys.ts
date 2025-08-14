@@ -1,4 +1,4 @@
-import { GetUsersParams } from '@/entities/user';
+import { GetUsersParams, User } from '@/entities/user';
 
 export const QUERY_DOMAINS = {
   POSTS: 'posts',
@@ -37,7 +37,7 @@ const userQueryKeys = {
   all: [QUERY_DOMAINS.USERS] as const,
 
   lists: () => [QUERY_DOMAINS.USERS, QUERY_OPERATIONS.LIST] as const,
-  list: (params: GetUsersParams) =>
+  list: (params: GetUsersParams<keyof User>) =>
     [QUERY_DOMAINS.USERS, QUERY_OPERATIONS.LIST, params] as const,
   details: () => [...userQueryKeys.lists(), 'detail'] as const,
   detail: (userId: number) => [...userQueryKeys.details(), userId] as const,

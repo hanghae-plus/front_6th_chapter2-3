@@ -36,9 +36,10 @@ export const updateComment = async (
 };
 
 export const patchComment = async (
-  updatedComment: Comment
+  updatedComment: Partial<Comment>,
+  commentId: number
 ): Promise<Comment> => {
-  const response = await fetch(`/api/comments/${updatedComment.id}`, {
+  const response = await fetch(`/api/comments/${commentId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updatedComment),
