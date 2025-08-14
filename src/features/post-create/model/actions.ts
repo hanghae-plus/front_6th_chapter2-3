@@ -42,8 +42,8 @@ export const usePostCreate = (options: UsePostCreateOptions = {}) => {
         next.add(createdNormalized.id)
         return next
       })
-      queryClient.setQueriesData({ queryKey: postsKey.all }, (old: any) => {
-        const data = old as PostsApiResponse | undefined
+      queryClient.setQueriesData({ queryKey: postsKey.all }, (old: PostsApiResponse | undefined) => {
+        const data = old
         if (!data) return old
         if (sortOrder === "desc") {
           return applyInsertTop(data, createdNormalized)

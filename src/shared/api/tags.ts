@@ -1,6 +1,5 @@
 import type { Tag } from "../lib/types"
-
-const API_BASE_URL = "/api"
+import { API_BASE_URL } from "../lib/env"
 
 export const fetchTags = async (): Promise<Tag[]> => {
   const response = await fetch(`${API_BASE_URL}/posts/tags`)

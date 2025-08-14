@@ -1,6 +1,5 @@
 import type { Post, PostsApiResponse } from "../model/types"
-
-const API_BASE_URL = "/api"
+import { API_BASE_URL } from "../../../shared/lib/env"
 
 export const fetchPosts = async (limit: number, skip: number): Promise<PostsApiResponse> => {
   const response = await fetch(`${API_BASE_URL}/posts?limit=${limit}&skip=${skip}`)

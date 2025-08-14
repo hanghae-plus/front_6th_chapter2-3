@@ -17,6 +17,8 @@ import { UserDialog } from "../features/user-detail/ui/UserDialog"
 import { PostFilters } from "../widgets/post-filters/PostFilters"
 import { PostsTable, type PostRowVM } from "../widgets/post-list/PostsTable"
 import { PaginationControls } from "../widgets/pagination/PaginationControls"
+import { useSetAtom } from "jotai"
+import { toastsAtom } from "../shared/lib/toastAtoms"
 
 const PostsManagerPage = () => {
   const {
@@ -44,10 +46,19 @@ const PostsManagerPage = () => {
 
   const { data: tags = [] } = useTags()
 
-  // Feature hooks로 상태와 로직 분리
-  const postCreate = usePostCreate()
-  const postEdit = usePostEdit()
-  const postDelete = usePostDelete()
+  const setToasts = useSetAtom(toastsAtom)
+  const notify = (message: string) => {
+    const id = `${Date.now()}`
+    setToasts((prev) => [...prev, { id, message, type: "success", createdAt: Date.now(), durationMs: 3000 }])
+  }
+  const confirmFn = async (message: string) => window.confirm(message)
+  // usePostCreate의 옵션 타입은 'asc' | 'desc' 이므로 캐스팅 안전화
+  const sortOrderForCreate: "asc" | "desc" = sortOrder === "asc" ? "asc" : "desc"
+
+  // Feature hooks로 상태와 로직 분리(옵션 주입)
+  const postCreate = usePostCreate({ sortOrder: sortOrderForCreate, onNotify: notify })
+  const postEdit = usePostEdit({ onNotify: notify })
+  const postDelete = usePostDelete({ onConfirm: confirmFn, onNotify: notify })
   const postReactions = usePostReactions()
   const commentManage = useCommentManage()
   const postDetail = usePostDetail()
@@ -92,7 +103,9 @@ const PostsManagerPage = () => {
                   title: p.title,
                   body: p.body,
                   tags: p.tags ?? [],
-                  author: p.author,
+                  authorId: p.author?.id,
+                  authorName: p.author?.username,
+                  authorImage: p.author?.image,
                   likes: p.reactions?.likes ?? 0,
                   dislikes: p.reactions?.dislikes ?? 0,
                   origin: { id: p.id, clientId: p.clientId },
@@ -133,7 +146,13 @@ const PostsManagerPage = () => {
         onOpenChange={postCreate.closeDialog}
         onSubmit={postCreate.handleSubmit}
         post={postCreate.newPostData}
-        setPost={postCreate.setNewPostData}
+        setPost={(p) =>
+          postCreate.setNewPostData({
+            title: p.title,
+            body: p.body,
+            userId: p.userId ?? 1,
+          })
+        }
       />
 
       <PostEditDialog

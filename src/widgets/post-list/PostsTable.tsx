@@ -1,6 +1,5 @@
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../shared/ui"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import type { UserSummary } from "../../entities/user/model"
 
 export interface PostRowVM {
   clientKey: string
@@ -8,7 +7,9 @@ export interface PostRowVM {
   title: string
   body: string
   tags: string[]
-  author?: UserSummary
+  authorId?: number
+  authorName?: string
+  authorImage?: string
   likes: number
   dislikes: number
   origin: { id: number; clientId?: string }
@@ -21,7 +22,7 @@ interface PostsTableProps {
   onEdit: (origin: { id: number; clientId?: string }) => void
   onDelete: (postId: number, clientId?: string) => void
   searchQuery?: string
-  onUserClick?: (user: UserSummary) => void
+  onUserClick?: (user: { id: number; username: string; image: string }) => void
   onPostClick?: (origin: { id: number; clientId?: string }) => void
   onLike?: (postId: number, currentLikes: number, clientId?: string) => void
   onDislike?: (postId: number, currentDislikes: number, clientId?: string) => void
@@ -86,10 +87,19 @@ export const PostsTable = ({
               </div>
             </TableCell>
             <TableCell>
-              {row.author && (
-                <div className="flex items-center space-x-2 cursor-pointer" onClick={() => onUserClick?.(row.author!)}>
-                  <img src={row.author.image} alt={row.author.username} className="w-8 h-8 rounded-full" />
-                  <span>{row.author.username}</span>
+              {row.authorId != null && row.authorName && row.authorImage && (
+                <div
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() =>
+                    onUserClick?.({
+                      id: row.authorId as number,
+                      username: row.authorName as string,
+                      image: row.authorImage as string,
+                    })
+                  }
+                >
+                  <img src={row.authorImage} alt={row.authorName} className="w-8 h-8 rounded-full" />
+                  <span>{row.authorName}</span>
                 </div>
               )}
             </TableCell>

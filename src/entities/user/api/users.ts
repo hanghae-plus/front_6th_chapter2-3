@@ -1,6 +1,5 @@
 import type { UserDetails, UserSummary } from "../model/types"
-
-const API_BASE_URL = "/api"
+import { API_BASE_URL } from "../../../shared/lib/env"
 
 export const fetchUsersSummary = async (): Promise<{ users: UserSummary[] }> => {
   const response = await fetch(`${API_BASE_URL}/users?limit=0&select=username,image`)

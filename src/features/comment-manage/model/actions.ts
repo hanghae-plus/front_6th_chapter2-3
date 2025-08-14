@@ -42,20 +42,25 @@ export const useCommentManage = () => {
 
   const addCommentMutation = useMutation({
     mutationFn: (variables: { body: string; postId: number; userId: number }) =>
-      variables.postId < 0 ? Promise.resolve({} as any) : addComment(variables),
-    onMutate: async (variables) => {
+      variables.postId < 0 ? Promise.resolve({} as unknown as Comment) : addComment(variables),
+    onMutate: async (variables: { body: string; postId: number; userId: number }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
-      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
-        const temp: Comment = {
-          id: Math.floor(Math.random() * -100000),
-          body: variables.body,
-          postId: variables.postId,
-          likes: 0,
-          user: { id: 1, username: "you" },
-        }
-        return commentAdapters.insertTop(old ?? { comments: [] }, temp)
-      })
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId)) as
+        | commentAdapters.CommentsByPost
+        | undefined
+      queryClient.setQueryData(
+        commentsKey.byPost(selectedPostId),
+        (old: commentAdapters.CommentsByPost | undefined) => {
+          const temp: Comment = {
+            id: Math.floor(Math.random() * -100000),
+            body: variables.body,
+            postId: variables.postId,
+            likes: 0,
+            user: { id: 1, username: "you" },
+          }
+          return commentAdapters.insertTop(old ?? { comments: [] }, temp)
+        },
+      )
       return { previous }
     },
     onError: (_err, _vars, ctx) => {
@@ -66,11 +71,13 @@ export const useCommentManage = () => {
 
   const updateCommentMutation = useMutation({
     mutationFn: ({ commentId, body }: { commentId: number; body: string }) =>
-      commentId < 0 ? Promise.resolve({} as any) : updateComment(commentId, body),
-    onMutate: async ({ commentId, body }) => {
+      commentId < 0 ? Promise.resolve({} as unknown as Comment) : updateComment(commentId, body),
+    onMutate: async ({ commentId, body }: { commentId: number; body: string }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
-      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId)) as
+        | commentAdapters.CommentsByPost
+        | undefined
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: commentAdapters.CommentsByPost | undefined) =>
         commentAdapters.updateById(old ?? { comments: [] }, commentId, (c) => ({ ...c, body })),
       )
       return { previous }
@@ -82,11 +89,14 @@ export const useCommentManage = () => {
   })
 
   const deleteCommentMutation = useMutation({
-    mutationFn: (commentId: number) => (commentId < 0 ? Promise.resolve({} as any) : deleteComment(commentId)),
+    mutationFn: (commentId: number) =>
+      commentId < 0 ? Promise.resolve({ isDeleted: true }) : deleteComment(commentId),
     onMutate: async (commentId: number) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
-      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId)) as
+        | commentAdapters.CommentsByPost
+        | undefined
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: commentAdapters.CommentsByPost | undefined) =>
         commentAdapters.deleteById(old ?? { comments: [] }, commentId),
       )
       return { previous }
@@ -99,11 +109,13 @@ export const useCommentManage = () => {
 
   const likeCommentMutation = useMutation({
     mutationFn: ({ commentId, currentLikes }: { commentId: number; currentLikes: number }) =>
-      commentId < 0 ? Promise.resolve({} as any) : likeComment(commentId, currentLikes),
-    onMutate: async ({ commentId }) => {
+      commentId < 0 ? Promise.resolve({} as unknown as Comment) : likeComment(commentId, currentLikes),
+    onMutate: async ({ commentId }: { commentId: number; currentLikes: number }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
-      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId)) as
+        | commentAdapters.CommentsByPost
+        | undefined
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: commentAdapters.CommentsByPost | undefined) =>
         commentAdapters.updateById(old ?? { comments: [] }, commentId, (c) => ({ ...c, likes: (c.likes ?? 0) + 1 })),
       )
       return { previous }

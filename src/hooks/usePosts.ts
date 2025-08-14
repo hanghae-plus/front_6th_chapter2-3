@@ -148,7 +148,8 @@ export const usePosts = () => {
     if (!posts.length) return posts
 
     return [...posts].sort((a, b) => {
-      let aValue: any, bValue: any
+      let aValue: string | number
+      let bValue: string | number
 
       switch (sortBy) {
         case "title":
