@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { commentKeys } from "@/entities/comment/model/query-key"
+import { commentKeys } from "@/entities/comment/model"
 import { createComment } from "@/entities/comment/api"
 import { Comment, CreateComment, CommentPaginatedResponse } from "@/entities/comment/model"
 

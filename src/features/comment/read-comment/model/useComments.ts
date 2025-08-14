@@ -1,5 +1,5 @@
 import { useQuery, queryOptions } from "@tanstack/react-query"
-import { commentKeys } from "@/entities/comment/model/query-key"
+import { commentKeys } from "@/entities/comment/model"
 import { getCommentsByPost } from "@/entities/comment/api"
 
 export const useComments = (postId: number | null) => {

@@ -7,6 +7,7 @@ import { PostWithAuthor } from "@/entities/post/model/types"
 import { TagItem } from "@/entities/tag/ui"
 import { TableCell, TableRow } from "@/shared/ui"
 import { useDialogActions } from "@/shared/model"
+import { highlightText } from "../lib"
 
 interface PostTableRowProps {
   post: PostWithAuthor
@@ -14,22 +15,6 @@ interface PostTableRowProps {
   selectedTag: string
   onTagSelect: (tag: string) => void
   onPostSelect: (postId: number) => void
-}
-
-const highlightText = (text: string, highlight: string) => {
-  if (!text) return null
-  if (!highlight.trim()) {
-    return <span>{text}</span>
-  }
-
-  const parts = text.split(new RegExp(`(${highlight})`, "gi"))
-  return (
-    <span>
-      {parts.map((part, i) =>
-        part.toLowerCase() === highlight.toLowerCase() ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
-      )}
-    </span>
-  )
 }
 
 export const PostTableRow = ({ post, searchQuery, selectedTag, onTagSelect, onPostSelect }: PostTableRowProps) => {
