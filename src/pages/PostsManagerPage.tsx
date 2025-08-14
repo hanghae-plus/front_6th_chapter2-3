@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import {
@@ -22,7 +22,7 @@ import {
 } from "../shared/ui"
 import { useGetPosts } from "../features/post/get-posts/hooks"
 import { PostTable } from "../widget/post-table/PostTable"
-import { useGetTags } from "../entities/post/model/hooks"
+import { PostFilter } from "../widget/post-filter/PostFilter"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -74,9 +74,6 @@ const PostsManager = () => {
     setSelectedTag("")
     setSkip(0)
   }
-
-  // 태그 가져오기
-  const tags = useGetTags()
 
   // 게시물 추가
   const addPost = async () => {
@@ -312,72 +309,27 @@ const PostsManager = () => {
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchInputValue}
-                  onChange={(e) => setSearchInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value)
-                setSearchQuery("")
-                setSkip(0) // 태그 변경 시 첫 페이지로 이동
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.data?.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={sortBy}
-              onValueChange={(value) => {
-                setSortBy(value)
-                setSkip(0) // 정렬 변경 시 첫 페이지로 이동
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={sortOrder}
-              onValueChange={(value) => {
-                setSortOrder(value)
-                setSkip(0) // 정렬 순서 변경 시 첫 페이지로 이동
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PostFilter
+            searchInputValue={searchInputValue}
+            selectedTag={selectedTag}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSearchInputChange={setSearchInputValue}
+            onSelectedTagChange={(value) => {
+              setSelectedTag(value)
+              setSearchQuery("")
+              setSkip(0) // 태그 변경 시 첫 페이지로 이동
+            }}
+            onSortByChange={(value) => {
+              setSortBy(value)
+              setSkip(0) // 정렬 변경 시 첫 페이지로 이동
+            }}
+            onSortOrderChange={(value) => {
+              setSortOrder(value)
+              setSkip(0) // 정렬 순서 변경 시 첫 페이지로 이동
+            }}
+            onSearch={searchPosts}
+          />
 
           {/* 게시물 테이블 */}
           {loading ? (
