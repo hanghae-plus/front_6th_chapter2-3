@@ -22,9 +22,10 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
   const updatePostMutation = useMutation(postMutations.update(queryClient))
 
   // postId가 있을 때만 쿼리 실행
-  const { data, isLoading, error } = useQuery(
-    postId ? postWithAuthorQueries.detail(postId) : { queryKey: ["no-query"], enabled: false },
-  )
+  const { data, isLoading, error } = useQuery({
+    ...postWithAuthorQueries.detail(postId!),
+    enabled: !!postId,
+  })
 
   // data가 변경될 때마다 로컬 상태 초기화
   useEffect(() => {
@@ -59,6 +60,9 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
     return (
       <Dialog open={isOpen} onOpenChange={() => handleClose()}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>로딩 중</DialogTitle>
+          </DialogHeader>
           <div className="flex justify-center p-8">로딩 중...</div>
         </DialogContent>
       </Dialog>
@@ -69,6 +73,9 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
     return (
       <Dialog open={isOpen} onOpenChange={() => handleClose()}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>오류</DialogTitle>
+          </DialogHeader>
           <div className="flex justify-center p-8 text-red-500">데이터를 불러오는데 실패했습니다.</div>
         </DialogContent>
       </Dialog>

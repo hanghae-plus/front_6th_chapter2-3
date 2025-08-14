@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
-import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { postWithAuthorQueries } from "../model/queries"
+import { useState } from "react"
+import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Comment, CreateComment } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
+import { postWithAuthorQueries } from "../model/queries"
 
 interface DetailPostDialogProps {
   postId: number | null
@@ -16,26 +16,21 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const { hideDialog } = useDialogActions()
   const queryClient = useQueryClient()
 
-  // ===== 상태 관리 =====
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false) // 댓글 수정 대화상자
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
-  // postId가 있을 때만 쿼리 실행
-  const { data, isLoading, error } = useQuery(
-    postId ? postWithAuthorQueries.detail(postId) : { queryKey: ["no-query"], enabled: false },
-  )
+  const { data, isLoading, error } = useQuery({
+    ...postWithAuthorQueries.detail(postId!),
+    enabled: !!postId,
+  })
 
-  // ===== 댓글 관련 함수들 =====
-  /**
-   * 새 댓글을 추가하는 함수
-   */
   const addComment = async () => {
     if (!postId) return
 
     try {
-      const response = await HttpClient.post<Comment>("/comments/add", {
+      await HttpClient.post<Comment>("/comments/add", {
         body: newComment.body,
         postId: postId,
         userId: newComment.userId,
@@ -162,7 +157,6 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
                   <Edit2 className="w-3 h-3" />
                 </Button>
 
-                {/* 삭제 버튼 */}
                 <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
@@ -180,6 +174,9 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     return (
       <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
         <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>로딩 중</DialogTitle>
+          </DialogHeader>
           <div className="flex justify-center p-8">로딩 중...</div>
         </DialogContent>
       </Dialog>
@@ -190,6 +187,9 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     return (
       <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
         <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>오류</DialogTitle>
+          </DialogHeader>
           <div className="flex justify-center p-8 text-red-500">데이터를 불러오는데 실패했습니다.</div>
         </DialogContent>
       </Dialog>
