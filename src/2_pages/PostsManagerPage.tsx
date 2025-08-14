@@ -40,22 +40,16 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { useAtom } from 'jotai';
-
-import { useCreatePostMutation, usePutPostMutation } from '@/entities/post';
+import {
+  useCreatePostMutation,
+  useDeletePostMutation,
+  usePutPostMutation,
+} from '@/entities/post';
 import type { User } from '@/entities/user';
 import { useFilteredPosts } from '@/features/posts-list';
 import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText } from '@/shared/lib';
-import {
-  paginationAtom,
-  searchQueryAtom,
-  selectedTagAtom,
-  sortByAtom,
-  sortOrderAtom,
-  urlSyncAtom,
-} from '@/shared/lib/store';
 import {
   Button,
   Card,
@@ -98,21 +92,27 @@ const PostsManager = () => {
     userId: API_CONSTANTS.DEFAULT_USER_ID,
   }); // 새 게시물 임시 데이터
 
-  // ==================== Jotai 전역 상태 ====================
-  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
-  const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
-  const [sortBy, setSortBy] = useAtom(sortByAtom);
-  const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
-  const [pagination, setPagination] = useAtom(paginationAtom);
-  const [urlParams, setUrlParams] = useAtom(urlSyncAtom);
+  // ==================== 페이지네이션 상태 ====================
+  const [skip, setSkip] = useState(
+    parseInt(
+      queryParams.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
+    )
+  ); // 건너뛸 데이터 수
+  const [limit, setLimit] = useState(
+    parseInt(
+      queryParams.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
+    )
+  ); // 페이지당 표시할 데이터 수
 
-  // 페이지네이션 상태 (Jotai에서 분리)
-  const skip = pagination.skip;
-  const limit = pagination.limit;
-  const setSkip = (newSkip: number) =>
-    setPagination({ ...pagination, skip: newSkip });
-  const setLimit = (newLimit: number) =>
-    setPagination({ ...pagination, limit: newLimit });
+  // ==================== 검색 및 필터링 상태 ====================
+  const [searchQuery, setSearchQuery] = useState(
+    queryParams.get('search') || ''
+  ); // 검색어
+  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || ''); // 정렬 기준
+  const [sortOrder, setSortOrder] = useState(
+    queryParams.get('sortOrder') || 'asc'
+  ); // 정렬 순서
+  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // 선택된 태그
 
   // ==================== 댓글 관련 상태 ====================
   const [comments, setComments] = useState({}); // 게시물별 댓글 캐시 {postId: comments[]}
@@ -143,7 +143,14 @@ const PostsManager = () => {
    * - 링크 공유를 통한 상태 전달 가능
    */
   const updateURL = () => {
-    navigate(`?${urlParams}`);
+    const params = new URLSearchParams();
+    if (skip) params.set('skip', skip.toString());
+    if (limit) params.set('limit', limit.toString());
+    if (searchQuery) params.set('search', searchQuery);
+    if (sortBy) params.set('sortBy', sortBy);
+    if (sortOrder) params.set('sortOrder', sortOrder);
+    if (selectedTag) params.set('tag', selectedTag);
+    navigate(`?${params.toString()}`);
   };
 
   // ======== 개선 =======
@@ -176,23 +183,11 @@ const PostsManager = () => {
     },
   });
 
-  // ==================== 게시물 CRUD 함수들 ====================
-
-  /**
-   * 게시물 삭제
-   * - 서버에서 삭제 후 로컬 상태에서도 해당 게시물 제거
-   * - filter를 사용한 불변성 유지
-   */
-  const deletePost = async id => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-      });
-      setPosts(posts.filter(post => post.id !== id));
-    } catch (error) {
+  const { mutate: deletePost } = useDeletePostMutation({
+    onError: (error: unknown) => {
       console.error('게시물 삭제 오류:', error);
-    }
-  };
+    },
+  });
 
   // ==================== 댓글 관리 함수들 ====================
   /**
@@ -358,13 +353,27 @@ const PostsManager = () => {
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
   /**
-   * URL 변경 시 Jotai 상태 동기화
+   * URL 변경 시 상태 동기화
    * - 브라우저 뒤로가기/앞으로가기 대응
    * - 직접 URL 접근 시 상태 복원
    */
   useEffect(() => {
-    setUrlParams(location.search);
-  }, [location.search, setUrlParams]);
+    const params = new URLSearchParams(location.search);
+    setSkip(
+      parseInt(
+        params.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
+      )
+    );
+    setLimit(
+      parseInt(
+        params.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
+      )
+    );
+    setSearchQuery(params.get('search') || '');
+    setSortBy(params.get('sortBy') || '');
+    setSortOrder(params.get('sortOrder') || 'asc');
+    setSelectedTag(params.get('tag') || '');
+  }, [location.search]);
 
   // ==================== 렌더링 함수들 ====================
   /**
