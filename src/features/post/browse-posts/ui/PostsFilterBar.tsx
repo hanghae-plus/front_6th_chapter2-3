@@ -3,6 +3,7 @@ import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, B
 import type { PostsBrowseParams } from ".."
 import type { Tag } from "../../../../entities/post/model"
 import type { ChangeEvent } from "react"
+import { SortOrder } from "../../../../shared/config/sort"
 
 interface PostsFilterBarProps {
   tags?: Tag[]
@@ -57,13 +58,13 @@ export const PostsFilterBar = ({ tags, onAddPost, params, onChange }: PostsFilte
           <SelectItem value="reactions">반응</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={order} onValueChange={(value: string) => onChange({ order: value as "asc" | "desc" })}>
+      <Select value={order} onValueChange={(value: string) => onChange({ order: value as SortOrder })}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="asc">오름차순</SelectItem>
-          <SelectItem value="desc">내림차순</SelectItem>
+          <SelectItem value={SortOrder.ASC}>오름차순</SelectItem>
+          <SelectItem value={SortOrder.DESC}>내림차순</SelectItem>
         </SelectContent>
       </Select>
       {onAddPost && (

@@ -1,11 +1,12 @@
 import { parseAsString, useQueryStates } from "nuqs"
 import { useQueryParamsPagination } from "../../../../shared/hooks/useQueryParamsPagination"
+import type { SortOrder } from "../../../../shared/types/sort"
 
 export type PostsBrowseParams = {
   skip: number
   limit: number
   searchQuery: string
-  order: "asc" | "desc"
+  order: SortOrder
   sortBy: string
   tag: string
 }

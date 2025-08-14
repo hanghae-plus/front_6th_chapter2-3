@@ -1,7 +1,6 @@
 import { http } from "../../../shared/lib/httpClient"
 import type { Tag, Post } from "../model"
-
-export type SortOrder = "asc" | "desc"
+import type { PaginationParams } from "../../../shared/types/pagination"
 
 export type CreatePostRequest = Pick<Post, "title" | "body" | "userId">
 export type UpdatePostRequest = Partial<Post>
@@ -13,12 +12,7 @@ export interface PostsResponse {
   limit: number
 }
 
-export interface FetchPostsParams {
-  limit?: number
-  skip?: number
-  sortBy?: string
-  order?: SortOrder
-}
+export type FetchPostsParams = PaginationParams
 
 export interface FetchPostsByTagParams extends FetchPostsParams {
   tag: string
