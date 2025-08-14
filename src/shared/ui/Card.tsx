@@ -1,25 +1,31 @@
-import { forwardRef } from "react"
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
 
-export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
-))
-Card.displayName = "Card"
+interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
 
-export const CardHeader = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
-  ),
-)
-CardHeader.displayName = "CardHeader"
+interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string
+}
 
-export const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props} />
-  ),
-)
-CardTitle.displayName = "CardTitle"
+interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
 
-export const CardContent = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />,
-)
-CardContent.displayName = "CardContent"
+export function Card({ className, ...props }: CardProps) {
+  return <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className || ""}`} {...props} />
+}
+
+export function CardHeader({ className, ...props }: CardHeaderProps) {
+  return <div className={`flex flex-col space-y-1.5 p-6 ${className || ""}`} {...props} />
+}
+
+export function CardTitle({ className, ...props }: CardTitleProps) {
+  return <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className || ""}`} {...props} />
+}
+
+export function CardContent({ className, ...props }: CardContentProps) {
+  return <div className={`p-6 pt-0 ${className || ""}`} {...props} />
+}

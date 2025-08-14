@@ -1,6 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
-import { forwardRef } from "react"
 
 // 대화상자 컴포넌트
 export const Dialog = DialogPrimitive.Root
@@ -8,13 +7,16 @@ export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogPortal = DialogPrimitive.Portal
 export const DialogOverlay = DialogPrimitive.Overlay
 
-export const DialogContent = forwardRef<HTMLDivElement, DialogPrimitive.DialogContentProps>(
-  ({ className, children, ...props }, ref) => (
+interface DialogContentProps extends DialogPrimitive.DialogContentProps {
+  className?: string
+}
+
+export function DialogContent({ className, children, ...props }: DialogContentProps) {
+  return (
     <DialogPortal>
       <DialogOverlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
       <DialogPrimitive.Content
-        ref={ref}
-        className={`fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg md:w-full ${className}`}
+        className={`fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg md:w-full ${className || ""}`}
         {...props}
       >
         {children}
@@ -24,26 +26,28 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogPrimitive.DialogCo
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>
-  ),
-)
-DialogContent.displayName = DialogPrimitive.Content.displayName
+  )
+}
 
 // 대화상자 헤더 컴포넌트
-export const DialogHeader = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }) => (
-    <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
-  ),
-)
-DialogHeader.displayName = "DialogHeader"
+interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
+
+export function DialogHeader({ className, ...props }: DialogHeaderProps) {
+  return <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className || ""}`} {...props} />
+}
 
 // 대화상자 제목 컴포넌트
-export const DialogTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
+interface DialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string
+}
+
+export function DialogTitle({ className, ...props }: DialogTitleProps) {
+  return (
     <DialogPrimitive.Title
-      ref={ref}
-      className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+      className={`text-lg font-semibold leading-none tracking-tight ${className || ""}`}
       {...props}
     />
-  ),
-)
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+  )
+}
