@@ -1,24 +1,45 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { usePostStore } from "../../entities/post/model/store"
-import { useCommentStore } from "../../entities/comment/model/store"
 import { useTagStore } from "../../entities/tag/model/store"
 import { useUserStore } from "../../entities/user/model/store"
 import { usePostsUI } from "./ui"
+import { usePosts, useAddPost, useUpdatePost, useDeletePost } from "../../entities/post/model/queries"
+import { useCommentMutations } from "./commentMutations"
 
 // 게시물 관리 통합 비즈니스 로직
 export const usePostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // UI 상태
+  const ui = usePostsUI()
+
+  // 페이지네이션 상태
+  const [skip, setSkip] = useState(0)
+  const [limit, setLimit] = useState(10)
+  const [selectedPost, setSelectedPost] = useState<any>(null)
+  
+  // 검색 상태
+  const [activeSearchQuery, setActiveSearchQuery] = useState<string>("")
+
   // 스토어
-  const { posts, total, loading, skip, limit, fetchPosts, setSkip, setLimit, selectedPost, createPost, editPost, deletePost, setSelectedPost, searchPosts, fetchPostsByTag } = usePostStore()
-  const { comments, fetchComments, createComment, editComment, deleteComment, likeComment } = useCommentStore()
   const { tags, selectedTag, fetchTags, setSelectedTag } = useTagStore()
   const { fetchUser, selectedUser } = useUserStore()
 
-  // UI 상태
-  const ui = usePostsUI()
+  // TanStack Query hooks
+  const addPostMutation = useAddPost()
+  const updatePostMutation = useUpdatePost()
+  const deletePostMutation = useDeletePost()
+
+  // 게시물 데이터 조회
+  const { data: postsData, isLoading: postsLoading } = usePosts(limit, skip, activeSearchQuery || undefined, selectedTag)
+
+  const posts = postsData?.posts || []
+  const total = postsData?.total || 0
+  const loading = postsLoading
+
+  // 댓글 관련 mutations (항상 생성하되, postId는 0으로 초기화)
+  const commentMutations = useCommentMutations(selectedPost?.id || 0)
 
   // URL 상태 동기화
   const updateURL = () => {
@@ -37,7 +58,9 @@ export const usePostsManager = () => {
     const params = new URLSearchParams(location.search)
     setSkip(parseInt(params.get("skip") || "0"))
     setLimit(parseInt(params.get("limit") || "10"))
-    ui.setSearchQuery(params.get("search") || "")
+    const searchQuery = params.get("search") || ""
+    ui.setSearchQuery(searchQuery)
+    setActiveSearchQuery(searchQuery)
     ui.setSortBy(params.get("sortBy") || "")
     ui.setSortOrder(params.get("sortOrder") || "asc")
   }, [location.search])
@@ -47,20 +70,15 @@ export const usePostsManager = () => {
     fetchTags()
   }, [])
 
-  // 데이터 로딩
+  // URL 업데이트
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts(skip, limit)
-    }
     updateURL()
   }, [skip, limit, ui.sortBy, ui.sortOrder, selectedTag])
 
   // 비즈니스 로직
   const handleAddPost = async () => {
     try {
-      await createPost(ui.newPost)
+      await addPostMutation.mutateAsync(ui.newPost)
       ui.closeAddPostDialog()
     } catch (error) {
       console.error("게시물 추가 오류:", error)
@@ -70,9 +88,12 @@ export const usePostsManager = () => {
   const handleUpdatePost = async () => {
     if (!selectedPost) return
     try {
-      await editPost(selectedPost.id, {
-        title: selectedPost.title,
-        body: selectedPost.body,
+      await updatePostMutation.mutateAsync({
+        id: selectedPost.id,
+        updateData: {
+          title: selectedPost.title,
+          body: selectedPost.body,
+        },
       })
       ui.closeEditPostDialog()
     } catch (error) {
@@ -82,15 +103,20 @@ export const usePostsManager = () => {
 
   const handleDeletePost = async (id: number) => {
     try {
-      await deletePost(id)
+      await deletePostMutation.mutateAsync(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
   }
 
   const handleAddComment = async () => {
+    if (!selectedPost) return
     try {
-      await createComment(ui.newComment)
+      const commentData = {
+        ...ui.newComment,
+        postId: selectedPost.id
+      }
+      await commentMutations.addCommentMutation.mutateAsync(commentData)
       ui.closeAddCommentDialog()
     } catch (error) {
       console.error("댓글 추가 오류:", error)
@@ -100,8 +126,9 @@ export const usePostsManager = () => {
   const handleUpdateComment = async () => {
     if (!ui.selectedComment) return
     try {
-      await editComment(ui.selectedComment.id, {
-        body: ui.selectedComment.body,
+      await commentMutations.updateCommentMutation.mutateAsync({
+        id: ui.selectedComment.id,
+        updateData: { body: ui.selectedComment.body },
       })
       ui.closeEditCommentDialog()
     } catch (error) {
@@ -111,7 +138,12 @@ export const usePostsManager = () => {
 
   const handleDeleteComment = async (commentId: number, postId: number) => {
     try {
-      await deleteComment(commentId, postId)
+      // 현재 selectedPost와 같은 postId인 경우에만 삭제
+      if (selectedPost?.id === postId) {
+        await commentMutations.deleteCommentMutation.mutateAsync({ commentId })
+      } else {
+        console.warn("다른 게시물의 댓글을 삭제하려고 시도했습니다:", postId)
+      }
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
@@ -119,20 +151,21 @@ export const usePostsManager = () => {
 
   const handleLikeComment = async (commentId: number) => {
     try {
-      await likeComment(commentId, selectedPost?.id || 0)
+      await commentMutations.likeCommentMutation.mutateAsync({ id: commentId })
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
   }
 
   const handleSearch = () => {
+    setActiveSearchQuery(ui.searchQuery)
     setSkip(0)
-    searchPosts(ui.searchQuery)
     updateURL()
   }
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag)
+    setActiveSearchQuery("") // 태그 선택 시 검색 초기화
     updateURL()
   }
 
@@ -148,11 +181,6 @@ export const usePostsManager = () => {
   const handlePostDetail = async (post: any) => {
     setSelectedPost(post)
     ui.openPostDetailDialog()
-    try {
-      await fetchComments(post.id)
-    } catch (error) {
-      console.error("댓글 로드 오류:", error)
-    }
   }
 
   const handlePageChange = (page: number) => {
@@ -165,7 +193,6 @@ export const usePostsManager = () => {
     posts,
     total,
     loading,
-    comments,
     limit,
     skip,
     selectedPost,

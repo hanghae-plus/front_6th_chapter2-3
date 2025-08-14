@@ -19,7 +19,6 @@ export const PostsManagerWidget = () => {
     posts,
     total,
     loading,
-    comments,
     limit,
     skip,
     selectedPost,
@@ -50,6 +49,7 @@ export const PostsManagerWidget = () => {
 
     // 계산된 값
     currentPage,
+    totalPages,
   } = usePostsManager()
 
   if (loading) {
@@ -168,7 +168,6 @@ export const PostsManagerWidget = () => {
         onOpenChange={ui.setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={ui.searchQuery}
-        comments={selectedPost ? comments[selectedPost.id] || [] : []}
         onAddComment={ui.openAddCommentDialog}
         onEditComment={ui.openEditCommentDialog}
         onDeleteComment={handleDeleteComment}
