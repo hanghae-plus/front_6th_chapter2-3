@@ -1,2 +1,3 @@
-export { usePostsBrowseParams } from "./model/usePostsParams"
-export type { PostsBrowseParams } from "./model/usePostsParams"
+export { usePostsBrowseParams } from "./model/usePostsBrowseParams"
+export type { PostsBrowseParams } from "./model/usePostsBrowseParams"
+export { PostsFilterBar } from "./ui/PostsFilterBar"
