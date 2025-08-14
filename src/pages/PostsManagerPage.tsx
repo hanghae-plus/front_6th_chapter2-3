@@ -7,19 +7,13 @@ import { PostTable } from "@/widgets/post-table"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
 import { EditPostDialog } from "@/features/post/update-post/ui"
 import { DetailPostDialog } from "@/features/post/read-post/ui"
-import { UserProfileDialog } from "@/features/user/ui/UserProfileDialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 
 const PostsManager = () => {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
   const openPostDetail = (postId: number) => {
     setSelectedPostId(postId)
-  }
-
-  const openUserProfile = (userId: number) => {
-    setSelectedUserId(userId)
   }
 
   return (
@@ -46,7 +40,7 @@ const PostsManager = () => {
       <AddPostDialog />
       <EditPostDialog postId={selectedPostId} />
       <DetailPostDialog postId={selectedPostId} />
-      <UserProfileDialog userId={selectedUserId} />
+      {/* <UserProfileDialog userId={selectedUserId} /> */}
     </Card>
   )
 }

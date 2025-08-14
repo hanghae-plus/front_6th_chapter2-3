@@ -9,18 +9,17 @@ export const TagSelectBox = () => {
   const [, setSearchParams] = useSearchParams()
 
   // 태그 목록 조회
-  const { tags: tagList } = useTags()
+  const { data } = useTags()
 
   // 태그 렌더링을 useMemo로 최적화
   const tagOptions = useMemo(() => {
-    if (!tagList) return []
-
-    return tagList.map((tag: Tag) => (
+    const tags = data || []
+    return tags.map((tag: Tag) => (
       <SelectItem key={tag.slug} value={tag.slug}>
         {tag.slug}
       </SelectItem>
     ))
-  }, [tagList])
+  }, [data])
 
   const handleTagChange = (value: string) => {
     // 즉시 실행되어야 하는 상태 업데이트
