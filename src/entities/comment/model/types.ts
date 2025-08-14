@@ -19,23 +19,14 @@ export interface CommentList {
 
 export interface CreateComment {
   body: string
-  id: number
   postId: number
-  user: {
-    id: number
-    username: string
-    fullName: string
-  }
+  userId: number
 }
 
 export interface UpdateComment {
   body: string
-  id: number
+}
+
+export interface LikeComment {
   likes: number
-  postId: number
-  user: {
-    id: number
-    username: string
-    fullName: string
-  }
 }

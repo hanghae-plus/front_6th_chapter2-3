@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
 
 import {
   Button,
@@ -29,7 +30,10 @@ import { UpdatePostForm } from "../features/post/update-posts/UpdatePostForm"
 import { PostItem } from "../entities/post/model/types"
 import { User } from "../entities/user/model/types"
 import { Comment } from "../entities/comment/model/types"
-import { CommentList } from "../widget/comment-list/CommentList"
+import { useGetComments } from "../features/comment/get-comments/hooks"
+import { useDeleteCommentFeature } from "../features/comment/del-comments/hooks"
+import { useLikeCommentFeature } from "../features/comment/like-comments/hooks"
+import { Edit2, ThumbsUp, Trash2 } from "lucide-react"
 
 // PostItem에 author 속성이 추가된 타입
 interface PostWithAuthor extends PostItem {
@@ -43,10 +47,107 @@ interface CommentForm {
   userId: number
 }
 
+// 댓글 목록 컴포넌트
+const CommentSection = ({
+  postId,
+  onAddComment,
+  onEditComment,
+}: {
+  postId: number
+  onAddComment: () => void
+  onEditComment: (comment: Comment) => void
+}) => {
+  const { comments } = useGetComments(postId)
+  const { deleteComment, isLoading: isDeleting } = useDeleteCommentFeature()
+  const { likeComment, isLoading: isLiking } = useLikeCommentFeature()
+  const queryClient = useQueryClient()
+
+  console.log("CommentSection 렌더링:", { postId, commentsCount: comments.length, isDeleting, isLiking })
+
+  const handleDeleteComment = async (id: number) => {
+    console.log("댓글 삭제 시도:", id)
+    const result = await deleteComment(id)
+    console.log("댓글 삭제 결과:", result)
+    if (result.success) {
+      console.log("댓글 삭제 성공!")
+
+      // setQueryData를 사용하여 댓글 캐시에서 삭제된 댓글 제거
+      queryClient.setQueryData(["comments", postId], (oldData: { comments: Comment[] } | undefined) => {
+        if (!oldData) return oldData
+
+        return {
+          ...oldData,
+          comments: oldData.comments.filter((comment: Comment) => comment.id !== id),
+        }
+      })
+    } else {
+      console.error("댓글 삭제 실패:", result.error)
+    }
+  }
+
+  const handleLikeComment = async (id: number) => {
+    console.log("댓글 좋아요 시도:", id)
+    const result = await likeComment(id)
+    console.log("댓글 좋아요 결과:", result)
+    if (result.success) {
+      console.log("댓글 좋아요 성공!")
+
+      // setQueryData를 사용하여 댓글 캐시에서 좋아요 수 증가
+      queryClient.setQueryData(["comments", postId], (oldData: { comments: Comment[] } | undefined) => {
+        if (!oldData) return oldData
+
+        return {
+          ...oldData,
+          comments: oldData.comments.map((comment: Comment) =>
+            comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment,
+          ),
+        }
+      })
+    } else {
+      console.error("댓글 좋아요 실패:", result.error)
+    }
+  }
+
+  return (
+    <div className="mt-2">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold">댓글</h3>
+        <Button size="sm" onClick={onAddComment}>
+          <Plus className="w-3 h-3 mr-1" />
+          댓글 추가
+        </Button>
+      </div>
+      <div className="space-y-1">
+        {comments.map((comment) => (
+          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
+            <div className="flex items-center space-x-2 overflow-hidden">
+              <span className="font-medium truncate">{comment.user.username}:</span>
+              <span className="truncate">{comment.body}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Button variant="ghost" size="sm" onClick={() => handleLikeComment(comment.id)} disabled={isLiking}>
+                <ThumbsUp className="w-3 h-3" />
+                <span className="ml-1 text-xs">{comment.likes}</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onEditComment(comment)}>
+                <Edit2 className="w-3 h-3" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id)} disabled={isDeleting}>
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
+  const queryClient = useQueryClient()
 
   // Zustand store 사용
   const {
@@ -123,6 +224,7 @@ const PostsManager = () => {
 
   // 댓글 추가
   const addComment = async () => {
+    console.log("댓글 추가 시도:", newComment)
     try {
       // createComment
       await fetch("/api/comments/add", {
@@ -130,6 +232,7 @@ const PostsManager = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newComment),
       })
+      console.log("댓글 추가 성공!")
       closeAddCommentDialog()
       setNewComment({ body: "", postId: null, userId: 1 })
       // 댓글 추가 후 상세 보기 새로고침 (React Query가 자동으로 처리)
@@ -140,6 +243,7 @@ const PostsManager = () => {
 
   // 댓글 업데이트
   const updateComment = async () => {
+    console.log("댓글 수정 시도:", selectedComment)
     try {
       if (!selectedComment) return
 
@@ -148,6 +252,22 @@ const PostsManager = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: selectedComment.body }),
       })
+      console.log("댓글 수정 성공!")
+
+      // setQueryData를 사용하여 댓글 캐시만 직접 업데이트
+      if (selectedPost?.id) {
+        queryClient.setQueryData(["comments", selectedPost.id], (oldData: { comments: Comment[] } | undefined) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            comments: oldData.comments.map((comment: Comment) =>
+              comment.id === selectedComment.id ? { ...comment, body: selectedComment.body } : comment,
+            ),
+          }
+        })
+      }
+
       closeEditCommentDialog()
       // 댓글 업데이트 후 상세 보기 새로고침 (React Query가 자동으로 처리)
     } catch (error) {
@@ -155,38 +275,12 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 삭제
-  const deleteComment = async (id: number) => {
-    try {
-      // deleteComment
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      // 댓글 삭제 후 상세 보기 새로고침 (React Query가 자동으로 처리)
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요
-  const likeComment = async (id: number) => {
-    try {
-      // likeComment
-      await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: 1 }),
-      })
-      // 댓글 좋아요 후 상세 보기 새로고침 (React Query가 자동으로 처리)
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
   // 게시물 상세 보기
   const openPostDetail = (post: PostWithAuthor) => {
+    console.log("openPostDetail 호출됨:", post)
     setSelectedPost(post)
     openPostDetailDialog()
+    console.log("showPostDetailDialog 상태:", showPostDetailDialog)
   }
 
   // 사용자 모달 열기
@@ -216,23 +310,14 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  const renderComments = (postId: number) => {
-    return (
-      <CommentList
-        postId={postId}
-        onAddComment={() => {
-          setNewComment((prev) => ({ ...prev, postId }))
-          openAddCommentDialog()
-        }}
-        onEditComment={(comment) => {
-          setSelectedComment(comment)
-          openEditCommentDialog()
-        }}
-        onDeleteComment={deleteComment}
-        onLikeComment={likeComment}
-      />
-    )
-  }
+  // 디버깅을 위한 상태 변화 추적
+  useEffect(() => {
+    console.log("showPostDetailDialog 상태 변화:", showPostDetailDialog)
+  }, [showPostDetailDialog])
+
+  useEffect(() => {
+    console.log("selectedPost 상태 변화:", selectedPost)
+  }, [selectedPost])
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -402,7 +487,7 @@ const PostsManager = () => {
             <Textarea
               placeholder="댓글 내용"
               value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+              onChange={(e) => selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })}
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
@@ -426,7 +511,19 @@ const PostsManager = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p>{selectedPost?.body}</p>
-            {renderComments(selectedPost?.id)}
+            {selectedPost?.id && (
+              <CommentSection
+                postId={selectedPost.id}
+                onAddComment={() => {
+                  setNewComment({ ...newComment, postId: selectedPost.id })
+                  openAddCommentDialog()
+                }}
+                onEditComment={(comment) => {
+                  setSelectedComment(comment)
+                  openEditCommentDialog()
+                }}
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>

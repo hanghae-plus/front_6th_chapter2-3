@@ -1,0 +1,1 @@
+export { useDeleteCommentFeature } from "./hooks"

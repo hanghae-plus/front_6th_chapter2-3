@@ -1,5 +1,5 @@
 import { ApiClient } from "../../../shared/api/api"
-import { CreateComment, CommentList } from "../model/types"
+import { CreateComment, CommentList, UpdateComment, LikeComment, Comment } from "../model/types"
 
 class CommentAPI extends ApiClient {
   constructor() {
@@ -20,8 +20,8 @@ class CommentAPI extends ApiClient {
    * @param comment - 추가할 댓글 정보
    * @returns 추가된 댓글 정보
    */
-  async createComment(comment: CreateComment) {
-    return await this.post("/add", comment)
+  async createComment(comment: CreateComment): Promise<Comment> {
+    return await this.post<Comment>("/add", comment)
   }
 
   /**
@@ -30,8 +30,8 @@ class CommentAPI extends ApiClient {
    * @param comment - 수정할 댓글 정보
    * @returns 수정된 댓글 정보
    */
-  async updateComment(id: number, comment: CreateComment) {
-    return await this.put(`/${id}`, comment)
+  async updateComment(id: number, comment: UpdateComment): Promise<Comment> {
+    return await this.put<Comment>(`/${id}`, comment)
   }
 
   /**
@@ -39,8 +39,8 @@ class CommentAPI extends ApiClient {
    * @param id - 삭제할 댓글 ID
    * @returns 삭제된 댓글 정보
    */
-  async deleteComment(id: number) {
-    return await this.delete(`/${id}`)
+  async deleteComment(id: number): Promise<Comment> {
+    return await this.delete<Comment>(`/${id}`)
   }
 
   /**
@@ -48,8 +48,8 @@ class CommentAPI extends ApiClient {
    * @param id - 좋아요할 댓글 ID
    * @returns 좋아요된 댓글 정보
    */
-  async likeComment(id: number) {
-    return await this.patch(`/${id}`, { likes: 1 })
+  async likeComment(id: number): Promise<Comment> {
+    return await this.patch<Comment>(`/${id}`, { likes: 1 })
   }
 }
 
