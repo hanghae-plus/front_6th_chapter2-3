@@ -38,6 +38,7 @@ import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
 import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
 import { useDeletePost } from "../features/posts/hooks/useDeletePost.ts"
 import { useAddComment } from "../features/comment/hooks/useAddComment.ts"
+import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -56,10 +57,10 @@ const PostsManager = () => {
 
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   // const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+  // const [selectedComment, setSelectedComment] = useState(null)
+  // const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+  // const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
+  // const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   // const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -89,6 +90,7 @@ const PostsManager = () => {
   const deletePost = useDeletePost()
 
   const addComment = useAddComment()
+  const updateComment = useUpdateComment()
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -152,23 +154,23 @@ const PostsManager = () => {
   // }
 
   // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
-      // setComments((prev) => ({
-      //   ...prev,
-      //   [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      // }))
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
-    }
-  }
+  // const updateComment = async () => {
+  //   try {
+  //     const response = await fetch(`/api/comments/${selectedComment.id}`, {
+  //       method: "PUT",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ body: selectedComment.body }),
+  //     })
+  //     const data = await response.json()
+  //     // setComments((prev) => ({
+  //     //   ...prev,
+  //     //   [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
+  //     // }))
+  //     setShowEditCommentDialog(false)
+  //   } catch (error) {
+  //     console.error("댓글 업데이트 오류:", error)
+  //   }
+  // }
 
   // 댓글 삭제
   const deleteComment = async (id, postId) => {
@@ -272,8 +274,7 @@ const PostsManager = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setSelectedComment(comment)
-                    setShowEditCommentDialog(true)
+                    updateComment.action.open(comment)
                   }}
                 >
                   <Edit2 className="w-3 h-3" />
@@ -493,7 +494,10 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
+      <Dialog
+        open={updateComment.modal.isOpen}
+        onOpenChange={(open) => (open ? updateComment.modal.open() : updateComment.modal.close())}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
@@ -501,10 +505,12 @@ const PostsManager = () => {
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+              value={updateComment.state.selectedComment?.body || ""}
+              onChange={(e) => updateComment.action.change(e.target.value)}
             />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
+            <Button onClick={() => updateComment.action.update(updateComment.state.selectedComment!)}>
+              댓글 업데이트
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
