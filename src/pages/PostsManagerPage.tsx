@@ -62,7 +62,7 @@ const PostsManager = () => {
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState<NewPost>({ title: '', body: '', userId: 1 });
+  // const [newPost, setNewPost] = useState<NewPost>({ title: '', body: '', userId: 1 });
   // const [loading, setLoading] = useState(false);
   // const [tags, setTags] = useState<any[]>([]); // → useTagsStore로 대체
   // const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // → useTagsStore로 대체
@@ -136,17 +136,6 @@ const PostsManager = () => {
       setTotal(postsData.total);
     } catch (error) {
       console.error('태그별 게시물 가져오기 오류:', error);
-    }
-  };
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      const data = await updatePostAPI(selectedPost);
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)));
-      setShowEditDialog(false);
-    } catch (error) {
-      console.error('게시물 업데이트 오류:', error);
     }
   };
 
@@ -363,11 +352,7 @@ const PostsManager = () => {
       <AddPostDialog />
 
       {/* 게시물 수정 대화상자 */}
-      <EditPostDialog
-        selectedPost={selectedPost}
-        onPostChange={setSelectedPost}
-        onSubmit={updatePost}
-      />
+      <EditPostDialog />
 
       {/* 댓글 추가 대화상자 */}
       <AddCommentDialog

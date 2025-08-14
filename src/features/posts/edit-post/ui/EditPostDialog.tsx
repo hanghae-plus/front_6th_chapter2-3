@@ -9,10 +9,11 @@ import {
   Input,
   Textarea,
 } from '../../../../shared/ui';
-import { EditPostDialogProps } from '../model/type';
+import { useEditPost } from '../model/hooks';
 
-export const EditPostDialog = ({ selectedPost, onPostChange, onSubmit }: EditPostDialogProps) => {
+export const EditPostDialog = () => {
   const { isDialogOpen, closeDialog } = useDialogStore();
+  const { selectedPost, setSelectedPost, updatePost } = useEditPost();
 
   return (
     <Dialog
@@ -27,15 +28,21 @@ export const EditPostDialog = ({ selectedPost, onPostChange, onSubmit }: EditPos
           <Input
             placeholder='제목'
             value={selectedPost?.title || ''}
-            onChange={(e) => onPostChange({ ...selectedPost, title: e.target.value })}
+            onChange={(e) => {
+              if (selectedPost) {
+                setSelectedPost({ ...selectedPost, title: e.target.value });
+              }
+            }}
           />
           <Textarea
             rows={15}
             placeholder='내용'
             value={selectedPost?.body || ''}
-            onChange={(e) => onPostChange({ ...selectedPost, body: e.target.value })}
+            onChange={(e) =>
+              selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })
+            }
           />
-          <Button onClick={onSubmit}>게시물 업데이트</Button>
+          <Button onClick={updatePost}>게시물 업데이트</Button>
         </div>
       </DialogContent>
     </Dialog>

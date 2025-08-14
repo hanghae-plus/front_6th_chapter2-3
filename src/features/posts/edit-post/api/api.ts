@@ -1,7 +1,7 @@
 /**
  * 게시글 수정 API
  */
-export const updatePost = async (post: { id: number; title: string; body: string }) => {
+export const updatePostAPI = async (post: { id: number; title: string; body: string }) => {
   try {
     const response = await fetch(`/api/posts/${post.id}`, {
       method: 'PUT',
