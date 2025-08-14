@@ -1,8 +1,9 @@
 import { queryOptions } from "@tanstack/react-query"
 import { POST_QK } from "@/entities/post/model/query-key"
 import { getPosts } from "@/entities/post/api"
+import { getUsers } from "@/entities/user/api"
 import { HttpClient } from "@/shared/api/http"
-import type { PostFilter, PostPaginatedResponse, UserPaginatedResponse, Post, User, Author } from "@/shared/types"
+import type { PostFilter, UserPaginatedResponse, Post, User, Author } from "@/shared/types"
 import { normalize } from "@/shared/lib/normalizeParams"
 
 // 게시물 + 작성자 join 쿼리
@@ -31,23 +32,21 @@ export const postWithAuthorQueries = {
     queryOptions({
       queryKey: [...POST_QK.list(filters), "byTag", tag, "withAuthor", normalize({})],
       queryFn: async () => {
+        console.log("여기 들어옴")
+
         if (!tag || tag === "all") {
           // 기본 목록 쿼리와 동일한 로직
-          const [base, users] = await Promise.all([
-            getPosts(filters),
-            HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`),
-          ])
+          const [base, users] = await Promise.all([getPosts(filters), getUsers()])
 
           const map = new Map(users.users.map((u: User) => [u.id, u]))
           const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
 
+          console.log(posts)
+
           return { posts, total: base.total }
         }
 
-        const [postsResponse, usersResponse] = await Promise.all([
-          HttpClient.get<PostPaginatedResponse>(`/posts/tag/${tag}`),
-          HttpClient.get<UserPaginatedResponse>("/users?limit=0&select=username,image"),
-        ])
+        const [postsResponse, usersResponse] = await Promise.all([getPosts({ ...filters, tag }), getUsers()])
 
         const map = new Map(usersResponse.users.map((u: User) => [u.id, u]))
         const posts = postsResponse.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
@@ -56,7 +55,6 @@ export const postWithAuthorQueries = {
       },
       staleTime: 30_000,
       gcTime: 10 * 60 * 1000,
-      enabled: !!tag && tag !== "all",
     }),
 
   search: (query: string, filters: PostFilter = {}) =>
@@ -65,10 +63,7 @@ export const postWithAuthorQueries = {
       queryFn: async () => {
         if (!query) {
           // 검색어가 없으면 기본 목록 쿼리와 동일한 로직
-          const [base, users] = await Promise.all([
-            getPosts(filters),
-            HttpClient.get<UserPaginatedResponse>(`/users?limit=0&select=username,image`),
-          ])
+          const [base, users] = await Promise.all([getPosts(filters), getUsers()])
 
           const map = new Map(users.users.map((u: User) => [u.id, u]))
           const posts = base.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
@@ -76,10 +71,7 @@ export const postWithAuthorQueries = {
           return { posts, total: base.total }
         }
 
-        const [postsResponse, usersResponse] = await Promise.all([
-          HttpClient.get<PostPaginatedResponse>(`/posts/search?q=${encodeURIComponent(query)}`),
-          HttpClient.get<UserPaginatedResponse>("/users?limit=0&select=username,image"),
-        ])
+        const [postsResponse, usersResponse] = await Promise.all([getPosts({ ...filters, q: query }), getUsers()])
 
         const map = new Map(usersResponse.users.map((u: User) => [u.id, u]))
         const posts = postsResponse.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) }))
