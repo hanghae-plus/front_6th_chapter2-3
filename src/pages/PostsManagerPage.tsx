@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { PostType } from '../entities';
-import { CreatePostModal, DeletePostButton } from '../features';
+import { CreatePostModal, DeletePostButton, UpdatePostButton } from '../features';
 import {
   Button,
   Card,
@@ -388,16 +388,7 @@ const PostsManager = () => {
                 <Button variant='ghost' size='sm' onClick={() => openPostDetail(post)}>
                   <MessageSquare className='w-4 h-4' />
                 </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditDialog(true);
-                  }}
-                >
-                  <Edit2 className='w-4 h-4' />
-                </Button>
+                <UpdatePostButton post={post} />
                 <DeletePostButton postId={post.id} />
               </div>
             </TableCell>

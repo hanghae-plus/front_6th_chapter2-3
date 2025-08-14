@@ -3,6 +3,7 @@ export interface PostType {
   id: number;
   title: string;
   tags: string[];
+  body: string;
   author?: {
     image: string;
     username: string;
@@ -27,6 +28,5 @@ export interface PostPostRequestType {
 export interface PutPostRequestType {
   title: string;
   body: string;
-  userId: number;
   id: number;
 }

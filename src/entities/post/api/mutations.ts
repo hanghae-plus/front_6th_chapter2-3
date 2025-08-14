@@ -10,9 +10,9 @@ export const useCreatePost = () => {
 
   return useMutation({
     mutationFn: (post: PostPostRequestType) => postPost(post),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      console.log('게시물 추가 성공');
+      console.log('게시물 추가 성공', response);
     },
     onError: (error) => {
       console.error('게시물 추가 오류:', error);
@@ -26,8 +26,9 @@ export const useUpdatePost = () => {
 
   return useMutation({
     mutationFn: (post: PutPostRequestType) => putPost(post),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      console.log('게시물 수정 성공', response);
     },
     onError: (error) => {
       console.error('게시물 업데이트 오류:', error);
