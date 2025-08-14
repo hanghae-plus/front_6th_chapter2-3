@@ -1,10 +1,13 @@
 import { useState } from "react"
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Comment, CreateComment } from "@/shared/types"
-import { HttpClient } from "@/shared/api/http"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
+import { HttpClient } from "@/shared/api/http"
+import { Comment, CreateComment } from "@/shared/types"
+import { commentKeys } from "@/entities/comment/model/query-key"
+import { CommentItem } from "@/entities/comment/ui"
+import { useComments } from "@/features/comment/read-comment/model/useComments"
 import { usePostDetail } from "../model"
 
 interface DetailPostDialogProps {
@@ -22,6 +25,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
   const { data, isLoading, error } = usePostDetail(postId)
+  const { data: commentsData } = useComments(postId || 0)
 
   const addComment = async () => {
     if (!postId) return
@@ -78,10 +82,10 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
 
   // TODO: 댓글 좋아요 훅으로 분리
   const likeComment = async (id: number) => {
-    if (!postId || !data) return
+    if (!postId) return
 
     try {
-      const comment = data.comments.find((c) => c.id === id)
+      const comment = commentsData?.comments?.find((c) => c.id === id)
       if (!comment) return
 
       await HttpClient.patch<Comment>(`/comments/${id}`, {
@@ -90,66 +94,53 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
 
       // 좋아요 후 쿼리 무효화하여 데이터 새로고침
       queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
+      queryClient.invalidateQueries({ queryKey: commentKeys.listByPost(postId) })
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
   }
 
   // TODO: 댓글 위젯으로 분리
-  const renderComments = () => (
-    <div className="mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">댓글</h3>
-        {/* 댓글 추가 버튼 */}
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId: postId || 0 }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
+  const renderComments = () => {
+    return (
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">댓글</h3>
+          {/* 댓글 추가 버튼 */}
+          <Button
+            size="sm"
+            onClick={() => {
+              setNewComment((prev) => ({ ...prev, postId: postId || 0 }))
+              setShowAddCommentDialog(true)
+            }}
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            댓글 추가
+          </Button>
+        </div>
 
-      {/* 댓글 목록 */}
-      {/* <div className="space-y-3">
-        {data?.comments.map((comment) => (
-          <div key={comment.id} className="border-b pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 overflow-hidden flex-1">
-                <span className="font-medium text-sm">{comment.user.username}:</span>
-                <span className="text-sm">{comment.body}</span>
-              </div>
-
-              <div className="flex items-center space-x-1 ml-4">
-                <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id)}>
-                  <ThumbsUp className="w-3 h-3" />
-                  <span className="ml-1 text-xs">{comment.likes}</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedComment(comment)
-                    setShowEditCommentDialog(true)
-                  }}
-                >
-                  <Edit2 className="w-3 h-3" />
-                </Button>
-
-                <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id)}>
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
+        {/* 댓글 목록 */}
+        {!commentsData ? (
+          <div className="text-center py-4">댓글 로딩 중...</div>
+        ) : (
+          <div className="space-y-1">
+            {commentsData.comments?.map((comment) => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                onLike={likeComment}
+                onEdit={(comment) => {
+                  setSelectedComment(comment)
+                  setShowEditCommentDialog(true)
+                }}
+                onDelete={deleteComment}
+              />
+            ))}
           </div>
-        ))}
-      </div> */}
-    </div>
-  )
+        )}
+      </div>
+    )
+  }
 
   if (!postId || !isOpen) return null
 

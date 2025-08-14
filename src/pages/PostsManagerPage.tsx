@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { SearchPostInput } from "@/widgets/search-post/SearchPostInput"
-import { TagSelectBox, SortSelectBox } from "@/widgets/select-box"
+import { TagSelectBox, SortSelectBox, SortOrderSelectBox } from "@/widgets/select-box"
 import { PaginationControl } from "@/widgets/pagination/ui"
 import { PostTable } from "@/widgets/post-table"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
@@ -32,6 +32,7 @@ const PostsManager = () => {
             </div>
             <TagSelectBox />
             <SortSelectBox />
+            <SortOrderSelectBox />
           </div>
           <PostTable onPostSelect={openPostDetail} />
           <PaginationControl />

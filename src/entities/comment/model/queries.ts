@@ -10,7 +10,7 @@ export const commentQueries = {
   listByPost: (postId: number, filters: CommentFilter = {}) =>
     queryOptions({
       queryKey: commentKeys.listByPost(postId, filters),
-      queryFn: () => getCommentsByPost(postId, filters),
+      queryFn: () => getCommentsByPost(postId),
       staleTime: 30_000, // 30초
       gcTime: 10 * 60 * 1000, // 10분
       enabled: !!postId,
