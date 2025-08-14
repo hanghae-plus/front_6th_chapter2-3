@@ -24,7 +24,6 @@ export const useSelectedPostStore = create<{
     set((state) => ({
       ...state,
       posts: typeof newPosts === "function" ? newPosts(state.posts) : newPosts,
-      //     ↑ posts로 수정
     }))
   },
   setSelectedPost: (selectedPost: Post) => {

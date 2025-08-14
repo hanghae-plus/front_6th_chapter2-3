@@ -1,79 +1,21 @@
 import { Button, HighlightText } from "../../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { Comment } from "../../../entities"
 import { useCommentStore } from "../model/store"
 import { useSearchQueryStore, useSelectedPostStore } from "../../post/model/store"
-import { requestApi } from "../../../shared/lib"
-import { DeleteComment, UpsertComment } from "../type"
+import { useCommnet } from "../model/hook"
 
 export const Comments = () => {
   const { searchQuery } = useSearchQueryStore()
   const { selectedPost } = useSelectedPostStore()
-  const {
-    comments,
-    setComments,
-    setNewComment,
-    setShowAddCommentDialog,
-    setShowEditCommentDialog,
-    setSelectedComment,
-  } = useCommentStore()
-  console.log(1111)
-
-  console.log(comments)
-
   const postId = selectedPost.id
-  // 댓글 좋아요
-  const likeComment = async (id: number, postId: number) => {
-    const filtredComments = comments[postId]
-    try {
-      const { result, data } = await requestApi<UpsertComment>(`/api/comments/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          likes: (filtredComments.find((comment) => (comment as Comment).id === id)!.likes ?? 0) + 1,
-        }),
-      })
-
-      if (result && data) {
-        setComments((prev) => ({
-          ...prev,
-          [postId]: prev[postId].map((comment) =>
-            comment.id === data.id ? { ...data, likes: (comment.likes ?? 0) + 1 } : comment,
-          ),
-        }))
-      }
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
-  // 댓글 삭제
-  const deleteComment = async (id: number, postId: number) => {
-    try {
-      const { result, data } = await requestApi<DeleteComment>(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-
-      if (result && data) {
-        setComments((prev) => ({
-          ...prev,
-          [postId]: prev[postId].filter((comment) => comment.id !== id),
-        }))
-      }
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  const handleAddComment = () => {
-    setNewComment((prev) => ({ ...prev, postId }))
-    setShowAddCommentDialog(true)
-  }
+  const { setShowEditCommentDialog, setSelectedComment } = useCommentStore()
+  const { comments, handleAddComment, likeComment, deleteComment } = useCommnet()
 
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold">댓글</h3>
-        <Button size="sm" onClick={handleAddComment}>
+        <Button size="sm" onClick={() => handleAddComment(postId)}>
           <Plus className="w-3 h-3 mr-1" />
           댓글 추가
         </Button>
