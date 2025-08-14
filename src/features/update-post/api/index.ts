@@ -1,0 +1,1 @@
+export { useUpdatePostMutation } from "./useUpdatePostMutation"
