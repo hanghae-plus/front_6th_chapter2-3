@@ -3,7 +3,7 @@ import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow }
 import type { Post } from "@entities/post/model"
 import type { User } from "@entities/user/model"
 import { highlightText } from "@shared/lib"
-import { PostTagItem } from "@/entities/post/ui"
+import { PostTagItem } from "@entities/post/ui"
 
 interface PostsTableProps {
   posts: Array<Post & { author?: User }>
