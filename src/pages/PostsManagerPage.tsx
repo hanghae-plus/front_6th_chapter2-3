@@ -2,7 +2,6 @@ import { useState } from "react"
 import { Plus } from "lucide-react"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
-import type { Post } from "@entities/post"
 import { PostTable, PostFilters, PostDetailDialog, UserDialog } from "@widgets"
 import { AddCommentFormDialog } from "@features/add-comment"
 import { EditCommentFormDialog } from "@features/edit-comment"
@@ -17,7 +16,6 @@ export const PostsManagerPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("")
 
   // UI 전용 상태
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const openAddDialog = useDialogStore((s) => s.openAddPost)
   const openEditDialog = useDialogStore((s) => s.openEditPost)
 
@@ -29,15 +27,13 @@ export const PostsManagerPage = () => {
   const openUserDialog = useDialogStore((s) => s.openUserDialog)
   const closeUserDialog = useDialogStore((s) => s.closeUserDialog)
   
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+  const isPostDetailOpen = useDialogStore((s) => s.isPostDetailOpen)
+  const selectedPost = useDialogStore((s) => s.selectedPost)
+  const openPostDetail = useDialogStore((s) => s.openPostDetail)
+  const closePostDetail = useDialogStore((s) => s.closePostDetail)
 
   // updateURL 은 usePostQueryParams 훅에서 가져온 update 함수를 그대로 사용합니다.
 
-  // 게시물 상세 보기
-  const openPostDetail = (post: Post) => {
-    setSelectedPost(post)
-    setShowPostDetailDialog(true)
-  }
 
 
   return (
@@ -70,7 +66,6 @@ export const PostsManagerPage = () => {
             onOpenDetail={openPostDetail}
             onOpenUser={openUserDialog}
             onEdit={(post) => {
-              setSelectedPost(post)
               openEditDialog(post)
             }}
             onPrev={() => updateUrl({ skip: Math.max(0, param.skip - param.limit) })}
@@ -89,8 +84,8 @@ export const PostsManagerPage = () => {
 
       {/* 게시물 상세 보기 다이얼로그 위젯 */}
       <PostDetailDialog
-        open={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
+        open={isPostDetailOpen}
+        onOpenChange={closePostDetail}
         post={selectedPost}
         searchQuery={searchQuery}
         onOpenAddComment={openAddCommentDialog}
