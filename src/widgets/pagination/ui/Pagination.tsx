@@ -28,7 +28,6 @@ export const PaginationControl = () => {
 
   return (
     <div className="flex justify-between items-center">
-      {/* 페이지당 항목 수 선택 */}
       <div className="flex items-center gap-2">
         <span>표시</span>
         <Select value={limit.toString()} onValueChange={(value) => handleLimitChange(Number(value))}>
@@ -43,8 +42,6 @@ export const PaginationControl = () => {
         </Select>
         <span>항목</span>
       </div>
-
-      {/* 이전/다음 페이지 버튼 */}
       <div className="flex gap-2">
         <Button disabled={skip === 0} onClick={() => handleSkipChange(Math.max(0, skip - limit))}>
           이전

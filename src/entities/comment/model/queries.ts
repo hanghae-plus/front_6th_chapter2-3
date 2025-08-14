@@ -4,9 +4,6 @@ import { getCommentsByPost, getComment } from "../api"
 import { CommentFilter } from "./types"
 
 export const commentQueries = {
-  // 키만 쓰고 싶을 때를 위해 keys는 분리 유지
-  keys: commentKeys,
-
   listByPost: (postId: number, filters: CommentFilter = {}) =>
     queryOptions({
       queryKey: commentKeys.listByPost(postId, filters),

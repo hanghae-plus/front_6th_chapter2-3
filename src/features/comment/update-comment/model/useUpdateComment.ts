@@ -16,7 +16,6 @@ export const useUpdateComment = () => {
       return updateComment(commentId, { body })
     },
     onSuccess: (updatedComment: Comment, variables: UpdateCommentParams) => {
-      // 댓글 목록 쿼리를 수동으로 업데이트
       queryClient.setQueriesData(
         { queryKey: commentKeys.listByPost(updatedComment.postId) },
         (old: CommentPaginatedResponse) => {
