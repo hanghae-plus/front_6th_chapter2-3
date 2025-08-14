@@ -15,7 +15,7 @@ import { useComments } from "../features/comment/models/useComment";
 import { usePosts } from "../features/post/models/usePosts";
 import { Post } from "../entities/post/models/types";
 import { PostTable } from "../entities/post/ui/PostTable";
-import { useTags } from "../entities/tag/models/models";
+import { useTags } from "../entities/tag/models";
 import { PostFiltersBar } from "../widgets/post-filters/ui/PostFiltersBar";
 import { usePostQuery } from "../features/post/models/usePostQuery";
 import { User, UserResponse } from "../entities/user/models/types";
