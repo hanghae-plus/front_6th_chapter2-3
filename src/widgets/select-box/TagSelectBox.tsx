@@ -5,8 +5,8 @@ import { Tag } from "@/entities/tag/model/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
 
 export const TagSelectBox = () => {
-  const [selectedTag, setSelectedTag] = useState("")
-  const [, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedTag, setSelectedTag] = useState(searchParams.get("tag") || "")
 
   const { data } = useTags()
 
