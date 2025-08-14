@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -9,9 +9,9 @@ import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
 import { Input } from "@/shared/ui/Input"
 import { Select } from "@/shared/ui/Select"
-import { Table } from "@/shared/ui/Table"
 import { CommentAddDialog, CommentUpdateDialog } from "@/widgets/comment-dialog/ui"
 import { PostAddDialog, PostDetailDialog, PostUpdateDialog } from "@/widgets/post-dialog/ui"
+import { PostTable } from "@/widgets/post-table/ui"
 import { UserInfoDialog } from "@/widgets/user-dialog/ui"
 
 export function PostsManagerPage() {
@@ -330,86 +330,6 @@ export function PostsManagerPage() {
     )
   }
 
-  // 게시물 테이블 렌더링
-  const renderPostTable = () => (
-    <Table>
-      <Table.Header>
-        <Table.Row>
-          <Table.Head className="w-[50px]">ID</Table.Head>
-          <Table.Head>제목</Table.Head>
-          <Table.Head className="w-[150px]">작성자</Table.Head>
-          <Table.Head className="w-[150px]">반응</Table.Head>
-          <Table.Head className="w-[150px]">작업</Table.Head>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {posts.map((post: any) => (
-          <Table.Row key={post.id}>
-            <Table.Cell>{post.id}</Table.Cell>
-            <Table.Cell>
-              <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag: any) => (
-                    <span
-                      key={tag}
-                      className={`cursor-pointer rounded-[4px] px-1 text-[9px] font-semibold ${
-                        selectedTag === tag
-                          ? "bg-blue-500 text-white hover:bg-blue-600"
-                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag)
-                        updateURL()
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className="flex cursor-pointer items-center space-x-2" onClick={() => openUserModal(post.author)}>
-                <img src={post.author?.image} alt={post.author?.username} className="h-8 w-8 rounded-full" />
-                <span>{post.author?.username}</span>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="h-4 w-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="h-4 w-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </Table.Cell>
-            <Table.Cell>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post)
-                    setShowEditDialog(true)
-                  }}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table>
-  )
-
   return (
     <Card className="mx-auto w-full max-w-6xl">
       <Card.Header>
@@ -480,7 +400,25 @@ export function PostsManagerPage() {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {loading ? (
+            <div className="flex justify-center p-4">로딩 중...</div>
+          ) : (
+            <PostTable
+              posts={posts}
+              searchQuery={searchQuery}
+              selectedTag={selectedTag}
+              highlightText={highlightText}
+              onTagClick={(tag: string) => setSelectedTag(tag)}
+              onUserClick={openUserModal}
+              onPostDetailClick={openPostDetail}
+              onPostEditClick={(post: any) => {
+                setSelectedPost(post)
+                setShowEditDialog(true)
+              }}
+              onPostDeleteClick={deletePost}
+              updateURL={updateURL}
+            />
+          )}
 
           {/* 페이지네이션 */}
           <div className="flex items-center justify-between">
