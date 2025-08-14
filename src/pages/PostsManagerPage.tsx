@@ -4,7 +4,6 @@ import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
 import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hooks/useFetchPostsByMode.ts"
 import { useSearchMode } from "../features/posts/fetch-posts-by-mode/hooks/useSearchMode.ts"
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/hooks/useTagMode.ts.ts"
-import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/hooks/usePageNavigateMode.ts"
 import { useAddPost } from "../features/posts/hooks/useAddPost.ts"
 import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
 import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
@@ -14,14 +13,13 @@ import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
 import { useDeleteComment } from "../features/comment/hooks/useDeleteComment.ts"
 import { useLikeComment } from "../features/comment/hooks/useLikeComment.ts"
 import { useOpenUser } from "../features/user/hooks/useOpenUser.ts"
-import { useLimitMode } from "../features/posts/fetch-posts-by-mode/hooks/useLimitMode.ts"
 import AddPostModal from "../features/posts/ui/modals/AddPostModal.tsx"
 import UpdatePostModal from "../features/posts/ui/modals/UpdatePostModal.tsx"
 import AddCommentModal from "../features/comment/ui/modals/AddCommentModal.tsx"
 import UpdateCommentModal from "../features/comment/ui/modals/UpdateCommentModal.tsx"
 import DetailPostModal from "../features/posts/ui/modals/DetailPostModal.tsx"
 import DetailUserModal from "../features/user/ui/modals/DetailUserModal.tsx"
-import PaginationBar from "../widgets/pagination/PaginationBar.tsx"
+import PaginationControls from "../widgets/pagination/ui/PaginationControls.tsx"
 import TableLoading from "../features/posts/ui/loading/TableLoading.tsx"
 import PostFilter from "../widgets/post-filter/ui/PostFilter.tsx"
 import PostManagerHeader from "../widgets/post-manager-header/ui/PostManagerHeader.tsx"
@@ -30,8 +28,7 @@ const PostsManager = () => {
   const posts = useFetchPostsByMode()
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
-  const pageNavigateMode = usePageNavigateMode()
-  const limitMode = useLimitMode()
+  // 페이지네이션 훅은 PaginationControls 내부로 이동
 
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
@@ -75,7 +72,7 @@ const PostsManager = () => {
             />
           )}
           {/* 페이지네이션 */}
-          <PaginationBar limitMode={limitMode} pageNavigateMode={pageNavigateMode} />
+          <PaginationControls />
         </div>
       </CardContent>
 
