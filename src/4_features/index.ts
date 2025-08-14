@@ -1,1 +1,1 @@
-export * from './posts-list';
+export * from './select-tag';

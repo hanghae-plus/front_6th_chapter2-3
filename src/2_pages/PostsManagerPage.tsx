@@ -40,11 +40,22 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { useGetTagsQuery } from '@/entities/tag';
+import { useAtom } from 'jotai';
+
+import { useCreatePostMutation, usePutPostMutation } from '@/entities/post';
 import type { User } from '@/entities/user';
 import { useFilteredPosts } from '@/features/posts-list';
+import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText } from '@/shared/lib';
+import {
+  paginationAtom,
+  searchQueryAtom,
+  selectedTagAtom,
+  sortByAtom,
+  sortOrderAtom,
+  urlSyncAtom,
+} from '@/shared/lib/store';
 import {
   Button,
   Card,
@@ -87,28 +98,21 @@ const PostsManager = () => {
     userId: API_CONSTANTS.DEFAULT_USER_ID,
   }); // 새 게시물 임시 데이터
 
-  // ==================== 페이지네이션 상태 ====================
-  const [skip, setSkip] = useState(
-    parseInt(
-      queryParams.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
-    )
-  ); // 건너뛸 데이터 수
-  const [limit, setLimit] = useState(
-    parseInt(
-      queryParams.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
-    )
-  ); // 페이지당 표시할 데이터 수
+  // ==================== Jotai 전역 상태 ====================
+  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+  const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
+  const [sortBy, setSortBy] = useAtom(sortByAtom);
+  const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
+  const [pagination, setPagination] = useAtom(paginationAtom);
+  const [urlParams, setUrlParams] = useAtom(urlSyncAtom);
 
-  // ==================== 검색 및 필터링 상태 ====================
-  const [searchQuery, setSearchQuery] = useState(
-    queryParams.get('search') || ''
-  ); // 검색어
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || ''); // 정렬 기준
-  const [sortOrder, setSortOrder] = useState(
-    queryParams.get('sortOrder') || 'asc'
-  ); // 정렬 순서
-  const [tags, setTags] = useState([]); // 사용 가능한 태그 목록
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // 선택된 태그
+  // 페이지네이션 상태 (Jotai에서 분리)
+  const skip = pagination.skip;
+  const limit = pagination.limit;
+  const setSkip = (newSkip: number) =>
+    setPagination({ ...pagination, skip: newSkip });
+  const setLimit = (newLimit: number) =>
+    setPagination({ ...pagination, limit: newLimit });
 
   // ==================== 댓글 관련 상태 ====================
   const [comments, setComments] = useState({}); // 게시물별 댓글 캐시 {postId: comments[]}
@@ -139,70 +143,40 @@ const PostsManager = () => {
    * - 링크 공유를 통한 상태 전달 가능
    */
   const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
+    navigate(`?${urlParams}`);
   };
 
-  // ======== 개선 ====
+  // ======== 개선 =======
 
   const { posts, setPosts } = useFilteredPosts({
     tag: selectedTag,
     search: searchQuery,
   });
 
-  const { data: tagsData } = useGetTagsQuery();
-
-  // ==================== 게시물 CRUD 함수들 ====================
-  /**
-   * 새 게시물 생성
-   * - 낙관적 업데이트: API 호출 후 즉시 로컬 상태 업데이트
-   * - 폼 초기화 및 다이얼로그 닫기 처리
-   */
-  const addPost = async () => {
-    try {
-      const response = await fetch('/api/posts/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost),
-      });
-      const data = await response.json();
-      setPosts([data, ...posts]);
+  const { mutate: createPost } = useCreatePostMutation({
+    onError: (error: unknown) => {
+      console.error('게시물 추가 오류:', error);
+    },
+    onSuccess: () => {
       setShowAddDialog(false);
       setNewPost({
         title: '',
         body: '',
         userId: API_CONSTANTS.DEFAULT_USER_ID,
       });
-    } catch (error) {
-      console.error('게시물 추가 오류:', error);
-    }
-  };
+    },
+  });
 
-  /**
-   * 기존 게시물 수정
-   * - 선택된 게시물의 데이터를 서버에 전송
-   * - 응답받은 데이터로 로컬 상태의 해당 게시물 교체
-   */
-  const updatePost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedPost),
-      });
-      const data = await response.json();
-      setPosts(posts.map(post => (post.id === data.id ? data : post)));
-      setShowEditDialog(false);
-    } catch (error) {
+  const { mutate: updatePost } = usePutPostMutation({
+    onError: (error: unknown) => {
       console.error('게시물 업데이트 오류:', error);
-    }
-  };
+    },
+    onSuccess: () => {
+      setShowEditDialog(false);
+    },
+  });
+
+  // ==================== 게시물 CRUD 함수들 ====================
 
   /**
    * 게시물 삭제
@@ -384,27 +358,13 @@ const PostsManager = () => {
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
   /**
-   * URL 변경 시 상태 동기화
+   * URL 변경 시 Jotai 상태 동기화
    * - 브라우저 뒤로가기/앞으로가기 대응
    * - 직접 URL 접근 시 상태 복원
    */
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(
-      parseInt(
-        params.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
-      )
-    );
-    setLimit(
-      parseInt(
-        params.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
-      )
-    );
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
-    setSelectedTag(params.get('tag') || '');
-  }, [location.search]);
+    setUrlParams(location.search);
+  }, [location.search, setUrlParams]);
 
   // ==================== 렌더링 함수들 ====================
   /**
@@ -616,25 +576,12 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <Select
-              value={selectedTag}
-              onValueChange={value => {
-                setSelectedTag(value);
-                updateURL();
-              }}
-            >
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='태그 선택' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>모든 태그</SelectItem>
-                {tagsData?.tags?.map(tag => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SelectTag
+              selectedTag={selectedTag}
+              setSelectedTag={setSelectedTag}
+              updateURL={updateURL}
+            />
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className='w-[180px]'>
                 <SelectValue placeholder='정렬 기준' />
@@ -733,7 +680,7 @@ const PostsManager = () => {
                 setNewPost({ ...newPost, userId: Number(e.target.value) })
               }
             />
-            <Button onClick={addPost}>게시물 추가</Button>
+            <Button onClick={() => createPost(newPost)}>게시물 추가</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -760,7 +707,9 @@ const PostsManager = () => {
                 setSelectedPost({ ...selectedPost, body: e.target.value })
               }
             />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
+            <Button onClick={() => updatePost(selectedPost)}>
+              게시물 업데이트
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

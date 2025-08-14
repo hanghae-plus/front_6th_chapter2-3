@@ -25,17 +25,12 @@ const postQueryKeys = {
   all: [QUERY_DOMAINS.POSTS] as const,
 
   lists: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.LIST] as const,
-  list: (params: { limit?: number; skip?: number; tag?: string }) =>
-    [...postQueryKeys.lists(), params] as const,
-
-  searches: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.SEARCH] as const,
-  search: (query: string) => [...postQueryKeys.searches(), { query }] as const,
-
-  infinite: (params: { limit?: number; tag?: string }) =>
-    [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.INFINITE, params] as const,
-
-  count: (filters?: Record<string, unknown>) =>
-    [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.COUNT, filters] as const,
+  list: (filters: {
+    limit?: number;
+    skip?: number;
+    tag?: string;
+    search?: string;
+  }) => [...postQueryKeys.lists(), filters] as const,
 } as const;
 
 const userQueryKeys = {
