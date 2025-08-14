@@ -21,7 +21,7 @@ export namespace AddComment {
 
 export namespace UpdateComment {
   export type Payload = {
-    postId: number
+    commentId: number
     body: string
   }
 
@@ -30,7 +30,7 @@ export namespace UpdateComment {
 
 export namespace PatchComment {
   export type Payload = {
-    postId: number
+    commentId: number
     likes: number
   }
 
@@ -39,7 +39,7 @@ export namespace PatchComment {
 
 export namespace DeleteComment {
   export type Payload = {
-    postId: number
+    commentId: number
   }
 
   export type Response = DeleteResponse<Comment>

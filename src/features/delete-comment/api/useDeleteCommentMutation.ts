@@ -10,7 +10,7 @@ export function useDeleteCommentMutation() {
     mutationFn: (payload: DeleteComment.Payload) => deleteComment(payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", "post", variables.postId],
+        queryKey: ["comments", "post", variables.commentId],
       })
     },
     onError: (error) => {

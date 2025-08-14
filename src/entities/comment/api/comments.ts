@@ -11,17 +11,17 @@ export async function addComment(payload: CommentModels.AddComment.Payload) {
   return response.json<CommentModels.AddComment.Response>()
 }
 
-export async function updateComment({ postId, ...body }: CommentModels.UpdateComment.Payload) {
-  const response = await fetcher.put(`/comments/${postId}`, { body })
+export async function updateComment({ commentId, ...body }: CommentModels.UpdateComment.Payload) {
+  const response = await fetcher.put(`/comments/${commentId}`, { body })
   return response.json<CommentModels.UpdateComment.Response>()
 }
 
-export async function patchComment({ postId, ...body }: CommentModels.PatchComment.Payload) {
-  const response = await fetcher.patch(`/comments/${postId}`, { body })
+export async function patchComment({ commentId, ...body }: CommentModels.PatchComment.Payload) {
+  const response = await fetcher.patch(`/comments/${commentId}`, { body })
   return response.json<CommentModels.PatchComment.Response>()
 }
 
-export async function deleteComment({ postId }: CommentModels.DeleteComment.Payload) {
-  const response = await fetcher.delete(`/comments/${postId}`)
+export async function deleteComment({ commentId }: CommentModels.DeleteComment.Payload) {
+  const response = await fetcher.delete(`/comments/${commentId}`)
   return response.json<CommentModels.DeleteComment.Response>()
 }
