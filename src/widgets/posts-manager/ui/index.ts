@@ -1,1 +1,0 @@
-export { PostsManagerWidget } from "./PostsManagerWidget"
