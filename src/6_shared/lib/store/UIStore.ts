@@ -3,8 +3,7 @@ import { atom, useAtom } from 'jotai';
 import { Comment } from '@/entities/comment';
 import { Post } from '@/entities/post';
 import { User } from '@/entities/user';
-
-import { Nullable } from '../..';
+import { Nullable } from '@/shared/types';
 
 export interface UIState {
   showAddDialog: boolean;

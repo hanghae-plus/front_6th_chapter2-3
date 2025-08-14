@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 import { usePutPostMutation } from '@/entities/post';
 import { useUIStore } from '@/shared/lib';
@@ -39,6 +39,11 @@ export const useEditPostForm = () => {
       userId: selectedPost?.userId ?? 0,
     });
   };
+
+  useEffect(() => {
+    setTitle(selectedPost?.title || '');
+    setBody(selectedPost?.body || '');
+  }, [selectedPost]);
 
   const resetForm = () => {
     setTitle('');

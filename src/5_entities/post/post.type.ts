@@ -18,13 +18,24 @@ export interface GetPostsResponse extends PaginationMeta {
   posts: Post[];
 }
 
-export interface GetPostsWithFiltersParams {
+export interface BaseFilterParams {
   limit: number;
   skip: number;
-  searchQuery?: string;
-  selectedTag?: string;
   sortBy?: EmptyStringable<SORT_BY>;
   sortOrder?: SortOrder;
+}
+
+export interface AllFilterParams extends BaseFilterParams {
+  searchQuery: EmptyStringable<string>;
+  selectedTag: EmptyStringable<string>;
+}
+
+export interface ParamsWithTag extends BaseFilterParams {
+  selectedTag: EmptyStringable<string>;
+}
+
+export interface ParamsWithSearch extends BaseFilterParams {
+  searchQuery: EmptyStringable<string>;
 }
 
 export enum SORT_ORDER {

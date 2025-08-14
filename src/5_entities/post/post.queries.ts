@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/lib';
+import { useCachedPostsQueryKey } from '@/shared/lib/hooks/useCachedPostsQueryKey';
 import { MutationProps } from '@/shared/types';
 
 import {
@@ -8,44 +9,37 @@ import {
   deletePost,
   getPosts,
   getPostsBySearch,
-  GetPostsBySearchParams,
   getPostsByTag,
   putPost,
 } from './post.api';
-import { GetPostsResponse, GetPostsWithFiltersParams, Post } from './post.type';
+import {
+  BaseFilterParams,
+  GetPostsResponse,
+  ParamsWithSearch,
+  ParamsWithTag,
+  Post,
+} from './post.type';
 
-export const useGetPostsQuery = (params: GetPostsWithFiltersParams) => {
+export const useGetPostsQuery = (params: BaseFilterParams) => {
   return useQuery({
     queryKey: queryKeys.posts.list(params),
     queryFn: () => getPosts(params),
   });
 };
 
-export interface GetPostsByTagParams extends GetPostsWithFiltersParams {
-  tag: string;
-}
-
-export const useGetPostsByTagQuery = (params: GetPostsByTagParams) => {
+export const useGetPostsByTagQuery = (params: ParamsWithTag) => {
   return useQuery({
     queryKey: queryKeys.posts.list(params),
     queryFn: () => getPostsByTag(params),
-    enabled: !!params.tag && params.tag !== 'all',
+    enabled: !!params.selectedTag && params.selectedTag !== 'all',
   });
 };
 
-export const useGetPostsBySearchQuery = ({
-  search,
-  limit,
-  skip,
-}: GetPostsBySearchParams) => {
+export const useGetPostsBySearchQuery = (params: ParamsWithSearch) => {
   return useQuery({
-    queryKey: queryKeys.posts.list({
-      searchQuery: search,
-      limit,
-      skip,
-    }),
-    queryFn: () => getPostsBySearch({ search, limit, skip }),
-    enabled: !!search && search.trim() !== '',
+    queryKey: queryKeys.posts.list(params),
+    queryFn: () => getPostsBySearch(params),
+    enabled: !!params.searchQuery && params.searchQuery.trim() !== '',
   });
 };
 
@@ -54,6 +48,7 @@ export const useCreatePostMutation = ({
   onSuccess,
 }: MutationProps<Post>) => {
   const queryClient = useQueryClient();
+  const cachedPostsQueryKey = useCachedPostsQueryKey();
 
   return useMutation({
     mutationFn: (newPost: Omit<Post, 'id'>) => createPost(newPost),
@@ -62,15 +57,19 @@ export const useCreatePostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
-        queryKeys.posts.lists()
-      );
+      const previousPosts =
+        queryClient.getQueryData<GetPostsResponse>(cachedPostsQueryKey);
 
       // ! 이전 데이터 캐시에 새 게시물 추가하여 UI 낙관적 업데이트 선행
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+      queryClient.setQueryData(cachedPostsQueryKey, (old: any) => {
+        const postToAdd: Post = {
+          ...newPost,
+          id: previousPosts?.total ? previousPosts.total + 1 : 1,
+        };
+
         if (!old) {
           return {
-            posts: [newPost],
+            posts: [postToAdd],
             total: 1,
             skip: 0,
             limit: 10,
@@ -79,19 +78,19 @@ export const useCreatePostMutation = ({
 
         return {
           ...old,
-          posts: [newPost, ...(old.posts || [])],
+          posts: [postToAdd, ...(old.posts || [])],
         };
       });
 
       return { previousPosts };
     },
     onError: (error, __, context) => {
-      queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
+      queryClient.setQueryData(cachedPostsQueryKey, context?.previousPosts);
       onError?.(error);
     },
     onSuccess: (data, _, { previousPosts }) => {
       // ! 성공 시 이전 데이터에 성공 데이터 추가
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+      queryClient.setQueryData(cachedPostsQueryKey, (old: any) => {
         return {
           ...old,
           posts: [data, ...(previousPosts?.posts || [])],
@@ -107,6 +106,7 @@ export const usePutPostMutation = ({
   onSuccess,
 }: MutationProps<Post>) => {
   const queryClient = useQueryClient();
+  const cachedPostsQueryKey = useCachedPostsQueryKey();
 
   return useMutation({
     mutationFn: (updatedPost: Post) => putPost(updatedPost),
@@ -115,15 +115,15 @@ export const usePutPostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
-        queryKeys.posts.lists()
-      );
+      const previousPosts =
+        queryClient.getQueryData<GetPostsResponse>(cachedPostsQueryKey);
 
       // ! 이전 데이터 캐시에 수정된 게시물 업데이트하여 UI 낙관적 업데이트 선행
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+      queryClient.setQueryData(cachedPostsQueryKey, (old: any) => {
         if (!old || !old.posts) {
           return old;
         }
+
         return {
           ...old,
           posts: old.posts.map((post: Post) =>
@@ -135,15 +135,17 @@ export const usePutPostMutation = ({
       return { previousPosts };
     },
     onError: (error, __, context) => {
-      queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
+      queryClient.setQueryData(cachedPostsQueryKey, context?.previousPosts);
       onError?.(error);
     },
-    onSuccess: (data, _, { previousPosts }) => {
-      // ! 성공 시 이전 데이터에 성공 데이터 추가
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+    onSuccess: (data, updatedPost, { previousPosts }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터로 수정
+      queryClient.setQueryData(cachedPostsQueryKey, (old: any) => {
         return {
           ...old,
-          posts: [data, ...(previousPosts?.posts || [])],
+          posts: previousPosts?.posts.map((post: Post) =>
+            post.id === updatedPost.id ? updatedPost : post
+          ),
         };
       });
       onSuccess?.(data);
@@ -156,6 +158,7 @@ export const useDeletePostMutation = ({
   onSuccess,
 }: MutationProps<Post>) => {
   const queryClient = useQueryClient();
+  const cachedPostsQueryKey = useCachedPostsQueryKey();
 
   return useMutation({
     mutationFn: (postId: number) => deletePost(postId),
@@ -164,12 +167,11 @@ export const useDeletePostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
-        queryKeys.posts.lists()
-      );
+      const previousPosts =
+        queryClient.getQueryData<GetPostsResponse>(cachedPostsQueryKey);
 
       // ! 이전 데이터 캐시에 삭제된 게시물 제외하여 UI 낙관적 업데이트 선행
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+      queryClient.setQueryData(cachedPostsQueryKey, (old: any) => {
         if (!old || !old.posts) {
           return old;
         }
@@ -183,17 +185,10 @@ export const useDeletePostMutation = ({
     },
 
     onError: (error, __, context) => {
-      queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
+      queryClient.setQueryData(cachedPostsQueryKey, context?.previousPosts);
       onError?.(error);
     },
-    onSuccess: (data, _, { previousPosts }) => {
-      // ! 성공 시 이전 데이터에 성공 데이터 추가
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
-        return {
-          ...old,
-          posts: [data, ...(previousPosts?.posts || [])],
-        };
-      });
+    onSuccess: data => {
       onSuccess?.(data);
     },
   });

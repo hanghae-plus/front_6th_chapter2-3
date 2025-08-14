@@ -1,16 +1,18 @@
-import { useEffect } from 'react';
-
 import { atom, useAtom } from 'jotai';
 
-import { SORT_BY } from '@/entities/post';
+import { AllFilterParams, SORT_BY } from '@/entities/post';
 import { UI_CONSTANTS } from '@/shared/constants';
 import { EmptyStringable, PaginationMeta, SortOrder } from '@/shared/types';
 
+export enum POST_QUERY_TYPE {
+  BASE = 'base',
+  SEARCH = 'search',
+  TAG = 'tag',
+}
+
 export interface PostsFilterState {
-  searchQuery: string;
-  selectedTag: string;
-  sortBy: EmptyStringable<SORT_BY>;
-  sortOrder: SortOrder;
+  queryType: POST_QUERY_TYPE;
+  filters: Omit<AllFilterParams, 'limit' | 'skip'>;
   pagination: {
     limit: number;
     skip: number;
@@ -19,10 +21,13 @@ export interface PostsFilterState {
 }
 
 const initialFilterState: PostsFilterState = {
-  searchQuery: '',
-  selectedTag: '',
-  sortBy: '',
-  sortOrder: SortOrder.ASC,
+  queryType: POST_QUERY_TYPE.BASE,
+  filters: {
+    searchQuery: '',
+    selectedTag: '',
+    sortBy: '',
+    sortOrder: SortOrder.ASC,
+  },
   pagination: {
     limit: UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT,
     skip: UI_CONSTANTS.PAGINATION.DEFAULT_SKIP,
@@ -36,10 +41,13 @@ const getInitialStateFromURL = (): PostsFilterState => {
 
   const params = new URLSearchParams(window.location.search);
   return {
-    searchQuery: params.get('search') || '',
-    selectedTag: params.get('tag') || '',
-    sortBy: (params.get('sortBy') as SORT_BY) || '',
-    sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
+    queryType: POST_QUERY_TYPE.BASE,
+    filters: {
+      searchQuery: params.get('search') || '',
+      selectedTag: params.get('tag') || '',
+      sortBy: (params.get('sortBy') as SORT_BY) || '',
+      sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
+    },
     pagination: {
       skip: parseInt(params.get('skip') || '0'),
       limit: parseInt(params.get('limit') || '10'),
@@ -52,41 +60,53 @@ export const postsFilterAtom = atom<PostsFilterState>(getInitialStateFromURL());
 
 // 개별 필터 atoms (더 세밀한 제어를 위해)
 export const searchQueryAtom = atom(
-  get => get(postsFilterAtom).searchQuery,
+  get => get(postsFilterAtom).filters.searchQuery,
   (get, set, newValue: string) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      searchQuery: newValue,
+      filters: {
+        ...get(postsFilterAtom).filters,
+        searchQuery: newValue,
+      },
     });
   }
 );
 
 export const selectedTagAtom = atom(
-  get => get(postsFilterAtom).selectedTag,
+  get => get(postsFilterAtom).filters.selectedTag,
   (get, set, newValue: string) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      selectedTag: newValue,
+      filters: {
+        ...get(postsFilterAtom).filters,
+        selectedTag: newValue,
+      },
     });
   }
 );
 
 export const sortByAtom = atom(
-  get => get(postsFilterAtom).sortBy,
+  get => get(postsFilterAtom).filters.sortBy,
   (get, set, newValue: EmptyStringable<SORT_BY>) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      sortBy: newValue,
+      filters: {
+        ...get(postsFilterAtom).filters,
+        sortBy: newValue,
+      },
     });
   }
 );
 
 export const sortOrderAtom = atom(
-  get => get(postsFilterAtom).sortOrder,
+  get => get(postsFilterAtom).filters.sortOrder,
   (get, set, newValue: SortOrder) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      sortOrder: newValue,
+      filters: {
+        ...get(postsFilterAtom).filters,
+        sortOrder: newValue,
+      },
     });
   }
 );
@@ -131,30 +151,48 @@ export const paginationAtom = atom(
   }
 );
 
+export const filtersAtom = atom(
+  get => get(postsFilterAtom).filters,
+  (get, set, newValue: AllFilterParams) => {
+    set(postsFilterAtom, { ...get(postsFilterAtom), filters: newValue });
+  }
+);
+
+export const queryTypeAtom = atom(
+  get => get(postsFilterAtom).queryType,
+  (get, set, newValue: POST_QUERY_TYPE) => {
+    set(postsFilterAtom, { ...get(postsFilterAtom), queryType: newValue });
+  }
+);
+
 // URL 동기화를 위한 atom
 export const urlSyncAtom = atom(
   get => {
     const filter = get(postsFilterAtom);
     const params = new URLSearchParams();
 
-    if (filter.pagination.skip > 0)
-      params.set('skip', filter.pagination.skip.toString());
-    if (filter.pagination.limit !== 10)
-      params.set('limit', filter.pagination.limit.toString());
-    if (filter.searchQuery) params.set('search', filter.searchQuery);
-    if (filter.sortBy) params.set('sortBy', filter.sortBy);
-    if (filter.sortOrder !== 'asc') params.set('sortOrder', filter.sortOrder);
-    if (filter.selectedTag) params.set('tag', filter.selectedTag);
+    const { searchQuery, selectedTag, sortBy, sortOrder } = filter.filters;
+    const { skip, limit } = filter.pagination;
+
+    if (skip > 0) params.set('skip', skip.toString());
+    if (limit !== 10) params.set('limit', limit.toString());
+    if (searchQuery) params.set('search', searchQuery);
+    if (sortBy) params.set('sortBy', sortBy);
+    if (sortOrder) params.set('sortOrder', sortOrder);
+    if (selectedTag) params.set('tag', selectedTag);
 
     return params.toString();
   },
   (_, set, urlParams: string) => {
     const params = new URLSearchParams(urlParams);
     const newState: PostsFilterState = {
-      searchQuery: params.get('search') || '',
-      selectedTag: params.get('tag') || '',
-      sortBy: (params.get('sortBy') as SORT_BY) || '',
-      sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
+      queryType: POST_QUERY_TYPE.BASE,
+      filters: {
+        searchQuery: params.get('search') || '',
+        selectedTag: params.get('tag') || '',
+        sortBy: (params.get('sortBy') as SORT_BY) || '',
+        sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
+      },
       pagination: {
         skip: parseInt(params.get('skip') || '0'),
         limit: parseInt(params.get('limit') || '10'),
@@ -182,53 +220,4 @@ export const useURLSync = () => {
   };
 
   return { updateURL, syncFromURL };
-};
-
-export const usePostsFilterStore = () => {
-  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
-  const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
-  const [sortBy, setSortBy] = useAtom(sortByAtom);
-  const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
-  const [skip, setSkip] = useAtom(skipAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
-  const [pagination, setPagination] = useAtom(paginationAtom);
-
-  const { updateURL, syncFromURL } = useURLSync();
-
-  // 컴포넌트 마운트 시 URL에서 상태 복원
-  useEffect(() => {
-    syncFromURL();
-  }, []);
-
-  // 필터 상태 변경 시 URL 업데이트
-  useEffect(() => {
-    updateURL();
-  }, [searchQuery, selectedTag, sortBy, sortOrder, skip, limit]);
-
-  // 브라우저 뒤로가기/앞으로가기 처리
-  useEffect(() => {
-    const handlePopState = () => {
-      syncFromURL();
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  return {
-    searchQuery,
-    setSearchQuery,
-    selectedTag,
-    setSelectedTag,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    skip,
-    setSkip,
-    limit,
-    setLimit,
-    pagination,
-    setPagination,
-  };
 };

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import {
+  AllFilterParams,
   useGetPostsBySearchQuery,
   useGetPostsByTagQuery,
   useGetPostsQuery,
 } from '@/entities/post';
 import { useGetUsersQuery } from '@/entities/user';
-import { usePostsFilterStore } from '@/shared/lib';
+import { POST_QUERY_TYPE, usePostsFilterStore } from '@/shared/lib';
 
 import { getPostsWithAuthor } from '../../post-management/lib/post.util';
 import { PostWithAuthor } from '../../post-management/types';
@@ -22,6 +23,7 @@ export const useFilteredPosts = () => {
     sortBy,
     sortOrder,
     pagination,
+    setQueryType,
     setPagination,
   } = usePostsFilterStore();
 
@@ -29,21 +31,13 @@ export const useFilteredPosts = () => {
     []
   );
 
-  const baseFilters = {
+  const filters: AllFilterParams = {
     limit,
     skip,
     sortBy,
     sortOrder,
-  };
-
-  const filtersWithTag = {
-    ...baseFilters,
-    tag: selectedTag,
-  };
-
-  const filtersWithSearch = {
-    ...baseFilters,
-    search: searchQuery,
+    searchQuery,
+    selectedTag,
   };
 
   const { data: usersData, isLoading: isLoadingUsers } =
@@ -53,17 +47,28 @@ export const useFilteredPosts = () => {
     });
 
   const { data: postsData, isLoading: isLoadingPosts } = useGetPostsQuery({
-    ...baseFilters,
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
   });
 
   const { data: postsByTagData, isLoading: isLoadingPostsByTag } =
     useGetPostsByTagQuery({
-      ...filtersWithTag,
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
+      selectedTag,
     });
 
   const { data: postsBySearchData, isLoading: isLoadingPostsBySearch } =
     useGetPostsBySearchQuery({
-      ...filtersWithSearch,
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
+      searchQuery,
     });
 
   const postsWithAuthor = useMemo(() => {
@@ -71,7 +76,7 @@ export const useFilteredPosts = () => {
       postsData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsData?.posts, usersData?.users, ...[Object.values(baseFilters)]]);
+  }, [postsData?.posts, usersData?.users, ...[Object.values(filters)]]);
 
   const postsWithAuthorByTag = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
@@ -82,7 +87,7 @@ export const useFilteredPosts = () => {
     postsByTagData?.posts,
     usersData?.users,
     selectedTag,
-    ...[Object.values(filtersWithTag)],
+    ...[Object.values(filters)],
   ]);
 
   const postsWithAuthorBySearch = useMemo(() => {
@@ -90,11 +95,7 @@ export const useFilteredPosts = () => {
       postsBySearchData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [
-    postsBySearchData?.posts,
-    usersData?.users,
-    ...[Object.values(filtersWithSearch)],
-  ]);
+  }, [postsBySearchData?.posts, usersData?.users, ...[Object.values(filters)]]);
 
   const isLoading =
     isLoadingUsers ||
@@ -106,17 +107,20 @@ export const useFilteredPosts = () => {
     // 검색어가 있으면 검색 결과 사용
     if (searchQuery && searchQuery.trim()) {
       setPosts(postsWithAuthorBySearch);
+      setQueryType(POST_QUERY_TYPE.SEARCH);
       return;
     }
 
     // 태그가 있고 'all'이 아니면 태그 결과 사용
     if (selectedTag && selectedTag !== 'all' && selectedTag.trim()) {
       setPosts(postsWithAuthorByTag);
+      setQueryType(POST_QUERY_TYPE.TAG);
       return;
     }
 
     // 기본 게시물 목록 사용
     setPosts(postsWithAuthor);
+    setQueryType(POST_QUERY_TYPE.BASE);
   }, [
     postsWithAuthor,
     postsWithAuthorByTag,

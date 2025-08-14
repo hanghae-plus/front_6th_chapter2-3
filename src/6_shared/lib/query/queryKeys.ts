@@ -1,4 +1,4 @@
-import { GetPostsWithFiltersParams } from '@/entities/post';
+import { AllFilterParams } from '@/entities/post';
 import { GetUsersParams, User } from '@/entities/user';
 
 export const QUERY_DOMAINS = {
@@ -16,17 +16,11 @@ export const QUERY_OPERATIONS = {
   COUNT: 'count',
 } as const;
 
-export type QueryDomain = (typeof QUERY_DOMAINS)[keyof typeof QUERY_DOMAINS];
-export type QueryOperation =
-  (typeof QUERY_OPERATIONS)[keyof typeof QUERY_OPERATIONS];
-
-export type QueryKey = readonly [QueryDomain, ...unknown[]];
-
 const postQueryKeys = {
   all: [QUERY_DOMAINS.POSTS] as const,
 
   lists: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.LIST] as const,
-  list: (params: GetPostsWithFiltersParams) =>
+  list: (params: Partial<AllFilterParams>) =>
     [...postQueryKeys.lists(), params] as const,
 } as const;
 

@@ -1,6 +1,6 @@
 import { PaginationMeta } from '@/shared/types';
 
-import { BaseUser, User } from '../user';
+import { BaseUser } from '../user';
 
 // ? Comment에 User도 포함되는데 Entity에 넣는게 맞나?
 export interface Comment {

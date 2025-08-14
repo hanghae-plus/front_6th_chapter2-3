@@ -7,3 +7,4 @@ export * from './utils/ui.util';
 export * from './utils/url.util';
 
 export * from './hooks/useDebounce';
+export * from './hooks/usePostsFilterStore';
