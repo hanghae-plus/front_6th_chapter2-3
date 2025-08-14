@@ -7,9 +7,9 @@ export const useComment = (commentId: number) => {
     queryOptions({
       queryKey: commentKeys.detail(commentId),
       queryFn: () => getComment(commentId),
-      staleTime: 30_000, // 30초
-      gcTime: 10 * 60 * 1000, // 10분
-      enabled: !!commentId,
+      staleTime: 30_000,
+      gcTime: 10 * 60 * 1000,
+      enabled: commentId !== null && commentId > 0,
     }),
   )
 }

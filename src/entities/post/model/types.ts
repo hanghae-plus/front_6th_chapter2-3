@@ -5,7 +5,7 @@ export interface Post {
   title: string
   body: string
   userId: number
-  tags: string[]
+  tags?: string[]
   reactions: {
     likes: number
     dislikes: number
@@ -18,6 +18,7 @@ export interface CreatePost {
   title: string
   body: string
   userId: number
+  author?: Author // 사용자 정보 추가
 }
 
 // Post 수정 타입
@@ -46,7 +47,7 @@ export interface Author {
 }
 
 export interface PostWithAuthor extends Post {
-  author: Author
+  author?: Author
 }
 
 // 페이지네이션 응답 타입
