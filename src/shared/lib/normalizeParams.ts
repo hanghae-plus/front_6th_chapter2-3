@@ -1,5 +1,3 @@
-export type SortOrder = "asc" | "desc"
-
 export function normalize<T extends Record<string, unknown>>(obj: T) {
   // 1) 비어있는 값 제거
   const entries = Object.entries(obj).filter(([, v]) => v !== undefined && v !== null && v !== "")
