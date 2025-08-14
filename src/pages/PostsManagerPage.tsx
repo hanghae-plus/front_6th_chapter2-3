@@ -8,28 +8,24 @@ import { AddCommentDialog } from '../features/comment/add-comment/ui/AddCommentD
 import { EditCommentDialog } from '../features/comment/update-comment/ui/EditCommentDialog';
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
-
-import { usePostsStore } from '../entities/post/model/store';
-import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
-import { useDialogStore } from '../shared/store/dialog';
-import { DIALOG_KEYS } from '../shared/constant/dialog';
-import { useViewUser } from '../features/user/view-user/model/hooks';
-import { useViewPost } from '../features/posts/view-post/model/hooks';
-import { useDeletePost } from '../features/posts/delete-post/model/hooks';
-import { usePagination } from '../features/posts/pagination/model/hooks';
-import { usePostsInitialization } from '../features/posts/initialization/model/hooks';
+import { usePostsManager } from './PostsManagerPage/model/hooks';
 
 const PostsManager = () => {
-  const { posts, total, loading, setSelectedPost } = usePostsStore();
-
-  const { openUserModal } = useViewUser();
-  const { openPostDetail } = useViewPost();
-  const { deletePost } = useDeletePost();
-  const { skip, limit, setSkip, setLimit } = usePagination();
-  const { openDialog } = useDialogStore();
-
-  usePostsInitialization();
+  const {
+    posts,
+    total,
+    loading,
+    skip,
+    limit,
+    setSkip,
+    setLimit,
+    highlightText,
+    openUserModal,
+    openPostDetail,
+    handleEditPost,
+    deletePost,
+  } = usePostsManager();
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -46,10 +42,7 @@ const PostsManager = () => {
               highlightText={highlightText}
               onUserClick={openUserModal}
               onPostDetail={openPostDetail}
-              onEditPost={(post) => {
-                setSelectedPost(post);
-                openDialog(DIALOG_KEYS.EDIT_POST);
-              }}
+              onEditPost={handleEditPost}
               onDeletePost={deletePost}
             />
           )}
