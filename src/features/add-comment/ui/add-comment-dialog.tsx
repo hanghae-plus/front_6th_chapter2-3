@@ -4,12 +4,14 @@ import { useAddCommentForm } from "../hooks"
 import type { AddCommentFormValues } from "../model"
 
 type Props = {
+  postId: number
+  userId: number
   onSubmit: (formData: AddCommentFormValues) => void
   close: () => void
 }
 
-export const AddCommentDialog = ({ onSubmit, close }: Props) => {
-  const addCommentForm = useAddCommentForm()
+export const AddCommentDialog = ({ postId, userId, onSubmit, close }: Props) => {
+  const addCommentForm = useAddCommentForm({ postId, userId })
   return (
     <DialogContent>
       <DialogHeader>

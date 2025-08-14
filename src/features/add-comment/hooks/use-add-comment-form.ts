@@ -6,7 +6,7 @@ import { addCommentFormSchema } from "../model"
 import { z } from "zod"
 
 const INITIAL_COMMENT_FORM_VALUES: AddCommentFormValues = {
-  title: "",
+  postId: 0,
   body: "",
   userId: 1,
 }
@@ -29,19 +29,17 @@ const validateCommentForm = (values: AddCommentFormValues) => {
   }
 }
 
-export const useAddCommentForm = (initialValues?: AddCommentFormValues) => {
+export const useAddCommentForm = (initialValues: Pick<AddCommentFormValues, "postId" | "userId">) => {
   const form = useForm({
     initialValues: { ...INITIAL_COMMENT_FORM_VALUES, ...initialValues },
     validate: validateCommentForm,
   })
 
-  const setTitle = (title: string) => form.setValue("title", title)
   const setBody = (body: string) => form.setValue("body", body)
   const setUserId = (userId: number) => form.setValue("userId", userId)
 
   return {
     ...form,
-    setTitle,
     setBody,
     setUserId,
   }

@@ -12,7 +12,7 @@ type Props = {
   close: () => void
 }
 
-export const UpdatePostDialog = ({ post, onSubmit }: Props) => {
+export const UpdatePostDialog = ({ post, onSubmit, close }: Props) => {
   const updateForm = usePostUpdateForm(post)
 
   return (
