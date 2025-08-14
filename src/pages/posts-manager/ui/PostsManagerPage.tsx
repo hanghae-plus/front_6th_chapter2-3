@@ -7,8 +7,9 @@ import { useShallow } from "zustand/shallow"
 
 import { Post } from "@/entities/post/model"
 import { useDeletePostMutation } from "@/features/delete-post/api"
-import { usePostsSearchQuery } from "@/features/get-post/api"
+import { usePostsByTagQuery, usePostsSearchQuery } from "@/features/get-post/api"
 import { usePostParamsStore } from "@/features/get-post/model"
+import { useUsersQuery } from "@/features/get-user/api"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
@@ -58,6 +59,8 @@ export function PostsManagerPage() {
   }
 
   const { data: searchData, isLoading: isSearchLoading } = usePostsSearchQuery({ query: search })
+  const { data: tagData, isLoading: isTagLoading } = usePostsByTagQuery({ tag }, { enabled: !!tag && tag !== "all" })
+  const { data: usersData } = useUsersQuery({}, { enabled: !!tag && tag !== "all" })
 
   useEffect(() => {
     if (search && search.trim() && searchData && !isSearchLoading) {
@@ -65,6 +68,17 @@ export function PostsManagerPage() {
       setTotal(searchData.total)
     }
   }, [search, searchData, isSearchLoading])
+
+  useEffect(() => {
+    if (tag && tag !== "all" && tagData && usersData && !isTagLoading) {
+      const postsWithUsers = tagData.posts.map((post: any) => ({
+        ...post,
+        author: usersData.users.find((user: any) => user.id === post.userId),
+      }))
+      setPosts(postsWithUsers)
+      setTotal(tagData.total)
+    }
+  }, [tag, tagData, usersData, isTagLoading])
 
   const searchPosts = async () => {
     if (!search) {
@@ -84,26 +98,15 @@ export function PostsManagerPage() {
       fetchPosts()
       return
     }
-    setLoading(true)
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData = await postsResponse.json()
-      const usersData = await usersResponse.json()
-
-      const postsWithUsers = postsData.posts.map((post: any) => ({
+    // React Query가 이미 데이터를 가져왔으면 사용
+    if (tagData && usersData) {
+      const postsWithUsers = tagData.posts.map((post: any) => ({
         ...post,
         author: usersData.users.find((user: any) => user.id === post.userId),
       }))
-
       setPosts(postsWithUsers)
-      setTotal(postsData.total)
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
+      setTotal(tagData.total)
     }
-    setLoading(false)
   }
 
   const deletePostMutation = useDeletePostMutation()
