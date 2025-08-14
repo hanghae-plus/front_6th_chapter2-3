@@ -3,7 +3,7 @@ import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, B
 import type { PostsBrowseParams } from ".."
 import type { Tag } from "../../../../entities/post/model"
 import type { ChangeEvent } from "react"
-import { SortOrder } from "../../../../shared/config/sort"
+import { SortOrder } from "../../../../shared/types/sort"
 
 interface PostsFilterBarProps {
   tags?: Tag[]
