@@ -19,19 +19,66 @@ export const getPosts = async (
   sortBy: string,
   sortOrder: string,
 ): Promise<PostsResponse> => {
-  if (searchQuery) {
-    return await remote(
-      `/api/posts/search?q=${searchQuery}&limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
+  if ('reactions' === sortBy) {
+    const data: PostsResponse = await remotePosts(
+      0,
+      0,
+      searchQuery,
+      selectedTag,
+      'none',
+      sortOrder,
     );
+
+    return {
+      ...data,
+      limit,
+      skip,
+      posts: data.posts
+        .sort((a, b) => {
+          const aReactions = a.reactions.likes + a.reactions.dislikes;
+          const bReactions = b.reactions.likes + b.reactions.dislikes;
+
+          return sortOrder === 'asc'
+            ? aReactions - bReactions
+            : bReactions - aReactions;
+        })
+        .slice(skip, skip + limit),
+    };
   }
 
-  if (selectedTag && selectedTag !== 'all') {
+  return await remotePosts(
+    limit,
+    skip,
+    searchQuery,
+    selectedTag,
+    sortBy,
+    sortOrder,
+  );
+
+  async function remotePosts(
+    limit: number,
+    skip: number,
+    searchQuery: string,
+    selectedTag: string,
+    sortBy: string,
+    sortOrder: string,
+  ) {
+    if (searchQuery) {
+      return await remote(
+        `/api/posts/search?q=${searchQuery}&limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
+      );
+    }
+
+    if (selectedTag && selectedTag !== 'all') {
+      return await remote(
+        `/api/posts/tag/${selectedTag}?limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
+      );
+    }
+
     return await remote(
-      `/api/posts/tag/${selectedTag}?limit=${limit}&skip=${skip}`,
+      `/api/posts?limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
     );
   }
-
-  return await remote(`/api/posts?limit=${limit}&skip=${skip}`);
 };
 
 export const getPostsTags = async (): Promise<PostsTagsResponse> => {
