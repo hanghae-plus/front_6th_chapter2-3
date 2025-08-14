@@ -3,7 +3,7 @@ type EnvRecord = Record<string, string | undefined>
 
 const getViteEnv = (): EnvRecord => {
   try {
-    const meta = import.meta as any
+    const meta = import.meta as { env?: EnvRecord }
     return meta.env ?? {}
   } catch {
     return {}
