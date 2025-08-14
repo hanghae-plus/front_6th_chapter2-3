@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogContent, Input, Textarea } from "../../../../shared/ui"
 import { DialogHeader } from "../../../../shared/ui"
 import { DialogTitle } from "../../../../shared/ui"
-import { PostItem } from "../../../../entities/post/model"
+import { PostItem } from "../../../entities/post/model"
 
 interface UpdatePostModalProps {
   state: {

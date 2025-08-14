@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../../shared/ui"
-import { AddPostRequest } from "../../../../entities/post/model"
+import { AddPostRequest } from "../../../entities/post/model"
 
 interface AddPostModalProps {
   state: {

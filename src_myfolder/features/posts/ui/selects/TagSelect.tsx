@@ -1,5 +1,5 @@
 import React from "react"
-import { Tag } from "../../../../entities/post/model"
+import { Tag } from "../../../entities/post/model"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../shared/ui"
 
 interface TagSelectProps {

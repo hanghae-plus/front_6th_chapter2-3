@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchComments } from "./api"
+import { fetchComments } from "../../../entities/comment/api"
 
 const COMMENT_QUERY_KEY = {
   LIST: "comments",

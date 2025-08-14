@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchTags } from "./api"
+import { fetchTags } from "../../../entities/post/api"
 
 const POST_QUERY_KEY = {
   TAGS: "tags",

@@ -2,8 +2,8 @@ import React from "react"
 import { ThumbsDown, ThumbsUp, MessageSquare, Edit2, Trash2 } from "lucide-react"
 
 import { PostItem } from "../../../entities/post/model"
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui"
-import { HighlightText } from "../../../shared/ui/HighlightText"
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../shared/ui"
+import { HighlightText } from "../../../../shared/ui/HighlightText"
 
 export interface PostsTableProps {
   data: {

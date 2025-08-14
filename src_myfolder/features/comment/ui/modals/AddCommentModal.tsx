@@ -1,4 +1,4 @@
-import { CommentRequest } from "../../../../entities/comment/model"
+import { CommentRequest } from "../../../entities/comment/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
 import { Textarea } from "../../../../shared/ui"
 import { Button } from "../../../../shared/ui"

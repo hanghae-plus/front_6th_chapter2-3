@@ -1,4 +1,4 @@
-import { DetailUser } from "../../../../entities/user/model"
+import { DetailUser } from "../../../entities/user/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
 
 interface DetailUserModalProps {

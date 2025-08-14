@@ -1,8 +1,8 @@
-import { PostItem } from "../../../../entities/post/model"
+import { PostItem } from "../../../entities/post/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
 import { HighlightText } from "../../../../shared/ui/HighlightText"
 import { CommentSection } from "../../../comment/ui/comments/CommentSection"
-import { Comment } from "../../../../entities/comment/model"
+import { Comment } from "../../../entities/comment/model"
 
 interface DetailPostModalProps {
   state: {
