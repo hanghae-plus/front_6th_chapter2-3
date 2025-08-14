@@ -1,6 +1,6 @@
 import fetchClient from "../../../shared/api/fetchClient"
-import { User } from "./types"
+import { UserDto } from "./types"
 
-export const fetchUserApi = async (id: number): Promise<User> => {
-  return fetchClient<User>(`/users/${id}`)
+export const fetchUserApi = async (id: number): Promise<UserDto> => {
+  return fetchClient<UserDto>(`/users/${id}`)
 }

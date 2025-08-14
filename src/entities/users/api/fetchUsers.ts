@@ -1,8 +1,8 @@
 import fetchClient from "../../../shared/api/fetchClient"
-import { User } from "./types"
+import { UserDto } from "./types"
 
 type FetchUsersRes = {
-  users: User[]
+  users: UserDto[]
 }
 
 export const fetchUsersApi = async (): Promise<FetchUsersRes> => {
