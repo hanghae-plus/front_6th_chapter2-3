@@ -1,14 +1,26 @@
 import { Search } from "lucide-react"
+import type { ChangeEvent, KeyboardEvent } from "react"
 
+import { usePostParamsStore } from "@/features/get-post/model"
 import { Input } from "@/shared/ui/Input"
 
-interface PostSearchInputProps {
-  searchQuery: string
-  onSearchChange: (query: string) => void
+type PostSearchInputProps = {
   onSearch: () => void
 }
 
-export function PostSearchInput({ searchQuery, onSearchChange, onSearch }: PostSearchInputProps) {
+export function PostSearchInput({ onSearch }: PostSearchInputProps) {
+  const search = usePostParamsStore((state) => state.search)
+  const { updateParam } = usePostParamsStore((state) => state.actions)
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    updateParam("search", event.target.value)
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") return
+    onSearch()
+  }
+
   return (
     <div className="flex-1">
       <div className="relative">
@@ -16,9 +28,9 @@ export function PostSearchInput({ searchQuery, onSearchChange, onSearch }: PostS
         <Input
           placeholder="게시물 검색..."
           className="pl-8"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && onSearch()}
+          value={search}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
         />
       </div>
     </div>

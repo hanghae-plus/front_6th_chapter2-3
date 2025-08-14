@@ -2,11 +2,11 @@
 
 import { CommentList } from "@/entities/comment/ui"
 import { PostHighlightText } from "@/entities/post/ui"
+import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Dialog } from "@/shared/ui"
 
 type PostDetailDialogProps = {
-  searchQuery: any
   selectedPost: any
   comments: any
   onAddComment: (postId: any) => void
@@ -16,7 +16,6 @@ type PostDetailDialogProps = {
 }
 
 export function PostDetailDialog({
-  searchQuery,
   selectedPost,
   comments,
   onAddComment,
@@ -24,6 +23,8 @@ export function PostDetailDialog({
   onDeleteComment,
   onLikeComment,
 }: PostDetailDialogProps) {
+  const search = usePostParamsStore((state) => state.search)
+
   const { currentDialog, closeDialog } = useDialogStore()
   const isOpen = currentDialog === DialogType.POST_DETAIL
 
@@ -32,17 +33,17 @@ export function PostDetailDialog({
       <Dialog.Content className="max-w-3xl">
         <Dialog.Header>
           <Dialog.Title>
-            <PostHighlightText text={selectedPost?.title || ""} highlight={searchQuery} />
+            <PostHighlightText text={selectedPost?.title || ""} highlight={search} />
           </Dialog.Title>
         </Dialog.Header>
         <div className="space-y-4">
           <p>
-            <PostHighlightText text={selectedPost?.body || ""} highlight={searchQuery} />
+            <PostHighlightText text={selectedPost?.body || ""} highlight={search} />
           </p>
           <CommentList
             postId={selectedPost?.id}
             comments={comments}
-            searchQuery={searchQuery}
+            searchQuery={search}
             onAddComment={onAddComment}
             onEditComment={onEditComment}
             onDeleteComment={onDeleteComment}

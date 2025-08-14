@@ -1,13 +1,16 @@
+import { usePostParamsStore } from "@/features/get-post/model"
 import { Select } from "@/shared/ui/Select"
 
-interface PostSortOrderSelectProps {
-  sortOrder: string
-  onSortOrderChange: (sortOrder: string) => void
-}
+export function PostSortOrderSelect() {
+  const sortOrder = usePostParamsStore((state) => state.sortOrder)
+  const { updateParam } = usePostParamsStore((state) => state.actions)
 
-export function PostSortOrderSelect({ sortOrder, onSortOrderChange }: PostSortOrderSelectProps) {
+  const handleValueChange = (value: string) => {
+    updateParam("sortOrder", value)
+  }
+
   return (
-    <Select value={sortOrder} onValueChange={onSortOrderChange}>
+    <Select value={sortOrder} onValueChange={handleValueChange}>
       <Select.Trigger className="w-[180px]">
         <Select.Value placeholder="정렬 순서" />
       </Select.Trigger>

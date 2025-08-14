@@ -1,13 +1,16 @@
+import { usePostParamsStore } from "@/features/get-post/model"
 import { Select } from "@/shared/ui/Select"
 
-interface PostSortBySelectProps {
-  sortBy: string
-  onSortByChange: (sortBy: string) => void
-}
+export function PostSortBySelect() {
+  const sortBy = usePostParamsStore((state) => state.sortBy)
+  const { updateParam } = usePostParamsStore((state) => state.actions)
 
-export function PostSortBySelect({ sortBy, onSortByChange }: PostSortBySelectProps) {
+  const handleValueChange = (value: string) => {
+    updateParam("sortBy", value)
+  }
+
   return (
-    <Select value={sortBy} onValueChange={onSortByChange}>
+    <Select value={sortBy} onValueChange={handleValueChange}>
       <Select.Trigger className="w-[180px]">
         <Select.Value placeholder="정렬 기준" />
       </Select.Trigger>

@@ -3,32 +3,51 @@
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 
 import { PostHighlightText } from "@/entities/post/ui"
+import { usePostParamsStore } from "@/features/get-post/model"
+import { mergeClasses } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Table } from "@/shared/ui/Table"
 
 type PostTableProps = {
   posts: any[]
-  searchQuery: string
-  selectedTag: string
   onTagClick: (tag: string) => void
   onUserClick: (author: any) => void
   onPostDetailClick: (post: any) => void
   onPostEditClick: (post: any) => void
   onPostDeleteClick: (postId: any) => void
-  updateURL: () => void
 }
 
 export function PostTable({
   posts,
-  searchQuery,
-  selectedTag,
   onTagClick,
   onUserClick,
   onPostDetailClick,
   onPostEditClick,
   onPostDeleteClick,
-  updateURL,
 }: PostTableProps) {
+  const search = usePostParamsStore((state) => state.search)
+  const tag = usePostParamsStore((state) => state.tag)
+
+  const handleTagClick = (postTag: string) => {
+    onTagClick(postTag)
+  }
+
+  const handleUserClick = (author: any) => {
+    onUserClick(author)
+  }
+
+  const handlePostDetailClick = (post: any) => {
+    onPostDetailClick(post)
+  }
+
+  const handlePostEditClick = (post: any) => {
+    onPostEditClick(post)
+  }
+
+  const handlePostDeleteClick = (postId: any) => {
+    onPostDeleteClick(postId)
+  }
+
   return (
     <Table>
       <Table.Header>
@@ -47,29 +66,27 @@ export function PostTable({
             <Table.Cell>{post.id}</Table.Cell>
             <Table.Cell>
               <div className="space-y-1">
-                <PostHighlightText text={post.title} highlight={searchQuery} />
+                <PostHighlightText text={post.title} highlight={search} />
                 <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag: any) => (
+                  {post.tags?.map((postTag: any) => (
                     <span
-                      key={tag}
-                      className={`cursor-pointer rounded-[4px] px-1 text-[9px] font-semibold ${
-                        selectedTag === tag
+                      key={postTag}
+                      className={mergeClasses(
+                        "cursor-pointer rounded-[4px] px-1 text-[9px] font-semibold",
+                        tag === postTag
                           ? "bg-blue-500 text-white hover:bg-blue-600"
-                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                      }`}
-                      onClick={() => {
-                        onTagClick(tag)
-                        updateURL()
-                      }}
+                          : "bg-blue-100 text-blue-800 hover:bg-blue-200",
+                      )}
+                      onClick={() => handleTagClick(postTag)}
                     >
-                      {tag}
+                      {postTag}
                     </span>
                   ))}
                 </div>
               </div>
             </Table.Cell>
             <Table.Cell>
-              <div className="flex cursor-pointer items-center space-x-2" onClick={() => onUserClick(post.author)}>
+              <div className="flex cursor-pointer items-center space-x-2" onClick={() => handleUserClick(post.author)}>
                 <img src={post.author?.image} alt={post.author?.username} className="h-8 w-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
@@ -84,13 +101,13 @@ export function PostTable({
             </Table.Cell>
             <Table.Cell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => onPostDetailClick(post)}>
+                <Button variant="ghost" size="sm" onClick={() => handlePostDetailClick(post)}>
                   <MessageSquare className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => onPostEditClick(post)}>
+                <Button variant="ghost" size="sm" onClick={() => handlePostEditClick(post)}>
                   <Edit2 className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => onPostDeleteClick(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => handlePostDeleteClick(post.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
