@@ -9,17 +9,8 @@ import type { PostsApiResponse, Post } from "../entities/post/model"
 import { fetchUsersSummary } from "../entities/user/api"
 import type { UserSummary } from "../entities/user/model"
 
-interface QueryKeyParams {
-  limit: number
-  skip: number
-  searchQuery: string
-  selectedTag: string
-  sortBy: string
-  sortOrder: string
-}
-
 const fetchPostsWithAuthors = async (
-  ctx: QueryFunctionContext<[string, QueryKeyParams]>,
+  ctx: QueryFunctionContext<ReturnType<typeof postsKey.list>>,
 ): Promise<PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] }> => {
   const [, { limit, skip, searchQuery, selectedTag }] = ctx.queryKey
 
@@ -107,7 +98,7 @@ export const usePosts = () => {
     PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
     Error,
     PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
-    [string, QueryKeyParams]
+    ReturnType<typeof postsKey.list>
   >({
     queryKey: postsKey.list({
       limit,
