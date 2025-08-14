@@ -1,6 +1,6 @@
 import { parseAsString, useQueryStates } from "nuqs"
 import { useQueryParamsPagination } from "@shared/lib/useQueryParamsPagination"
-import type { SortOrder } from "@shared/types/sort"
+import type { SortOrder } from "@shared/types"
 
 export type PostsBrowseParams = {
   skip: number
