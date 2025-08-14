@@ -12,10 +12,10 @@ import {
 /**
  * @description 게시물 목록을 가져오는 useQuery 훅
  */
-export const useFetchPosts = (limit: number, skip: number) => {
+export const useFetchPosts = (limit: number, skip: number, sortBy: string, sortOrder: string) => {
   return useQuery({
-    queryKey: ['posts', { limit, skip }],
-    queryFn: () => fetchPosts({ limit, skip }),
+    queryKey: ['posts', { limit, skip, sortBy, sortOrder }],
+    queryFn: () => fetchPosts({ limit, skip, sortBy, sortOrder }),
   });
 };
 

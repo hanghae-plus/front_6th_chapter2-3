@@ -2,13 +2,31 @@ import { NewPostPayload, Post, Tag } from '../model/types';
 
 const API_BASE_URL = '/api/posts';
 
-export const fetchPosts = async ({ limit, skip }: { limit: number; skip: number }) => {
-  const response = await fetch(`${API_BASE_URL}?limit=${limit}&skip=${skip}`);
+interface FetchPostsParams {
+  limit?: number;
+  skip?: number;
+  tag?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+export const fetchPosts = async (params: FetchPostsParams) => {
+  const query = new URLSearchParams();
+
+  if (params.limit) query.append('limit', String(params.limit));
+  if (params.skip) query.append('skip', String(params.skip));
+  if (params.sortBy) query.append('sortBy', params.sortBy);
+  if (params.sortOrder) query.append('order', params.sortOrder);
+
+  const endpoint = params.tag ? `${API_BASE_URL}/tag/${params.tag}` : API_BASE_URL;
+
+  const response = await fetch(`${endpoint}?${query.toString()}`);
+
   if (!response.ok) throw new Error('Failed to fetch posts');
+
   const data = await response.json();
   return { posts: data.posts, total: data.total };
 };
-
 export const searchPosts = async (query: string) => {
   const response = await fetch(`${API_BASE_URL}/search?q=${query}`);
   if (!response.ok) throw new Error('Failed to search posts');

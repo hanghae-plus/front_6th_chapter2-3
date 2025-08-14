@@ -32,14 +32,20 @@ export const PostManagerWidget = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const { searchQuery } = usePostSearch();
-  const { selectedTag, setSelectedTag } = usePostFilter();
 
   const { skip, limit, setSkip, setLimit } = usePagination();
+  const { selectedTag, sortBy, sortOrder, setSelectedTag } = usePostFilter();
 
   const { data: tagsData } = useFetchTags();
+
+  const { data: postsData, isLoading: isLoadingPosts } = useFetchPosts(
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
+  );
   const { data: searchData } = useSearchPosts(searchQuery);
   const { data: tagData } = useFetchPostsByTag(selectedTag);
-  const { data: postsData, isLoading: isLoadingPosts } = useFetchPosts(limit, skip);
 
   const finalData = searchData || tagData || postsData;
   const total = finalData?.total || 0;
