@@ -20,9 +20,9 @@ export const useComment = () => {
     try {
       const { result, data } = await requestApi<UpsertComment>(`/api/comments/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({
+        body: {
           likes: (filtredComments.find((comment) => (comment as Comment).id === id)!.likes ?? 0) + 1,
-        }),
+        },
       })
 
       if (result && data) {
@@ -42,7 +42,7 @@ export const useComment = () => {
     try {
       const { result, data } = await requestApi<UpsertComment>(`/api/comments/add`, {
         method: "POST",
-        body: JSON.stringify({ ...newComment, postId: postId }),
+        body: { ...newComment, postId: postId },
       })
 
       if (result && data) {
