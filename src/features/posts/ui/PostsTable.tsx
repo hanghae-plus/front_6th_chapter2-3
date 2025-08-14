@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import { useEditPostDialog, usePostDialog } from '../model';
 import { useSearch } from '../model';
-import { useUsers, type UsersResponse } from '@/entities/users';
+import { useUsers } from '@/entities/users';
+import type { UsersResponse } from '@/entities/users';
 import type { Post } from '@/entities/posts';
 import { useDeletePost, usePosts, useTag } from '@/entities/posts';
 import {

@@ -6,3 +6,4 @@ export { AddPostDialog } from './AddPostDialog';
 export { EditCommentDialog } from './EditCommentDialog';
 export { AddPostButton } from './AddPostButton';
 export { PostsFilter } from './PostsFilter';
+export { PostsPagination } from './PostsPagination';
