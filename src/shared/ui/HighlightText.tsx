@@ -1,6 +1,6 @@
 // components/HighlightText.tsx
 import React from "react"
-import { splitHighlightParts } from "../utils/\bsplitHighlightParts"
+import { splitHighlightParts } from "../utils/splitHighlightParts"
 
 interface HighlightTextProps {
   /** 원본 텍스트 */
