@@ -1,4 +1,9 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL
+// GitHub Pages 배포 환경 감지
+const isGitHubPages = window.location.hostname === 'amelia-shin.github.io'
+
+// GitHub Pages에서는 전체 URL, 개발환경에서는 상대 경로
+const BASE_URL = isGitHubPages ? "https://dummyjson.com" : ""
+
 export const api = {
   get: <T>(path: string, init?: RequestInit) =>
     fetch(`${BASE_URL}${path}`, { ...init }).then((r) => r.json() as Promise<T>),
@@ -40,11 +45,18 @@ export class ApiClient {
    * @returns 전체 URL
    */
   private buildUrl(path: string): string {
-    // basePath가 이미 /api로 시작하면 중복 방지
+    // GitHub Pages 배포 환경 감지
+    const isGitHubPages = window.location.hostname === 'amelia-shin.github.io'
+    
+    // GitHub Pages에서는 전체 URL 사용
+    if (isGitHubPages) {
+      return `https://dummyjson.com${this.basePath}${path}`
+    }
+    
+    // 개발 환경에서는 상대 경로 사용
     if (this.basePath.startsWith("/api")) {
       return this.basePath + path
     }
-    // basePath가 비어있거나 /api로 시작하지 않으면 /api 추가
     return "/api" + this.basePath + path
   }
 

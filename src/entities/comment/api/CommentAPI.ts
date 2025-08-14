@@ -3,7 +3,7 @@ import { CreateComment, CommentList, UpdateComment, LikeComment, Comment } from 
 
 class CommentAPI extends ApiClient {
   constructor() {
-    super("/api/comments")
+    super("/comments")
   }
 
   /**

@@ -2,7 +2,7 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/<리포지토리명>/" : "/",
+  base: mode === "production" ? "/front_6th_chapter2-3/" : "/",
   plugins: [react()],
   server: {
     proxy: {

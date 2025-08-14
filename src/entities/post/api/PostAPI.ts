@@ -7,7 +7,7 @@ import { Post, PostItem, CreatePost, UpdatePost, Tag } from "../model/types"
  */
 class PostAPI extends ApiClient {
   constructor() {
-    super("/api/posts")
+    super("/posts")
   }
 
   /**

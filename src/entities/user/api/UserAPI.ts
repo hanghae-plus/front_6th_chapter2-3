@@ -3,7 +3,7 @@ import { User } from "../model/types"
 
 class UserAPI extends ApiClient {
   constructor() {
-    super("/api/users")
+    super("/users")
   }
 
   /**
