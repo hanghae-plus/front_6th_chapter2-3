@@ -3,7 +3,6 @@ import { Plus, Search } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from "../shared/ui";
 import { DropdownSelect } from "../shared/ui/DropdownSelect";
-import { getTags } from "../entities/tag/api";
 import { getUser } from "../entities/user/api";
 import { UserModal } from "../entities/user/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
@@ -18,6 +17,7 @@ import { useComments } from "../features/comment/models/useComment";
 import { usePosts } from "../features/post/models/usePost";
 import { Post } from "../entities/post/types";
 import { PostTable } from "../entities/post/ui/PostTable";
+import { useTags } from "../entities/tag/models";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -34,7 +34,6 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
-  const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
   const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
   const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
@@ -74,6 +73,8 @@ const PostsManager = () => {
     setShowEditDialog,
   });
 
+  const { tags, fetchTags } = useTags();
+
   // URL 업데이트 함수
   const updateURL = () => {
     const params = new URLSearchParams();
@@ -84,16 +85,6 @@ const PostsManager = () => {
     if (sortOrder) params.set("sortOrder", sortOrder);
     if (selectedTag) params.set("tag", selectedTag);
     navigate(`?${params.toString()}`);
-  };
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const tagsData = await getTags();
-      setTags(tagsData);
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error);
-    }
   };
 
   // 게시물 상세 보기
