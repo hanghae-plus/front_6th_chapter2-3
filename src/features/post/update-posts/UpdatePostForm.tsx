@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Textarea } from "../../../shared/ui"
 import { useUpdatePost } from "../../../entities/post/model/hooks"
 import { PostItem } from "../../../entities/post/model/types"
@@ -11,7 +10,6 @@ interface UpdatePostFormProps {
 
 export const UpdatePostForm = ({ selectedPost }: UpdatePostFormProps) => {
   const { closeEditDialog } = useDialogStore()
-  const queryClient = useQueryClient()
 
   const [formData, setFormData] = useState({
     title: "",
@@ -43,25 +41,7 @@ export const UpdatePostForm = ({ selectedPost }: UpdatePostFormProps) => {
         tags: selectedPost.tags || [],
       })
 
-      // 캐시를 직접 업데이트하여 UI 즉시 반영
-      queryClient.setQueriesData({ queryKey: ["posts"] }, (oldData: any) => {
-        if (!oldData?.posts) return oldData
-
-        return {
-          ...oldData,
-          posts: oldData.posts.map((p: any) =>
-            p.id === selectedPost.id
-              ? {
-                  ...p,
-                  title: formData.title,
-                  body: formData.body,
-                  userId: formData.userId,
-                }
-              : p,
-          ),
-        }
-      })
-
+      // 캐시 업데이트는 useUpdatePost 훅에서 자동으로 처리됨
       closeEditDialog()
     } catch (error) {
       console.error("게시물 업데이트 실패:", error)

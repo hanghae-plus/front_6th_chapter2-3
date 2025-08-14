@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -88,6 +89,7 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
+  const queryClient = useQueryClient()
   const { posts, total, loading } = useGetPosts(limit, skip, sortBy, sortOrder, selectedTag, searchQuery)
 
   // 게시물 검색
@@ -108,6 +110,7 @@ const PostsManager = () => {
   const deletePost = async (id) => {
     try {
       await deletePostMutation.mutateAsync(id)
+      // 캐시 업데이트는 useDeletePost 훅에서 자동으로 처리됨
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }

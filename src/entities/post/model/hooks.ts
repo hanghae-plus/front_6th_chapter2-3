@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import PostAPI from "../api/PostAPI"
 import { CreatePost, UpdatePost } from "./types"
+import { addPostToCache, updatePostInCache, deletePostFromCache } from "../../../shared/lib/cache"
 
 // Query Keys 상수 정의
 const QUERY_KEYS = {
@@ -50,9 +51,8 @@ export const useCreatePost = () => {
 
   return useMutation({
     mutationFn: (post: CreatePost) => PostAPI.createPost(post),
-    onSuccess: () => {
-      // 게시글 추가 성공 후 모든 posts 관련 쿼리 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] })
+    onSuccess: (newPost) => {
+      addPostToCache(queryClient, newPost)
     },
   })
 }
@@ -63,8 +63,13 @@ export const useCreatePost = () => {
  * @returns 업데이트된 게시글 정보
  */
 export const useUpdatePost = (id: number) => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (post: UpdatePost) => PostAPI.updatePost(id, post),
+    onSuccess: (updatedPost, variables) => {
+      updatePostInCache(queryClient, id, variables)
+    },
   })
 }
 
@@ -78,9 +83,8 @@ export const useDeletePost = () => {
 
   return useMutation({
     mutationFn: (id: number) => PostAPI.deletePost(id),
-    onSuccess: () => {
-      // 게시글 삭제 성공 후 모든 posts 관련 쿼리 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] })
+    onSuccess: (deletedPost, variables) => {
+      deletePostFromCache(queryClient, variables)
     },
   })
 }
