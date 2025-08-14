@@ -1,7 +1,7 @@
 import { DropdownSelect } from "../../../shared/ui/DropdownSelect";
 import { Input } from "../../../shared/ui";
 import { Search } from "lucide-react";
-import { Tag } from "../../../entities/tag/types";
+import { Tag } from "../../../entities/tag/models/types";
 
 interface PostFiltersBarProps {
   searchQuery: string;

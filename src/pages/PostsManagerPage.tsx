@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
-import { getUser } from "../entities/user/api";
+import { getUser } from "../entities/user/models/api";
 import { UserModal } from "../widgets/user-modal/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
 import { PostAddDialog } from "../features/post/ui/PostAddDialog";
 import { PostUpdateDialog } from "../features/post/ui/PostUpdateDialog";
 import { CommentAddDialog } from "../features/comment/ui/CommentAddDialog";
-import { Comment as CommentType } from "../entities/comment/types";
+import { Comment as CommentType } from "../entities/comment/models/types";
 import { CommentUpdateDialog } from "../features/comment/ui/CommentUpdateDialog";
 import { PostDetailDialog } from "../features/post/ui/PostDetailDialog";
 import { Comments } from "../features/comment/ui/Comments";
 import { useComments } from "../features/comment/models/useComment";
 import { usePosts } from "../features/post/models/usePosts";
-import { Post } from "../entities/post/types";
+import { Post } from "../entities/post/models/types";
 import { PostTable } from "../entities/post/ui/PostTable";
-import { useTags } from "../entities/tag/models";
+import { useTags } from "../entities/tag/models/models";
 import { PostFiltersBar } from "../widgets/post-filters/ui/PostFiltersBar";
 import { usePostQuery } from "../features/post/models/usePostQuery";
-import { User, UserResponse } from "../entities/user/types";
+import { User, UserResponse } from "../entities/user/models/types";
 import { showUserModalAtom } from "../widgets/user-modal/model/atoms";
 import { useAtom } from "jotai";
 import { showAddCommentDialogAtom, showEditCommentDialogAtom } from "../features/comment/models/dialog.atoms";
@@ -59,7 +59,7 @@ const PostsManager = () => {
   const { posts, total, loading, searchPosts, fetchPostsByTag, handleAddPost, handleUpdatePost, handleDeletePost } =
     usePosts({ ...postQuery, newPost, updateURL, setNewPost, selectedPost, setShowAddDialog, setShowEditDialog });
 
-  const { tags, fetchTags } = useTags();
+  const { tags } = useTags();
 
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
@@ -78,10 +78,6 @@ const PostsManager = () => {
       console.error("사용자 정보 가져오기 오류:", error);
     }
   };
-
-  useEffect(() => {
-    fetchTags();
-  }, []);
 
   return (
     <Card className="w-full max-w-6xl mx-auto">

@@ -1,4 +1,4 @@
-import { api } from "../../shared/api/client";
+import { api } from "../../../shared/api/client";
 import type { Tag } from "./types";
 
 export const getTags = async (): Promise<Tag[]> => {

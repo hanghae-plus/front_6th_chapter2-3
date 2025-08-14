@@ -1,7 +1,7 @@
 import { Button } from "../../../shared/ui";
 import { Plus } from "lucide-react";
 import { Comment } from "../../../entities/comment/ui/Comment";
-import { Comment as CommentType } from "../../../entities/comment/types";
+import { Comment as CommentType } from "../../../entities/comment/models/types";
 
 export const Comments = ({
   comments,
@@ -29,7 +29,6 @@ export const Comments = ({
       </div>
       <div className="space-y-1">
         {comments.map((comment) => {
-          console.log(comment);
           return (
             <Comment
               key={comment.id}

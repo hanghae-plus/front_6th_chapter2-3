@@ -1,4 +1,4 @@
-import { api } from "../../shared/api/client";
+import { api } from "../../../shared/api/client";
 import type { Comment, CommentsResponse } from "./types";
 
 interface GetCommentsParams {

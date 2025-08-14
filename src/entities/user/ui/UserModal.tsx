@@ -1,4 +1,4 @@
-import { UserResponse } from "../types";
+import { UserResponse } from "../models/types";
 
 export const UserInfo = ({ selectedUser }: { selectedUser: UserResponse | null }) => {
   return (

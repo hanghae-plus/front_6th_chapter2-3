@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../shared/ui";
-import { Comment } from "../../../entities/comment/types";
+import { Comment } from "../../../entities/comment/models/types";
 import { Dispatch, SetStateAction } from "react";
 import { showAddCommentDialogAtom } from "../models/dialog.atoms";
 import { useAtom } from "jotai";

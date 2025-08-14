@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../../../shared/ui";
-import { Post } from "../../../entities/post/types";
+import { Post } from "../../../entities/post/models/types";
 import { showAddPostDialogAtom } from "../models/dialog.atoms";
 import { useAtom } from "jotai";
 

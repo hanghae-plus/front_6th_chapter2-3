@@ -1,6 +1,6 @@
 import { Edit2, ThumbsUp, Trash2 } from "lucide-react";
 import { Button } from "../../../shared/ui";
-import { Comment as CommentType } from "../types";
+import { Comment as CommentType } from "../models/types";
 import { HighlightText } from "../../../shared/ui/HighlightText";
 
 export const Comment = ({
