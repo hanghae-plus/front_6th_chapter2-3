@@ -3,7 +3,8 @@ import path from 'node:path';
 import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/front_6th_chapter2-3/' : '/',
   plugins: [react()],
   server: {
     proxy: {
@@ -20,4 +21,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-});
+}));
