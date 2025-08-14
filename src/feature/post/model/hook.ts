@@ -1,16 +1,13 @@
-import { useEffect, useState } from "react"
-import { requestApi } from "../../../shared/lib"
+import { useState } from "react"
 import { useSearchQueryStore, useSelectedPostStore } from "./store"
-import { DeletePost, NewPost, Post } from "../type"
+import { NewPost, Post } from "../type"
 import { getPosts, getPostsByTag, getSeachPosts, getUsers } from "../../../entities"
 import { QUERY_KEYS } from "../../../shared/constants/query"
 import { useQuery } from "@tanstack/react-query"
 import { useAddPostMutation, useDeletePostMutation, useUpdatePostMutation } from "./mutations"
 
 export const userPostInfo = (limit: number, skip: number, sortBy: string, sortOrder: string, selectedTag: string) => {
-  const { setPosts } = useSelectedPostStore()
   const { searchQuery } = useSearchQueryStore()
-  const [total, setTotal] = useState(0)
   const [activeSearchQuery, setActiveSearchQuery] = useState<string>("")
 
   const { data: posts, isLoading: isPostLoading } = useQuery({
@@ -94,24 +91,19 @@ export const userPostInfo = (limit: number, skip: number, sortBy: string, sortOr
       : isPostLoading
 
   // store 업데이트
-  useEffect(() => {
-    if (finalPosts) {
-      setPosts(finalPosts)
-      setTotal(finalTotal || 0)
-    }
-  }, [finalPosts, finalTotal])
 
   // 태그별 게시물 가져오기
 
   return {
-    total,
     loading,
+    posts: finalPosts || [],
+    total: finalTotal || 0,
     setActiveSearchQuery,
   }
 }
 
 export const usePostForm = () => {
-  const { setShowAddDialog, setShowEditDialog, setPosts, posts, selectedPost, setSelectedPost } = useSelectedPostStore()
+  const { selectedPost, setSelectedPost } = useSelectedPostStore()
 
   const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
 
@@ -132,7 +124,7 @@ export const usePostForm = () => {
       onSuccess: () => {
         // 성공 시 폼 초기화
         setNewPost({ title: "", body: "", userId: 1 })
-      }
+      },
     })
   }
 
@@ -156,6 +148,7 @@ export const usePostForm = () => {
   const deletePostMutation = useDeletePostMutation()
   const deletePost = async (id: number) => {
     deletePostMutation.mutate(id)
+  }
 
   return {
     newPost,

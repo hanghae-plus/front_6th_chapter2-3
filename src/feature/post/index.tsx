@@ -30,7 +30,7 @@ export const PostList = () => {
     setSelectedTag,
     updateURL,
   } = useURL()
-  const { loading, total, setActiveSearchQuery } = userPostInfo(limit, skip, sortBy, sortOrder, selectedTag)
+  const { loading, total, setActiveSearchQuery, posts } = userPostInfo(limit, skip, sortBy, sortOrder, selectedTag)
   // 태그 가져오기
   const { data: tagsData } = useQuery({
     queryKey: QUERY_KEYS.getTags(),
@@ -85,6 +85,7 @@ export const PostList = () => {
     setSelectedTag,
     updateURL,
     openUserModal,
+    posts,
   }
 
   const paginationProps = {

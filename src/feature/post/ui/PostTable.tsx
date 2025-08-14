@@ -9,10 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "../../../shared/ui"
-import { usePostForm } from "../model/hook"
+import { usePostForm, userPostInfo } from "../model/hook"
 import { useSelectedPostStore } from "../model/store"
 import { Post } from "../type"
-import { useComment } from "../../comment/model/hook"
 
 export const PostTable = ({
   searchQuery,
@@ -20,21 +19,21 @@ export const PostTable = ({
   setSelectedTag,
   updateURL,
   openUserModal,
+  posts,
 }: {
+  posts: Array<Post>
   searchQuery: string
   selectedTag: string
   setSelectedTag: React.Dispatch<React.SetStateAction<string>>
   updateURL: () => void
   openUserModal: (user: any) => Promise<void>
 }) => {
-  const { fetchComments } = useComment()
-  const { setSelectedPost, setShowEditDialog, posts, setShowPostDetailDialog } = useSelectedPostStore()
+  const { setSelectedPost, setShowEditDialog, setShowPostDetailDialog } = useSelectedPostStore()
   const { deletePost } = usePostForm()
 
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
     setSelectedPost(post)
-    fetchComments(post.id)
     setShowPostDetailDialog(true)
   }
 

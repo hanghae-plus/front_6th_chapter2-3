@@ -4,16 +4,10 @@ import { NewComment } from "../type"
 
 export const useCommentStore = create<{
   newComment: NewComment
-  comments: { [key: number]: Array<Comment> }
   selectedComment: Comment | null
   showAddCommentDialog: boolean
   showEditCommentDialog: boolean
   setNewComment: (newComment: NewComment | ((prev: NewComment) => NewComment)) => void
-  setComments: (
-    next:
-      | { [key: number]: Array<Comment> }
-      | ((prev: { [key: number]: Array<Comment> }) => { [key: number]: Array<Comment> }),
-  ) => void
   setSelectedComment: (selectedComment: Comment | null) => void
   setShowAddCommentDialog: (showAddCommentDialog: boolean) => void
   setShowEditCommentDialog: (showEditCommentDialog: boolean) => void
@@ -23,13 +17,6 @@ export const useCommentStore = create<{
   selectedComment: null,
   showAddCommentDialog: false,
   showEditCommentDialog: false,
-  setComments: (next) =>
-    set((state) => ({
-      comments:
-        typeof next === "function"
-          ? (next as (p: { [key: number]: Array<Comment> }) => { [key: number]: Array<Comment> })(state.comments)
-          : next,
-    })),
   setSelectedComment: (selectedComment: Comment | null) => {
     set((state) => ({ ...state, selectedComment }))
   },
