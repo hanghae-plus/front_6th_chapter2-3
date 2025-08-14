@@ -10,7 +10,7 @@ export function useUpdateCommentMutation() {
     mutationFn: (payload: UpdateComment.Payload) => updateComment(payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", "post", variables.postId],
+        queryKey: ["comments", "post", variables.commentId],
       })
     },
     onError: (error) => {
