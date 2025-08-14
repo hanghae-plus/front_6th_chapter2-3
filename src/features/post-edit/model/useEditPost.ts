@@ -1,24 +1,25 @@
-import { useState } from 'react';
+import { useEditPostStore } from './editPostStore';
 
-import { Post } from '@/entities/post/model/types';
 import { useUpdatePost } from '@/entities/post/model/usePosts';
 
-export const useEditPost = (postToEdit: Post) => {
-  const [showDialog, setShowDialog] = useState(false);
+export const useEditPost = () => {
+  const { isDialogOpen, postToEdit, setPostToEdit, openDialog, closeDialog } = useEditPostStore();
 
   const { mutate: updatePost } = useUpdatePost();
 
   const handleSubmit = () => {
-    updatePost(postToEdit, {
-      onSuccess: () => {
-        setShowDialog(false);
-      },
-    });
+    if (postToEdit)
+      updatePost(postToEdit, {
+        onSuccess: () => closeDialog(),
+      });
   };
 
   return {
-    showDialog,
-    setShowDialog,
+    isDialogOpen,
+    postToEdit,
+    setPostToEdit,
+    openDialog,
+    closeDialog,
     handleSubmit,
   };
 };

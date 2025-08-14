@@ -1,6 +1,6 @@
 import { Edit2 } from 'lucide-react';
 
-import { useEditPost } from '../model/useEditPost';
+import { useEditPostStore } from '../model/editPostStore';
 
 import { Post } from '@/entities/post/model/types';
 import { Button } from '@/shared/ui';
@@ -10,10 +10,10 @@ interface EditPostButtonProps {
 }
 
 export const EditPostButton = ({ post }: EditPostButtonProps) => {
-  const { setShowDialog } = useEditPost(post);
+  const { openDialog } = useEditPostStore();
 
   return (
-    <Button variant='ghost' size='sm' onClick={() => setShowDialog(true)}>
+    <Button variant='ghost' size='sm' onClick={() => openDialog(post)}>
       <Edit2 className='w-4 h-4' />
     </Button>
   );

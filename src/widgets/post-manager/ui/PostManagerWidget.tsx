@@ -24,7 +24,6 @@ import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
 import { DeletePostButton } from '@/features/post-delete/ui/DeletePostButton';
 import { DetailPostDialog } from '@/features/post-detail/ui/DetailPostDialog';
 import { ViewPostDetailButton } from '@/features/post-detail/ui/ViewPostDetailButton';
-import { useEditPost } from '@/features/post-edit/model/useEditPost';
 import { EditPostButton } from '@/features/post-edit/ui/EditPostButton';
 import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
 import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
@@ -42,8 +41,8 @@ export const PostManagerWidget = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
 
-  const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedComment, setSelectedComment] = useState(null);
 
@@ -71,12 +70,6 @@ export const PostManagerWidget = () => {
     openDialog: openAddDialog,
     handleSubmit,
   } = useCreatePost();
-
-  const {
-    showDialog: showEditDialog,
-    setShowDialog: setShowEditDialog,
-    handleSubmit: handleEditSubmit,
-  } = useEditPost(selectedPost!);
 
   const { data: comments } = useFetchComments(selectedPostId);
   const { mutate: addComment } = useAddComment();
@@ -142,9 +135,9 @@ export const PostManagerWidget = () => {
               setSelectedTag={setSelectedTag}
               renderActions={(post) => (
                 <>
-                  <ViewPostDetailButton post={post} />
+                  <ViewPostDetailButton postId={post?.id} />
                   <EditPostButton post={post} />
-                  <DeletePostButton postId={post.id} />
+                  <DeletePostButton postId={post?.id} />
                 </>
               )}
             />
@@ -171,13 +164,7 @@ export const PostManagerWidget = () => {
       />
 
       {/* 게시물 수정 대화상자 */}
-      <EditPostDialog
-        showEditDialog={showEditDialog}
-        setShowEditDialog={setShowEditDialog}
-        selectedPost={selectedPost}
-        setSelectedPost={setSelectedPost}
-        updatePost={handleEditSubmit}
-      />
+      <EditPostDialog />
 
       {/* 댓글 추가 대화상자 */}
       <CreateCommentDialog
