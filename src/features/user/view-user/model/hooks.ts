@@ -1,7 +1,7 @@
 import { useUserStore } from '../../../../entities/user/model/store';
 import { useDialogStore } from '../../../../shared/store/dialog';
 import { DIALOG_KEYS } from '../../../../shared/constant/dialog';
-import { fetchUserDetail } from '../api/api';
+import { fetchUserDetail } from '../../../posts/view-post/api/api';
 
 export const useViewUser = () => {
   const { selectedUser, setSelectedUser } = useUserStore();

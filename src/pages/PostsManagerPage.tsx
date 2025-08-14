@@ -22,6 +22,7 @@ import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 import { useDialogStore } from '../shared/store/dialog';
 import { DIALOG_KEYS } from '../shared/constant/dialog';
 import { useViewUser } from '../features/user/view-user/model/hooks';
+import { usePostsUrlParams } from '../features/posts/list-posts/model/hooks';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -52,12 +53,20 @@ const PostsManager = () => {
     removeCommentFromPost,
   } = useCommentStore();
 
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  // const [selectedPost, setSelectedPost] = useState<any | null>(null);
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
-  const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
+  const {
+    skip,
+    limit,
+    searchQuery,
+    sortBy,
+    sortOrder,
+    setSkip,
+    setLimit,
+    setSearchQuery,
+    setSortBy,
+    setSortOrder,
+    updatePostsURL,
+  } = usePostsUrlParams();
+
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
@@ -66,16 +75,16 @@ const PostsManager = () => {
   const { openDialog, closeDialog } = useDialogStore();
 
   // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
-  };
+  // const updateURL = () => {
+  //   const params = new URLSearchParams();
+  //   if (skip) params.set('skip', skip.toString());
+  //   if (limit) params.set('limit', limit.toString());
+  //   if (searchQuery) params.set('search', searchQuery);
+  //   if (sortBy) params.set('sortBy', sortBy);
+  //   if (sortOrder) params.set('sortOrder', sortOrder);
+  //   if (selectedTag) params.set('tag', selectedTag);
+  //   navigate(`?${params.toString()}`);
+  // };
 
   // 게시물 가져오기 (store의 fetchPosts를 사용하도록 변경 필요)
   const fetchPosts = () => {
@@ -200,7 +209,7 @@ const PostsManager = () => {
     } else {
       fetchPosts();
     }
-    updateURL();
+    updatePostsURL();
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
   useEffect(() => {
@@ -251,7 +260,7 @@ const PostsManager = () => {
             onTagChange={(value) => {
               setSelectedTag(value);
               fetchPostsByTag(value);
-              updateURL();
+              updatePostsURL({ tag: value });
             }}
             onSortByChange={setSortBy}
             onSortOrderChange={setSortOrder}
@@ -268,7 +277,7 @@ const PostsManager = () => {
               highlightText={highlightText}
               onTagClick={(tag) => {
                 setSelectedTag(tag);
-                updateURL();
+                updatePostsURL({ tag });
               }}
               onUserClick={openUserModal}
               onPostDetail={openPostDetail}
