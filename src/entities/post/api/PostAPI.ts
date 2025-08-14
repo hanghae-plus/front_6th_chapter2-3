@@ -45,8 +45,6 @@ class PostAPI extends ApiClient {
     order?: string,
   ): Promise<Post> {
     const params = new URLSearchParams()
-    console.log("searchQuery", searchQuery)
-    console.log("params", params.toString())
     params.append("q", searchQuery)
     params.append("limit", limit.toString())
     params.append("skip", skip.toString())
