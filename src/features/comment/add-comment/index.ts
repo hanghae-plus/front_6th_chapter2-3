@@ -1,2 +1,2 @@
-export { useAddComment } from "./lib/useAddComment"
-export { useAddCommentDialog } from "./lib/useAddCommentDialog"
+export { useAddComment } from "./model/useAddComment"
+export { useAddCommentDialog } from "./model/useAddCommentDialog"

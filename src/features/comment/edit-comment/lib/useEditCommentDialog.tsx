@@ -1,4 +1,4 @@
-import { useOverlay } from "../../../../shared/hooks/useOverlay"
+import { useOverlay } from "../../../../shared/lib/useOverlay"
 import { EditCommentDialog } from "../ui/EditCommentDialog"
 
 export const useEditCommentDialog = () => {

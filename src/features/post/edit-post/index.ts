@@ -1,2 +1,2 @@
-export { useEditPost } from "./lib/useEditPost"
-export { useEditPostDialog } from "./lib/useEditPostDialog"
+export { useEditPost } from "./model/useEditPost"
+export { useEditPostDialog } from "./model/useEditPostDialog"

@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useMemo, useState } from "react"
 
-export interface OverlayProps<T = unknown> {
+interface OverlayProps<T = unknown> {
   isOpen: boolean
   close: (result?: T) => void
 }

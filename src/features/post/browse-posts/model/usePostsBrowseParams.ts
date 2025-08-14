@@ -1,5 +1,5 @@
 import { parseAsString, useQueryStates } from "nuqs"
-import { useQueryParamsPagination } from "../../../../shared/hooks/useQueryParamsPagination"
+import { useQueryParamsPagination } from "../../../../shared/lib/useQueryParamsPagination"
 import type { SortOrder } from "../../../../shared/types/sort"
 
 export type PostsBrowseParams = {
