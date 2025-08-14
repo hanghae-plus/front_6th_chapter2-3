@@ -3,7 +3,15 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { PostType, UserType } from '../entities';
-import { CreatePostModal, DeletePostButton, UpdatePostButton, DetailUserModal, TagSelectFilter } from '../features';
+import {
+  CreatePostModal,
+  DeletePostButton,
+  UpdatePostButton,
+  DetailUserModal,
+  TagSelectFilter,
+  SortOrderSelectFilter,
+  SortBySelectFilter,
+} from '../features';
 import {
   Button,
   Card,
@@ -47,7 +55,6 @@ const PostsManager = () => {
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
@@ -98,17 +105,6 @@ const PostsManager = () => {
       .finally(() => {
         setLoading(false);
       });
-  };
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/posts/tags');
-      const data = await response.json();
-      setTags(data);
-    } catch (error) {
-      console.error('태그 가져오기 오류:', error);
-    }
   };
 
   // 게시물 검색
@@ -264,10 +260,6 @@ const PostsManager = () => {
       console.error('사용자 정보 가져오기 오류:', error);
     }
   };
-
-  useEffect(() => {
-    fetchTags();
-  }, []);
 
   useEffect(() => {
     if (selectedTag) {
@@ -441,27 +433,8 @@ const PostsManager = () => {
               </div>
             </div>
             <TagSelectFilter />
-        
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 기준' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='none'>없음</SelectItem>
-                <SelectItem value='id'>ID</SelectItem>
-                <SelectItem value='title'>제목</SelectItem>
-                <SelectItem value='reactions'>반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 순서' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='asc'>오름차순</SelectItem>
-                <SelectItem value='desc'>내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+            <SortBySelectFilter />
+            <SortOrderSelectFilter />
           </div>
 
           {/* 게시물 테이블 */}
