@@ -263,13 +263,7 @@ const PostsManager = () => {
               <SearchPostInput />
             </div>
             {/* 태그 선택 드롭다운 */}
-            <TagSelectBox
-              selectedTag={selectedTag}
-              onTagChange={(value) => {
-                setSelectedTag(value)
-                updateURL()
-              }}
-            />
+            <TagSelectBox />
             <SortSelectBox />
           </div>
 
