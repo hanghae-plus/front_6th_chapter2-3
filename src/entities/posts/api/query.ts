@@ -4,6 +4,9 @@ import {
   deleteComment,
   getLikes,
   incrementCommentLike,
+  updateComment,
+  updatePost as updatePostData,
+  deletePost as deletePostData,
   useLimit,
   usePostsQueryKey,
   useSearchQuery,
@@ -204,11 +207,7 @@ export const useUpdatePostComment = () => {
         (old: PostCommentsResponse) => {
           return {
             ...old,
-            comments: old.comments.map((comment) =>
-              comment.id === commentId
-                ? { ...comment, body: commentData.body }
-                : comment,
-            ),
+            comments: updateComment(old.comments, commentId, commentData.body),
           };
         },
       );
@@ -236,7 +235,7 @@ export const useUpdatePost = () => {
       queryClient.setQueryData(postsQueryKey, (old: PostsResponse) => {
         return {
           ...old,
-          posts: old.posts.map((item) => (item.id === postId ? post : item)),
+          posts: updatePostData(old.posts, postId, post),
         };
       });
 
@@ -262,7 +261,7 @@ export const useDeletePost = () => {
       queryClient.setQueryData(postsQueryKey, (old: PostsResponse) => {
         return {
           ...old,
-          posts: old.posts.filter((item) => item.id !== postId),
+          posts: deletePostData(old.posts, postId),
         };
       });
 

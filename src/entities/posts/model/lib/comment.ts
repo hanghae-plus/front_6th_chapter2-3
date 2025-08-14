@@ -22,3 +22,13 @@ export const deleteComment = (comments: PostComment[], commentId: number) => {
 export const addComment = (comments: PostComment[], comment: PostComment) => {
   return [...comments, comment];
 };
+
+export const updateComment = (
+  comments: PostComment[],
+  commentId: number,
+  body: string,
+) => {
+  return comments.map((comment) =>
+    comment.id === commentId ? { ...comment, body } : comment,
+  );
+};
