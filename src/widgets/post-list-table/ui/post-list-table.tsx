@@ -1,12 +1,14 @@
 import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
 import type { Post } from "@/entities/posts"
-import { deletePost as deletePostAction, postEntityQueries } from "@/entities/posts"
+import { postEntityQueries, usePostMutations } from "@/entities/posts"
 import type { User } from "@/entities/users"
 import { userEntityQueries } from "@/entities/users"
 import { usePostListFilterQueryParams } from "@/widgets/post-list-table"
 
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
+import { clsx } from "clsx"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 type Props = {
   onOpenAuthorInformationDialog: (user: User) => void
@@ -14,12 +16,17 @@ type Props = {
   onOpenUpdatePostDialog: (post: Post) => void
 }
 
+type CommentsMap = Record<number, { liked: boolean, disLiked: boolean }>
+
 export const PostListTable = ({
   onOpenAuthorInformationDialog,
   onOpenPostDetailDialog,
   onOpenUpdatePostDialog,
 }: Props) => {
   const { queryParams, setSelectedTag } = usePostListFilterQueryParams()
+  const { deletePost, likePost, dislikePost, undoLikePost, undoDislikePost } = usePostMutations({ queryParams })
+  const [commentsMap, setCommentsMap] = useState<CommentsMap>({})
+
   const postsQuery = useQuery({
     ...postEntityQueries.getPosts({ ...queryParams }),
   })
@@ -38,12 +45,37 @@ export const PostListTable = ({
     author: usersQuery.data?.data.find((user) => user.id === post.userId),
   }))
 
-  const deletePost = useMutation({
-    mutationFn: deletePostAction,
-    onError: (error) => console.error("게시물 삭제 오류:", error),
-  })
+  const handleClickPostLikeButton = (postID: number) => {
+    const current = commentsMap[postID] ?? { liked: false, disLiked: false }
 
+    if (current.liked) {
+      setCommentsMap((prev) => ({ ...prev, [postID]: { liked: false, disLiked: false } }))
+      undoLikePost.mutate({ id: postID })
+      return
+    }
 
+    setCommentsMap((prev) => ({ ...prev, [postID]: { liked: true, disLiked: false } }))
+    if (current.disLiked) {
+      undoDislikePost.mutate({ id: postID })
+    }
+    likePost.mutate({ id: postID })
+  }
+
+  const handleClickPostDislikeButton = (postID: number) => {
+    const current = commentsMap[postID] ?? { liked: false, disLiked: false }
+
+    if (current.disLiked) {
+      setCommentsMap((prev) => ({ ...prev, [postID]: { liked: false, disLiked: false } }))
+      undoDislikePost.mutate({ id: postID })
+      return
+    }
+
+    setCommentsMap((prev) => ({ ...prev, [postID]: { liked: false, disLiked: true } }))
+    if (current.liked) {
+      undoLikePost.mutate({ id: postID })
+    }
+    dislikePost.mutate({ id: postID })
+  }
 
   if (postsQuery.isLoading || usersQuery.isLoading) {
     return <div className="flex justify-center p-4">로딩 중...</div>
@@ -74,11 +106,9 @@ export const PostListTable = ({
                   {post.tags?.map((tag) => (
                     <span
                       key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        queryParams.selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                      }`}
+                      className={clsx("px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer", queryParams.selectedTag === tag
+                        ? "text-white bg-blue-500 hover:bg-blue-600"
+                        : "text-blue-800 bg-blue-100 hover:bg-blue-200")}
                       onClick={() => {
                         setSelectedTag(tag)
                       }}
@@ -103,10 +133,14 @@ export const PostListTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
+                <button className="flex gap-1 items-center" onClick={() => handleClickPostLikeButton(post.id)}>
+                  <ThumbsUp className="w-4 h-4" />
+                  <span>{post.reactions?.likes || 0}</span>
+                </button>
+                <button className="flex gap-1 items-center" onClick={() => handleClickPostDislikeButton(post.id)}>
+                  <ThumbsDown className="w-4 h-4" />
+                  <span>{post.reactions?.dislikes || 0}</span>
+                </button>
               </div>
             </TableCell>
             <TableCell>

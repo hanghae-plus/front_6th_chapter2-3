@@ -1,15 +1,14 @@
 
 import { Button, DialogContent, DialogHeader, DialogTitle, HighlightText } from "@/shared/ui"
 import {
-  addComment as addCommentAction,
   commentEntityQueries,
-  updateComment as updateCommentAction,
+  useCommentMutations,
 } from "@/entities/comments"
 import type { Post } from "@/entities/posts"
 import { openAddCommentDialog } from "@/features/add-comment/ui"
 import { openUpdateCommentDialog } from "@/features/update-comment"
 
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 
 type Props = {
@@ -25,17 +24,7 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
     select: (response) => response.comments,
   })
 
-  const addComment = useMutation({
-    mutationFn: addCommentAction,
-    onError: (error) => {
-      console.error("댓글 추가 오류:", error)
-    },
-  })
-
-  const updateComment = useMutation({
-    mutationFn: updateCommentAction,
-    onError: (error) => console.error("댓글 수정 오류:", error),
-  })
+  const { addComment, updateComment } = useCommentMutations({ postId: post.id })
 
   return (
     <DialogContent className="max-w-3xl">
@@ -56,6 +45,8 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
               size="sm"
               onClick={() =>
                 openAddCommentDialog({
+                  userId: post.userId,
+                  postId: post.id,
                   onSubmit: (formData) => addComment.mutateAsync(formData),
                 })
               }
@@ -78,8 +69,7 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      const targetComment = comments?.find((targetComment) => targetComment.id === comment.id)
-                      onLikeComment(comment.id, (targetComment?.likes ?? 0) + 1)
+                      onLikeComment(comment.id, comment.likes + 1)
                     }}
                   >
                     <ThumbsUp className="w-3 h-3" />
@@ -91,7 +81,9 @@ export const PostDetailDialog = ({ post, onDeleteComment, onLikeComment, searchQ
                     onClick={() => {
                       openUpdateCommentDialog({
                         comment: { body: comment.body, postId: comment.postId, userId: comment.user.id },
-                        onSubmit: (formValues) => updateComment.mutate({ id: comment.id, body: formValues.body }),
+                        onSubmit: (formValues) => {
+                          updateComment.mutate({ id: comment.id, body: formValues.body })
+                        },
                       })
                     }}
                   >

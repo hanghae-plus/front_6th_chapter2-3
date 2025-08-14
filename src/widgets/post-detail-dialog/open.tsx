@@ -10,11 +10,17 @@ type Options = {
   onDeleteComment: (commentId: number) => void
   onLikeComment: (commentId: number, likes: number) => void
   searchQuery: string
+  onCloseCallback?: () => void
 }
 
 export const openPostDetailDialog = (options: Options) => {
   overlay.open(({ isOpen, close }) => (
-    <Dialog open={isOpen} onOpenChange={() => !!isOpen && close()}>
+    <Dialog open={isOpen} onOpenChange={() => {
+      if (isOpen) {
+        close()
+        options?.onCloseCallback?.()
+      }
+    }}>
       <PostDetailDialog
         post={options.post}
         onDeleteComment={options.onDeleteComment}
