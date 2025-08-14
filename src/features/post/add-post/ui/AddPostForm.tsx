@@ -1,4 +1,3 @@
-import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import {
   Button,
   DialogContent,
@@ -7,6 +6,7 @@ import {
   Input,
   Textarea,
 } from '../../../../shared/ui/components';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import { useAddPost } from '../model/useAddPost';
 
 const AddPostForm = () => {

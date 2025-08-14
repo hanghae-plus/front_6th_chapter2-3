@@ -5,9 +5,9 @@ import {
   DialogTitle,
   Textarea,
 } from '../../../../shared/ui/components';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import { IComment } from '../../../../entities/comment/model/type';
 import { useUpdateComment } from '../model/useUpdateComment';
-import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 
 interface UpdateCommentForm {
   comment: IComment;

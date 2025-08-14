@@ -6,9 +6,9 @@ import {
   Input,
   Textarea,
 } from '../../../../shared/ui/components';
+import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 import { IPost } from '../../../../entities/post/model/type';
 import { useUpdatePost } from '../model/useUpdatePost';
-import { useDialogStore } from '../../../../shared/hook/useDialogStore';
 
 interface UpdatePostFormProps {
   post: IPost;
