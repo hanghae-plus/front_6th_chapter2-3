@@ -29,7 +29,7 @@ export const SortSelectBox = () => {
   }
 
   return (
-    <Select value={searchParams.get("sortBy") || "none"} onValueChange={(value: string) => handleSortByChange(value)}>
+    <Select value={searchParams.get("sortBy") || ""} onValueChange={(value: string) => handleSortByChange(value)}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="정렬 기준" />
       </SelectTrigger>
