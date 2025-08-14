@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy": "pnpm run build && gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
@@ -33,6 +34,7 @@
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "lucide-react": "^0.539.0",
