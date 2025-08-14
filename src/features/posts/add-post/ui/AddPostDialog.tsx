@@ -1,4 +1,5 @@
-import React from 'react';
+import { DIALOG_KEYS } from '../../../../shared/constant/dialog';
+import { useDialogStore } from '../../../../shared/store/dialog';
 import {
   Dialog,
   DialogContent,
@@ -8,28 +9,15 @@ import {
   Input,
   Textarea,
 } from '../../../../shared/ui';
+import { AddPostDialogProps } from '../model/type';
 
-interface AddPostDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  newPost: {
-    title: string;
-    body: string;
-    userId: number;
-  };
-  onPostChange: (post: { title: string; body: string; userId: number }) => void;
-  onSubmit: () => void;
-}
-
-export const AddPostDialog = ({
-  open,
-  onOpenChange,
-  newPost,
-  onPostChange,
-  onSubmit,
-}: AddPostDialogProps) => {
+export const AddPostDialog = ({ newPost, onPostChange, onSubmit }: AddPostDialogProps) => {
+  const { isDialogOpen, closeDialog } = useDialogStore();
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isDialogOpen(DIALOG_KEYS.ADD_POST)}
+      onOpenChange={() => closeDialog(DIALOG_KEYS.ADD_POST)}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>

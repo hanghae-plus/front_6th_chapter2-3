@@ -22,6 +22,7 @@ import { useTagsStore } from '../entities/tags/model/store';
 import { useCommentStore } from '../entities/comment/model/store';
 import { NewPost, NewComment } from './PostsManagerPage/types';
 import { highlightText } from '../shared/utils/text';
+import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -329,7 +330,8 @@ const PostsManager = () => {
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
-      <CardHeader>
+      <PostsHeader />
+      {/* <CardHeader>
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
           <Button onClick={() => setShowAddDialog(true)}>
@@ -337,7 +339,7 @@ const PostsManager = () => {
             게시물 추가
           </Button>
         </CardTitle>
-      </CardHeader>
+      </CardHeader> */}
       <CardContent>
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
@@ -393,13 +395,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <AddPostDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        newPost={newPost}
-        onPostChange={setNewPost}
-        onSubmit={addPost}
-      />
+      <AddPostDialog newPost={newPost} onPostChange={setNewPost} onSubmit={addPost} />
 
       {/* 게시물 수정 대화상자 */}
       <EditPostDialog
