@@ -51,7 +51,7 @@ export const fetchPostsByTag = async (tag: string, limit: number, skip: number) 
  * @returns 게시물 정보
  */
 export const addPost = async (post: AddPostRequest) => {
-  const response = await api.post(`/posts`, post)
+  const response = await api.post(`/posts/add`, post)
   return response
 }
 

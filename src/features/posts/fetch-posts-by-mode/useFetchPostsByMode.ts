@@ -41,6 +41,8 @@ export const useFetchPostsByMode = () => {
     return joinPostsWithUsers(data?.posts ?? [], users.data?.users ?? [])
   }, [data, users])
 
+  console.log("postsWithUsers", postsWithUsers)
+
   return {
     isLoading: isLoading || users.isLoading,
     isError: isError || users.isError,
