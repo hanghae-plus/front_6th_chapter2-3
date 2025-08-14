@@ -1,13 +1,15 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const POST = {
-  LIST: (paramString: string) => `/api/posts?${paramString}`,
-  TAG_LIST: '/api/posts/tags',
+  LIST: (paramString: string) => `${BASE_URL}/posts?${paramString}`,
+  TAG_LIST: '${BASE_URL}/posts/tags',
 
   BY_SEARCH: (searchQuery: string, paramString: string) =>
-    `/api/posts/search?q=${searchQuery}&${paramString}`,
+    `${BASE_URL}/posts/search?q=${searchQuery}&${paramString}`,
   BY_TAG: (tag: string, paramString: string) =>
-    `/api/posts/tag/${tag}?${paramString}`,
+    `${BASE_URL}/posts/tag/${tag}?${paramString}`,
 
-  ADD: '/api/posts/add',
-  UPDATE: (postId: number) => `/api/posts/${postId}`,
-  DELETE: (postId: number) => `/api/posts/${postId}`,
+  ADD: '${BASE_URL}/posts/add',
+  UPDATE: (postId: number) => `${BASE_URL}/posts/${postId}`,
+  DELETE: (postId: number) => `${BASE_URL}/posts/${postId}`,
 };

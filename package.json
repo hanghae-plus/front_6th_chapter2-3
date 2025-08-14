@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "deploy": "pnpm run build && gh-pages -d dist",
-    "lint": "eslint .",
+    "build": "vite build",
     "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint .",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },
