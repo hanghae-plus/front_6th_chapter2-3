@@ -10,10 +10,12 @@ import {
 interface DetailUserModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedUser: UserType;
+  selectedUser: UserType | null;
 }
 
 export const DetailUserModal = ({ isOpen, onOpenChange, selectedUser }: DetailUserModalProps) => {
+  if (!selectedUser) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
