@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { Post } from "../type"
-import { INIT_POST } from "../../../shared/data"
+import { INIT_POST } from "../../../shared/constants/data"
 import { User } from "../../../entities"
 
 export const useSelectedPostStore = create<{

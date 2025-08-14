@@ -9,12 +9,13 @@ import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedUserStore } from "./model/store"
 import { useURL } from "../../shared/hook/useURL"
 import { userPostInfo } from "./model/hook"
+import { useQuery } from "@tanstack/react-query"
+import { QUERY_KEYS } from "../../shared/constants/query"
 
 export const PostList = () => {
   const [tags, setTags] = useState<Tags>([])
   const { setSelectedUser, setShowUserModal } = useSelectedUserStore()
   const { searchQuery, setSearchQuery } = useSearchQueryStore()
-  const { loading, total, fetchPosts, searchPosts, fetchPostsByTag } = userPostInfo()
   const {
     skip,
     limit,
@@ -28,41 +29,36 @@ export const PostList = () => {
     setSelectedTag,
     updateURL,
   } = useURL()
+  const { loading, total, setActiveSearchQuery } = userPostInfo(limit, skip, sortBy, sortOrder, selectedTag)
+  // 태그 가져오기
+  const { data: tagsData } = useQuery({
+    queryKey: QUERY_KEYS.getTags(),
+    queryFn: async () => {
+      const { result, data: tags } = await getTags()
+      return result && tags ? tags : []
+    },
+    staleTime: 0,
+    gcTime: 0,
+  })
 
   useEffect(() => {
-    fetchTags()
-  }, [])
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(limit, skip, sortBy, selectedTag)
-    } else {
-      fetchPosts(limit, skip, sortBy)
+    if (tagsData) {
+      setTags(tagsData)
     }
+  }, [tagsData])
+
+  useEffect(() => {
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
 
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const { result, data: tags } = await getTags()
-      if (result && tags) {
-        setTags(tags)
-      }
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }
-
   const handleSearchPost = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      searchPosts(limit, skip, sortBy, searchQuery)
+      setActiveSearchQuery(searchQuery)
     }
   }
 
   const handleChangeTag = (value: string) => {
     setSelectedTag(value)
-    fetchPostsByTag(limit, skip, sortBy, value)
     updateURL()
   }
 

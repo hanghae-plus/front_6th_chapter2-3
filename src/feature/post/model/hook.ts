@@ -1,91 +1,111 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { requestApi } from "../../../shared/lib"
-import { useSelectedPostStore } from "./store"
+import { useSearchQueryStore, useSelectedPostStore } from "./store"
 import { DeletePost, NewPost, Post } from "../type"
 import { getPosts, getPostsByTag, getSeachPosts, getUsers } from "../../../entities"
+import { QUERY_KEYS } from "../../../shared/constants/query"
+import { useQuery } from "@tanstack/react-query"
 
-export const userPostInfo = () => {
+export const userPostInfo = (limit: number, skip: number, sortBy: string, sortOrder: string, selectedTag: string) => {
   const { setPosts } = useSelectedPostStore()
+  const { searchQuery } = useSearchQueryStore()
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [activeSearchQuery, setActiveSearchQuery] = useState<string>("")
 
-  // 게시물 가져오기
-  const fetchPosts = async (limit: number, skip: number, sortBy: string) => {
-    setLoading(true)
+  const { data: posts, isLoading: isPostLoading } = useQuery({
+    queryKey: QUERY_KEYS.getPosts(limit, skip, sortBy, sortOrder),
+    queryFn: async () => {
+      const [postResult, userResult] = await Promise.all([getPosts(limit, skip, sortBy, sortOrder), getUsers()])
 
-    try {
-      const { result, data: posts } = await getPosts(limit, skip, sortBy)
-      if (result && posts) {
-        const { result, data: users } = await getUsers()
-        if (result && users) {
-          const postsWithUsers = posts.posts.map((post) => ({
-            ...post,
-            author: users.users.find((user) => user.id === post.userId),
-          })) as Array<Post>
+      if (postResult.result && postResult.data && userResult.result && userResult.data) {
+        const postsWithUsers = postResult.data.posts.map((post) => ({
+          ...post,
+          author: (userResult?.data?.users ?? []).find((user) => user.id === post.userId),
+        })) as Array<Post>
 
-          setPosts(postsWithUsers)
-          setTotal(posts.total)
+        return {
+          posts: postsWithUsers,
+          total: postResult.data.total,
         }
       }
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // 게시물 검색
-  const searchPosts = async (limit: number, skip: number, sortBy: string, searchQuery?: string) => {
-    if (!searchQuery) {
-      fetchPosts(limit, skip, sortBy)
-      return
-    }
-    setLoading(true)
-    try {
-      const { result, data: postsData } = await getSeachPosts(searchQuery)
-
-      if (result && postsData) {
-        setPosts(postsData.posts)
-        setTotal(postsData.total)
-      }
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
+      throw new Error("데이터를 가져올 수 없습니다")
+    },
+    enabled: !selectedTag || selectedTag === "all",
+  })
 
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (limit: number, skip: number, sortBy: string, tag: string | null) => {
-    if (!tag || tag === "all") {
-      fetchPosts(limit, skip, sortBy)
-      return
-    }
-    setLoading(true)
-    try {
-      const { result: postResult, data: posts } = await getPostsByTag(tag)
-      const { result: userResult, data: users } = await getUsers()
+  const { data: postsByTag, isLoading: isPostsByTagLoading } = useQuery({
+    queryKey: QUERY_KEYS.getPostsByTag(selectedTag!),
+    queryFn: async () => {
+      const [postResult, userResult] = await Promise.all([getPostsByTag(selectedTag!), getUsers()])
 
-      if (postResult && posts && userResult && users) {
-        const postsWithUsers = posts.posts.map((post) => ({
+      if (postResult.result && postResult.data && userResult.result && userResult.data) {
+        const postsWithUsers = postResult.data.posts.map((post) => ({
           ...post,
-          author: users.users.find((user) => user.id === post.userId),
+          author: (userResult.data?.users ?? []).find((user) => user.id === post.userId),
         }))
 
-        setPosts(postsWithUsers)
-        setTotal(posts.total)
+        return {
+          posts: postsWithUsers,
+          total: postResult.data.total,
+        }
       }
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
+      throw new Error("데이터를 가져올 수 없습니다")
+    },
+    enabled: !!selectedTag && selectedTag !== "all", // selectedTag가 있고 "all"이 아닐 때만 실행
+  })
+
+  // 게시물 검색
+  const { data: searchResults, isLoading: isSearchLoading } = useQuery({
+    queryKey: QUERY_KEYS.getSeachPosts(searchQuery!),
+    queryFn: async () => {
+      const { result, data: postsData } = await getSeachPosts(searchQuery!)
+
+      if (result && postsData) {
+        return {
+          posts: postsData.posts,
+          total: postsData.total,
+        }
+      }
+      throw new Error("검색 결과를 가져올 수 없습니다")
+    },
+    enabled: !!activeSearchQuery,
+  })
+
+  // 실제 사용할 데이터
+  const finalPosts = searchQuery
+    ? searchResults?.posts
+    : selectedTag && selectedTag !== "all"
+      ? postsByTag?.posts
+      : posts?.posts
+
+  const finalTotal = searchQuery
+    ? searchResults?.total
+    : selectedTag && selectedTag !== "all"
+      ? postsByTag?.total
+      : posts?.total
+
+  // loading 상태
+  const loading = searchQuery
+    ? isSearchLoading
+    : selectedTag && selectedTag !== "all"
+      ? isPostsByTagLoading
+      : isPostLoading
+
+  // store 업데이트
+  useEffect(() => {
+    if (finalPosts) {
+      setPosts(finalPosts)
+      setTotal(finalTotal || 0)
     }
-    setLoading(false)
-  }
+  }, [finalPosts, finalTotal])
+
+  // 태그별 게시물 가져오기
 
   return {
     total,
     loading,
-    fetchPosts,
-    searchPosts,
-    fetchPostsByTag,
+    setActiveSearchQuery,
   }
 }
 
