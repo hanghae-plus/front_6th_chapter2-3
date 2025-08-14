@@ -5,6 +5,7 @@ import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
+import type { User } from "@/entities/user/model"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
 import { DialogType, useDialogStore } from "@/shared/lib"
@@ -24,7 +25,7 @@ export function PostsManagerPage() {
   // Dialog 관련 상태
   const [selectedPost, setSelectedPost] = useState<any>(null)
   const [selectedComment, setSelectedComment] = useState<any>(null)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const [newPost, setNewPost] = useState<any>({ title: "", body: "", userId: 1 })
   const [newComment, setNewComment] = useState<any>({ body: "", postId: null, userId: 1 })
 
@@ -261,15 +262,9 @@ export function PostsManagerPage() {
   }
 
   // 사용자 모달 열기
-  const handleOpenUserModal = async (user: any) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      openDialog(DialogType.USER_MODAL)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+  const handleOpenUserModal = (user: User) => {
+    setSelectedUserId(user.id)
+    openDialog(DialogType.USER_MODAL)
   }
 
   useEffect(() => {
@@ -361,7 +356,7 @@ export function PostsManagerPage() {
       <PostUpdateDialog selectedPost={selectedPost} setSelectedPost={setSelectedPost} updatePost={updatePost} />
 
       {/* 사용자 정보 보기 다이얼로그 */}
-      <UserInfoDialog selectedUser={selectedUser} />
+      {selectedUserId && <UserInfoDialog userId={selectedUserId} />}
     </Card>
   )
 }

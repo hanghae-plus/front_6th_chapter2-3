@@ -1,4 +1,4 @@
-import type { User } from "@/entities/user/model/entity"
+import type { FullUser, User } from "@/entities/user/model/entity"
 import type { PaginatedResponse } from "@/shared/api/types"
 
 export namespace FetchUsers {
@@ -14,5 +14,5 @@ export namespace FetchUserById {
     id: number
   }
 
-  export type Response = User
+  export type Response = FullUser
 }

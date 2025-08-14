@@ -8,6 +8,9 @@ export async function fetchUsers({ limit }: UserModels.FetchUsers.Payload) {
 }
 
 export async function fetchUserById({ id }: UserModels.FetchUserById.Payload) {
-  const response = await fetcher.get(`/users/${id}`, { searchParams: { select: "username,image" } })
+  const searchParams = {
+    select: "image,username,firstName,lastName,age,email,phone,address,city,state,name,title,company",
+  }
+  const response = await fetcher.get(`/users/${id}`, { searchParams })
   return response.json<UserModels.FetchUserById.Response>()
 }
