@@ -4,12 +4,12 @@ import {
   AddPostButton,
   AddPostDialog,
   EditCommentDialog,
+  EditPostDialog,
   PostDialog,
   PostsFilter,
   PostsPagination,
 } from '@/features/posts';
 import { UserModal } from '@/features/users';
-import { EditPostDialog } from '@/features/posts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 const PostsManager = () => {

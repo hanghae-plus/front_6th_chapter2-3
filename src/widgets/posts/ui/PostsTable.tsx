@@ -5,12 +5,11 @@ import {
   ThumbsUp,
   Trash2,
 } from 'lucide-react';
-import { useUserModal } from '@/features/users';
 import { useEditPostDialog, usePostDialog, useSearch } from '@/features/posts';
-import { useUsers } from '@/entities/users';
-import type { UsersResponse } from '@/entities/users';
-import type { Post } from '@/entities/posts';
-import { useDeletePost, usePosts, useTag } from '@/entities/posts';
+import { useUserModal } from '@/features/users';
+import { useDeletePost, usePosts, useTag, type Post } from '@/entities/posts';
+import { useUsers, type UsersResponse } from '@/entities/users';
+import { highlightText } from '@/shared/lib';
 import {
   Button,
   Table,
@@ -20,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui';
-import { highlightText } from '@/shared/lib';
 
 type Author = UsersResponse['users'][0];
 
