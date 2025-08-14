@@ -9,6 +9,7 @@ class HttpClient {
     this.client = axios.create({
       baseURL: API_BASE_URL,
       timeout: 10000,
+      withCredentials: false,
       headers: {
         'Content-Type': 'application/json',
       },
