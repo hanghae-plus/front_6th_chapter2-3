@@ -8,9 +8,11 @@ export function useCreateCommentMutation() {
 
   return useMutation({
     mutationFn: (payload: AddComment.Payload) => addComment(payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", "post", variables.postId],
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(["comments", "post", { postId: variables.postId }], (old: unknown) => {
+        const newComment = { ...data, likes: 0 }
+        const oldData = old as { comments: unknown[] } | undefined
+        return oldData ? { ...oldData, comments: [...oldData.comments, newComment] } : { comments: [newComment] }
       })
     },
     onError: (error) => {

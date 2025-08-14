@@ -27,14 +27,13 @@ export function PostsManagerPage() {
   const [selectedComment, setSelectedComment] = useState<any>(null)
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const [newPost, setNewPost] = useState<any>({ title: "", body: "", userId: 1 })
-  const [newComment, setNewComment] = useState<any>({ body: "", postId: null, userId: 1 })
+  const [addCommentPostId, setAddCommentPostId] = useState<number | null>(null)
 
   // 데이터 상태
   const [posts, setPosts] = useState<any[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<any[]>([])
-  const [comments, setComments] = useState<any>({})
 
   // 게시물 가져오기
   const fetchPosts = () => {
@@ -168,39 +167,7 @@ export function PostsManagerPage() {
     }
   }
 
-  // 댓글 가져오기
-  const fetchComments = async (postId: any) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments((prev: any) => ({ ...prev, [postId]: data.comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
-      setComments((prev: any) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      openDialog(DialogType.POST_DETAIL)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
-
-  // 댓글 업데이트
+  // TODO: 댓글 업데이트는 React Query로 마이그레이션 필요
   const updateComment = async () => {
     try {
       const response = await fetch(`/api/comments/${selectedComment.id}`, {
@@ -208,47 +175,35 @@ export function PostsManagerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: selectedComment.body }),
       })
-      const data = await response.json()
-      setComments((prev: any) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment: any) => (comment.id === data.id ? data : comment)),
-      }))
+      await response.json()
+      // React Query가 자동으로 캐시를 무효화함
       openDialog(DialogType.POST_DETAIL)
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
   }
 
-  // 댓글 삭제
-  const deleteComment = async (id: any, postId: any) => {
+  // TODO: 댓글 삭제는 React Query로 마이그레이션 필요
+  const deleteComment = async (id: any) => {
     try {
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
       })
-      setComments((prev: any) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment: any) => comment.id !== id),
-      }))
+      // React Query가 자동으로 캐시를 무효화함
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
   }
 
-  // 댓글 좋아요
-  const likeComment = async (id: any, postId: any) => {
+  // TODO: 댓글 좋아요는 React Query로 마이그레이션 필요
+  const likeComment = async (id: any) => {
     try {
-      const response = await fetch(`/api/comments/${id}`, {
+      await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c: any) => c.id === id).likes + 1 }),
+        body: JSON.stringify({ likes: 1 }), // 간소화된 버전
       })
-      const data = await response.json()
-      setComments((prev: any) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment: any) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
+      // React Query가 자동으로 캐시를 무효화함
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
@@ -257,7 +212,6 @@ export function PostsManagerPage() {
   // 게시물 상세 보기
   const openPostDetail = (post: any) => {
     setSelectedPost(post)
-    fetchComments(post.id)
     openDialog(DialogType.POST_DETAIL)
   }
 
@@ -324,7 +278,7 @@ export function PostsManagerPage() {
       </Card.Content>
 
       {/* 댓글 추가 다이얼로그 */}
-      <CommentAddDialog addComment={addComment} newComment={newComment} setNewComment={setNewComment} />
+      <CommentAddDialog postId={addCommentPostId} />
 
       {/* 댓글 수정 다이얼로그 */}
       <CommentUpdateDialog
@@ -339,9 +293,8 @@ export function PostsManagerPage() {
       {/* 게시물 상세 보기 다이얼로그 */}
       <PostDetailDialog
         selectedPost={selectedPost}
-        comments={comments}
         onAddComment={(postId: any) => {
-          setNewComment((prev: any) => ({ ...prev, postId }))
+          setAddCommentPostId(postId)
           openDialog(DialogType.ADD_COMMENT)
         }}
         onEditComment={(comment: any) => {

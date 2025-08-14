@@ -1,61 +1,59 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Plus } from "lucide-react"
 
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-
-import { PostHighlightText } from "@/entities/post/ui"
+import type { Comment } from "@/entities/comment/model"
+import { CommentItem } from "@/entities/comment/ui/CommentItem"
+import { useCommentsQuery } from "@/features/get-comments/api"
 import { Button } from "@/shared/ui/Button"
 
 type CommentListProps = {
-  postId: any
-  comments: any
+  postId: number
   searchQuery: string
-  onAddComment: (postId: any) => void
-  onEditComment: (comment: any) => void
-  onDeleteComment: (commentId: any, postId: any) => void
-  onLikeComment: (commentId: any, postId: any) => void
+  onAddComment: (postId: number) => void
+  onEditComment: (comment: Comment) => void
+  onDeleteComment: (commentId: number, postId: number) => void
+  onLikeComment: (commentId: number, postId: number) => void
 }
 
 export function CommentList({
   postId,
-  comments,
   searchQuery,
   onAddComment,
   onEditComment,
   onDeleteComment,
   onLikeComment,
 }: CommentListProps) {
+  const { data: commentsData, isLoading } = useCommentsQuery({ postId })
+  const comments = commentsData?.comments || []
+
+  const handleAddComment = () => {
+    onAddComment(postId)
+  }
+
   return (
     <div className="mt-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold">댓글</h3>
-        <Button size="sm" onClick={() => onAddComment(postId)}>
+        <Button size="sm" onClick={handleAddComment}>
           <Plus className="mr-1 h-3 w-3" />
           댓글 추가
         </Button>
       </div>
       <div className="space-y-1">
-        {comments[postId]?.map((comment: any) => (
-          <div key={comment.id} className="flex items-center justify-between border-b pb-1 text-sm">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="truncate font-medium">{comment.user.username}:</span>
-              <span className="truncate">
-                <PostHighlightText text={comment.body} highlight={searchQuery} />
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => onLikeComment(comment.id, postId)}>
-                <ThumbsUp className="h-3 w-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => onEditComment(comment)}>
-                <Edit2 className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => onDeleteComment(comment.id, postId)}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
+        {isLoading ? (
+          <div className="text-sm text-gray-500">댓글 로딩 중...</div>
+        ) : (
+          comments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              postId={postId}
+              searchQuery={searchQuery}
+              onEditComment={onEditComment}
+              onDeleteComment={onDeleteComment}
+              onLikeComment={onLikeComment}
+            />
+          ))
+        )}
       </div>
     </div>
   )
