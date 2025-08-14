@@ -2,11 +2,11 @@ import { MessageSquare } from "lucide-react"
 import { Button } from "@/shared/ui"
 import { useDialogActions } from "@/shared/model"
 
-interface DetailPostDialogOpenButtonProps {
+interface PostDetailDialogOpenButtonProps {
   onClick: () => void
 }
 
-export const DetailPostDialogOpenButton = ({ onClick }: DetailPostDialogOpenButtonProps) => {
+export const PostDetailDialogOpenButton = ({ onClick }: PostDetailDialogOpenButtonProps) => {
   const { showDialog } = useDialogActions()
 
   const handleClick = () => {

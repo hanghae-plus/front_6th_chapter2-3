@@ -1,2 +1,1 @@
-export { DetailPostDialog } from "./DetailPostDialog"
-export { DetailPostDialogOpenButton } from "./DetailPostDialogOpenButton"
+export { PostDetailDialogOpenButton } from "./PostDetailDialogOpenButton"

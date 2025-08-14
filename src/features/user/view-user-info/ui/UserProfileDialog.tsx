@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import { useDialogStore, useDialogActions } from "@/shared/model"
 import { useSelectedUserStore, useUserProfile } from "../model"
@@ -8,47 +9,75 @@ export const UserProfileDialog = () => {
   const { hideDialog } = useDialogActions()
 
   const isOpen = dialogs.USER_INFO
+  const hasValidUserId = selectedUserId && selectedUserId > 0
 
-  // Hook은 항상 먼저 호출되어야 함
-  const { data: user, isLoading, error } = useUserProfile(selectedUserId || 0, isOpen && !!selectedUserId)
+  const { data: user, isLoading, error } = useUserProfile(selectedUserId || 0, Boolean(isOpen && hasValidUserId))
 
-  // selectedUserId가 null이거나 다이얼로그가 닫혀있으면 렌더링하지 않음
-  if (!isOpen || !selectedUserId) return null
+  const userInfoFields = useMemo(
+    () => [
+      { label: "이름", value: user ? `${user.firstName} ${user.lastName}` : "" },
+      { label: "나이", value: user?.age?.toString() || "" },
+      { label: "이메일", value: user?.email || "" },
+      { label: "전화번호", value: user?.phone || "" },
+      {
+        label: "주소",
+        value: user?.address ? `${user.address.address}, ${user.address.city}, ${user.address.state}` : "",
+      },
+      { label: "직장", value: user?.company ? `${user.company.name} - ${user.company.title}` : "" },
+    ],
+    [user],
+  )
+
+  if (!isOpen || !hasValidUserId) return null
 
   const handleClose = () => {
     hideDialog("USER_INFO")
   }
 
-  if (isLoading) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="flex justify-center items-center py-8">
-            <p>로딩 중...</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
+  // 사용자 정보 필드 정의
 
-  if (error || !user) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center py-8">
+          <p>로딩 중...</p>
+        </div>
+      )
+    }
+
+    if (error || !user) {
+      return (
+        <div className="space-y-4">
           <div className="flex justify-center items-center py-8">
-            <p>사용자 정보를 불러올 수 없습니다.</p>
+            <p className="text-red-500">사용자 정보를 불러올 수 없습니다.</p>
           </div>
           <div className="flex justify-end">
             <Button onClick={handleClose}>닫기</Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-4">
+        <img src={user.image} alt={user.username} className="w-24 h-24 rounded-full mx-auto" />
+        <h3 className="text-xl font-semibold text-center">{user.username}</h3>
+
+        <div className="space-y-2">
+          {userInfoFields.map(
+            ({ label, value }) =>
+              value && (
+                <p key={label}>
+                  <strong>{label}:</strong> {value}
+                </p>
+              ),
+          )}
+        </div>
+
+        <div className="flex justify-end">
+          <Button onClick={handleClose}>닫기</Button>
+        </div>
+      </div>
     )
   }
 
@@ -58,35 +87,7 @@ export const UserProfileDialog = () => {
         <DialogHeader>
           <DialogTitle>사용자 정보</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-4">
-          <img src={user.image} alt={user.username} className="w-24 h-24 rounded-full mx-auto" />
-          <h3 className="text-xl font-semibold text-center">{user.username}</h3>
-          <div className="space-y-2">
-            <p>
-              <strong>이름:</strong> {user.firstName} {user.lastName}
-            </p>
-            <p>
-              <strong>나이:</strong> {user.age}
-            </p>
-            <p>
-              <strong>이메일:</strong> {user.email}
-            </p>
-            <p>
-              <strong>전화번호:</strong> {user.phone}
-            </p>
-            <p>
-              <strong>주소:</strong> {user.address?.address}, {user.address?.city}, {user.address?.state}
-            </p>
-            <p>
-              <strong>직장:</strong> {user.company?.name} - {user.company?.title}
-            </p>
-          </div>
-
-          <div className="flex justify-end">
-            <Button onClick={handleClose}>닫기</Button>
-          </div>
-        </div>
+        {renderContent()}
       </DialogContent>
     </Dialog>
   )

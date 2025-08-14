@@ -1,6 +1,6 @@
 import { useMemo, useState, startTransition, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
-import { useTags } from "@/entities/tag/model/useTags"
+import { useTags } from "@/features/tag"
 import { Tag } from "@/entities/tag/model"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
 

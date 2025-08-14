@@ -1,5 +1,5 @@
 import { ThumbsDown, ThumbsUp } from "lucide-react"
-import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui"
+import { PostDetailDialogOpenButton } from "@/features/post/read-post/ui"
 import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
 import { useSelectedUserStore } from "@/features/user/view-user-info/model"
@@ -64,7 +64,7 @@ export const PostTableRow = ({ post, searchQuery, selectedTag, onTagSelect, onPo
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <DetailPostDialogOpenButton onClick={() => onPostSelect(post.id)} />
+          <PostDetailDialogOpenButton onClick={() => onPostSelect(post.id)} />
           <EditPostDialogOpenButton onClick={() => onPostSelect(post.id)} />
           <DeletePostButton post={post} />
         </div>

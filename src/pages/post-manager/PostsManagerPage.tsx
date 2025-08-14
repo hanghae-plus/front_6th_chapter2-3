@@ -4,7 +4,7 @@ import { PaginationControl } from "@/widgets/pagination/ui"
 import { PostTable } from "@/widgets/post-table/ui"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
 import { EditPostDialog } from "@/features/post/update-post/ui"
-import { DetailPostDialog } from "@/features/post/read-post/ui"
+import { PostDetailDialog } from "@/widgets/post-detail"
 import { UserProfileDialog } from "@/features/user/view-user-info/ui"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 
@@ -33,7 +33,7 @@ const PostsManager = () => {
       </CardContent>
       <AddPostDialog />
       <EditPostDialog />
-      <DetailPostDialog />
+      <PostDetailDialog />
       <UserProfileDialog />
     </Card>
   )

@@ -1,9 +1,9 @@
 import { CommentSection } from "@/widgets/comment-section"
+import { usePostDetail, useSelectedPostStore } from "@/features/post/read-post/model"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
-import { usePostDetail, useSelectedPostStore } from "../model"
 
-export const DetailPostDialog = () => {
+export const PostDetailDialog = () => {
   const { selectedPostId: postId } = useSelectedPostStore()
   const isOpen = useDialogStore((state) => state.dialogs.POST_DETAIL)
   const { hideDialog } = useDialogActions()

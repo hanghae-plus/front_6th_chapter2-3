@@ -1,7 +1,7 @@
 import { AddCommentDialog } from "@/features/comment/create-comment/ui"
+import { Comment, CreateComment } from "@/entities/comment/model"
 import { EditCommentDialog } from "@/shared/ui"
 import { useDialogActions, useDialogStore } from "@/shared/model"
-import { Comment, CreateComment } from "@/entities/comment/model"
 
 interface CommentDialogsProps {
   postId: number
@@ -33,7 +33,9 @@ export const CommentDialogs = ({
           }
         }}
         postId={postId}
-        onSubmit={onAddComment}
+        onSubmit={async (comment) => {
+          await onAddComment(comment)
+        }}
       />
 
       <EditCommentDialog
@@ -45,7 +47,9 @@ export const CommentDialogs = ({
           }
         }}
         comment={selectedComment}
-        onUpdate={onUpdateComment}
+        onUpdate={async (commentId, body) => {
+          await onUpdateComment(commentId, body)
+        }}
       />
     </>
   )
