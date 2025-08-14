@@ -31,3 +31,5 @@ export const deletePost = async (id: number) => {
   });
   return response.json();
 }
+
+export * from './mutations';

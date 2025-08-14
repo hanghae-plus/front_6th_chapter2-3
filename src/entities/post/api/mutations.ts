@@ -12,6 +12,7 @@ export const useCreatePost = () => {
     mutationFn: (post: PostPostRequestType) => postPost(post),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      console.log('게시물 추가 성공');
     },
     onError: (error) => {
       console.error('게시물 추가 오류:', error);
@@ -34,13 +35,14 @@ export const useUpdatePost = () => {
   });
 };
 
+// 게시물 삭제
 export const useDeletePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: number) => deletePost(id),
     onSuccess: () => {
-      console.log("게시물 삭제 성공")
+      console.log('게시물 삭제 성공');
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
     onError: (error) => {

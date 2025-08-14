@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { PostType } from '../entities';
-import { DeletePostButton } from '../features';
+import { CreatePostModal, DeletePostButton } from '../features';
 import {
   Button,
   Card,
@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   Input,
   Select,
   SelectContent,
@@ -188,18 +189,6 @@ const PostsManager = () => {
       setShowEditDialog(false);
     } catch (error) {
       console.error('게시물 업데이트 오류:', error);
-    }
-  };
-
-  // 게시물 삭제
-  const deletePost = async (id) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-      });
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error('게시물 삭제 오류:', error);
     }
   };
 
@@ -475,6 +464,7 @@ const PostsManager = () => {
             <Plus className='w-4 h-4 mr-2' />
             게시물 추가
           </Button>
+          <CreatePostModal isOpen={showAddDialog} onOpenChange={setShowAddDialog} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -566,35 +556,6 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder='내용'
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type='number'
-              placeholder='사용자 ID'
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
@@ -623,6 +584,7 @@ const PostsManager = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 댓글 추가</DialogTitle>
+            <DialogDescription>선택한 게시물에 댓글을 추가합니다.</DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <Textarea
@@ -640,6 +602,7 @@ const PostsManager = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
+            <DialogDescription>댓글 내용을 수정합니다.</DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <Textarea
@@ -657,6 +620,7 @@ const PostsManager = () => {
         <DialogContent className='max-w-3xl'>
           <DialogHeader>
             <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
+            <DialogDescription>게시물의 상세 내용과 댓글을 확인할 수 있습니다.</DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <p>{highlightText(selectedPost?.body, searchQuery)}</p>
@@ -670,6 +634,7 @@ const PostsManager = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
+            <DialogDescription>사용자의 프로필 정보를 확인할 수 있습니다.</DialogDescription>
           </DialogHeader>
           <div className='space-y-4'>
             <img
