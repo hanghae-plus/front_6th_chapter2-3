@@ -1,17 +1,15 @@
 import { create } from 'zustand';
 
-import { User } from '@/entities/user/model/types';
-
 interface profileDialogState {
   isModalOpen: boolean;
-  userToView: User | null;
-  openModal: (user: User) => void;
+  userIdToView: number | null;
+  openModal: (user: number) => void;
   closeModal: () => void;
 }
 
 export const useProfileDialogStore = create<profileDialogState>((set) => ({
   isModalOpen: false,
-  userToView: null,
-  openModal: (user: User) => set({ isModalOpen: true, userToView: user }),
+  userIdToView: null,
+  openModal: (id: number) => set({ isModalOpen: true, userIdToView: id }),
   closeModal: () => set({ isModalOpen: false }),
 }));

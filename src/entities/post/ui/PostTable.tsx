@@ -53,7 +53,7 @@ export const PostTable = ({ posts }: { posts: Post[] }) => {
             <TableCell>
               <div
                 className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => post.author && openModal(post.author)}
+                onClick={() => post.author && openModal(post.author?.id)}
               >
                 <img
                   src={post.author?.image}

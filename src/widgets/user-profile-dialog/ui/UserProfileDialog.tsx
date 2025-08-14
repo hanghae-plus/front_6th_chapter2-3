@@ -1,11 +1,16 @@
 import { useProfileDialogStore } from '../model/profileDialogStore';
 
+import { useFetchUserById } from '@/entities/user/model/useUsers';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui';
 
 export const UserProfileDialog = () => {
-  const { userToView, isModalOpen, closeModal } = useProfileDialogStore();
+  const { userIdToView, isModalOpen, closeModal } = useProfileDialogStore();
 
-  if (!userToView) return null;
+  const { data: user, isLoading } = useFetchUserById(userIdToView);
+
+  if (!user) return null;
+
+  if (isLoading) return <div>로딩 중 ... </div>;
 
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
@@ -14,31 +19,27 @@ export const UserProfileDialog = () => {
           <DialogTitle>사용자 정보</DialogTitle>
         </DialogHeader>
         <div className='space-y-4'>
-          <img
-            src={userToView.image}
-            alt={userToView.username}
-            className='w-24 h-24 rounded-full mx-auto'
-          />
-          <h3 className='text-xl font-semibold text-center'>{userToView.username}</h3>
+          <img src={user.image} alt={user.username} className='w-24 h-24 rounded-full mx-auto' />
+          <h3 className='text-xl font-semibold text-center'>{user.username}</h3>
           <div className='space-y-2'>
             <p>
-              <strong>이름:</strong> {userToView.firstName} {userToView.lastName}
+              <strong>이름:</strong> {user.firstName} {user.lastName}
             </p>
             <p>
-              <strong>나이:</strong> {userToView.age}
+              <strong>나이:</strong> {user.age}
             </p>
             <p>
-              <strong>이메일:</strong> {userToView.email}
+              <strong>이메일:</strong> {user.email}
             </p>
             <p>
-              <strong>전화번호:</strong> {userToView.phone}
+              <strong>전화번호:</strong> {user.phone}
             </p>
             <p>
-              <strong>주소:</strong> {userToView.address?.address}, {userToView.address?.city},{' '}
-              {userToView.address?.state}
+              <strong>주소:</strong> {user.address?.address}, {user.address?.city},{' '}
+              {user.address?.state}
             </p>
             <p>
-              <strong>직장:</strong> {userToView.company?.name} - {userToView.company?.title}
+              <strong>직장:</strong> {user.company?.name} - {user.company?.title}
             </p>
           </div>
         </div>
