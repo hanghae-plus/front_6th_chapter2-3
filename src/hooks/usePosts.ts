@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from "react"
 import { useSetAtom } from "jotai"
 import { listSortByAtom, listSortOrderAtom, listSkipAtom, listLimitAtom, listTotalAtom } from "../shared/lib/viewAtoms"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, type QueryFunctionContext } from "@tanstack/react-query"
 import { fetchPosts, searchPosts, fetchPostsByTag } from "../entities/post/api"
+import type { PostsApiResponse, Post } from "../entities/post/model"
 import { fetchUsersSummary } from "../entities/user/api"
 import type { UserSummary } from "../entities/user/model"
 
@@ -12,10 +13,14 @@ interface QueryKeyParams {
   skip: number
   searchQuery: string
   selectedTag: string
+  sortBy: string
+  sortOrder: string
 }
 
-const fetchPostsWithAuthors = async ({ queryKey }: { queryKey: [string, QueryKeyParams] }) => {
-  const [, { limit, skip, searchQuery, selectedTag }] = queryKey
+const fetchPostsWithAuthors = async (
+  ctx: QueryFunctionContext<[string, QueryKeyParams]>,
+): Promise<PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] }> => {
+  const [, { limit, skip, searchQuery, selectedTag }] = ctx.queryKey
 
   let postsData
   if (searchQuery) {
@@ -97,10 +102,16 @@ export const usePosts = () => {
     data,
     isLoading: postsLoading,
     error: postsError,
-  } = useQuery({
+  } = useQuery<
+    PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
+    Error,
+    PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
+    [string, QueryKeyParams]
+  >({
     queryKey: ["posts", { limit, skip, searchQuery: debouncedSearchQuery, selectedTag, sortBy, sortOrder }],
     queryFn: fetchPostsWithAuthors,
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData) =>
+      previousData as PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

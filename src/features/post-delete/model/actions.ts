@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query"
 import { deletePost } from "../../../entities/post/api"
 import { useAtomValue } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
@@ -8,14 +8,20 @@ export const usePostDelete = () => {
   const queryClient = useQueryClient()
   const localCreatedIds = useAtomValue(localCreatedPostIdsAtom)
 
-  const deletePostMutation = useMutation({
-    mutationFn: ({ postId }: { postId: number; clientId?: string }) =>
-      localCreatedIds.has(postId) ? Promise.resolve({} as any) : deletePost(postId),
-    onMutate: async ({ postId, clientId }: { postId: number; clientId?: string }) => {
+  type PreviousCtx = Array<[QueryKey, PostsApiResponse | undefined]>
+  const deletePostMutation = useMutation<
+    { isDeleted: boolean },
+    Error,
+    { postId: number; clientId?: string },
+    { previous: PreviousCtx }
+  >({
+    mutationFn: ({ postId }) =>
+      localCreatedIds.has(postId) ? Promise.resolve({ isDeleted: true }) : deletePost(postId),
+    onMutate: async ({ postId, clientId }) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] })
-      const previous = queryClient.getQueriesData({ queryKey: ["posts"] })
-      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
-        const data = old as PostsApiResponse | undefined
+      const previous = queryClient.getQueriesData({ queryKey: ["posts"] }) as PreviousCtx
+      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: PostsApiResponse | undefined) => {
+        const data = old
         if (!data) return old
         return {
           ...data,
@@ -26,7 +32,7 @@ export const usePostDelete = () => {
       return { previous }
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.previous) for (const [k, d] of ctx.previous) queryClient.setQueryData(k as any, d as any)
+      if (ctx?.previous) for (const [k, d] of ctx.previous) queryClient.setQueryData(k, d)
     },
     onSettled: () => {},
   })
