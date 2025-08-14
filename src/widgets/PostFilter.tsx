@@ -4,7 +4,7 @@ import {
   PostFilterSortBy,
   PostFilterSortOrder,
 } from '@/features/posts';
-
+// 필터 위젯
 const PostFilter = () => {
   return (
     <div className="flex gap-4">
