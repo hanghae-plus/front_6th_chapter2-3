@@ -1,17 +1,26 @@
-import { usePosts } from "../../../entities/post/hooks"
+import { usePosts } from "../../../entities/post/model/hooks"
 import { useUserList } from "../../../entities/user/hooks"
 import { joinPostsWithUsers } from "./util"
 
-export const useGetPosts = (limit: number, skip: number) => {
-  const posts = usePosts(limit, skip)
+export const useGetPosts = (
+  limit: number,
+  skip: number,
+  sortBy?: string,
+  order?: string,
+  tag?: string,
+  searchQuery?: string,
+) => {
+  const effectiveSortBy = sortBy || undefined
+  const effectiveSortOrder = order || "asc"
+
+  const posts = usePosts(limit, skip, effectiveSortBy, effectiveSortOrder, tag, searchQuery)
   const users = useUserList(0, "username,image")
 
   const postsWithUsers = joinPostsWithUsers(posts.data?.posts || [], users.data?.users || [])
 
   return {
-    isLoading: posts.isLoading || users.isLoading,
-    isError: posts.isError || users.isError,
-    posts: postsWithUsers,
-    total: posts.data?.total,
+    loading: posts.isLoading || users.isLoading,
+    posts: postsWithUsers || [],
+    total: posts.data?.total || 0,
   }
 }

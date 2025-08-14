@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import PostAPI from "./api/PostAPI"
-import { CreatePost, UpdatePost } from "./model/types"
+import PostAPI from "../api/PostAPI"
+import { CreatePost, UpdatePost } from "./types"
 
 // Query Keys 상수 정의
 const QUERY_KEYS = {
@@ -12,24 +12,31 @@ const QUERY_KEYS = {
  * 게시글 목록 조회
  * @param limit - 한 페이지에 표시할 게시글 수
  * @param skip - 건너뛸 게시글 수
+ * @param sortBy - 정렬 기준
+ * @param Order - 정렬 순서
+ * @param tag - 태그 (선택사항)
+ * @param searchQuery - 검색어 (선택사항)
  * @returns 게시글 목록
  */
-export const usePosts = (limit: number, skip: number) => {
+export const usePosts = (
+  limit: number,
+  skip: number,
+  sortBy?: string,
+  order?: string,
+  tag?: string,
+  searchQuery?: string,
+) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.POSTS, { limit, skip }],
-    queryFn: () => PostAPI.getPosts(limit, skip),
-  })
-}
-
-/**
- * 검색어로 게시글 목록 조회
- * @param searchQuery - 검색어
- * @returns 검색 결과
- */
-export const usePostsBySearch = (searchQuery: string) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.POSTS, "search", searchQuery],
-    queryFn: () => PostAPI.getPostsBySearch(searchQuery),
+    queryKey: [QUERY_KEYS.POSTS, { limit, skip, sortBy, order, tag, searchQuery }],
+    queryFn: () => {
+      if (tag && tag !== "all") {
+        return PostAPI.getPostsByTag(tag, limit, skip, sortBy, order)
+      }
+      if (searchQuery) {
+        return PostAPI.getPostsBySearch(searchQuery, limit, skip, sortBy, order)
+      }
+      return PostAPI.getPosts(limit, skip, sortBy, order)
+    },
   })
 }
 
@@ -74,17 +81,5 @@ export const useGetTags = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.TAGS],
     queryFn: () => PostAPI.getTags(),
-  })
-}
-
-/**
- * 태그별 게시글 목록 조회
- * @param tag - 태그
- * @returns 태그별 게시글 목록
- */
-export const usePostsByTag = (tag: string) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.POSTS, "tag", tag],
-    queryFn: () => PostAPI.getPostsByTag(tag),
   })
 }
