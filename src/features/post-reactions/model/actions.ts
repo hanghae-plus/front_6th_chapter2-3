@@ -39,8 +39,10 @@ export const usePostReactions = () => {
         for (const [key, data] of ctx.previous) queryClient.setQueryData(key as any, data as any)
       }
     },
-    // 서버가 반영되지 않는 환경(dummyjson)에서는 캐시 무효화를 하면
-    // 원본 데이터로 되돌아가므로 수행하지 않습니다
+    // 환경 분기: 실서버 전환 시 invalidate 복원 고려
+    onSettled: () => {
+      // noop (dummyjson 환경)
+    },
   })
 
   const dislikePostMutation = useMutation({
@@ -64,7 +66,9 @@ export const usePostReactions = () => {
         for (const [key, data] of ctx.previous) queryClient.setQueryData(key as any, data as any)
       }
     },
-    // 서버가 반영되지 않는 환경(dummyjson)에서는 캐시 무효화를 하지 않습니다
+    onSettled: () => {
+      // noop (dummyjson 환경)
+    },
   })
 
   const handleLike = (postId: number, currentLikes: number, clientId?: string) => {

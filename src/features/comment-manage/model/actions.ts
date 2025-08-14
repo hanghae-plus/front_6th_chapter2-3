@@ -17,6 +17,7 @@ import {
   showEditCommentDialogAtom,
 } from "./atoms"
 import type { Comment } from "../../../entities/comment/model"
+import * as commentAdapters from "../../../entities/comment/model/adapters"
 
 export const useCommentManage = () => {
   const [selectedPostId, setSelectedPostId] = useAtom(selectedPostAtom)
@@ -46,15 +47,14 @@ export const useCommentManage = () => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
       const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
       queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
-        const list = (old?.comments ?? []) as Comment[]
-        const temp = {
+        const temp: Comment = {
           id: Math.floor(Math.random() * -100000),
           body: variables.body,
           postId: variables.postId,
           likes: 0,
           user: { id: 1, username: "you" },
-        } as Comment
-        return { ...old, comments: [temp, ...list] }
+        }
+        return commentAdapters.insertTop(old ?? { comments: [] }, temp)
       })
       return { previous }
     },
@@ -70,12 +70,9 @@ export const useCommentManage = () => {
     onMutate: async ({ commentId, body }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
       const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
-        return {
-          ...old,
-          comments: (old?.comments ?? []).map((c: Comment) => (c.id === commentId ? { ...c, body } : c)),
-        }
-      })
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+        commentAdapters.updateById(old ?? { comments: [] }, commentId, (c) => ({ ...c, body })),
+      )
       return { previous }
     },
     onError: (_e, _v, ctx) => {
@@ -89,9 +86,9 @@ export const useCommentManage = () => {
     onMutate: async (commentId: number) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
       const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
-        return { ...old, comments: (old?.comments ?? []).filter((c: Comment) => c.id !== commentId) }
-      })
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+        commentAdapters.deleteById(old ?? { comments: [] }, commentId),
+      )
       return { previous }
     },
     onError: (_e, _v, ctx) => {
@@ -106,14 +103,9 @@ export const useCommentManage = () => {
     onMutate: async ({ commentId }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
       const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
-      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
-        return {
-          ...old,
-          comments: (old?.comments ?? []).map((c: Comment) =>
-            c.id === commentId ? { ...c, likes: (c.likes ?? 0) + 1 } : c,
-          ),
-        }
-      })
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) =>
+        commentAdapters.updateById(old ?? { comments: [] }, commentId, (c) => ({ ...c, likes: (c.likes ?? 0) + 1 })),
+      )
       return { previous }
     },
     onError: (_e, _v, ctx) => {
