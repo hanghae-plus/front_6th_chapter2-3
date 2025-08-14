@@ -12,7 +12,7 @@ export const usePostSearch = () => {
     const initialSearchQuery = searchParams.get('search') || '';
     setSearchQuery(initialSearchQuery);
     setInputValue(initialSearchQuery);
-  }, []);
+  }, [searchParams]);
 
   const confirmSearch = () => {
     setSearchQuery(inputValue);
