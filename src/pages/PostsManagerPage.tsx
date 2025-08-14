@@ -98,21 +98,6 @@ const PostsManager = () => {
   const { addPost, overlay: addPostOverlay } = useAddPost()
   const { editPost, overlay: editPostOverlay } = useEditPost()
 
-  const renderPostTable = () => (
-    <PostsTable
-      posts={posts}
-      selectedTag={selectedTag}
-      searchQuery={searchQuery}
-      onTagClick={(tag) => setParams({ tag })}
-      onOpenUser={(user) => user && openUserModal(user)}
-      onOpenDetail={openPostDetail}
-      onEdit={(post) => {
-        editPost(post)
-      }}
-      onDelete={deletePost}
-    />
-  )
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -128,7 +113,19 @@ const PostsManager = () => {
         <div className="flex flex-col gap-4">
           <PostsFilterBar tags={tags} onAddPost={() => addPost()} params={params} onChange={setParams} />
 
-          {isLoading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          <PostsTable
+            posts={posts}
+            selectedTag={selectedTag}
+            searchQuery={searchQuery}
+            onTagClick={(tag) => setParams({ tag })}
+            onOpenUser={(user) => user && openUserModal(user)}
+            onOpenDetail={openPostDetail}
+            onEdit={(post) => {
+              editPost(post)
+            }}
+            onDelete={deletePost}
+            isLoading={isLoading}
+          />
 
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">

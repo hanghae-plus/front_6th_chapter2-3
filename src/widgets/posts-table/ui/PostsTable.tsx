@@ -13,6 +13,7 @@ interface PostsTableProps {
   onOpenDetail: (post: Post) => void
   onEdit: (post: Post) => void
   onDelete: (id: number) => void
+  isLoading: boolean
 }
 
 export const PostsTable = ({
@@ -24,7 +25,12 @@ export const PostsTable = ({
   onOpenDetail,
   onEdit,
   onDelete,
+  isLoading,
 }: PostsTableProps) => {
+  if (isLoading) {
+    return <div className="flex justify-center p-4">로딩 중...</div>
+  }
+
   return (
     <Table>
       <TableHeader>
