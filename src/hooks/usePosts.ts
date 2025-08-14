@@ -3,6 +3,7 @@ import { useSetAtom } from "jotai"
 import { listSortByAtom, listSortOrderAtom, listSkipAtom, listLimitAtom, listTotalAtom } from "../shared/lib/viewAtoms"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useQuery, type QueryFunctionContext } from "@tanstack/react-query"
+import { postsKey } from "../shared/api/queryKeys"
 import { fetchPosts, searchPosts, fetchPostsByTag } from "../entities/post/api"
 import type { PostsApiResponse, Post } from "../entities/post/model"
 import { fetchUsersSummary } from "../entities/user/api"
@@ -58,7 +59,7 @@ export const usePosts = () => {
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "id")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "desc")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery)
 
   // sync view atoms for cross-feature needs
@@ -108,7 +109,14 @@ export const usePosts = () => {
     PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },
     [string, QueryKeyParams]
   >({
-    queryKey: ["posts", { limit, skip, searchQuery: debouncedSearchQuery, selectedTag, sortBy, sortOrder }],
+    queryKey: postsKey.list({
+      limit,
+      skip,
+      searchQuery: debouncedSearchQuery,
+      selectedTag,
+      sortBy,
+      sortOrder,
+    }),
     queryFn: fetchPostsWithAuthors,
     placeholderData: (previousData) =>
       previousData as PostsApiResponse & { posts: (Post & { author?: UserSummary; clientId?: string })[] },

@@ -1,6 +1,7 @@
 import { FormEvent } from "react"
 import { useAtom } from "jotai"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { commentsKey } from "../../../shared/api/queryKeys"
 import {
   fetchCommentsByPostId,
   addComment,
@@ -27,7 +28,7 @@ export const useCommentManage = () => {
   const queryClient = useQueryClient()
 
   const { data: comments = [] } = useQuery({
-    queryKey: ["comments", selectedPostId],
+    queryKey: commentsKey.byPost(selectedPostId),
     queryFn: () => fetchCommentsByPostId(selectedPostId!),
     enabled: !!selectedPostId,
     select: (data) => data.comments,
