@@ -21,6 +21,9 @@ import {
 } from "../shared/ui"
 import {highlightText} from "../shared/lib/text-utils.tsx"
 import PostsTable from "../widgets/posts-table/ui/PostsTable.tsx"
+import { getPosts } from "../entities/post/api/api.ts"
+import { Post } from "../entities/post/model/types.ts"
+import { Pagination } from "../widgets/posts-pagination/ui/Pagination.tsx"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -441,33 +444,27 @@ const PostsManager = () => {
 
           {/* 게시물 테이블 */}
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> :
-            <PostsTable posts={posts} searchQuery={searchQuery} selectedTag={selectedTag} setSelectedTag={setSelectedTag} updateURL={updateURL} openUserModal={openUserModal} openPostDetail={openPostDetail} setSelectedPost={setSelectedPost} setShowEditDialog={setShowEditDialog} deletePost={deletePost} />}
+            <PostsTable
+              posts={posts}
+              searchQuery={searchQuery}
+              selectedTag={selectedTag}
+              setSelectedTag={setSelectedTag}
+              updateURL={updateURL}
+              openUserModal={openUserModal}
+              openPostDetail={openPostDetail}
+              setSelectedPost={setSelectedPost}
+              setShowEditDialog={setShowEditDialog}
+              deletePost={deletePost} />}
 
           {/* 페이지네이션 */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            total={total}
+            skip={skip}
+            limit={limit}
+            onClickPrev={()=> setSkip(Math.max(0, skip - limit))}
+            onClickNext={() => setSkip(skip + limit)}
+            onChangeLimit={(value:string) => setLimit(value)}
+          />
         </div>
       </CardContent>
 
