@@ -6,9 +6,20 @@ import { useQuery } from "@tanstack/react-query"
 
 export const PostListTablePagination = () => {
   const postListFilter = usePostListFilterQueryParams()
+
   const postsQuery = useQuery({
     ...postEntityQueries.getPosts({ ...postListFilter.queryParams }),
   })
+
+  const postsByTagQuery = useQuery({
+    ...postEntityQueries.getPostsBySlug({
+      ...postListFilter.queryParams,
+      slug: postListFilter.queryParams.selectedTag,
+    }),
+    enabled: !!postListFilter.queryParams.selectedTag,
+  })
+
+  const posts = postListFilter.queryParams.selectedTag ? postsByTagQuery.data : postsQuery.data
 
   const handleLimitChange = (limit: number) => {
     postListFilter.onLimitChange(limit)
@@ -48,7 +59,7 @@ export const PostListTablePagination = () => {
           이전
         </Button>
         <Button
-          disabled={postListFilter.queryParams.skip + postListFilter.queryParams.limit >= (postsQuery.data?.total ?? 0)}
+          disabled={postListFilter.queryParams.skip + postListFilter.queryParams.limit >= (posts?.total ?? 0)}
           onClick={handleNextPage}
         >
           다음
