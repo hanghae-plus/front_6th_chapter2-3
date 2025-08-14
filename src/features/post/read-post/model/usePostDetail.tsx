@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { getPost } from "@/entities/post/api"
 import { getUsers } from "@/entities/user/api"
-import { Author } from "@/entities/post/model/types"
+import { Author } from "@/entities/post/model"
 
 export const usePostDetail = (id: number | null) => {
   const { data, isLoading, error } = useQuery({

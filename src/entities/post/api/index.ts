@@ -1,6 +1,6 @@
 import { HttpClient } from "@/shared/api/http"
 import { buildApiQueryParams } from "@/shared/lib/queryParams"
-import { CreatePost, Post, PostOptions, PostPaginatedResponse, UpdatePost } from "../model/types"
+import { CreatePost, Post, PostOptions, PostPaginatedResponse, UpdatePost } from "../model"
 
 // 전체 게시글 조회
 export const getPosts = (filters: PostOptions = {}) => {

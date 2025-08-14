@@ -2,7 +2,7 @@ import { useCreateComment } from "@/features/comment/create-comment/model"
 import { useUpdateComment } from "@/features/comment/update-comment/model"
 import { useDeleteComment } from "@/features/comment/delete-comment/model"
 import { useLikeComment } from "@/features/comment/like-comment/model"
-import { useComments } from "@/features/comment/read-comment/model/useComments"
+import { useComments } from "@/features/comment/read-comment/model"
 import { Comment, CreateComment } from "@/entities/comment/model"
 
 export const useCommentActions = (postId: number) => {

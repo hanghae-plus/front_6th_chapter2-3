@@ -1,6 +1,6 @@
 import { Edit2 } from "lucide-react"
 import { Button } from "@/shared/ui"
-import { useDialogActions } from "@/shared/model/useDialogStore"
+import { useDialogActions } from "@/shared/model"
 
 interface EditPostDialogOpenButtonProps {
   onClick: () => void

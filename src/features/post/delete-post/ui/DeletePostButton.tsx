@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react"
-import { useDeletePost } from "@/features/post/delete-post/model/useDeletePost"
-import { PostWithAuthor } from "@/entities/post/model/types"
+import { useDeletePost } from "@/features/post/delete-post/model"
+import { PostWithAuthor } from "@/entities/post/model"
 import { Button } from "@/shared/ui"
 
 interface DeletePostButtonProps {

@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
-import { PostWithAuthor } from "@/entities/post/model/types"
-import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
+import { useUpdatePost } from "@/features/post/update-post/model"
+import { usePostDetail, useSelectedPostStore } from "@/features/post/read-post/model"
+import { PostWithAuthor } from "@/entities/post/model"
+import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
-import { useUpdatePost } from "../model/useUpdatePost"
-import { usePostDetail } from "../../read-post/model/usePostDetail"
-import { useSelectedPostStore } from "../../read-post/model"
 
 export const EditPostDialog = () => {
   const { selectedPostId: postId } = useSelectedPostStore()

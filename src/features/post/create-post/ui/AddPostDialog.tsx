@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { CreatePost } from "@/entities/post/model/types"
+import { CreatePost } from "@/entities/post/model"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
-import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
+import { useDialogActions, useDialogStore } from "@/shared/model"
 import { useCreatePost } from "../model"
 
 export const AddPostDialog = () => {

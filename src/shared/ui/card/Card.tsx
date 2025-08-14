@@ -1,25 +1,33 @@
-import { forwardRef } from "react"
+import { HTMLAttributes, Ref } from "react"
 
-export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+type CardProps = {
+  ref?: Ref<HTMLDivElement>
+} & HTMLAttributes<HTMLDivElement>
+
+export const Card = ({ ref, className, ...props }: CardProps) => (
   <div ref={ref} className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
-))
-Card.displayName = "Card"
-
-export const CardHeader = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
-  ),
 )
-CardHeader.displayName = "CardHeader"
 
-export const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props} />
-  ),
-)
-CardTitle.displayName = "CardTitle"
+type CardHeaderProps = {
+  ref?: Ref<HTMLDivElement>
+} & HTMLAttributes<HTMLDivElement>
 
-export const CardContent = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />,
+export const CardHeader = ({ ref, className, ...props }: CardHeaderProps) => (
+  <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
 )
-CardContent.displayName = "CardContent"
+
+type CardTitleProps = {
+  ref?: Ref<HTMLHeadingElement>
+} & HTMLAttributes<HTMLHeadingElement>
+
+export const CardTitle = ({ ref, className, ...props }: CardTitleProps) => (
+  <h3 ref={ref} className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props} />
+)
+
+type CardContentProps = {
+  ref?: Ref<HTMLDivElement>
+} & HTMLAttributes<HTMLDivElement>
+
+export const CardContent = ({ ref, className, ...props }: CardContentProps) => (
+  <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />
+)

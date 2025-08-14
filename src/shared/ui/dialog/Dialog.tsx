@@ -1,4 +1,4 @@
-import { forwardRef } from "react"
+import { ComponentPropsWithoutRef, ComponentRef, Ref } from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
@@ -7,10 +7,11 @@ export const Dialog = DialogPrimitive.Root
 export const DialogPortal = DialogPrimitive.Portal
 export const DialogOverlay = DialogPrimitive.Overlay
 
-export const DialogContent = forwardRef<
-  React.ComponentRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+type DialogContentProps = {
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Content>>
+} & ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+
+export const DialogContent = ({ ref, className, children, ...props }: DialogContentProps) => (
   <DialogPortal>
     <DialogOverlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
     <DialogPrimitive.Content
@@ -25,7 +26,7 @@ export const DialogContent = forwardRef<
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-))
+)
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -33,14 +34,15 @@ export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLD
 )
 DialogHeader.displayName = "DialogHeader"
 
-export const DialogTitle = forwardRef<
-  React.ComponentRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
+type DialogTitleProps = {
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Title>>
+} & ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
+
+export const DialogTitle = ({ ref, className, ...props }: DialogTitleProps) => (
   <DialogPrimitive.Title
     ref={ref}
     className={`text-lg font-semibold leading-none tracking-tight ${className}`}
     {...props}
   />
-))
+)
 DialogTitle.displayName = DialogPrimitive.Title.displayName
