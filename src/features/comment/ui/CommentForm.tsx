@@ -1,11 +1,13 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from '../../../shared/ui';
 
+import { NewComment } from '../../../entities/comment';
+
 interface CommentFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  comment: { body: string };
-  onCommentChange: (comment: { body: string }) => void;
+  comment: Partial<NewComment>;
+  onCommentChange: (comment: Partial<NewComment>) => void;
   onSubmit: () => void;
   submitText: string;
 }

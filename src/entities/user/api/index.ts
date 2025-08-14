@@ -1,18 +1,12 @@
 import { User } from '../types';
 
-// PostsManagerPage.tsx에서 그대로 복사한 User 관련 함수들
-// 사용자 정보 가져오기
-export const fetchUser = async (
-  userId: number,
-  setUser: (user: User) => void,
-  setShowUserModal: (show: boolean) => void,
-) => {
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-    const userData = await response.json();
-    setUser(userData);
-    setShowUserModal(true);
-  } catch (error) {
-    console.error('사용자 정보 가져오기 오류:', error);
-  }
+// 순수한 API 호출 함수들 (상태 관리 로직 제거)
+export const fetchUser = async (userId: number) => {
+  const response = await fetch(`/api/users/${userId}`);
+  return response.json();
+};
+
+export const fetchUsers = async () => {
+  const response = await fetch('/api/users?limit=0&select=username,image');
+  return response.json();
 };

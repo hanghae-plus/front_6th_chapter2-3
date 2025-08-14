@@ -4,17 +4,10 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Post, NewPost } from '../../../entities/post';
 import { Tag } from '../../../entities/tag';
-import {
-  fetchPosts,
-  searchPosts,
-  fetchPostsByTag,
-  addPost,
-  updatePost,
-  deletePost,
-} from '../../../entities/post';
 import { fetchTags } from '../../../entities/tag';
 import { usePostStore } from '../store';
 import { updateURL as updateURLUtil } from '../../../shared/utils';
+import { usePostAPI } from '../api';
 
 export const usePostFeature = () => {
   const navigate = useNavigate();
@@ -63,9 +56,11 @@ export const usePostFeature = () => {
     setShowPostDetailDialog(true);
   };
 
-  // API 호출 핸들러들 (기존과 동일, Zustand 스토어의 setPosts 사용)
+  // API 호출 핸들러들 (새로운 usePostAPI 사용)
+  const postAPI = usePostAPI();
+
   const handleFetchPosts = () => {
-    fetchPosts(setLoading, setPosts, setTotal, limit, skip);
+    postAPI.fetchPostsWithUsers(setLoading, setPosts, setTotal, limit, skip);
   };
 
   const handleSearchPosts = async () => {
@@ -73,7 +68,13 @@ export const usePostFeature = () => {
       handleFetchPosts();
       return;
     }
-    await searchPosts(setLoading, setPosts, setTotal, searchQuery, handleFetchPosts);
+    await postAPI.searchPostsWithUsers(
+      setLoading,
+      setPosts,
+      setTotal,
+      searchQuery,
+      handleFetchPosts,
+    );
   };
 
   const handleFetchPostsByTag = async (tag: string) => {
@@ -81,21 +82,21 @@ export const usePostFeature = () => {
       handleFetchPosts();
       return;
     }
-    await fetchPostsByTag(setLoading, setPosts, setTotal, tag, handleFetchPosts);
+    await postAPI.fetchPostsByTagWithUsers(setLoading, setPosts, setTotal, tag, handleFetchPosts);
   };
 
   const handleAddPost = async () => {
-    await addPost(setPosts, posts, setShowAddDialog, setNewPost, newPost);
+    await postAPI.addPostWithUser(setPosts, posts, setShowAddDialog, setNewPost, newPost);
   };
 
   const handleUpdatePost = async () => {
     if (selectedPost) {
-      await updatePost(setPosts, posts, setShowEditDialog, selectedPost);
+      await postAPI.updatePostWithState(setPosts, posts, setShowEditDialog, selectedPost);
     }
   };
 
   const handleDeletePost = async (id: number) => {
-    await deletePost(setPosts, posts, id);
+    await postAPI.deletePostWithState(setPosts, posts, id);
   };
 
   // useEffect들 (PostsManagerPage.tsx에서 그대로 복사)

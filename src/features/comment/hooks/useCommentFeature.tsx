@@ -1,12 +1,6 @@
 import { useCommentStore } from '../store/index';
 import { Comment, NewComment } from '../../../entities/comment';
-import {
-  fetchComments,
-  addComment,
-  updateComment,
-  deleteComment,
-  likeComment,
-} from '../../../entities/comment';
+import { useCommentAPI } from '../api';
 
 export const useCommentFeature = () => {
   // Zustand 스토어 직접 테스트
@@ -37,10 +31,12 @@ export const useCommentFeature = () => {
   console.log('Zustand selectedComment:', selectedComment);
   console.log('Zustand newComment:', newComment);
 
-  // API 호출 핸들러들 (기존과 동일, Zustand 스토어의 setter 사용)
+  // API 호출 핸들러들 (새로운 useCommentAPI 사용)
+  const commentAPI = useCommentAPI();
+
   const handleFetchComments = async (postId: number) => {
     console.log('handleFetchComments 호출, postId:', postId);
-    await fetchComments(postId, comments, setComments);
+    await commentAPI.fetchCommentsWithState(postId, comments, setComments);
   };
 
   const handleAddComment = async () => {
@@ -49,23 +45,34 @@ export const useCommentFeature = () => {
     console.log('현재 comments:', comments);
     console.log('setComments 함수:', setComments);
 
-    await addComment(setComments, comments, setShowAddCommentDialog, setNewComment, newComment);
+    await commentAPI.addCommentWithState(
+      setComments,
+      comments,
+      setShowAddCommentDialog,
+      setNewComment,
+      newComment,
+    );
 
     console.log('handleAddComment 완료');
   };
 
   const handleUpdateComment = async () => {
     if (selectedComment) {
-      await updateComment(setComments, comments, setShowEditCommentDialog, selectedComment);
+      await commentAPI.updateCommentWithState(
+        setComments,
+        comments,
+        setShowEditCommentDialog,
+        selectedComment,
+      );
     }
   };
 
   const handleDeleteComment = async (id: number, postId: number) => {
-    await deleteComment(setComments, comments, id, postId);
+    await commentAPI.deleteCommentWithState(setComments, comments, id, postId);
   };
 
   const handleLikeComment = async (id: number, postId: number) => {
-    await likeComment(setComments, comments, id, postId);
+    await commentAPI.likeCommentWithState(setComments, comments, id, postId);
   };
 
   return {
