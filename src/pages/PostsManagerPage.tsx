@@ -45,6 +45,8 @@ const PostsManager = () => {
   // 상태 관리
   const [posts, setPosts] = useState([])
   const [total, setTotal] = useState(0)
+
+  // 검색 관련
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
@@ -452,7 +454,7 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          {/* 검색 및 필터 컨트롤 */}
+          {/* 검색 및 필터 컨트롤 (feature)*/}
           <div className="flex gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -508,10 +510,10 @@ const PostsManager = () => {
             </Select>
           </div>
 
-          {/* 게시물 테이블 */}
+          {/* 게시물 테이블 > entities.., post를 그냥 렌더링할 뿐 아닌가??  > entities  */}
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
 
-          {/* 페이지네이션 */}
+          {/* 페이지네이션 > shared */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
@@ -539,7 +541,7 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
+      {/* 게시물 추가 대화상자 > Dialog로 감싼게 Widget, 그 내부내용은 Feature**/}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
@@ -608,7 +610,7 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 댓글 수정 대화상자 */}
+      {/* 댓글 수정 대화상자(widget)  => Dialog로 감싼게 Widget, 그 내부내용은 Feature*/}
       <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
         <DialogContent>
           <DialogHeader>
@@ -625,7 +627,7 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 게시물 상세 보기 대화상자 */}
+      {/* 게시물 상세 보기 대화상자(widget), > Dialog로 감싼게 Widget, 그 내부내용은 Feature* */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -638,7 +640,7 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 사용자 모달 */}
+      {/* 사용자 모달(widget)  > > Dialog로 감싼게 Widget, 그 내부내용은 Feature **/}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
         <DialogContent>
           <DialogHeader>
