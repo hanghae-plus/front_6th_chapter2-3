@@ -47,8 +47,7 @@ export const PostManagerWidget = () => {
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
 
   const { skip, limit, setSkip, setLimit } = usePagination();
-  const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
-    usePostFilter();
+  const { selectedTag, setSelectedTag } = usePostFilter();
   const { searchQuery } = usePostSearch();
 
   const { data: tagsData } = useFetchTags();
@@ -106,15 +105,7 @@ export const PostManagerWidget = () => {
           {/* 검색 및 필터 컨트롤 */}
           <div className='flex gap-4'>
             <PostSearch />
-            <PostFilter
-              tags={tags}
-              sortBy={sortBy}
-              sortOrder={sortOrder}
-              selectedTag={selectedTag}
-              setSortBy={setSortBy}
-              setSortOrder={setSortOrder}
-              setSelectedTag={setSelectedTag}
-            />
+            <PostFilter tags={tags} />
           </div>
 
           {/* 게시물 테이블 */}

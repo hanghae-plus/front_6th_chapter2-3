@@ -1,17 +1,19 @@
+import { usePostFilter } from '../model/usePostFilter';
+
+import { Tag } from '@/entities/post/model/types';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/shared/ui';
 
-export const PostFilter = ({
-  selectedTag,
-  setSelectedTag,
-  tags,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
-}) => {
+interface PostFilterProps {
+  tags: Tag[];
+}
+
+export const PostFilter = ({ tags }: PostFilterProps) => {
+  const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
+    usePostFilter();
+
   return (
     <>
-      <Select value={selectedTag} onValueChange={(value) => setSelectedTag(value)}>
+      <Select value={selectedTag} onValueChange={setSelectedTag}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='태그 선택' />
         </SelectTrigger>

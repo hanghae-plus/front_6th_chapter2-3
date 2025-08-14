@@ -1,22 +1,45 @@
+import { useEffect } from 'react';
+
+import { usePostFilterStore } from './postFilterStore';
+
 import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
 
 export const usePostFilter = () => {
   const { searchParams, updateQuery } = useUrlQuery();
+  const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
+    usePostFilterStore();
 
-  const selectedTag = searchParams.get('tag') || 'all';
-  const sortBy = searchParams.get('sortBy') || 'id';
-  const sortOrder = searchParams.get('sortOrder') || 'asc';
+  useEffect(() => {
+    const tagFromUrl = searchParams.get('tag') || 'all';
+    const sortByFromUrl = searchParams.get('sortBy') || 'id';
+    const sortOrderFromUrl = searchParams.get('sortOrder') || 'asc';
 
-  const setSelectedTag = (tag: string) => updateQuery({ tag: tag === 'all' ? null : tag });
-  const setSortBy = (sort: string) => updateQuery({ sortBy: sort });
-  const setSortOrder = (order: string) => updateQuery({ sortOrder: order });
+    setSelectedTag(tagFromUrl);
+    setSortBy(sortByFromUrl);
+    setSortOrder(sortOrderFromUrl);
+  }, [searchParams]);
+
+  const handleSetTag = (tag: string) => {
+    setSelectedTag(tag);
+    updateQuery({ tag: tag === 'all' ? null : tag });
+  };
+
+  const handleSetSortBy = (sort: string) => {
+    setSortBy(sort);
+    updateQuery({ sortBy: sort });
+  };
+
+  const handleSetSortOrder = (order: string) => {
+    setSortOrder(order);
+    updateQuery({ sortOrder: order });
+  };
 
   return {
     selectedTag,
     sortBy,
     sortOrder,
-    setSelectedTag,
-    setSortBy,
-    setSortOrder,
+    setSelectedTag: handleSetTag,
+    setSortBy: handleSetSortBy,
+    setSortOrder: handleSetSortOrder,
   };
 };
