@@ -43,9 +43,9 @@ export const useCommentManage = () => {
     mutationFn: (variables: { body: string; postId: number; userId: number }) =>
       variables.postId < 0 ? Promise.resolve({} as any) : addComment(variables),
     onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ["comments", selectedPostId] })
-      const previous = queryClient.getQueryData(["comments", selectedPostId])
-      queryClient.setQueryData(["comments", selectedPostId], (old: any) => {
+      await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
         const list = (old?.comments ?? []) as Comment[]
         const temp = {
           id: Math.floor(Math.random() * -100000),
@@ -59,7 +59,7 @@ export const useCommentManage = () => {
       return { previous }
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(["comments", selectedPostId], ctx.previous)
+      if (ctx?.previous) queryClient.setQueryData(commentsKey.byPost(selectedPostId), ctx.previous)
     },
     // invalidate 하지 않음: 화면 상태 유지
   })
@@ -68,9 +68,9 @@ export const useCommentManage = () => {
     mutationFn: ({ commentId, body }: { commentId: number; body: string }) =>
       commentId < 0 ? Promise.resolve({} as any) : updateComment(commentId, body),
     onMutate: async ({ commentId, body }) => {
-      await queryClient.cancelQueries({ queryKey: ["comments", selectedPostId] })
-      const previous = queryClient.getQueryData(["comments", selectedPostId])
-      queryClient.setQueryData(["comments", selectedPostId], (old: any) => {
+      await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
         return {
           ...old,
           comments: (old?.comments ?? []).map((c: Comment) => (c.id === commentId ? { ...c, body } : c)),
@@ -79,7 +79,7 @@ export const useCommentManage = () => {
       return { previous }
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(["comments", selectedPostId], ctx.previous)
+      if (ctx?.previous) queryClient.setQueryData(commentsKey.byPost(selectedPostId), ctx.previous)
     },
     // invalidate 하지 않음: 화면 상태 유지
   })
@@ -87,15 +87,15 @@ export const useCommentManage = () => {
   const deleteCommentMutation = useMutation({
     mutationFn: (commentId: number) => (commentId < 0 ? Promise.resolve({} as any) : deleteComment(commentId)),
     onMutate: async (commentId: number) => {
-      await queryClient.cancelQueries({ queryKey: ["comments", selectedPostId] })
-      const previous = queryClient.getQueryData(["comments", selectedPostId])
-      queryClient.setQueryData(["comments", selectedPostId], (old: any) => {
+      await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
         return { ...old, comments: (old?.comments ?? []).filter((c: Comment) => c.id !== commentId) }
       })
       return { previous }
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(["comments", selectedPostId], ctx.previous)
+      if (ctx?.previous) queryClient.setQueryData(commentsKey.byPost(selectedPostId), ctx.previous)
     },
     // invalidate 하지 않음: 화면 상태 유지
   })
@@ -104,9 +104,9 @@ export const useCommentManage = () => {
     mutationFn: ({ commentId, currentLikes }: { commentId: number; currentLikes: number }) =>
       commentId < 0 ? Promise.resolve({} as any) : likeComment(commentId, currentLikes),
     onMutate: async ({ commentId }) => {
-      await queryClient.cancelQueries({ queryKey: ["comments", selectedPostId] })
-      const previous = queryClient.getQueryData(["comments", selectedPostId])
-      queryClient.setQueryData(["comments", selectedPostId], (old: any) => {
+      await queryClient.cancelQueries({ queryKey: commentsKey.byPost(selectedPostId) })
+      const previous = queryClient.getQueryData(commentsKey.byPost(selectedPostId))
+      queryClient.setQueryData(commentsKey.byPost(selectedPostId), (old: any) => {
         return {
           ...old,
           comments: (old?.comments ?? []).map((c: Comment) =>
@@ -117,7 +117,7 @@ export const useCommentManage = () => {
       return { previous }
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(["comments", selectedPostId], ctx.previous)
+      if (ctx?.previous) queryClient.setQueryData(commentsKey.byPost(selectedPostId), ctx.previous)
     },
     // invalidate 하지 않음: 화면 상태 유지
   })

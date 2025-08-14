@@ -6,7 +6,7 @@ interface PostEditDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (e: FormEvent) => void
   post: { title: string; body: string; id?: number; userId?: number } | null
-  setPost: (post: any) => void
+  setPost: (post: { title: string; body: string; id?: number; userId?: number }) => void
 }
 
 export const PostEditDialog = ({ open, onOpenChange, onSubmit, post, setPost }: PostEditDialogProps) => {

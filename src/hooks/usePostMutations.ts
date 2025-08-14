@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { addPost, updatePost, deletePost } from "../entities/post/api"
 import type { Post } from "../entities/post/model"
+import { postsKey } from "../shared/api/queryKeys"
 
 export const usePostMutations = () => {
   const queryClient = useQueryClient()
 
   const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["posts"] })
+    queryClient.invalidateQueries({ queryKey: postsKey.all })
   }
 
   const addPostMutation = useMutation({

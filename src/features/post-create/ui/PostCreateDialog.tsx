@@ -6,7 +6,7 @@ interface PostCreateDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (e: FormEvent) => void
   post: { title: string; body: string; userId?: number }
-  setPost: (post: any) => void
+  setPost: (post: { title: string; body: string; userId?: number }) => void
 }
 
 export const PostCreateDialog = ({ open, onOpenChange, onSubmit, post, setPost }: PostCreateDialogProps) => (

@@ -9,6 +9,7 @@ import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
 import { listSortOrderAtom } from "../../../shared/lib/viewAtoms"
 import { toastsAtom } from "../../../shared/lib/toastAtoms"
 import { applyInsertTop } from "../../../entities/post/model/adapters"
+import { postsKey } from "../../../shared/api/queryKeys"
 
 type UsePostCreateOptions = {
   sortOrder?: "asc" | "desc"
@@ -41,7 +42,7 @@ export const usePostCreate = (options: UsePostCreateOptions = {}) => {
         next.add(createdNormalized.id)
         return next
       })
-      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
+      queryClient.setQueriesData({ queryKey: postsKey.all }, (old: any) => {
         const data = old as PostsApiResponse | undefined
         if (!data) return old
         if (sortOrder === "desc") {
