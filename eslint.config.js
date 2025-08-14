@@ -24,7 +24,6 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'fsd/forbidden-imports': 'error',
-      'fsd/no-public-api-sidestep': 'error',
       'fsd/no-cross-slice-dependency': 'error',
       'fsd/no-ui-in-business-logic': 'error',
       'fsd/no-global-store-imports': 'error',
