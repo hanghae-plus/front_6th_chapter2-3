@@ -1,4 +1,5 @@
 import { useSearchParams as useReactRouterSearchParams } from 'react-router-dom';
+import type { PostSortBy, SortOrder } from '../types';
 import { useSearchParams } from '@/shared/lib';
 
 export const useSkip = () => useSearchParams<number>('skip', '0', parseInt);
@@ -21,9 +22,10 @@ export const useSearchQuery = (): ReturnType<
   return [searchParams.get('search') ?? '', setSearch];
 };
 
-export const useSortBy = () => useSearchParams<string>('sortBy', '');
+export const useSortBy = () => useSearchParams<PostSortBy>('sortBy', 'nonde');
 
-export const useSortOrder = () => useSearchParams<string>('sortOrder', 'asc');
+export const useSortOrder = () =>
+  useSearchParams<SortOrder>('sortOrder', 'asc');
 
 export const useTag = (): ReturnType<typeof useSearchParams<string>> => {
   const [searchParams, setSearchParams] = useReactRouterSearchParams();

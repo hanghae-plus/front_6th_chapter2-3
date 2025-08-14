@@ -5,15 +5,11 @@ import {
   useSortBy,
   useSortOrder,
   useTag,
+  type PostSortBy,
+  type SortOrder,
 } from '@/entities/posts';
-import {
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui';
+import { Input, Select, SelectTrigger, SelectValue } from '@/shared/ui';
+import { SelectOptions } from '@/shared/ui/Select';
 
 export const PostsFilter = () => {
   const { search, setSearch, commitSearch } = useSearch();
@@ -43,14 +39,12 @@ export const PostsFilter = () => {
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="태그 선택" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">모든 태그</SelectItem>
-          {tags?.map((tag) => (
-            <SelectItem key={tag.url} value={tag.slug}>
-              {tag.slug}
-            </SelectItem>
-          ))}
-        </SelectContent>
+        <SelectOptions
+          options={[
+            { value: 'all', name: '모든 태그' },
+            ...(tags ?? []).map(({ slug }) => ({ value: slug, name: slug })),
+          ]}
+        />
       </Select>
 
       {/* 정렬 기준 */}
@@ -58,12 +52,14 @@ export const PostsFilter = () => {
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 기준" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="none">없음</SelectItem>
-          <SelectItem value="id">ID</SelectItem>
-          <SelectItem value="title">제목</SelectItem>
-          <SelectItem value="reactions">반응</SelectItem>
-        </SelectContent>
+        <SelectOptions<PostSortBy>
+          options={[
+            { value: 'none', name: '없음' },
+            { value: 'id', name: 'ID' },
+            { value: 'title', name: '제목' },
+            { value: 'reactions', name: '반응' },
+          ]}
+        />
       </Select>
 
       {/* 정렬 순서 */}
@@ -71,10 +67,12 @@ export const PostsFilter = () => {
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="asc">오름차순</SelectItem>
-          <SelectItem value="desc">내림차순</SelectItem>
-        </SelectContent>
+        <SelectOptions<SortOrder>
+          options={[
+            { value: 'asc', name: '오름차순' },
+            { value: 'desc', name: '내림차순' },
+          ]}
+        />
       </Select>
     </div>
   );

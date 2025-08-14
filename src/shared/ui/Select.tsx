@@ -34,6 +34,27 @@ export const SelectTrigger = ({
 );
 SelectTrigger.displayName = Trigger.displayName;
 
+interface SelectOptionsProps<T extends string> {
+  options: {
+    value: T;
+    name: string;
+  }[];
+}
+
+export const SelectOptions = <T extends string>({
+  options,
+}: SelectOptionsProps<T>) => {
+  return (
+    <SelectContent>
+      {options.map(({ value, name }) => (
+        <SelectItem key={value} value={value}>
+          {name}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  );
+};
+
 interface SelectContentProps {
   className?: string;
   children?: React.ReactNode;

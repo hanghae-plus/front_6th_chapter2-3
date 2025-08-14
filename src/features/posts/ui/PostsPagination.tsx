@@ -1,13 +1,7 @@
 import { useLimit, usePosts } from '@/entities/posts';
 import { useSkip } from '@/entities/posts';
-import {
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui';
+import { Button, Select, SelectTrigger, SelectValue } from '@/shared/ui';
+import { SelectOptions } from '@/shared/ui/Select';
 
 export const PostsPagination = () => {
   const [skip, setSkip] = useSkip();
@@ -26,11 +20,13 @@ export const PostsPagination = () => {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="10" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="30">30</SelectItem>
-          </SelectContent>
+          <SelectOptions
+            options={[
+              { value: '10', name: '10' },
+              { value: '20', name: '20' },
+              { value: '30', name: '30' },
+            ]}
+          />
         </Select>
         <span>항목</span>
       </div>
