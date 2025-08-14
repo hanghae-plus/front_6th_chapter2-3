@@ -1,18 +1,24 @@
+import { useSearchParams } from "react-router-dom"
 import { usePosts } from "@/features/post/read-post/model"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/shared/ui"
 import { PostTableRow } from "./PostTableRow"
 
 interface PostTableProps {
-  searchQuery: string
-  selectedTag: string
-  onTagSelect: (tag: string) => void
   onPostSelect: (postId: number) => void
 }
 
-export const PostTable = ({ searchQuery, selectedTag, onTagSelect, onPostSelect }: PostTableProps) => {
-  const postsQuery = usePosts()
+export const PostTable = ({ onPostSelect }: PostTableProps) => {
+  const [searchParams, setSearchParams] = useSearchParams("")
 
+  const searchQuery = searchParams.get("search") || ""
+  const selectedTag = searchParams.get("tag") || ""
+  const postsQuery = usePosts()
   const posts = postsQuery.posts || []
+
+  const handleTagChange = (tag: string) => {
+    searchParams.set("tag", tag)
+    setSearchParams(searchParams)
+  }
 
   return (
     <Table>
@@ -32,7 +38,7 @@ export const PostTable = ({ searchQuery, selectedTag, onTagSelect, onPostSelect 
             post={post}
             searchQuery={searchQuery}
             selectedTag={selectedTag}
-            onTagSelect={onTagSelect}
+            onTagSelect={handleTagChange}
             onPostSelect={onPostSelect}
           />
         ))}

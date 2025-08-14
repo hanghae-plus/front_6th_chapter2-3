@@ -10,6 +10,7 @@ export const DetailPostDialogOpenButton = ({ onClick }: DetailPostDialogOpenButt
   const { showDialog } = useDialogActions()
 
   const handleClick = () => {
+    console.log("[DEBUG] 게시글 상세보기 모달 OPEN")
     showDialog("POST_DETAIL")
     onClick()
   }
