@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../widgets"
+import { highlightText } from "../../../shared/lib/highlight-text"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../widgets/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 
 // 게시물 테이블 렌더링
@@ -7,7 +8,6 @@ export const CommentListDialog = (props) => {
     showPostDetailDialog,
     setShowPostDetailDialog,
     selectedPost,
-    highlightText,
     searchQuery,
     setNewComment,
     setShowAddCommentDialog,

@@ -1,21 +1,12 @@
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./../../../widgets"
+import { highlightText } from "../../../shared/lib/highlight-text"
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../widgets/ui"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { usePost } from "../hooks/usePost"
 
 // 게시물 테이블 렌더링
 export const PostTable = (props) => {
-  const {
-    posts,
-    highlightText,
-    searchQuery,
-    selectedTag,
-    setSelectedTag,
-    updateURL,
-    openUserModal,
-    openPostDetail,
-    setSelectedPost,
-    setShowEditDialog,
-    deletePost,
-  } = props
+  const { posts, selectedTag, setSelectedTag, searchQuery, setSelectedPost, setShowEditDialog, deletePost } = usePost()
+  const { updateURL, openUserModal, openPostDetail } = props
 
   return (
     <Table>

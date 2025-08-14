@@ -1,8 +1,9 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "./../../../widgets"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../widgets/ui"
+import { usePost } from "../hooks/usePost"
 
 // 게시물 테이블 렌더링
-export const PostAddDialog = (props) => {
-  const { newPost, setNewPost, showAddDialog, setShowAddDialog, addPost } = props
+export const PostAddDialog = () => {
+  const { newPost, setNewPost, showAddDialog, setShowAddDialog, addPost } = usePost()
 
   return (
     <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>

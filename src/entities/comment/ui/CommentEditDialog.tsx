@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "./../../../widgets"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../widgets/ui"
 
 // 게시물 테이블 렌더링
 export const CommentEditDialog = (props) => {
