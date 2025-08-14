@@ -1,5 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom"
-import PostsManager from "../pages/PostsManagerPage"
+import PostsManager from "../pages/posts-manager"
 import GlobalLayout from "./ui/globalLayout"
 
 const AppRoute = () => {

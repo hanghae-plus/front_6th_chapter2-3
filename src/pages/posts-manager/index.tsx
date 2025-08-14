@@ -24,18 +24,18 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../shared/ui"
-import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../entities/posts/api"
-import { fetchTagsApi } from "../entities/tags/api"
-import { fetchUserApi, fetchUsersApi } from "../entities/users/api"
+} from "../../shared/ui"
+import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../../entities/posts/api"
+import { fetchTagsApi } from "../../entities/tags/api"
+import { fetchUserApi, fetchUsersApi } from "../../entities/users/api"
 import {
   addCommentApi,
   deleteCommentApi,
   fetchCommentsApi,
   likeCommentApi,
   updateCommentApi,
-} from "../entities/comments/api"
-import { fetchPostsByTagApi } from "../entities/posts/api/fetchPostsByTag"
+} from "../../entities/comments/api"
+import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
 
 const PostsManager = () => {
   const navigate = useNavigate()
