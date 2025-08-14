@@ -3,6 +3,7 @@ import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow }
 import type { Post } from "@entities/post/model"
 import type { User } from "@entities/user/model"
 import { highlightText } from "@shared/lib"
+import { PostTagItem } from "@/entities/post/ui"
 
 interface PostsTableProps {
   posts: Array<Post & { author?: User }>
@@ -52,17 +53,7 @@ export const PostsTable = ({
 
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                      }`}
-                      onClick={() => onTagClick(tag)}
-                    >
-                      {tag}
-                    </span>
+                    <PostTagItem key={tag} tag={tag} isSelected={selectedTag === tag} onClick={() => onTagClick(tag)} />
                   ))}
                 </div>
               </div>
