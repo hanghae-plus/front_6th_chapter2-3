@@ -23,6 +23,8 @@ import { useCommentStore } from '../entities/comment/model/store';
 import { NewPost, NewComment } from './PostsManagerPage/types';
 import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
+import { useDialogStore } from '../shared/store/dialog';
+import { DIALOG_KEYS } from '../shared/constant/dialog';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -59,7 +61,6 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState<NewPost>({ title: '', body: '', userId: 1 });
   // const [loading, setLoading] = useState(false);
@@ -73,6 +74,8 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
+
+  const { closeDialog } = useDialogStore();
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -133,18 +136,6 @@ const PostsManager = () => {
       setTotal(postsData.total);
     } catch (error) {
       console.error('태그별 게시물 가져오기 오류:', error);
-    }
-  };
-
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      const data = await addPostAPI(newPost);
-      setPosts([data, ...posts]);
-      setShowAddDialog(false);
-      setNewPost({ title: '', body: '', userId: 1 });
-    } catch (error) {
-      console.error('게시물 추가 오류:', error);
     }
   };
 
@@ -369,7 +360,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <AddPostDialog newPost={newPost} onPostChange={setNewPost} onSubmit={addPost} />
+      <AddPostDialog />
 
       {/* 게시물 수정 대화상자 */}
       <EditPostDialog

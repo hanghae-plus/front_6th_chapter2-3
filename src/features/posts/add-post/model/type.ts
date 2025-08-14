@@ -5,5 +5,4 @@ export interface AddPostDialogProps {
     userId: number;
   };
   onPostChange: (post: { title: string; body: string; userId: number }) => void;
-  onSubmit: () => void;
 }

@@ -1,7 +1,7 @@
 /**
  * 게시글 추가 API
  */
-export const addPost = async (newPost: { title: string; body: string; userId: number }) => {
+export const addPostAPI = async (newPost: { title: string; body: string; userId: number }) => {
   try {
     const response = await fetch('/api/posts/add', {
       method: 'POST',
