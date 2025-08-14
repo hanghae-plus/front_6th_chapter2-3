@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "pnpm run build",
+    "deploy": "npx gh-pages -d dist"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.85.0",

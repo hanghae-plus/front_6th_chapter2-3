@@ -1,3 +1,10 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
+export const api = {
+  get: <T>(path: string, init?: RequestInit) =>
+    fetch(`${BASE_URL}${path}`, { ...init }).then((r) => r.json() as Promise<T>),
+  // post/put/delete 등...
+}
+
 type Params = Record<string, string | number | boolean | undefined | null>
 type BaseOpts = { params?: Params; headers?: Record<string, string> }
 
