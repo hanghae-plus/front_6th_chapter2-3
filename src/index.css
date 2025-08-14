@@ -1,4 +1,22 @@
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --card-bg: #ffffff;
+  --card-fg: #000000;
+}
+.dark {
+  --bg: #121212;
+  --fg: #f2f2f2;
+  --card-bg: #1e1e1e;
+  --card-fg: #f2f2f2;
+}
 html, body {
-  background: #fff;
-  color: #000;
+  background: var(--bg);
+  color: var(--fg);
+  transition: background 0.3s ease, color 0.3s ease;
+  min-height: 100%;
+}
+.card {
+  background: var(--card-bg);
+  color: var(--card-fg);
 }

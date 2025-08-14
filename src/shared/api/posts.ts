@@ -48,6 +48,12 @@ export interface PostsResponse {
   limit: number
 }
 
+const clientPosts: Post[] = []
+
+// helper to prepend clientPosts that match predicate
+const mergeClientPosts = (predicate: (p: Post) => boolean = () => true): Post[] =>
+  clientPosts.filter(predicate)
+
 /**
  * 공통 JSON fetch 래퍼
  */
@@ -70,18 +76,32 @@ const fetchUsersMap = async () => {
 const enrichPosts = async (promise: Promise<PostsResponse>): Promise<PostsResponse> => {
   const [postsData, usersMap] = await Promise.all([promise, fetchUsersMap()])
   postsData.posts = postsData.posts.map((p) => ({ ...p, author: usersMap.get(p.userId) }))
-  return postsData
+  const merged = {
+    ...postsData,
+    posts: [...mergeClientPosts(), ...postsData.posts],
+    total: postsData.total + clientPosts.length,
+  }
+  return merged
 }
 
 /* ----------------------------- READ ----------------------------- */
 export const getPosts = (skip = 0, limit = 10) =>
   enrichPosts(jsonFetch<PostsResponse>(`/api/posts?limit=${limit}&skip=${skip}`))
 
+// overrides for tag and search to filter clientPosts
 export const getPostsByTag = (tag: string) =>
-  enrichPosts(jsonFetch<PostsResponse>(`/api/posts/tag/${tag}`))
+  enrichPosts(jsonFetch<PostsResponse>(`/api/posts/tag/${tag}`)).then((data) => ({
+    ...data,
+    posts: data.posts.filter((p) => p.tags?.includes(tag)),
+    total: data.posts.filter((p) => p.tags?.includes(tag)).length,
+  }))
 
 export const searchPosts = (query: string) =>
-  enrichPosts(jsonFetch<PostsResponse>(`/api/posts/search?q=${encodeURIComponent(query)}`))
+  enrichPosts(jsonFetch<PostsResponse>(`/api/posts/search?q=${encodeURIComponent(query)}`)).then((data) => {
+    const regex = new RegExp(query, 'i')
+    const filtered = data.posts.filter((p) => regex.test(p.title) || regex.test(p.body))
+    return { ...data, posts: filtered, total: filtered.length }
+  })
 
 export const getTags = () =>
   jsonFetch<Array<{ slug: string; url: string }>>('/api/posts/tags')
@@ -90,11 +110,14 @@ export const getPostDetail = (id: number) =>
   jsonFetch<Post>(`/api/posts/${id}`)
 
 /* ---------------------------- MUTATION --------------------------- */
-export const addPost = (post: Omit<Post, 'id'>) =>
-  jsonFetch<Post>('/api/posts/add', {
+export const addPost = async (post: Omit<Post, 'id'>) => {
+  const created = await jsonFetch<Post>('/api/posts/add', {
     method: 'POST',
     body: JSON.stringify(post),
   })
+  clientPosts.unshift(created)
+  return created
+}
 
 export const updatePost = (post: Post) =>
   jsonFetch<Post>(`/api/posts/${post.id}`, {

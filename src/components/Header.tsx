@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageSquare } from 'lucide-react';
+import { Link } from 'react-router-dom'
 
 const Header: React.FC = () => {
     return (
@@ -11,9 +12,9 @@ const Header: React.FC = () => {
                 </div>
                 <nav>
                     <ul className="flex space-x-4">
-                        <li><a href="#" className="hover:underline">홈</a></li>
-                        <li><a href="#" className="hover:underline">대시보드</a></li>
-                        <li><a href="#" className="hover:underline">설정</a></li>
+                        <li><Link to="/" className="hover:underline">홈</Link></li>
+                        <li><Link to="/dashboard" className="hover:underline">대시보드</Link></li>
+                        <li><Link to="/settings" className="hover:underline">설정</Link></li>
                     </ul>
                 </nav>
             </div>
