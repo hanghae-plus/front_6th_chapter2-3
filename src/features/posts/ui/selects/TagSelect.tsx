@@ -1,5 +1,5 @@
-import { Tag } from "../../../entities/post/model"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui"
+import { Tag } from "../../../../entities/post/model"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../shared/ui"
 
 interface TagSelectProps {
   tagMode: {

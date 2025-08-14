@@ -14,7 +14,6 @@ export const useSearchMode = () => {
    * @param keyword 검색 파라미터
    */
   const updateSearchParams = (keyword: string) => {
-    console.log("updateSearchParams", keyword)
     action.updateSearchParams(keyword)
 
     setMode({ mode: "search", q: keyword || "", skip: 0 })

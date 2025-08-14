@@ -1,4 +1,4 @@
-import PaginationBar from "../PaginationBar"
+import PaginationBar from "../../../shared/ui/pagination/PaginationBar"
 import { useLimitMode } from "../../../features/posts/fetch-posts-by-mode/hooks/useLimitMode"
 import { usePageNavigateMode } from "../../../features/posts/fetch-posts-by-mode/hooks/usePageNavigateMode"
 

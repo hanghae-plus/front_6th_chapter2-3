@@ -55,7 +55,6 @@ export const addPost = async (post: AddPostRequest) => {
   return response
 }
 
-//TODO: 게시물 수정 타입 확인필요
 /**
  * 게시물 수정
  * @param post - 게시물 정보

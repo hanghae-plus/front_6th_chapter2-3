@@ -13,7 +13,6 @@ export const useUpdateURL = () => {
   const [params, setParams] = useSearchParams()
 
   const updateSearchParams = (keyword: string) => {
-    console.log("updateSearchParams", keyword)
     setParams((prev) => {
       const newParams = new URLSearchParams(prev)
       if (keyword.trim() === "") {

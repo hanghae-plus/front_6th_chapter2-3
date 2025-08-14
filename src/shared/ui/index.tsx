@@ -292,3 +292,6 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(({ cla
   <td ref={ref} className={`p-2 align-middle [&:has([role=checkbox])]:pr-0 ${className}`} {...props} />
 ))
 TableCell.displayName = "TableCell"
+
+// Pagination 컴포넌트 export
+export { default as PaginationBar } from "./pagination/PaginationBar"

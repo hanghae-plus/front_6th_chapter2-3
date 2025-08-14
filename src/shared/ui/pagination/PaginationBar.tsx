@@ -1,5 +1,5 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../shared/ui"
-import { Button } from "../../shared/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../index"
+import { Button } from "../index"
 
 interface PaginationBarProps {
   limitMode: {
