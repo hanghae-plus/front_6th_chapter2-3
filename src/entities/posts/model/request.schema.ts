@@ -20,3 +20,11 @@ export const updatePostRequestSchema = postSchema.partial()
 export const deletePostRequestSchema = z.object({
   id: z.number(),
 })
+
+export const likePostRequestSchema = postSchema.pick({
+  id: true,
+})
+
+export const dislikePostRequestSchema = postSchema.pick({
+  id: true,
+})

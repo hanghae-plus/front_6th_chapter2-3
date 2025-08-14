@@ -17,3 +17,30 @@ export const addPostResponseSchema = z.object({
   body: z.string(),
   userId: z.number(),
 })
+
+export const updatePostResponseSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  body: z.string(),
+  tags: z.array(z.string()),
+  reactions: z.object({
+    likes: z.number(),
+    dislikes: z.number(),
+  }),
+  userId: z.number(),
+})
+
+export const deletePostResponseSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  body: z.string(),
+  tags: z.array(z.string()),
+  reactions: z.object({
+    likes: z.number(),
+    dislikes: z.number(),
+  }),
+  views: z.number(),
+  userId: z.number(),
+  isDeleted: z.boolean(),
+  deletedOn: z.string(),
+})

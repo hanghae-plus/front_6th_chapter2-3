@@ -1,11 +1,17 @@
 import { httpClient } from "@/shared/lib"
 
-import type { addPostRequestSchema, deletePostRequestSchema, updatePostRequestSchema } from "../model"
+import type {
+  addPostRequestSchema,
+  deletePostRequestSchema,
+  updatePostRequestSchema,
+} from "../model"
 import {
   addPostResponseSchema,
+  deletePostResponseSchema,
   getPostsRequestParamsSchema,
   getPostsResponseSchema,
   getPostTagsResponseSchema,
+  updatePostResponseSchema,
 } from "../model"
 
 import type z from "zod"
@@ -39,13 +45,13 @@ export const addPost = async (requestBody: z.infer<typeof addPostRequestSchema>)
 }
 
 export const updatePost = async (requestBody: z.infer<typeof updatePostRequestSchema>) => {
-  const response = await httpClient.put(`/api/posts/${requestBody.id}`, requestBody)
+  const response = await httpClient.put<z.infer<typeof updatePostResponseSchema>>(`/api/posts/${requestBody.id}`, requestBody)
 
-  return response.data
+  return updatePostResponseSchema.parse(response.data)
 }
 
 export const deletePost = async (requestParams: z.infer<typeof deletePostRequestSchema>) => {
-  const response = await httpClient.delete(`/api/posts/${requestParams.id}`)
+  const response = await httpClient.delete<z.infer<typeof deletePostResponseSchema>>(`/api/posts/${requestParams.id}`)
 
-  return response.data
+  return deletePostResponseSchema.parse(response.data)
 }

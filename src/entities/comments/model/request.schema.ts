@@ -1,3 +1,4 @@
+
 import { commentSchema } from "./schema"
 
 import { z } from "zod"
@@ -7,9 +8,10 @@ export const getCommentsByPostIdRequestParamsSchema = z.object({
 })
 
 export const addCommentRequestSchema = commentSchema.pick({
-  title: true,
   body: true,
-  userId: true,
+  postId: true,
+}).extend({
+  userId: z.number(),
 })
 
 export const updateCommentRequestSchema = commentSchema.pick({
@@ -22,6 +24,11 @@ export const deleteCommentRequestSchema = z.object({
 })
 
 export const likeCommentRequestSchema = z.object({
+  id: z.number(),
+  likes: z.number(),
+})
+
+export const dislikeCommentRequestSchema = z.object({
   id: z.number(),
   likes: z.number(),
 })
