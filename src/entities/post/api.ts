@@ -1,15 +1,22 @@
 import { IPost, ITag } from './model'
 import { http } from '@shared/lib/http-client'
 
+interface IFetchPostsResponse {
+  limit: number
+  skip: number
+  total: number
+  posts: IPost[]
+}
+
 /**
  * 게시물 목록 조회
  * @param limit - 한 페이지에 보여지는 게시물 수
  * @param skip - 건너뛸 게시물 수
  * @returns 게시물 목록
  */
-export async function fetchPosts({ limit, skip }: { limit: number; skip: number }) {
+export async function fetchPosts({ limit, skip }: { limit: number; skip: number }): Promise<IFetchPostsResponse> {
   const searchParams = { limit, skip }
-  const response = await http.get(`/posts`, { params: searchParams })
+  const response = await http.get<IFetchPostsResponse>(`/posts`, { params: searchParams })
   return response
 }
 
@@ -18,9 +25,9 @@ export async function fetchPosts({ limit, skip }: { limit: number; skip: number 
  * @param query - 검색어
  * @returns 게시물 목록
  */
-export async function fetchPostsBySearch({ query }: { query: string }) {
+export async function fetchPostsBySearch({ query }: { query: string }): Promise<IFetchPostsResponse> {
   const searchParams = { q: query }
-  const response = await http.get(`/posts/search`, { params: searchParams })
+  const response = await http.get<IFetchPostsResponse>(`/posts/search`, { params: searchParams })
   return response
 }
 
@@ -29,8 +36,8 @@ export async function fetchPostsBySearch({ query }: { query: string }) {
  * @param tag - 태그
  * @returns 게시물 목록
  */
-export async function fetchPostsByTag(tag: string) {
-  const response = await http.get(`/posts/tag/${tag}`)
+export async function fetchPostsByTag(tag: string): Promise<IFetchPostsResponse> {
+  const response = await http.get<IFetchPostsResponse>(`/posts/tag/${tag}`)
   return response
 }
 
