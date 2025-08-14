@@ -10,6 +10,7 @@ export interface Post {
     likes: number;
     dislikes: number;
   };
+  author?: User; // author 필드 추가 (선택적)
 }
 
 export interface NewPost {

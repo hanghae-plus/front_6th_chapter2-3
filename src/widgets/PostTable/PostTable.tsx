@@ -70,14 +70,14 @@ export const PostTable = ({
             <TableCell>
               <div
                 className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => openUserModal(post.author)}
+                onClick={() => post.author && openUserModal(post.author)}
               >
                 <img
                   src={post.author?.image}
-                  alt={post.author?.username}
+                  alt={post.author?.username || '사용자'}
                   className='w-8 h-8 rounded-full'
                 />
-                <span>{post.author?.username}</span>
+                <span>{post.author?.username || '알 수 없음'}</span>
               </div>
             </TableCell>
             <TableCell>

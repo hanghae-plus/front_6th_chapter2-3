@@ -84,7 +84,7 @@ export const fetchPostsByTag = async (
 
     const postsWithUsers = postsData.posts.map((post: Post) => ({
       ...post,
-      author: usersData.users.find((user) => user.id === post.userId),
+      author: usersData.users.find((user: User) => user.id === post.userId),
     }));
 
     setPosts(postsWithUsers);
@@ -110,7 +110,16 @@ export const addPost = async (
       body: JSON.stringify(newPost),
     });
     const data = await response.json();
-    setPosts([data, ...posts]);
+
+    // 새 게시글에 author 정보 추가
+    const usersResponse = await fetch('/api/users?limit=0&select=username,image');
+    const usersData = await usersResponse.json();
+    const newPostWithAuthor = {
+      ...data,
+      author: usersData.users.find((user: User) => user.id === data.userId),
+    };
+
+    setPosts([newPostWithAuthor, ...posts]);
     setShowAddDialog(false);
     setNewPost({ title: '', body: '', userId: 1 });
   } catch (error) {
@@ -140,11 +149,7 @@ export const updatePost = async (
 };
 
 // 게시물 삭제
-export const deletePost = async (
-  setPosts: (posts: Post[]) => void,
-  posts: Post[],
-  id: number,
-) => {
+export const deletePost = async (setPosts: (posts: Post[]) => void, posts: Post[], id: number) => {
   try {
     await fetch(`/api/posts/${id}`, {
       method: 'DELETE',

@@ -13,30 +13,40 @@ import {
   deletePost,
 } from '../../../entities/post';
 import { fetchTags } from '../../../entities/tag';
+import { usePostStore } from '../store';
 
 export const usePostFeature = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  // Post 관련 상태 (PostsManagerPage.tsx에서 그대로 복사)
-  const [posts, setPosts] = useState<Post[]>([]);
+  // Phase 1: 기본 데이터 상태만 Zustand로 (기존 API 함수들과 호환)
+  const {
+    posts,
+    selectedPost,
+    newPost,
+    setPosts,
+    setSelectedPost,
+    setNewPost,
+    clearNewPost,
+    clearSelectedPost,
+  } = usePostStore();
+
+  // Phase 1: 나머지 상태는 기존 useState로 유지 (기존 API 함수들과 호환)
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
   const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
   const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState<NewPost>({ title: '', body: '', userId: 1 });
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
 
-  // URL 업데이트 함수 (PostsManagerPage.tsx에서 그대로 복사)
+  // URL 업데이트 함수 (기존과 동일)
   const updateURL = () => {
     const params = new URLSearchParams();
     if (skip) params.set('skip', skip.toString());
@@ -48,18 +58,18 @@ export const usePostFeature = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // 태그 가져오기 (PostsManagerPage.tsx에서 그대로 복사)
+  // 태그 가져오기 (기존과 동일)
   const handleFetchTags = async () => {
     await fetchTags(setTags);
   };
 
-  // 게시물 상세 보기 (PostsManagerPage.tsx에서 그대로 복사)
+  // 게시물 상세 보기 (기존과 동일)
   const openPostDetail = (post: Post) => {
     setSelectedPost(post);
     setShowPostDetailDialog(true);
   };
 
-  // API 호출 핸들러들
+  // API 호출 핸들러들 (기존과 동일, Zustand 스토어의 setPosts 사용)
   const handleFetchPosts = () => {
     fetchPosts(setLoading, setPosts, setTotal, limit, skip);
   };

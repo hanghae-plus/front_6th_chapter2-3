@@ -163,7 +163,16 @@ const PostsManager = () => {
         body: JSON.stringify(newPost),
       });
       const data = await response.json();
-      setPosts([data, ...posts]);
+
+      // 새 게시글에 author 정보 추가
+      const usersResponse = await fetch('/api/users?limit=0&select=username,image');
+      const usersData = await usersResponse.json();
+      const newPostWithAuthor = {
+        ...data,
+        author: usersData.users.find((user) => user.id === data.userId),
+      };
+
+      setPosts([newPostWithAuthor, ...posts]);
       setShowAddDialog(false);
       setNewPost({ title: '', body: '', userId: 1 });
     } catch (error) {

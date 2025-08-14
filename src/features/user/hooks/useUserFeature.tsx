@@ -7,7 +7,11 @@ export const useUserFeature = () => {
   const { user, setUser, clearUser, showUserModal, setShowUserModal } = useUserStore();
 
   // 기존 함수들 (변경 없음)
-  const openUserModal = async (user: User) => {
+  const openUserModal = async (user: User | undefined) => {
+    if (!user || !user.id) {
+      console.warn('사용자 정보가 없습니다:', user);
+      return;
+    }
     await fetchUser(user.id, setUser, setShowUserModal);
   };
 
