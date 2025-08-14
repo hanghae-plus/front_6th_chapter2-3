@@ -1,7 +1,7 @@
 type Params = Record<string, string | number | boolean | undefined | null>;
 type BaseOpts = { params?: Params; headers?: Record<string, string> };
 
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * 쿼리 스트링 생성
