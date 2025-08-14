@@ -5,33 +5,28 @@ import { POST_PAGINATION_LIMIT_OPTIONS, usePostListFilterQueryParams } from "@/w
 import { useQuery } from "@tanstack/react-query"
 
 export const PostListTablePagination = () => {
-  const { queryParams, setQueryParamsPagination } = usePostListFilterQueryParams()
+  const postListFilter = usePostListFilterQueryParams()
   const postsQuery = useQuery({
-    ...postEntityQueries.getPosts({ ...queryParams }),
+    ...postEntityQueries.getPosts({ ...postListFilter.queryParams }),
   })
 
   const handleLimitChange = (limit: number) => {
-    setQueryParamsPagination((prevPagination) => ({ ...prevPagination, limit }))
+    postListFilter.onLimitChange(limit)
   }
 
   const handleNextPage = () => {
-    setQueryParamsPagination((prevPagination) => ({
-      ...prevPagination,
-      skip: prevPagination.skip + prevPagination.limit,
-    }))
+    postListFilter.onSkipChange(postListFilter.queryParams.skip + postListFilter.queryParams.limit)
   }
   const handlePreviousPage = () => {
-    setQueryParamsPagination((prevPagination) => ({
-      ...prevPagination,
-      skip: Math.max(0, prevPagination.skip - prevPagination.limit),
-    }))
+    postListFilter.onSkipChange(Math.max(0, postListFilter.queryParams.skip - postListFilter.queryParams.limit))
   }
+
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
         <span>표시</span>
         <Select
-          value={queryParams.limit.toString()}
+          value={postListFilter.queryParams.limit.toString()}
           onValueChange={(value) => handleLimitChange(Number(value))}
         >
           <SelectTrigger className="w-[180px]">
@@ -49,11 +44,11 @@ export const PostListTablePagination = () => {
         <span>항목</span>
       </div>
       <div className="flex gap-2">
-        <Button disabled={queryParams.skip === 0} onClick={handlePreviousPage}>
+        <Button disabled={postListFilter.queryParams.skip === 0} onClick={handlePreviousPage}>
           이전
         </Button>
         <Button
-          disabled={queryParams.skip + queryParams.limit >= (postsQuery.data?.total ?? 0)}
+          disabled={postListFilter.queryParams.skip + postListFilter.queryParams.limit >= (postsQuery.data?.total ?? 0)}
           onClick={handleNextPage}
         >
           다음
