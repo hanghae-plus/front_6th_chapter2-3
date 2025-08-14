@@ -30,17 +30,17 @@ export const useAddPost = () => {
       const tempId = Math.floor(100 + Math.random() * 900) // 3자리 숫자 생성
       const tempPost = { ...newPost, id: tempId }
       await queryClient.cancelQueries({ queryKey })
-      const previousData = queryClient.getQueryData(queryKey)
+      const previousPosts = queryClient.getQueryData(queryKey)
       queryClient.setQueryData(queryKey, (old: ListResponse<"posts", PostItem>) => ({
         ...old,
         posts: [tempPost, ...old.posts],
       }))
 
-      return { previousData }
+      return { previousPosts }
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.previousData !== undefined) {
-        queryClient.setQueryData(queryKey, ctx.previousData) // ← 이전값 그대로 복원
+      if (ctx?.previousPosts !== undefined) {
+        queryClient.setQueryData(queryKey, ctx.previousPosts) // ← 이전값 그대로 복원
       }
     },
     onSettled: () => {

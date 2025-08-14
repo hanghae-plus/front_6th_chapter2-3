@@ -17,6 +17,7 @@ export interface PostItem {
   reactions?: Partial<PostReactions>
   views?: number
   userId?: number
+  body?: string
 }
 
 export interface AddPostRequest {
