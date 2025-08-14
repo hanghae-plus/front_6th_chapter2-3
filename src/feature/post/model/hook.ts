@@ -2,9 +2,96 @@ import { useState } from "react"
 import { requestApi } from "../../../shared/lib"
 import { useSelectedPostStore } from "./store"
 import { DeletePost, NewPost, Post } from "../type"
+import { getPosts, getPostsByTag, getSeachPosts, getUsers } from "../../../entities"
 
-export const usePost = () => {
+export const userPostInfo = () => {
+  const { setPosts } = useSelectedPostStore()
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  // 게시물 가져오기
+  const fetchPosts = async (limit: number, skip: number) => {
+    setLoading(true)
+
+    try {
+      const { result, data: posts } = await getPosts(limit, skip)
+      if (result && posts) {
+        const { result, data: users } = await getUsers()
+        if (result && users) {
+          const postsWithUsers = posts.posts.map((post) => ({
+            ...post,
+            author: users.users.find((user) => user.id === post.userId),
+          })) as Array<Post>
+
+          setPosts(postsWithUsers)
+          setTotal(posts.total)
+        }
+      }
+    } catch (error) {
+      console.error("게시물 가져오기 오류:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 게시물 검색
+  const searchPosts = async (limit: number, skip: number, searchQuery?: string) => {
+    if (!searchQuery) {
+      fetchPosts(limit, skip)
+      return
+    }
+    setLoading(true)
+    try {
+      const { result, data: postsData } = await getSeachPosts(searchQuery)
+
+      if (result && postsData) {
+        setPosts(postsData.posts)
+        setTotal(postsData.total)
+      }
+    } catch (error) {
+      console.error("게시물 검색 오류:", error)
+    }
+    setLoading(false)
+  }
+
+  // 태그별 게시물 가져오기
+  const fetchPostsByTag = async (limit: number, skip: number, tag: string | null) => {
+    if (!tag || tag === "all") {
+      fetchPosts(limit, skip)
+      return
+    }
+    setLoading(true)
+    try {
+      const { result: postResult, data: posts } = await getPostsByTag(tag)
+      const { result: userResult, data: users } = await getUsers()
+
+      if (postResult && posts && userResult && users) {
+        const postsWithUsers = posts.posts.map((post) => ({
+          ...post,
+          author: users.users.find((user) => user.id === post.userId),
+        }))
+
+        setPosts(postsWithUsers)
+        setTotal(posts.total)
+      }
+    } catch (error) {
+      console.error("태그별 게시물 가져오기 오류:", error)
+    }
+    setLoading(false)
+  }
+
+  return {
+    total,
+    loading,
+    fetchPosts,
+    searchPosts,
+    fetchPostsByTag,
+  }
+}
+
+export const usePostForm = () => {
   const { setShowAddDialog, setShowEditDialog, setPosts, posts, selectedPost, setSelectedPost } = useSelectedPostStore()
+
   const [newPost, setNewPost] = useState<NewPost>({ title: "", body: "", userId: 1 })
 
   const handleChangeNewPost = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

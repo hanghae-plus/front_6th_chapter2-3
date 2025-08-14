@@ -1,7 +1,7 @@
 import { requestApi } from "../../../shared/lib"
 import { DeleteComment, UpsertComment } from "../type"
 import { useCommentStore } from "./store"
-import { Comment } from "../../../entities"
+import { Comment, getComments } from "../../../entities"
 
 export const useComment = () => {
   const {
@@ -13,6 +13,23 @@ export const useComment = () => {
     setShowAddCommentDialog,
     setShowEditCommentDialog,
   } = useCommentStore()
+
+  // 댓글 가져오기
+  const fetchComments = async (postId: number) => {
+    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
+    try {
+      setComments([])
+      const { result, data: commentData } = await getComments(postId)
+      if (result && commentData) {
+        console.log("commentData")
+        console.log(commentData)
+
+        setComments((prev) => ({ ...prev, [postId]: commentData.comments }))
+      }
+    } catch (error) {
+      console.error("댓글 가져오기 오류:", error)
+    }
+  }
 
   // 댓글 좋아요
   const likeComment = async (id: number, postId: number) => {
@@ -103,6 +120,7 @@ export const useComment = () => {
 
   return {
     comments,
+    fetchComments,
     likeComment,
     addComment,
     updateComment,

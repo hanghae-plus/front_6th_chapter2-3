@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { useSelectedPostStore } from "../model/store"
-import { usePost } from "../model/hook"
+import { usePostForm } from "../model/hook"
 
 export const PostAddDialog = () => {
   const { showAddDialog, setShowAddDialog } = useSelectedPostStore()
-  const { newPost, addPost, handleChangeNewPost } = usePost()
+  const { newPost, addPost, handleChangeNewPost } = usePostForm()
 
   return (
     <Dialog open={showAddDialog} handleChange={setShowAddDialog} title="새 게시물 추가">

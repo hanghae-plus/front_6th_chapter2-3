@@ -5,20 +5,20 @@ import { Pagination } from "../../widgets"
 import { PostTable } from "./ui/PostTable"
 import { Post } from "./type"
 import { getTags, Tags } from "../../entities"
-import { getComments, getPosts, getPostsByTag, getSeachPosts, getUser, getUsers } from "../../entities"
+import { getUser } from "../../entities"
 import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedPostStore, useSelectedUserStore } from "./model/store"
-import { useCommentStore } from "../comment/model/store"
 import { useURL } from "../../shared/hook/useURL"
+import { userPostInfo } from "./model/hook"
+import { useComment } from "../comment/model/hook"
 
 export const PostList = () => {
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tags>([])
-  const { comments, setComments } = useCommentStore()
-  const { setSelectedPost, setShowEditDialog, setShowPostDetailDialog, posts, setPosts } = useSelectedPostStore()
+  const { fetchComments } = useComment()
+  const { setSelectedPost, setShowPostDetailDialog } = useSelectedPostStore()
   const { setSelectedUser, setShowUserModal } = useSelectedUserStore()
   const { searchQuery, setSearchQuery } = useSearchQueryStore()
+  const { loading, total, fetchPosts, searchPosts, fetchPostsByTag } = userPostInfo()
   const {
     skip,
     limit,
@@ -39,9 +39,9 @@ export const PostList = () => {
 
   useEffect(() => {
     if (selectedTag) {
-      fetchPostsByTag(selectedTag)
+      fetchPostsByTag(limit, skip, selectedTag)
     } else {
-      fetchPosts()
+      fetchPosts(limit, skip)
     }
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
@@ -58,86 +58,15 @@ export const PostList = () => {
     }
   }
 
-  // 게시물 가져오기
-  const fetchPosts = async () => {
-    setLoading(true)
-
-    try {
-      const { result, data: posts } = await getPosts(limit, skip)
-      if (result && posts) {
-        const { result, data: users } = await getUsers()
-        if (result && users) {
-          const postsWithUsers = posts.posts.map((post) => ({
-            ...post,
-            author: users.users.find((user) => user.id === post.userId),
-          })) as Array<Post>
-
-          setPosts(postsWithUsers)
-          setTotal(posts.total)
-        }
-      }
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const { result, data: postsData } = await getSeachPosts(searchQuery)
-
-      if (result && postsData) {
-        setPosts(postsData.posts)
-        setTotal(postsData.total)
-      }
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
-
   const handleSearchPost = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      searchPosts()
+      searchPosts(limit, skip, searchQuery)
     }
-  }
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string | null) => {
-    if (!tag || tag === "all") {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const { result: postResult, data: posts } = await getPostsByTag(tag)
-      const { result: userResult, data: users } = await getUsers()
-
-      if (postResult && posts && userResult && users) {
-        const postsWithUsers = posts.posts.map((post) => ({
-          ...post,
-          author: users.users.find((user) => user.id === post.userId),
-        }))
-
-        setPosts(postsWithUsers)
-        setTotal(posts.total)
-      }
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
-    }
-    setLoading(false)
   }
 
   const handleChangeTag = (value: string) => {
     setSelectedTag(value)
-    fetchPostsByTag(value)
+    fetchPostsByTag(limit, skip, value)
     updateURL()
   }
 
@@ -154,23 +83,6 @@ export const PostList = () => {
     }
   }
 
-  // 댓글 가져오기
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      setComments([])
-      const { result, data: commentData } = await getComments(postId)
-      if (result && commentData) {
-        console.log("commentData")
-        console.log(commentData)
-
-        setComments((prev) => ({ ...prev, [postId]: commentData.comments }))
-      }
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
     setSelectedPost(post)
@@ -179,15 +91,12 @@ export const PostList = () => {
   }
 
   const postTableProps = {
-    posts,
     searchQuery,
     selectedTag,
     setSelectedTag,
     updateURL,
     openUserModal,
     openPostDetail,
-    setSelectedPost,
-    setShowEditDialog,
   }
 
   const paginationProps = {

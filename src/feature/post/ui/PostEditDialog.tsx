@@ -1,11 +1,11 @@
 import React from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { useSelectedPostStore } from "../model/store"
-import { usePost } from "../model/hook"
+import { usePostForm } from "../model/hook"
 
 export const PostEditDialog = () => {
   const { selectedPost, showEditDialog, setShowEditDialog } = useSelectedPostStore()
-  const { updatePost, handleChangeSelectedPost } = usePost()
+  const { updatePost, handleChangeSelectedPost } = usePostForm()
 
   return (
     <Dialog open={showEditDialog} handleChange={setShowEditDialog} title="게시물 수정">

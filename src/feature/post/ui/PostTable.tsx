@@ -9,31 +9,26 @@ import {
   TableHeader,
   TableRow,
 } from "../../../shared/ui"
-import { Post } from "../type"
-import { usePost } from "../model/hook"
+import { usePostForm } from "../model/hook"
+import { useSelectedPostStore } from "../model/store"
 
 export const PostTable = ({
-  posts,
   searchQuery,
   selectedTag,
   setSelectedTag,
   updateURL,
   openUserModal,
   openPostDetail,
-  setSelectedPost,
-  setShowEditDialog,
 }: {
-  posts: Array<Post>
   searchQuery: string
   selectedTag: string
   setSelectedTag: React.Dispatch<React.SetStateAction<string>>
   updateURL: () => void
   openUserModal: (user: any) => Promise<void>
   openPostDetail: (post: any) => void
-  setSelectedPost: (selectedPost: Post) => void
-  setShowEditDialog: (showEditDialog: boolean) => void
 }) => {
-  const { deletePost } = usePost()
+  const { setSelectedPost, setShowEditDialog, posts } = useSelectedPostStore()
+  const { deletePost } = usePostForm()
 
   return (
     <Table>
