@@ -16,8 +16,11 @@ export const PostTable = ({ onPostSelect }: PostTableProps) => {
   const posts = postsQuery.posts || []
 
   const handleTagChange = (tag: string) => {
-    searchParams.set("tag", tag)
-    setSearchParams(searchParams)
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev)
+      newParams.set("tag", tag)
+      return newParams
+    })
   }
 
   return (

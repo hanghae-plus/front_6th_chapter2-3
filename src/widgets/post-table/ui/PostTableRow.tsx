@@ -18,11 +18,13 @@ const highlightText = (text: string, highlight: string) => {
   if (!highlight.trim()) {
     return <span>{text}</span>
   }
-  const regex = new RegExp(`(${highlight})`, "gi")
-  const parts = text.split(regex)
+
+  const parts = text.split(new RegExp(`(${highlight})`, "gi"))
   return (
     <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
+      {parts.map((part, i) =>
+        part.toLowerCase() === highlight.toLowerCase() ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
+      )}
     </span>
   )
 }

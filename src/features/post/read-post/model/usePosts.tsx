@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, getPostBySearch, getPostByTag } from "@/entities/post/api"
@@ -7,14 +8,17 @@ import type { Post, User, Author } from "@/shared/types"
 export function usePosts() {
   const [searchParams] = useSearchParams()
 
-  const filters = {
-    skip: Number(searchParams.get("skip")) || 0,
-    limit: Number(searchParams.get("limit")) || 10,
-    searchQuery: searchParams.get("search") || "",
-    selectedTag: searchParams.get("tag") || "",
-    sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || undefined,
-    sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || undefined,
-  }
+  const filters = useMemo(
+    () => ({
+      skip: Number(searchParams.get("skip")) || 0,
+      limit: Number(searchParams.get("limit")) || 10,
+      searchQuery: searchParams.get("search") || "",
+      selectedTag: searchParams.get("tag") || "",
+      sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || undefined,
+      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || undefined,
+    }),
+    [searchParams],
+  )
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["posts", "list", filters],

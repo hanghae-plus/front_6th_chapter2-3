@@ -8,7 +8,7 @@ export const useTags = () => {
     queryKey: TAG_QUERY_KEYS.lists(),
     queryFn: () => getTags(),
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-    gcTime: 10 * 60 * 1000,   // 10분간 메모리 유지
+    gcTime: 10 * 60 * 1000, // 10분간 메모리 유지
   })
 
   return { data, isLoading, error }

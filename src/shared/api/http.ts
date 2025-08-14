@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosRequestConfig, AxiosResponse } from "axios"
 import { axiosInstance } from "@/shared/api/axios-client"
-import { PaginatedResponse } from "@/shared/api/type"
 
 export class HttpClient {
   private static async request<T>(
@@ -17,6 +16,8 @@ export class HttpClient {
         data,
         ...config,
       })
+
+      console.log("[DEBUG] response", response)
 
       return response.data
     } catch (error) {
@@ -47,13 +48,7 @@ export class HttpClient {
   }
 
   // DELETE 요청
-  static async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
-    await this.request<void>("delete", url, undefined, config)
-  }
-
-  // 페이지네이션 GET 요청
-  static async getPaginated<T>(url: string, config?: AxiosRequestConfig): Promise<PaginatedResponse & { data: T[] }> {
-    const response = await this.request<PaginatedResponse & { data: T[] }>("get", url, undefined, config)
-    return response
+  static async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>("delete", url, undefined, config)
   }
 }
