@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import CommentAPI from "./api/CommentAPI"
-import { CreateComment } from "./model/types"
+import CommentAPI from "../api/CommentAPI"
+import { CreateComment } from "./types"
 
 export const useGetComments = (postId: number) => {
   return useQuery({
