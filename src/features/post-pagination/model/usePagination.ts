@@ -1,27 +1,35 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+import { usePaginationStore } from './paginationStore';
 
 import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
 
 export const usePagination = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const { searchParams, updateQuery } = useUrlQuery();
+  const { limit, skip, setLimit, setSkip } = usePaginationStore();
 
-  const { updateQuery } = useUrlQuery();
+  useEffect(() => {
+    const limitFromUrl = parseInt(searchParams.get('limit') || '10', 10);
+    const skipFromUrl = parseInt(searchParams.get('skip') || '0', 10);
 
-  const [skip, setSkipState] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimitState] = useState(parseInt(queryParams.get('limit') || '10'));
+    setLimit(limitFromUrl);
+    setSkip(skipFromUrl);
+  }, [searchParams]);
 
-  const setSkip = (newSkip: number) => {
-    setSkipState(newSkip);
-    updateQuery({ skip: newSkip });
-  };
-
-  const setLimit = (newLimit: number) => {
-    setLimitState(newLimit);
-    setSkip(0);
+  const handleSetLimit = (newLimit: number) => {
+    setLimit(newLimit);
     updateQuery({ limit: newLimit, skip: 0 });
   };
 
-  return { skip, limit, setSkip, setLimit };
+  const handleSetSkip = (newSkip: number) => {
+    setSkip(newSkip);
+    updateQuery({ skip: newSkip });
+  };
+
+  return {
+    limit,
+    skip,
+    setLimit: handleSetLimit,
+    setSkip: handleSetSkip,
+  };
 };
