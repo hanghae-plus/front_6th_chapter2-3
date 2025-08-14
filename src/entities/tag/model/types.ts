@@ -1,5 +1,5 @@
+// Tag 엔티티 타입 정의
 export interface Tag {
-  slug: string
-  name: string
   url: string
+  slug: string
 }

@@ -1,35 +1,14 @@
-import { apiClient } from "../../../shared/api/base"
-import { Comment, CreateCommentRequest, CommentsResponse, UpdateComment } from "../model/types"
-
+// Comment 엔티티 API 함수들
 export const commentApi = {
-  /** 댓글 목록 가져오기 */
-  async getCommentsByPost(postId: number): Promise<CommentsResponse> {
-    return await apiClient.get<CommentsResponse>(`/comments/post/${postId}`)
+  // 게시물별 댓글 조회 (단순 조회)
+  getCommentsByPost: async (postId: number) => {
+    const response = await fetch(`/api/comments/post/${postId}`)
+    return response.json()
   },
 
-  /** 댓글 추가 */
-  async addComment(newComment: CreateCommentRequest): Promise<Comment> {
-    if (!newComment.postId) {
-      throw new Error("postId is required")
-    }
-    return await apiClient.post<Comment>("/comments/add", newComment)
-  },
-
-  /** 댓글 업데이트 */
-  async updateComment(commentId: number, updateData: UpdateComment): Promise<Comment> {
-    return await apiClient.put<Comment>(`/comments/${commentId}`, updateData)
-  },
-
-  /** 댓글 삭제 */
-  async deleteComment(commentId: number): Promise<void> {
-    await apiClient.delete(`/comments/${commentId}`)
-  },
-
-  /** 댓글 좋아요 */
-  async likeComment(id: number): Promise<Comment> {
-    const response = await apiClient.patch<Comment>(`/comments/${id}`, {
-      likes: 1,
-    })
-    return response
-  },
+  // 단일 댓글 조회 (단순 조회)
+  getComment: async (id: number) => {
+    const response = await fetch(`/api/comments/${id}`)
+    return response.json()
+  }
 }

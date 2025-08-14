@@ -1,12 +1,18 @@
-import { apiClient } from "../../../shared/api/base"
-import { User } from "../model/types"
-
+// User 엔티티 API 함수들
 export const userApi = {
-  async getUser(id: number): Promise<User> {
-    return await apiClient.get<User>(`/users/${id}`)
+  // 사용자 목록 조회 (단순 조회)
+  getUsers: async (limit: number = 0, select?: string) => {
+    const params = new URLSearchParams()
+    if (limit > 0) params.set('limit', limit.toString())
+    if (select) params.set('select', select)
+    
+    const response = await fetch(`/api/users?${params.toString()}`)
+    return response.json()
   },
 
-  async getUsersList(): Promise<{ users: User[] }> {
-    return await apiClient.get<{ users: User[] }>("/users?limit=0&select=username,image")
-  },
+  // 단일 사용자 조회 (단순 조회)
+  getUser: async (id: number) => {
+    const response = await fetch(`/api/users/${id}`)
+    return response.json()
+  }
 }

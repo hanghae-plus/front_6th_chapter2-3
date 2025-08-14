@@ -1,16 +1,11 @@
-import Header from "./widgets/layout/Header.tsx"
-import Footer from "./widgets/layout/Footer.tsx"
-import PostsManagerPage from "./pages/PostsManagerPage.tsx"
+import { Routes, Route } from "react-router-dom"
+import PostsManagerPage from "./pages/PostsManagerPage"
 
-const App = () => {
+function App() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <PostsManagerPage />
-      </main>
-      <Footer />
-    </div>
+    <Routes>
+      <Route path="/" element={<PostsManagerPage />} />
+    </Routes>
   )
 }
 

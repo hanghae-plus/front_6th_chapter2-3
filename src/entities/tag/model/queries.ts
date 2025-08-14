@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query"
-import { tagKeys } from "./tagQueryKeys"
-import { tagApi } from "../api"
+import { useQuery } from '@tanstack/react-query'
+import { tagApi } from '../api'
+import { Tag } from './types'
 
-export const useTagsQuery = () => {
-  return useQuery({
-    queryKey: tagKeys.list(),
+// 태그 목록 조회
+export const useTags = () => {
+  return useQuery<Tag[]>({
+    queryKey: ['tags', 'list'],
     queryFn: () => tagApi.getTags(),
   })
 }
