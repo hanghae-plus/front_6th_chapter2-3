@@ -6,7 +6,7 @@ import { CommentList } from "@entities/comment/ui"
 import { commentQueries } from "@entities/comment/api/queries"
 import type { CommentItem } from "@entities/comment/model"
 import { useAddComment } from "@features/comment/add-comment"
-import { useEditComment } from "@features/comment/edit-comment/lib/useEditComment"
+import { useEditComment } from "@/features/comment/edit-comment/model/useEditComment"
 import { useDeleteComment } from "@features/comment/delete-comment"
 import { useLikeComment } from "@features/comment/like-comment"
 

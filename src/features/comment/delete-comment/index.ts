@@ -1,1 +1,1 @@
-export { useDeleteComment } from "./lib/useDeleteComment"
+export { useDeleteComment } from "./model/useDeleteComment"

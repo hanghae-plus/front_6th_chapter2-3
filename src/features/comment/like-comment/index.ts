@@ -1,1 +1,1 @@
-export { useLikeComment } from "./lib/useLikeComment"
+export { useLikeComment } from "./model/useLikeComment"

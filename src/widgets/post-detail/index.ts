@@ -1,1 +1,1 @@
-export { usePostDetailDialog } from "./lib/usePostDetailDialog"
+export { usePostDetailDialog } from "./model/usePostDetailDialog"
