@@ -26,7 +26,8 @@ import { User } from "../entities/user/model/types"
 import { Comment } from "../entities/comment/model/types"
 import { useAddComment } from "../features/comment/add-comments/hooks"
 import { useCurrentUser } from "../entities/user/model/hooks"
-import { CommentAddForm, CommentEditForm, CommentSection, PostDetailDialog, UserInfoModal, Pagination } from "../widget"
+import { CommentAddForm, CommentEditForm, PostDetailDialog, UserInfoModal, Pagination } from "../widget"
+import { useUpdateCommentFeature } from "../features/comment/update-comments/hooks"
 
 // PostItem에 author 속성이 추가된 타입
 interface PostWithAuthor extends PostItem {
@@ -217,18 +218,21 @@ const PostsManager = () => {
     }
   }
 
+  // ✅ 올바른 훅 사용
+  const { updateComment: updateCommentMutation } = useUpdateCommentFeature()
+
   // 댓글 업데이트
   const updateComment = async () => {
     if (!selectedComment) return
 
     try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
+      const result = await updateCommentMutation(
+        selectedComment.id,
+        { body: selectedComment.body },
+        selectedPost?.id || 0,
+      )
 
-      if (response.ok) {
+      if (result.success) {
         // setQueryData를 사용하여 댓글 캐시만 직접 업데이트
         if (selectedPost?.id) {
           queryClient.setQueryData(["comments", selectedPost.id], (oldData: { comments: Comment[] } | undefined) => {
@@ -243,7 +247,7 @@ const PostsManager = () => {
         }
         closeEditCommentDialog()
       } else {
-        console.error("댓글 수정 실패:", response.statusText)
+        console.error("댓글 수정 실패:", result.error)
       }
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
@@ -437,6 +441,10 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
           </DialogHeader>
+          {/* ✅ 에러 메시지 표시 */}
+          {/* {errorMessage && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{errorMessage}</div>
+          )} */}
           <CommentEditForm comment={selectedComment} onCommentChange={setSelectedComment} onSubmit={updateComment} />
         </DialogContent>
       </Dialog>
