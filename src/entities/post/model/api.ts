@@ -1,4 +1,4 @@
-import type { Post } from "@/entities/post/model/entity"
+import type { Post, PostTag } from "@/entities/post/model/entity"
 import type { DeleteResponse, PaginatedResponse } from "@/shared/api/types"
 
 export namespace FetchPosts {
@@ -29,11 +29,7 @@ export namespace FetchPostsByTag {
 export namespace FetchTags {
   export type Payload = unknown
 
-  export type Response = {
-    slug: string
-    name: string
-    url: string
-  }[]
+  export type Response = PostTag[]
 }
 
 export namespace AddPost {
