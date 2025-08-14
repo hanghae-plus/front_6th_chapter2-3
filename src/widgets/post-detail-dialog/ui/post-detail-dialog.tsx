@@ -16,7 +16,7 @@ export const PostDetailDialog: React.FC = () => {
   const openEditComment = useDialogStore((s) => s.openEditComment)
   const postId = post?.id
 
-  const { data: commentsData } = useGetComments(postId ?? 0)
+  const { data: commentsData } = useGetComments(postId ?? null)
   const comments = commentsData?.comments || []
 
   return (
