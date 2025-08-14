@@ -5,7 +5,7 @@ import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
-import { Post, PostTag } from "@/entities/post/model"
+import { Post } from "@/entities/post/model"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
@@ -22,7 +22,6 @@ export function PostsManagerPage() {
 
   // 데이터 상태
   const [posts, setPosts] = useState<Post[]>([])
-  const [tags, setTags] = useState<PostTag[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
@@ -54,17 +53,6 @@ export function PostsManagerPage() {
       .finally(() => {
         setLoading(false)
       })
-  }
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
   }
 
   // 게시물 검색
@@ -127,7 +115,6 @@ export function PostsManagerPage() {
 
   useEffect(() => {
     initializeFromURL()
-    fetchTags()
 
     // 게시물 새로고침 이벤트 리스너 등록
     const handleRefreshPosts = () => {
@@ -168,7 +155,6 @@ export function PostsManagerPage() {
             posts={posts}
             total={total}
             loading={loading}
-            tags={tags}
             searchPosts={searchPosts}
             fetchPostsByTag={fetchPostsByTag}
             deletePost={deletePost}

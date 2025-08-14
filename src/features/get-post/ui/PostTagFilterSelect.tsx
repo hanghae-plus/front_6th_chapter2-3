@@ -1,17 +1,17 @@
-import type { PostTag } from "@/entities/post/model"
 import { usePostParamsStore } from "@/features/get-post/model"
+import { usePostTagsQuery } from "@/features/get-post-tags/api"
 import { Select } from "@/shared/ui/Select"
 
 type PostTagFilterSelectProps = {
-  tags: PostTag[]
   onTagChange: (tag: string) => void
 }
 
-export function PostTagFilterSelect({ tags, onTagChange }: PostTagFilterSelectProps) {
+export function PostTagFilterSelect({ onTagChange }: PostTagFilterSelectProps) {
   const selectedTag = usePostParamsStore((state) => state.tag)
   const { updateParam } = usePostParamsStore((state) => state.actions)
+  const { data: tags } = usePostTagsQuery()
 
-  const handleValueChange = (value: string) => {
+  function handleValueChange(value: string) {
     updateParam("tag", value)
     onTagChange(value)
   }
@@ -23,7 +23,7 @@ export function PostTagFilterSelect({ tags, onTagChange }: PostTagFilterSelectPr
       </Select.Trigger>
       <Select.Content>
         <Select.Item value="all">모든 태그</Select.Item>
-        {tags.map((tag) => (
+        {tags?.map((tag) => (
           <Select.Item key={tag.url} value={tag.slug}>
             {tag.slug}
           </Select.Item>

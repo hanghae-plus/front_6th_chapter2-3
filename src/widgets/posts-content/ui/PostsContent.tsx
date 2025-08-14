@@ -1,4 +1,4 @@
-import { Post, PostTag } from "@/entities/post/model"
+import type { Post } from "@/entities/post/model"
 import type { User } from "@/entities/user/model"
 import { usePostDialogStore, usePostParamsStore } from "@/features/get-post/model"
 import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
@@ -11,21 +11,12 @@ type PostsContentProps = {
   posts: Post[]
   total: number
   loading: boolean
-  tags: PostTag[]
   searchPosts: () => Promise<void>
   fetchPostsByTag: (tag: string) => Promise<void>
   deletePost: (id: number) => Promise<void>
 }
 
-export function PostsContent({
-  posts,
-  total,
-  loading,
-  tags,
-  searchPosts,
-  fetchPostsByTag,
-  deletePost,
-}: PostsContentProps) {
+export function PostsContent({ posts, total, loading, searchPosts, fetchPostsByTag, deletePost }: PostsContentProps) {
   const { openDialog } = useDialogStore((state) => state.actions)
   const { updateParam } = usePostParamsStore((state) => state.actions)
   const { setSelectedPost } = usePostDialogStore((state) => state.actions)
@@ -46,7 +37,7 @@ export function PostsContent({
       {/* 검색 및 필터 컨트롤 */}
       <div className="flex gap-4">
         <PostSearchInput onSearch={searchPosts} />
-        <PostTagFilterSelect tags={tags} onTagChange={fetchPostsByTag} />
+        <PostTagFilterSelect onTagChange={fetchPostsByTag} />
         <PostSortBySelect />
         <PostSortOrderSelect />
       </div>
