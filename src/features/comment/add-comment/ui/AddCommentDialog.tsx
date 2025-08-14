@@ -1,3 +1,5 @@
+import { DIALOG_KEYS } from '../../../../shared/constant/dialog';
+import { useDialogStore } from '../../../../shared/store/dialog';
 import {
   Dialog,
   DialogContent,
@@ -9,14 +11,16 @@ import {
 import { AddCommentDialogProps } from '../model/type';
 
 export const AddCommentDialog = ({
-  open,
-  onOpenChange,
   newComment,
   onCommentChange,
   onSubmit,
 }: AddCommentDialogProps) => {
+  const { isDialogOpen, closeDialog } = useDialogStore();
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isDialogOpen(DIALOG_KEYS.ADD_COMMENT)}
+      onOpenChange={() => closeDialog(DIALOG_KEYS.ADD_COMMENT)}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 댓글 추가</DialogTitle>

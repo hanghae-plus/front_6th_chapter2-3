@@ -1,6 +1,4 @@
 export interface AddCommentDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   newComment: {
     body: string;
     postId: number | null;

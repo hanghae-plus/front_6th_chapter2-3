@@ -406,8 +406,6 @@ const PostsManager = () => {
 
       {/* 댓글 추가 대화상자 */}
       <AddCommentDialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
         newComment={newComment}
         onCommentChange={setNewComment}
         onSubmit={addComment}
