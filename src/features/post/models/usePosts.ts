@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addPost, deletePost, getPostBySearch, getPostByTag, getPosts, updatePost } from "../../../entities/post/api";
 import { getAllUsers } from "../../../entities/user/api";
 import { Post } from "../../../entities/post/types";
@@ -6,18 +6,26 @@ import { Post } from "../../../entities/post/types";
 export function usePosts({
   limit,
   skip,
+  selectedTag,
   searchQuery,
+  sortBy,
+  sortOrder,
   newPost,
-  setNewPost,
   selectedPost,
+  updateURL,
+  setNewPost,
   setShowAddDialog,
   setShowEditDialog,
 }: {
   limit: number;
   skip: number;
+  selectedTag: string;
   searchQuery: string;
   newPost: Post;
   selectedPost: Post;
+  sortBy: string;
+  sortOrder: string;
+  updateURL: () => void;
   setNewPost: (post: Partial<Post>) => void;
   setShowAddDialog: (show: boolean) => void;
   setShowEditDialog: (show: boolean) => void;
@@ -127,11 +135,19 @@ export function usePosts({
     }
   };
 
+  useEffect(() => {
+    if (selectedTag) {
+      fetchPostsByTag(selectedTag);
+    } else {
+      fetchPosts();
+    }
+    updateURL();
+  }, [skip, limit, sortBy, sortOrder, selectedTag]);
+
   return {
     posts,
     total,
     loading,
-    fetchPosts,
     searchPosts,
     fetchPostsByTag,
     handleAddPost,
