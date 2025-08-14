@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -13,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -22,7 +20,7 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useGetPosts } from "../features/post/get-posts/hooks"
-import { useUpdatePost, useDeletePost } from "../entities/post/model/hooks"
+import { useDeletePost } from "../entities/post/model/hooks"
 import { useDialogStore } from "../shared/stores/dialogStore"
 import { PostTable } from "../widget/post-table/PostTable"
 import { PostFilter } from "../widget/post-filter/PostFilter"
@@ -89,7 +87,6 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
-  const queryClient = useQueryClient()
   const { posts, total, loading } = useGetPosts(limit, skip, sortBy, sortOrder, selectedTag, searchQuery)
 
   // 게시물 검색
