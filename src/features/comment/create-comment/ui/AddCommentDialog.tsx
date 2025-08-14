@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
+import { CreateComment } from "@/entities/comment/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
-import { CreateComment } from "@/shared/types"
 
 interface AddCommentDialogProps {
   open: boolean

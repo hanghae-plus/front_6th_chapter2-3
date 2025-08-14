@@ -1,5 +1,5 @@
 import { normalize } from "@/shared/lib/normalizeParams"
-import type { PostFilter } from "@/shared/types"
+import { PostFilter } from "./types"
 
 export const POST_QK = {
   base: () => ["posts"] as const,

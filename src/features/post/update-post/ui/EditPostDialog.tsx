@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
+import { PostWithAuthor } from "@/entities/post/model/types"
 import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
-import { PostWithAuthor } from "@/shared/types"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import { useUpdatePost } from "../model/useUpdatePost"
 import { usePostDetail } from "../../read-post/model/usePostDetail"

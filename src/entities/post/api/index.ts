@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import type { CreatePost, Post, PostFilter, PostPaginatedResponse, UpdatePost } from "@/shared/types"
+import { CreatePost, Post, PostFilter, PostPaginatedResponse, UpdatePost } from "../model/types"
 
 // 전체 게시글 조회
 export const getPosts = (filters: PostFilter = {}) => {

@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, getPostBySearch, getPostByTag } from "@/entities/post/api"
 import { getUsers } from "@/entities/user/api"
-import type { Post, User, Author } from "@/shared/types"
+import { Post, Author } from "@/entities/post/model/types"
+import { User } from "@/entities/user/model/types"
 
 export function usePosts() {
   const [searchParams] = useSearchParams()

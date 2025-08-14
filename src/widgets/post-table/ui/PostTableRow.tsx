@@ -2,7 +2,7 @@ import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui"
 import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
-import { PostWithAuthor } from "@/shared/types"
+import { PostWithAuthor } from "@/entities/post/model/types"
 import { TableCell, TableRow } from "@/shared/ui"
 
 interface PostTableRowProps {

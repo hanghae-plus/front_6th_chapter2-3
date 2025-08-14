@@ -1,5 +1,5 @@
+import { User } from "@/entities/user/model/types"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
-import type { User } from "@/shared/types"
 
 interface UserProfileDialogProps {
   user: User | null

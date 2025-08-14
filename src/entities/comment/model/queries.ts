@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query"
-import type { CommentFilter } from "@/shared/types"
 import { commentKeys } from "./query-key"
 import { getCommentsByPost, getComment } from "../api"
+import { CommentFilter } from "./types"
 
 export const commentQueries = {
   // 키만 쓰고 싶을 때를 위해 keys는 분리 유지

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createPost as createPostApi } from "@/entities/post/api"
 import { POST_QK } from "@/entities/post/model/query-key"
-import { Post, PostPaginatedResponse } from "@/shared/types"
+import { Post, PostPaginatedResponse } from "@/entities/post/model/types"
 
 export const useCreatePost = () => {
   const queryClient = useQueryClient()
