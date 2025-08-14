@@ -38,10 +38,8 @@ import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileD
 export const PostManagerWidget = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
 
-  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedComment, setSelectedComment] = useState(null);
@@ -135,7 +133,7 @@ export const PostManagerWidget = () => {
               setSelectedTag={setSelectedTag}
               renderActions={(post) => (
                 <>
-                  <ViewPostButton postId={post?.id} />
+                  <ViewPostButton post={post} />
                   <EditPostButton post={post} />
                   <DeletePostButton postId={post?.id} />
                 </>
@@ -185,12 +183,7 @@ export const PostManagerWidget = () => {
       />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <ViewPostDialog
-        showPostDetailDialog={showPostDetailDialog}
-        setShowPostDetailDialog={setShowPostDetailDialog}
-        selectedPost={selectedPost}
-        searchQuery={searchQuery}
-      >
+      <ViewPostDialog searchQuery={searchQuery}>
         <CommentList
           postId={selectedPostId}
           setNewComment={setNewComment}
