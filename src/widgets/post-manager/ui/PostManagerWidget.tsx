@@ -11,7 +11,6 @@ import { PostTable } from '@/entities/post/ui/PostTable';
 import { useFetchAllUsers, useFetchUserById } from '@/entities/user/model/useUsers';
 import { CreateCommentDialog } from '@/features/comment-create/ui/CreateCommentDialog';
 import { EditCommentDialog } from '@/features/comment-edit/ui/EditCommentDialog';
-import { useCreatePost } from '@/features/post-create/model/useCreatePost';
 import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
 import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
 import { DeletePostButton } from '@/features/post-delete/ui/DeletePostButton';
@@ -46,15 +45,6 @@ export const PostManagerWidget = () => {
   const total = finalData?.total || 0;
   const tags = tagsData || [];
 
-  const {
-    showDialog: showAddDialog,
-    setShowDialog: setShowAddDialog,
-    newPost,
-    setNewPost,
-    openDialog: openAddDialog,
-    handleSubmit,
-  } = useCreatePost();
-
   const { data: usersData } = useFetchAllUsers();
   const { data: user } = useFetchUserById(selectedUserId);
 
@@ -78,7 +68,7 @@ export const PostManagerWidget = () => {
       <CardHeader>
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
-          <CreatePostButton onClick={openAddDialog} />
+          <CreatePostButton />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -121,13 +111,7 @@ export const PostManagerWidget = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <CreatePostDialog
-        open={showAddDialog}
-        onOpenChange={() => setShowAddDialog(!showAddDialog)}
-        newPost={newPost}
-        setNewPost={setNewPost}
-        onSubmit={handleSubmit}
-      />
+      <CreatePostDialog />
 
       {/* 게시물 수정 대화상자 */}
       <EditPostDialog />

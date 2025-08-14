@@ -1,14 +1,16 @@
 import { Plus } from 'lucide-react';
 
+import { useCreatePost } from '../model/useCreatePost';
+
 import { Button } from '@/shared/ui';
 
-interface CreatePostButtonProps {
-  onClick: () => void;
-}
+export const CreatePostButton = () => {
+  const { openDialog } = useCreatePost();
 
-export const CreatePostButton = ({ onClick }: CreatePostButtonProps) => (
-  <Button onClick={onClick}>
-    <Plus className='w-4 h-4 mr-2' />
-    게시물 추가
-  </Button>
-);
+  return (
+    <Button onClick={openDialog}>
+      <Plus className='w-4 h-4 mr-2' />
+      게시물 추가
+    </Button>
+  );
+};

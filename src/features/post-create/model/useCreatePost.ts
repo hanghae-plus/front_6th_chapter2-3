@@ -1,32 +1,24 @@
-import { useState } from 'react';
+import { useCreatePostStore } from './createPostStore';
 
 import { useAddPost } from '@/entities/post/model/usePosts';
 
 export const useCreatePost = () => {
-  const [showDialog, setShowDialog] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
+  const { isDialogOpen, newPost, openDialog, closeDialog, setNewPost } = useCreatePostStore();
 
   const { mutate: addPost } = useAddPost();
 
-  const openDialog = () => {
-    setNewPost({ title: '', body: '', userId: 1 });
-    setShowDialog(true);
-  };
-
   const handleSubmit = () => {
     addPost(newPost, {
-      onSuccess: () => {
-        setShowDialog(false);
-      },
+      onSuccess: () => closeDialog(),
     });
   };
 
   return {
-    showDialog,
-    setShowDialog,
+    isDialogOpen,
     newPost,
     setNewPost,
     openDialog,
+    closeDialog,
     handleSubmit,
   };
 };

@@ -1,3 +1,5 @@
+import { useCreatePost } from '../model/useCreatePost';
+
 import {
   Button,
   Dialog,
@@ -8,9 +10,11 @@ import {
   Textarea,
 } from '@/shared/ui';
 
-export const CreatePostDialog = ({ open, onOpenChange, newPost, setNewPost, onSubmit }) => {
+export const CreatePostDialog = () => {
+  const { isDialogOpen, newPost, closeDialog, setNewPost, handleSubmit } = useCreatePost();
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>
@@ -27,7 +31,7 @@ export const CreatePostDialog = ({ open, onOpenChange, newPost, setNewPost, onSu
             value={newPost.body}
             onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
           />
-          <Button onClick={onSubmit}>게시물 추가</Button>
+          <Button onClick={handleSubmit}>게시물 추가</Button>
         </div>
       </DialogContent>
     </Dialog>
