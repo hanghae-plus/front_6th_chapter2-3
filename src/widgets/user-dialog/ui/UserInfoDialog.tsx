@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Dialog } from "@/shared/ui"
 
 type UserInfoDialogProps = {
-  showUserModal: any
-  setShowUserModal: any
   selectedUser: any
 }
 
-export function UserInfoDialog({ selectedUser, setShowUserModal, showUserModal }: UserInfoDialogProps) {
+export function UserInfoDialog({ selectedUser }: UserInfoDialogProps) {
+  const { currentDialog, closeDialog } = useDialogStore()
+  const isOpen = currentDialog === DialogType.USER_MODAL
+
   return (
-    <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>사용자 정보</Dialog.Title>

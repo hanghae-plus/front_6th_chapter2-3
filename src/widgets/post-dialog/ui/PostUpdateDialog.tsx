@@ -1,24 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button, Dialog, Input, Textarea } from "@/shared/ui"
 
 type PostUpdateDialogProps = {
-  showEditDialog: any
-  setShowEditDialog: any
-  setSelectedPost: any
-  selectedPost: any
   updatePost: any
+  selectedPost: any
+  setSelectedPost: any
 }
 
-export function PostUpdateDialog({
-  selectedPost,
-  setSelectedPost,
-  setShowEditDialog,
-  showEditDialog,
-  updatePost,
-}: PostUpdateDialogProps) {
+export function PostUpdateDialog({ updatePost, selectedPost, setSelectedPost }: PostUpdateDialogProps) {
+  const { currentDialog, closeDialog } = useDialogStore()
+  const isOpen = currentDialog === DialogType.EDIT_POST
+
   return (
-    <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>게시물 수정</Dialog.Title>

@@ -1,24 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button, Dialog, Textarea } from "@/shared/ui"
 
 type CommentUpdateDialogProps = {
-  showEditCommentDialog: any
-  setShowEditCommentDialog: any
+  updateComment: any
   selectedComment: any
   setSelectedComment: any
-  updateComment: any
 }
 
-export function CommentUpdateDialog({
-  selectedComment,
-  setSelectedComment,
-  setShowEditCommentDialog,
-  showEditCommentDialog,
-  updateComment,
-}: CommentUpdateDialogProps) {
+export function CommentUpdateDialog({ updateComment, selectedComment, setSelectedComment }: CommentUpdateDialogProps) {
+  const { currentDialog, closeDialog } = useDialogStore()
+  const isOpen = currentDialog === DialogType.EDIT_COMMENT
+
   return (
-    <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>댓글 수정</Dialog.Title>

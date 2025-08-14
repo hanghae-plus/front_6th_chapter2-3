@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
 import { CommentAddDialog, CommentUpdateDialog } from "@/widgets/comment-dialog/ui"
@@ -19,29 +20,25 @@ export function PostsManagerPage() {
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
 
-  // 상태 관리
+  const { openDialog, closeDialog } = useDialogStore()
+
+  const [selectedPost, setSelectedPost] = useState<any>(null)
+  const [selectedComment, setSelectedComment] = useState<any>(null)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [newPost, setNewPost] = useState<any>({ title: "", body: "", userId: 1 })
+  const [newComment, setNewComment] = useState<any>({ body: "", postId: null, userId: 1 })
+
   const [posts, setPosts] = useState<any[]>([])
   const [total, setTotal] = useState(0)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState<any>(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState<any>({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<any[]>([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState<any>({})
-  const [selectedComment, setSelectedComment] = useState<any>(null)
-  const [newComment, setNewComment] = useState<any>({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -152,7 +149,7 @@ export function PostsManagerPage() {
       })
       const data = await response.json()
       setPosts([data, ...posts])
-      setShowAddDialog(false)
+      closeDialog()
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
       console.error("게시물 추가 오류:", error)
@@ -169,7 +166,7 @@ export function PostsManagerPage() {
       })
       const data = await response.json()
       setPosts(posts.map((post: any) => (post.id === data.id ? data : post)))
-      setShowEditDialog(false)
+      closeDialog()
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
     }
@@ -212,7 +209,7 @@ export function PostsManagerPage() {
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
       }))
-      setShowAddCommentDialog(false)
+      openDialog(DialogType.POST_DETAIL)
       setNewComment({ body: "", postId: null, userId: 1 })
     } catch (error) {
       console.error("댓글 추가 오류:", error)
@@ -232,7 +229,7 @@ export function PostsManagerPage() {
         ...prev,
         [data.postId]: prev[data.postId].map((comment: any) => (comment.id === data.id ? data : comment)),
       }))
-      setShowEditCommentDialog(false)
+      openDialog(DialogType.POST_DETAIL)
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
@@ -277,16 +274,16 @@ export function PostsManagerPage() {
   const openPostDetail = (post: any) => {
     setSelectedPost(post)
     fetchComments(post.id)
-    setShowPostDetailDialog(true)
+    openDialog(DialogType.POST_DETAIL)
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user: any) => {
+  const handleOpenUserModal = async (user: any) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
       setSelectedUser(userData)
-      setShowUserModal(true)
+      openDialog(DialogType.USER_MODAL)
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
@@ -320,12 +317,13 @@ export function PostsManagerPage() {
       <Card.Header>
         <Card.Title className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => openDialog(DialogType.ADD_POST)}>
             <Plus className="mr-2 h-4 w-4" />
             게시물 추가
           </Button>
         </Card.Title>
       </Card.Header>
+
       <Card.Content>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
@@ -354,11 +352,11 @@ export function PostsManagerPage() {
               searchQuery={searchQuery}
               selectedTag={selectedTag}
               onTagClick={(tag: string) => setSelectedTag(tag)}
-              onUserClick={openUserModal}
+              onUserClick={handleOpenUserModal}
               onPostDetailClick={openPostDetail}
               onPostEditClick={(post: any) => {
                 setSelectedPost(post)
-                setShowEditDialog(true)
+                openDialog(DialogType.EDIT_POST)
               }}
               onPostDeleteClick={deletePost}
               updateURL={updateURL}
@@ -370,66 +368,40 @@ export function PostsManagerPage() {
       </Card.Content>
 
       {/* 댓글 추가 다이얼로그 */}
-      <CommentAddDialog
-        addComment={addComment}
-        newComment={newComment}
-        setNewComment={setNewComment}
-        setShowAddCommentDialog={setShowAddCommentDialog}
-        showAddCommentDialog={showAddCommentDialog}
-      />
+      <CommentAddDialog addComment={addComment} newComment={newComment} setNewComment={setNewComment} />
 
       {/* 댓글 수정 다이얼로그 */}
       <CommentUpdateDialog
         selectedComment={selectedComment}
         setSelectedComment={setSelectedComment}
-        setShowEditCommentDialog={setShowEditCommentDialog}
-        showEditCommentDialog={showEditCommentDialog}
         updateComment={updateComment}
       />
 
       {/* 게시물 추가 대화상자 */}
-      <PostAddDialog
-        addPost={addPost}
-        newPost={newPost}
-        setNewPost={setNewPost}
-        setShowAddDialog={setShowAddDialog}
-        showAddDialog={showAddDialog}
-      />
+      <PostAddDialog addPost={addPost} newPost={newPost} setNewPost={setNewPost} />
 
       {/* 게시물 상세 보기 다이얼로그 */}
       <PostDetailDialog
         searchQuery={searchQuery}
         selectedPost={selectedPost}
-        setShowPostDetailDialog={setShowPostDetailDialog}
-        showPostDetailDialog={showPostDetailDialog}
         comments={comments}
         onAddComment={(postId: any) => {
           setNewComment((prev: any) => ({ ...prev, postId }))
-          setShowAddCommentDialog(true)
+          openDialog(DialogType.ADD_COMMENT)
         }}
         onEditComment={(comment: any) => {
           setSelectedComment(comment)
-          setShowEditCommentDialog(true)
+          openDialog(DialogType.EDIT_COMMENT)
         }}
         onDeleteComment={deleteComment}
         onLikeComment={likeComment}
       />
 
       {/* 게시물 수정 다이얼로그 */}
-      <PostUpdateDialog
-        selectedPost={selectedPost}
-        setSelectedPost={setSelectedPost}
-        setShowEditDialog={setShowEditDialog}
-        showEditDialog={showEditDialog}
-        updatePost={updatePost}
-      />
+      <PostUpdateDialog selectedPost={selectedPost} setSelectedPost={setSelectedPost} updatePost={updatePost} />
 
       {/* 사용자 정보 보기 다이얼로그 */}
-      <UserInfoDialog
-        selectedUser={selectedUser} //
-        setShowUserModal={setShowUserModal}
-        showUserModal={showUserModal}
-      />
+      <UserInfoDialog selectedUser={selectedUser} />
     </Card>
   )
 }

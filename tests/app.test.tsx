@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { queryClient } from "../src/app/config"
 import { PostsManagerPage } from "../src/pages/posts-manager/ui"
+import { useDialogStore } from "../src/shared/lib"
 import { resetMockData } from "./msw/handlers"
 
 const TestWrapper = ({ children }: PropsWithChildren) => (
@@ -20,6 +21,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     vi.clearAllMocks()
     queryClient.clear()
     resetMockData()
+    useDialogStore.getState().resetStore()
   })
 
   describe("🎨 기본 렌더링 및 초기 로딩", () => {

@@ -2,13 +2,12 @@
 
 import { CommentList } from "@/entities/comment/ui"
 import { PostHighlightText } from "@/entities/post/ui"
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Dialog } from "@/shared/ui"
 
 type PostDetailDialogProps = {
-  showPostDetailDialog: any
-  setShowPostDetailDialog: any
-  selectedPost: any
   searchQuery: any
+  selectedPost: any
   comments: any
   onAddComment: (postId: any) => void
   onEditComment: (comment: any) => void
@@ -19,16 +18,17 @@ type PostDetailDialogProps = {
 export function PostDetailDialog({
   searchQuery,
   selectedPost,
-  setShowPostDetailDialog,
-  showPostDetailDialog,
   comments,
   onAddComment,
   onEditComment,
   onDeleteComment,
   onLikeComment,
 }: PostDetailDialogProps) {
+  const { currentDialog, closeDialog } = useDialogStore()
+  const isOpen = currentDialog === DialogType.POST_DETAIL
+
   return (
-    <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <Dialog.Content className="max-w-3xl">
         <Dialog.Header>
           <Dialog.Title>

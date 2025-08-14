@@ -1,24 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button, Dialog, Textarea } from "@/shared/ui"
 
 type CommentAddDialogProps = {
-  showAddCommentDialog: any
-  setShowAddCommentDialog: any
+  addComment: any
   newComment: any
   setNewComment: any
-  addComment: any
 }
 
-export function CommentAddDialog({
-  addComment,
-  newComment,
-  setNewComment,
-  setShowAddCommentDialog,
-  showAddCommentDialog,
-}: CommentAddDialogProps) {
+export function CommentAddDialog({ addComment, newComment, setNewComment }: CommentAddDialogProps) {
+  const { currentDialog, closeDialog } = useDialogStore()
+  const isOpen = currentDialog === DialogType.ADD_COMMENT
+
   return (
-    <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>새 댓글 추가</Dialog.Title>
@@ -26,7 +22,7 @@ export function CommentAddDialog({
         <div className="space-y-4">
           <Textarea
             placeholder="댓글 내용"
-            value={newComment.body}
+            value={newComment?.body || ""}
             onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
           />
           <Button onClick={addComment}>댓글 추가</Button>
