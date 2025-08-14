@@ -12,6 +12,7 @@ const DialogOverlay = DialogPrimitive.Overlay
 type DialogContentProps = ComponentPropsWithRef<typeof DialogPrimitive.Content>
 type DialogHeaderProps = ComponentPropsWithRef<"div">
 type DialogTitleProps = ComponentPropsWithRef<typeof DialogPrimitive.Title>
+type DialogDescriptionProps = ComponentPropsWithRef<typeof DialogPrimitive.Description>
 
 function DialogContent({ className, children, ...rest }: DialogContentProps) {
   return (
@@ -47,6 +48,15 @@ function DialogTitle({ className, ...rest }: DialogTitleProps) {
   )
 }
 
+function DialogDescription({ className, ...rest }: DialogDescriptionProps) {
+  return (
+    <DialogPrimitive.Description
+      className={mergeClasses("text-sm text-gray-600", className)}
+      {...rest}
+    />
+  )
+}
+
 export const Dialog = Object.assign(DialogRoot, {
   Trigger: DialogTrigger,
   Portal: DialogPortal,
@@ -54,4 +64,5 @@ export const Dialog = Object.assign(DialogRoot, {
   Content: DialogContent,
   Header: DialogHeader,
   Title: DialogTitle,
+  Description: DialogDescription,
 })

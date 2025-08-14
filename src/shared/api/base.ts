@@ -37,7 +37,13 @@ function createFetcherUrl(url: string, options: FetcherOptions = {}) {
 }
 
 export async function fetcher(url: string, options: FetcherOptions = {}) {
-  const { body, searchParams, prefixUrl = "/api", method = "GET", ...fetchOptions } = options
+  const {
+    body,
+    searchParams,
+    prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api",
+    method = "GET",
+    ...fetchOptions
+  } = options
   const fetcherUrl = createFetcherUrl(url, { searchParams, prefixUrl })
 
   const requestOptions: RequestInit = {
