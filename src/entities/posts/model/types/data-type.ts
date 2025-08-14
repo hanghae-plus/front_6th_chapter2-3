@@ -34,3 +34,9 @@ export interface PostTag {
   name: string;
   url: string;
 }
+
+// 게시글 정렬 옵션
+export type PostSortBy = 'none' | 'id' | 'title' | 'reactions';
+
+// 정렬 순서
+export type SortOrder = 'asc' | 'desc';

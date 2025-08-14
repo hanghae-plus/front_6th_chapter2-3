@@ -8,7 +8,10 @@ import type {
   PostsTagsResponse,
   UpdatePostCommentRequest,
   UpdatePostCommentResponse,
+  PostSortBy,
+  SortOrder,
 } from '../model';
+import { sortPostsByReactions, slicePosts } from '../model/lib';
 import { remote } from '@/shared/api';
 
 export const getPosts = async (
@@ -16,8 +19,8 @@ export const getPosts = async (
   skip: number,
   searchQuery: string,
   selectedTag: string,
-  sortBy: string,
-  sortOrder: string,
+  sortBy: PostSortBy,
+  sortOrder: SortOrder,
 ): Promise<PostsResponse> => {
   if ('reactions' === sortBy) {
     const data: PostsResponse = await remotePosts(
@@ -33,16 +36,11 @@ export const getPosts = async (
       ...data,
       limit,
       skip,
-      posts: data.posts
-        .sort((a, b) => {
-          const aReactions = a.reactions.likes + a.reactions.dislikes;
-          const bReactions = b.reactions.likes + b.reactions.dislikes;
-
-          return sortOrder === 'asc'
-            ? aReactions - bReactions
-            : bReactions - aReactions;
-        })
-        .slice(skip, skip + limit),
+      posts: slicePosts(
+        sortPostsByReactions(data.posts, sortOrder),
+        skip,
+        limit,
+      ),
     };
   }
 
@@ -60,8 +58,8 @@ export const getPosts = async (
     skip: number,
     q: string,
     selectedTag: string,
-    sortBy: string,
-    order: string,
+    sortBy: PostSortBy,
+    order: SortOrder,
   ) {
     const options = {
       params: {
