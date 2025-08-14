@@ -1,4 +1,4 @@
-import { Footer, Header } from "@/widgets/layout"
+import { Footer, Header } from "@/core/layouts"
 import { PostManagementPage } from "@/views/post-management-page"
 
 import { BrowserRouter as Router } from "react-router-dom"
