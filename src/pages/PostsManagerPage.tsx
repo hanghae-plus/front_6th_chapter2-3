@@ -7,10 +7,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
   Table,
   TableBody,
@@ -18,15 +14,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Textarea,
 } from "../shared/ui";
 import { DropdownSelect } from "../shared/ui/DropdownSelect";
 import { addPost, deletePost, getPostBySearch, getPostByTag, getPosts, updatePost } from "../entities/post/api";
 import { getTags } from "../entities/tag/api";
 import { getAllUsers, getUser } from "../entities/user/api";
-import { addComment, deleteComment, getComments, likeComment, updateComment } from "../entities/comment/api";
 import { HighlightText } from "../shared/ui/HighlightText";
-import { Comment } from "../entities/comment/ui/Comment";
 import { UserModal } from "../entities/user/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
 import { PostAddDialog } from "../features/post/ui/PostAddDialog";
@@ -34,6 +27,9 @@ import { PostUpdateDialog } from "../features/post/ui/PostUpdateDialog";
 import { CommentAddDialog } from "../features/comment/ui/CommentAddDialog";
 import { Comment as CommentType } from "../entities/comment/types";
 import { CommentUpdateDialog } from "../features/comment/ui/CommentUpdateDialog";
+import { PostDetailDialog } from "../features/post/ui/PostDetailDialog";
+import { Comments } from "../features/comment/ui/Comments";
+import { useComments } from "../features/comment/models/useComment";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -55,7 +51,6 @@ const PostsManager = () => {
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
-  const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
   const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
@@ -63,6 +58,15 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const { comments, fetchComments, handleAddComment, handleLikeComment, handleDeleteComment, handleUpdateComment } =
+    useComments({
+      newComment,
+      setNewComment,
+      selectedComment,
+      setShowAddCommentDialog,
+      setShowEditCommentDialog,
+    });
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -184,77 +188,6 @@ const PostsManager = () => {
       setPosts(posts.filter((post) => post.id !== id));
     } catch (error) {
       console.error("게시물 삭제 오류:", error);
-    }
-  };
-
-  // 댓글 가져오기
-  const fetchComments = async (postId) => {
-    if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const data = await getComments({ postId });
-      setComments((prev) => ({ ...prev, [postId]: data.comments }));
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error);
-    }
-  };
-
-  // 댓글 추가
-  const handleAddComment = async () => {
-    try {
-      const data = await addComment({ comment: newComment });
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }));
-      setShowAddCommentDialog(false);
-      setNewComment({ body: "", postId: null, userId: 1 });
-    } catch (error) {
-      console.error("댓글 추가 오류:", error);
-    }
-  };
-
-  // 댓글 업데이트
-  const handleUpdateComment = async () => {
-    try {
-      if (!selectedComment) return;
-      const updatedComment = await updateComment({ comment: selectedComment });
-      setComments((prev) => ({
-        ...prev,
-        [updatedComment.postId]: prev[updatedComment.postId].map((comment) =>
-          comment.id === updatedComment.id ? updatedComment : comment,
-        ),
-      }));
-      setShowEditCommentDialog(false);
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error);
-    }
-  };
-
-  // 댓글 삭제
-  const handleDeleteComment = async (id, postId) => {
-    try {
-      await deleteComment({ id });
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }));
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error);
-    }
-  };
-
-  // 댓글 좋아요
-  const handleLikeComment = async (id, postId) => {
-    try {
-      const data = await likeComment({ id, likes: comments[postId].find((c) => c.id === id).likes + 1 });
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }));
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error);
     }
   };
 
@@ -381,40 +314,6 @@ const PostsManager = () => {
     </Table>
   );
 
-  // 댓글 렌더링
-  const renderComments = (postId) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }));
-            setShowAddCommentDialog(true);
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <Comment
-            key={comment.id}
-            comment={comment}
-            searchQuery={searchQuery}
-            handleLikeComment={() => handleLikeComment(comment.id, postId)}
-            handleDeleteComment={() => handleDeleteComment(comment.id, postId)}
-            handleEditComment={() => {
-              setSelectedComment(comment);
-              setShowEditCommentDialog(true);
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -527,21 +426,28 @@ const PostsManager = () => {
       />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>
-              <HighlightText text={selectedPost?.title} highlight={searchQuery} />
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>
-              <HighlightText text={selectedPost?.body} highlight={searchQuery} />
-            </p>
-            {renderComments(selectedPost?.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDetailDialog
+        showPostDetailDialog={showPostDetailDialog}
+        setShowPostDetailDialog={setShowPostDetailDialog}
+        selectedPost={selectedPost}
+        searchQuery={searchQuery}
+        Comments={
+          <Comments
+            comments={comments[selectedPost?.id ?? 0] ?? []}
+            searchQuery={searchQuery}
+            handleAddComment={() => {
+              setNewComment((prev) => ({ ...prev, postId: selectedPost?.id ?? 0 }));
+              setShowAddCommentDialog(true);
+            }}
+            handleLikeComment={handleLikeComment}
+            handleDeleteComment={handleDeleteComment}
+            handleEditComment={(comment) => {
+              setSelectedComment(comment);
+              setShowEditCommentDialog(true);
+            }}
+          />
+        }
+      />
 
       {/* 사용자 모달 */}
       <UserModal showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />

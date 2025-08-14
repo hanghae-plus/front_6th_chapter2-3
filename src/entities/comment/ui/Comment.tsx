@@ -12,8 +12,8 @@ export const Comment = ({
 }: {
   comment: CommentType;
   searchQuery: string;
-  handleLikeComment: (commentId: number, postId: number) => void;
-  handleDeleteComment: (commentId: number, postId: number) => void;
+  handleLikeComment: () => void;
+  handleDeleteComment: () => void;
   handleEditComment: () => void;
 }) => {
   return (
@@ -25,14 +25,14 @@ export const Comment = ({
         </span>
       </div>
       <div className="flex items-center space-x-1">
-        <Button variant="ghost" size="sm" onClick={() => handleLikeComment}>
+        <Button variant="ghost" size="sm" onClick={handleLikeComment}>
           <ThumbsUp className="w-3 h-3" />
           <span className="ml-1 text-xs">{comment.likes}</span>
         </Button>
         <Button variant="ghost" size="sm" onClick={handleEditComment}>
           <Edit2 className="w-3 h-3" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => handleDeleteComment}>
+        <Button variant="ghost" size="sm" onClick={handleDeleteComment}>
           <Trash2 className="w-3 h-3" />
         </Button>
       </div>
