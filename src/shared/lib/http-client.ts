@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
-const API_BASE_URL = '/api'
+const API_BASE_URL = process.env.NODE_ENV === 'development' ? '/api' : 'https://dummyjson.com'
 
 class HttpClient {
   private client: AxiosInstance
