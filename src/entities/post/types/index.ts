@@ -1,15 +1,15 @@
-// PostsManagerPage.tsx에서 추론한 Post 관련 타입 정의들
+import { User } from '../../../shared/types/common';
+
 export interface Post {
   id: number;
   title: string;
   body: string;
   userId: number;
-  tags?: string[];
-  reactions?: {
+  tags: string[];
+  reactions: {
     likes: number;
     dislikes: number;
   };
-  author?: User;
 }
 
 export interface NewPost {
@@ -18,22 +18,8 @@ export interface NewPost {
   userId: number;
 }
 
-export interface User {
-  id: number;
-  username: string;
-  image: string;
-  firstName?: string;
-  lastName?: string;
-  age?: number;
-  email?: string;
-  phone?: string;
-  address?: {
-    address: string;
-    city: string;
-    state: string;
-  };
-  company?: {
-    name: string;
-    title: string;
-  };
+export interface PostWithUser extends Post {
+  author: User | undefined;
 }
+
+export type { User };

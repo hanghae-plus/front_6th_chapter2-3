@@ -1,4 +1,6 @@
-import { highlightText } from '../../shared';
+import { highlightText } from '../../../shared/utils';
+import { Button } from '../../../shared/ui/Button';
+import { Plus } from 'lucide-react';
 
 // PostsManagerPage.tsx에서 그대로 복사한 Comment 관련 함수들
 
