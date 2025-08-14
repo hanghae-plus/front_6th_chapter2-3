@@ -78,8 +78,10 @@ export const PostDialog = () => {
                       {highlightText(comment.body, searchQuery)}
                     </span>
                   </div>
+
+                  {/* 댓글 액션 */}
                   <div className="flex items-center space-x-1">
-                    {/*  */}
+                    {/* 댓글 좋아요 */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -90,7 +92,8 @@ export const PostDialog = () => {
                       <ThumbsUp className="w-3 h-3" />
                       <span className="ml-1 text-xs">{comment.likes}</span>
                     </Button>
-                    {/* 수정 */}
+
+                    {/* 댓글 수정 */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -100,6 +103,8 @@ export const PostDialog = () => {
                     >
                       <Edit2 className="w-3 h-3" />
                     </Button>
+
+                    {/* 댓글 삭제 */}
                     <Button
                       variant="ghost"
                       size="sm"

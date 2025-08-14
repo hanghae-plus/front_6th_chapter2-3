@@ -16,13 +16,19 @@ export const getPosts = async (
   skip: number,
   searchQuery: string,
   selectedTag: string,
+  sortBy: string,
+  sortOrder: string,
 ): Promise<PostsResponse> => {
   if (searchQuery) {
-    return await remote(`/api/posts/search?q=${searchQuery}`);
+    return await remote(
+      `/api/posts/search?q=${searchQuery}&limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
+    );
   }
 
   if (selectedTag && selectedTag !== 'all') {
-    return await remote(`/api/posts/tag/${selectedTag}`);
+    return await remote(
+      `/api/posts/tag/${selectedTag}?limit=${limit}&skip=${skip}`,
+    );
   }
 
   return await remote(`/api/posts?limit=${limit}&skip=${skip}`);

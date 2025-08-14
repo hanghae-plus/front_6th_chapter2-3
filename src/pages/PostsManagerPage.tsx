@@ -1,3 +1,4 @@
+import { PostsTable } from '@/widgets/posts';
 import {
   AddCommentDialog,
   AddPostButton,
@@ -6,20 +7,14 @@ import {
   PostDialog,
   PostsFilter,
   PostsPagination,
-  PostsTable,
 } from '@/features/posts';
-import { UserModal, useUserModal } from '@/features/users';
+import { UserModal } from '@/features/users';
 import { EditPostDialog } from '@/features/posts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 const PostsManager = () => {
-  // 상태 관리
-
-  const { open: openUserModal } = useUserModal();
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
-      {/*  */}
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
@@ -27,14 +22,13 @@ const PostsManager = () => {
         </CardTitle>
       </CardHeader>
 
-      {/*  */}
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
           <PostsFilter />
 
           {/* 게시물 테이블 */}
-          <PostsTable onClickOpenUserModal={(user) => openUserModal(user.id)} />
+          <PostsTable />
 
           {/* 페이지네이션 */}
           <PostsPagination />

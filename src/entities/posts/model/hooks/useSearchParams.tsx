@@ -12,8 +12,8 @@ export const useSearchQuery = (): ReturnType<
 
   const setSearch = (value: string) => {
     setSearchParams((searchParams) => {
-      searchParams.set('tag', value);
-      searchParams.set('search', '');
+      searchParams.set('search', value);
+      searchParams.set('tag', '');
       return searchParams;
     });
   };

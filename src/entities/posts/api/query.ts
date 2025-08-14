@@ -1,3 +1,22 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  addComment,
+  deleteComment,
+  getLikes,
+  incrementCommentLike,
+  useLimit,
+  usePostsQueryKey,
+  useSearchQuery,
+  useSkip,
+  useSortBy,
+  useSortOrder,
+  useTag,
+  type AddPostRequest,
+  type Post,
+  type PostCommentsResponse,
+  type PostsResponse,
+  type UpdatePostCommentRequest,
+} from '../model';
 import {
   addPost,
   addPostComment,
@@ -10,22 +29,6 @@ import {
   updatePost,
   updatePostComment,
 } from './remote';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  addComment,
-  deleteComment,
-  getLikes,
-  incrementCommentLike,
-  useLimit,
-  useSearchQuery,
-  useSkip,
-  useTag,
-  type AddPostRequest,
-  type Post,
-  type PostCommentsResponse,
-  type PostsResponse,
-  type UpdatePostCommentRequest,
-} from '../model';
 import { QUERY_KEYS } from '@/shared/config';
 
 // 게시글 목록 가져오기
@@ -34,10 +37,20 @@ export const usePosts = () => {
   const [skip] = useSkip();
   const [searchQuery] = useSearchQuery();
   const [selectedTag] = useTag();
+  const [sortBy] = useSortBy();
+  const [sortOrder] = useSortOrder();
 
   return useQuery({
-    queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-    queryFn: () => getPosts(limit, skip, searchQuery, selectedTag),
+    queryKey: QUERY_KEYS.posts(
+      limit,
+      skip,
+      searchQuery,
+      selectedTag,
+      sortBy,
+      sortOrder,
+    ),
+    queryFn: () =>
+      getPosts(limit, skip, searchQuery, selectedTag, sortBy, sortOrder),
   });
 };
 
@@ -207,33 +220,25 @@ export const useUpdatePostComment = () => {
 
 // 게시물 업데이트
 export const useUpdatePost = () => {
-  const [limit] = useLimit();
-  const [skip] = useSkip();
-  const [searchQuery] = useSearchQuery();
-  const [selectedTag] = useTag();
   const queryClient = useQueryClient();
+  const postsQueryKey = usePostsQueryKey();
 
   return useMutation({
     mutationFn: ({ postId, post }: { postId: number; post: Post }) =>
       updatePost(postId, post),
     onMutate: async ({ postId, post }) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        queryKey: postsQueryKey,
       });
 
-      const previousPosts = queryClient.getQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-      );
+      const previousPosts = queryClient.getQueryData(postsQueryKey);
 
-      queryClient.setQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-        (old: PostsResponse) => {
-          return {
-            ...old,
-            posts: old.posts.map((item) => (item.id === postId ? post : item)),
-          };
-        },
-      );
+      queryClient.setQueryData(postsQueryKey, (old: PostsResponse) => {
+        return {
+          ...old,
+          posts: old.posts.map((item) => (item.id === postId ? post : item)),
+        };
+      });
 
       return { previousPosts };
     },
@@ -242,32 +247,24 @@ export const useUpdatePost = () => {
 
 // 게시물 삭제
 export const useDeletePost = () => {
-  const [limit] = useLimit();
-  const [skip] = useSkip();
-  const [searchQuery] = useSearchQuery();
-  const [selectedTag] = useTag();
   const queryClient = useQueryClient();
+  const postsQueryKey = usePostsQueryKey();
 
   return useMutation({
     mutationFn: (postId: number) => deletePost(postId),
     onMutate: async (postId) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        queryKey: postsQueryKey,
       });
 
-      const previousPosts = queryClient.getQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-      );
+      const previousPosts = queryClient.getQueryData(postsQueryKey);
 
-      queryClient.setQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-        (old: PostsResponse) => {
-          return {
-            ...old,
-            posts: old.posts.filter((item) => item.id !== postId),
-          };
-        },
-      );
+      queryClient.setQueryData(postsQueryKey, (old: PostsResponse) => {
+        return {
+          ...old,
+          posts: old.posts.filter((item) => item.id !== postId),
+        };
+      });
 
       return { previousPosts };
     },
@@ -276,33 +273,25 @@ export const useDeletePost = () => {
 
 // 게시물 추가
 export const useAddPost = () => {
-  const [limit] = useLimit();
-  const [skip] = useSkip();
-  const [searchQuery] = useSearchQuery();
-  const [selectedTag] = useTag();
   const queryClient = useQueryClient();
+  const postsQueryKey = usePostsQueryKey();
 
   return useMutation({
     mutationFn: (postData: AddPostRequest) => addPost(postData),
     onMutate: async (postData) => {
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
+        queryKey: postsQueryKey,
       });
 
-      const previousPosts = queryClient.getQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-      );
+      const previousPosts = queryClient.getQueryData(postsQueryKey);
 
-      queryClient.setQueryData(
-        QUERY_KEYS.posts(limit, skip, searchQuery, selectedTag),
-        (old: PostsResponse) => {
-          return {
-            ...old,
-            posts: [postData, ...old.posts],
-            total: old.total + 1,
-          };
-        },
-      );
+      queryClient.setQueryData(postsQueryKey, (old: PostsResponse) => {
+        return {
+          ...old,
+          posts: [postData, ...old.posts],
+          total: old.total + 1,
+        };
+      });
 
       return { previousPosts };
     },
