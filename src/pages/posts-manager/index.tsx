@@ -25,17 +25,26 @@ import {
   TableRow,
   Textarea,
 } from "../../shared/ui"
-import { addPostApi, deletePostApi, fetchPostsApi, searchPostsApi, updatePostApi } from "../../entities/posts/api"
-import { fetchTagsApi } from "../../entities/tags/api"
+import {
+  addPostApi,
+  deletePostApi,
+  fetchPostsApi,
+  PostDTO,
+  searchPostsApi,
+  updatePostApi,
+} from "../../entities/posts/api"
+import { fetchTagsApi, Tag } from "../../entities/tags/api"
 import { fetchUserApi, fetchUsersApi } from "../../entities/users/api"
 import {
   addCommentApi,
+  Comment,
   deleteCommentApi,
   fetchCommentsApi,
   likeCommentApi,
   updateCommentApi,
 } from "../../entities/comments/api"
 import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
+import HighlightText from "../../shared/ui/HighlightText"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -43,29 +52,36 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<PostDTO[]>([])
+  const [comments, setComments] = useState<Comment | {}>({})
+  const [tags, setTags] = useState<Tag[]>([])
+
   const [total, setTotal] = useState(0)
 
   // 검색 관련
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
   const [selectedPost, setSelectedPost] = useState(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
+  const [loading, setLoading] = useState(false)
+
+  // 모달 관련
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
+
+  // form 내용 관련
+  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+
+  // 현재 선택된 태그,, 및 저장
+  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
+  const [selectedComment, setSelectedComment] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
@@ -298,21 +314,6 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
-
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
     <Table>
@@ -331,7 +332,9 @@ const PostsManager = () => {
             <TableCell>{post.id}</TableCell>
             <TableCell>
               <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
+                <div>
+                  <HighlightText text={post.title} highlight={searchQuery} />
+                </div>
 
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag) => (
@@ -414,7 +417,9 @@ const PostsManager = () => {
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+              <span className="truncate">
+                <HighlightText text={comment.body} highlight={searchQuery} />
+              </span>
             </div>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
@@ -631,10 +636,14 @@ const PostsManager = () => {
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
+            <DialogTitle>
+              <HighlightText text={selectedPost?.title} highlight={searchQuery} />
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
+            <p>
+              <HighlightText text={selectedPost?.body} highlight={searchQuery} />
+            </p>
             {renderComments(selectedPost?.id)}
           </div>
         </DialogContent>
