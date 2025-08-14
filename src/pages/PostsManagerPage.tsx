@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
+
 import {
   Button,
   Card,
@@ -17,12 +16,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
 } from "../shared/ui"
 import { HighlightText } from "../shared/ui/HighlightText"
@@ -42,35 +35,16 @@ import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
 import { useDeleteComment } from "../features/comment/hooks/useDeleteComment.ts"
 import { useLikeComment } from "../features/comment/hooks/useLikeComment.ts"
 import { useOpenUser } from "../features/user/hooks/useOpenUser.ts"
+import { useLimitMode } from "../features/posts/fetch-posts-by-mode/hooks/useLimitMode.ts"
 
 const PostsManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams()
-    // if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    // if (searchQuery) params.set("search", searchQuery)
-    // if (sortBy) params.set("sortBy", sortBy)
-    // if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
-  }
-
-  const { posts, total, isLoading: loading } = useFetchPostsByMode()
+  const posts = useFetchPostsByMode()
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
-  const { data: tags } = useTagsQuery()
   const pageNavigateMode = usePageNavigateMode()
   const sortMode = useSortMode()
+  const limitMode = useLimitMode()
+  const tags = useTagsQuery()
 
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
@@ -83,29 +57,6 @@ const PostsManager = () => {
   const likeComment = useLikeComment()
 
   const openUser = useOpenUser()
-
-  // 사용자 모달 열기
-  // const openUserModal = async (user) => {
-  //   try {
-  //     const response = await fetch(`/api/users/${user.id}`)
-  //     const userData = await response.json()
-  //     setSelectedUser(userData)
-  //     setShowUserModal(true)
-  //   } catch (error) {
-  //     console.error("사용자 정보 가져오기 오류:", error)
-  //   }
-  // }
-
-  // URL 파라미터 가져오기
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    // setSkip(parseInt(params.get("skip") || "0"))
-    setLimit(parseInt(params.get("limit") || "10"))
-    setSearchQuery(params.get("search") || "")
-    // setSortBy(params.get("sortBy") || "")
-    // setSortOrder(params.get("sortOrder") || "asc")
-    setSelectedTag(params.get("tag") || "")
-  }, [location.search])
 
   // 댓글 렌더링
   const renderComments = (postId) => {
@@ -127,7 +78,7 @@ const PostsManager = () => {
                 <span className="font-medium truncate">{comment.user.username}:</span>
                 {/* <span className="truncate">{highlightText(comment.body, searchQuery)}</span> */}
                 <span className="truncate">
-                  <HighlightText text={comment.body} highlight={searchQuery} />
+                  <HighlightText text={comment.body} highlight={searchMode.param} />
                 </span>
               </div>
               <div className="flex items-center space-x-1">
@@ -201,7 +152,7 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags?.map((tag) => (
+                {tags.data?.map((tag) => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>
@@ -237,20 +188,18 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? (
+          {posts.loading ? (
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
             <PostsTable
               data={{
-                rows: posts,
-                searchQuery,
-                selectedTag,
+                rows: posts.posts,
+                searchQuery: searchMode.param,
+                selectedTag: tagMode.param,
               }}
               handlers={{
                 onTagClick: (tag) => {
-                  setSelectedTag(tag)
-                  // fetchPostsByTag(tag)
-                  updateURL()
+                  tagMode.update(tag)
                 },
                 onOpenDetail: (post) => detailPost.actions.detail(post),
                 onEdit: (post) => updatePost.action.edit(post),
@@ -264,7 +213,7 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
+              <Select value={limitMode.param.toString()} onValueChange={(value) => limitMode.update(Number(value))}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="10" />
                 </SelectTrigger>
@@ -396,12 +345,12 @@ const PostsManager = () => {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              <HighlightText text={detailPost.state.selectedPost?.title || ""} highlight={searchQuery} />
+              <HighlightText text={detailPost.state.selectedPost?.title || ""} highlight={searchMode.param} />
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p>
-              <HighlightText text={detailPost.state.selectedPost?.body || ""} highlight={searchQuery} />
+              <HighlightText text={detailPost.state.selectedPost?.body || ""} highlight={searchMode.param} />
             </p>
             {renderComments(detailPost.state.selectedPost?.id || 0)}
           </div>

@@ -44,7 +44,7 @@ export const useFetchPostsByMode = () => {
   console.log("postsWithUsers", postsWithUsers)
 
   return {
-    isLoading: isLoading || users.isLoading,
+    loading: isLoading || users.isLoading,
     isError: isError || users.isError,
     posts: postsWithUsers,
     total: data?.total ?? 0,
