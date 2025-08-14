@@ -1,27 +1,29 @@
 import { useEffect, useState } from 'react';
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { Edit2, Plus, Trash2, ThumbsUp } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
   Input,
   Textarea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from '@/shared/ui';
+import { PostTable } from '@/features/(post)/list-posts';
+import { usePosts } from '@/features/(post)/list-posts';
+import { TagFilterSelect } from '@/features/(post)/filter-by-tag';
+import { useTagFilter } from '@/features/(post)/filter-by-tag';
+import { SearchInput } from '@/features/(post)/search-posts';
+import { usePostSearch } from '@/features/(post)/search-posts';
+import { PaginationControls } from '@/features/(post)/paginate-posts';
+import { SortSelect } from '@/features/(post)/sort-posts';
+import { usePostSort } from '@/features/(post)/sort-posts';
+import { tagApi } from '@/entities/tag';
+import type { Post } from '@/entities/post';
+import type { Comment } from '@/entities/comment';
+import type { User } from '@/entities/user';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -29,28 +31,45 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
-  const [posts, setPosts] = useState([]);
-  const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
   const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
-  const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
+  const { searchQuery, setQuery } = usePostSearch(queryParams.get('search') || '');
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const {
+    sortBy,
+    sortOrder,
+    setBy: setSortBy,
+    setOrder: setSortOrder,
+  } = usePostSort(
+    (queryParams.get('sortBy') as any) || 'none',
+    (queryParams.get('sortOrder') as any) || 'asc',
+  );
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
-  const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState([]);
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
-  const [comments, setComments] = useState({});
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
+  const [tags, setTags] = useState<string[]>([]);
+  const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
+  const [comments, setComments] = useState<Record<number, Comment[]>>({});
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
+  const [newComment, setNewComment] = useState<{
+    body: string;
+    postId: number | null;
+    userId: number;
+  }>({ body: '', postId: null, userId: 1 });
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const { posts, total, loading, refetch } = usePosts({
+    limit,
+    skip,
+    searchQuery,
+    tag: selectedTag,
+    sortBy: (sortBy as any) || 'none',
+    sortOrder: (sortOrder as any) || 'asc',
+  });
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -64,91 +83,15 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true);
-    let postsData;
-    let usersData;
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data) => {
-        postsData = data;
-        return fetch('/api/users?limit=0&select=username,image');
-      })
-      .then((response) => response.json())
-      .then((users) => {
-        usersData = users.users;
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.find((user) => user.id === post.userId),
-        }));
-        setPosts(postsWithUsers);
-        setTotal(postsData.total);
-      })
-      .catch((error) => {
-        console.error('게시물 가져오기 오류:', error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  // 태그 가져오기
+  // 태그 가져오기 (slug 배열)
   const fetchTags = async () => {
     try {
-      const response = await fetch('/api/posts/tags');
-      const data = await response.json();
-      setTags(data);
+      const data = await tagApi.getTags();
+      const slugs = Array.isArray(data) ? data.map((t) => t.slug) : [];
+      setTags(slugs);
     } catch (error) {
       console.error('태그 가져오기 오류:', error);
     }
-  };
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`);
-      const data = await response.json();
-      setPosts(data.posts);
-      setTotal(data.total);
-    } catch (error) {
-      console.error('게시물 검색 오류:', error);
-    }
-    setLoading(false);
-  };
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
-    if (!tag || tag === 'all') {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch('/api/users?limit=0&select=username,image'),
-      ]);
-      const postsData = await postsResponse.json();
-      const usersData = await usersResponse.json();
-
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }));
-
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error('태그별 게시물 가져오기 오류:', error);
-    }
-    setLoading(false);
   };
 
   // 게시물 추가
@@ -159,8 +102,8 @@ const PostsManager = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPost),
       });
-      const data = await response.json();
-      setPosts([data, ...posts]);
+      await response.json();
+      void refetch();
       setShowAddDialog(false);
       setNewPost({ title: '', body: '', userId: 1 });
     } catch (error) {
@@ -171,13 +114,14 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
+      if (!selectedPost) return;
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(selectedPost),
       });
-      const data = await response.json();
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)));
+      await response.json();
+      void refetch();
       setShowEditDialog(false);
     } catch (error) {
       console.error('게시물 업데이트 오류:', error);
@@ -185,19 +129,19 @@ const PostsManager = () => {
   };
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     try {
       await fetch(`/api/posts/${id}`, {
         method: 'DELETE',
       });
-      setPosts(posts.filter((post) => post.id !== id));
+      void refetch();
     } catch (error) {
       console.error('게시물 삭제 오류:', error);
     }
   };
 
   // 댓글 가져오기
-  const fetchComments = async (postId) => {
+  const fetchComments = async (postId: number) => {
     if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`);
@@ -231,6 +175,7 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
+      if (!selectedComment) return;
       const response = await fetch(`/api/comments/${selectedComment.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -250,7 +195,7 @@ const PostsManager = () => {
   };
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
+  const deleteComment = async (id: number, postId: number) => {
     try {
       await fetch(`/api/comments/${id}`, {
         method: 'DELETE',
@@ -265,18 +210,19 @@ const PostsManager = () => {
   };
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
+  const likeComment = async (id: number, postId: number) => {
     try {
+      const target = comments[postId]?.find((c) => c.id === id);
       const response = await fetch(`/api/comments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
+        body: JSON.stringify({ likes: (target?.likes ?? 0) + 1 }),
       });
       const data = await response.json();
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+          comment.id === data.id ? { ...data, likes: (comment.likes ?? 0) + 1 } : comment,
         ),
       }));
     } catch (error) {
@@ -285,14 +231,14 @@ const PostsManager = () => {
   };
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: Post) => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
       const userData = await response.json();
@@ -308,23 +254,18 @@ const PostsManager = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
     updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
+  }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSkip(parseInt(params.get('skip') || '0'));
     setLimit(parseInt(params.get('limit') || '10'));
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
+    setQuery(params.get('search') || '');
+    setSortBy((params.get('sortBy') as any) || 'none');
+    setSortOrder((params.get('sortOrder') as any) || 'asc');
     setSelectedTag(params.get('tag') || '');
-  }, [location.search]);
+  }, [location.search, setQuery, setSortBy, setSortOrder, setSelectedTag]);
 
   // 하이라이트 함수 추가
   const highlightText = (text: string, highlight: string) => {
@@ -343,95 +284,28 @@ const PostsManager = () => {
     );
   };
 
-  // 게시물 테이블 렌더링
+  // 게시물 테이블 렌더링 (Feature UI 사용)
   const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className='w-[50px]'>ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className='w-[150px]'>작성자</TableHead>
-          <TableHead className='w-[150px]'>반응</TableHead>
-          <TableHead className='w-[150px]'>작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className='space-y-1'>
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className='flex flex-wrap gap-1'>
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? 'text-white bg-blue-500 hover:bg-blue-600'
-                          : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag);
-                        updateURL();
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => openUserModal(post.author)}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className='w-8 h-8 rounded-full'
-                />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <ThumbsUp className='w-4 h-4' />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className='w-4 h-4' />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <Button variant='ghost' size='sm' onClick={() => openPostDetail(post)}>
-                  <MessageSquare className='w-4 h-4' />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditDialog(true);
-                  }}
-                >
-                  <Edit2 className='w-4 h-4' />
-                </Button>
-                <Button variant='ghost' size='sm' onClick={() => deletePost(post.id)}>
-                  <Trash2 className='w-4 h-4' />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <PostTable
+      posts={posts}
+      loading={loading}
+      searchQuery={searchQuery}
+      selectedTag={selectedTag}
+      onClickTag={(tag) => {
+        setSelectedTag(tag);
+        updateURL();
+      }}
+      onOpenDetail={(post) => openPostDetail(post)}
+      onEdit={(post) => {
+        setSelectedPost(post);
+        setShowEditDialog(true);
+      }}
+      onDelete={(postId) => deletePost(postId)}
+    />
   );
 
   // 댓글 렌더링
-  const renderComments = (postId) => (
+  const renderComments = (postId: number) => (
     <div className='mt-2'>
       <div className='flex items-center justify-between mb-2'>
         <h3 className='text-sm font-semibold'>댓글</h3>
@@ -451,7 +325,7 @@ const PostsManager = () => {
           <div key={comment.id} className='flex items-center justify-between text-sm border-b pb-1'>
             <div className='flex items-center space-x-2 overflow-hidden'>
               <span className='font-medium truncate'>{comment.user.username}:</span>
-              <span className='truncate'>{highlightText(comment.body, searchQuery)}</span>
+              <span className='truncate'>{highlightText(comment.body, searchQuery || '')}</span>
             </div>
             <div className='flex items-center space-x-1'>
               <Button variant='ghost' size='sm' onClick={() => likeComment(comment.id, postId)}>
@@ -491,90 +365,39 @@ const PostsManager = () => {
       </Card.Header>
       <Card.Content>
         <div className='flex flex-col gap-4'>
-          {/* 검색 및 필터 컨트롤 */}
+          {/* 검색 및 필터 컨트롤 (Feature UI 사용) */}
           <div className='flex gap-4'>
             <div className='flex-1'>
-              <div className='relative'>
-                <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                <Input
-                  placeholder='게시물 검색...'
-                  className='pl-8'
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && searchPosts()}
-                />
-              </div>
+              <SearchInput value={searchQuery} onChange={setQuery} onEnter={() => void refetch()} />
             </div>
-            <Select
+            <TagFilterSelect
               value={selectedTag}
-              onValueChange={(value) => {
+              tags={tags}
+              onChange={(value) => {
                 setSelectedTag(value);
-                fetchPostsByTag(value);
                 updateURL();
               }}
-            >
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='태그 선택' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 기준' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='none'>없음</SelectItem>
-                <SelectItem value='id'>ID</SelectItem>
-                <SelectItem value='title'>제목</SelectItem>
-                <SelectItem value='reactions'>반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 순서' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='asc'>오름차순</SelectItem>
-                <SelectItem value='desc'>내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+            />
+            <SortSelect
+              sortBy={sortBy as any}
+              sortOrder={sortOrder as any}
+              onChangeBy={(v) => setSortBy(v as any)}
+              onChangeOrder={(v) => setSortOrder(v as any)}
+            />
           </div>
 
           {/* 게시물 테이블 */}
           {loading ? <div className='flex justify-center p-4'>로딩 중...</div> : renderPostTable()}
 
-          {/* 페이지네이션 */}
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-2'>
-              <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='10' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='10'>10</SelectItem>
-                  <SelectItem value='20'>20</SelectItem>
-                  <SelectItem value='30'>30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <div className='flex gap-2'>
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          {/* 페이지네이션 (Feature UI 사용) */}
+          <PaginationControls
+            limit={limit}
+            skip={skip}
+            total={total}
+            onPrev={() => setSkip(Math.max(0, skip - limit))}
+            onNext={() => setSkip(skip + limit)}
+            onChangeLimit={(v) => setLimit(v)}
+          />
         </div>
       </Card.Content>
 
@@ -617,13 +440,19 @@ const PostsManager = () => {
             <Input
               placeholder='제목'
               value={selectedPost?.title || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
+              onChange={(e) => {
+                if (!selectedPost) return;
+                setSelectedPost({ ...selectedPost, title: e.target.value });
+              }}
             />
             <Textarea
               rows={15}
               placeholder='내용'
               value={selectedPost?.body || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
+              onChange={(e) => {
+                if (!selectedPost) return;
+                setSelectedPost({ ...selectedPost, body: e.target.value });
+              }}
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
@@ -657,7 +486,10 @@ const PostsManager = () => {
             <Textarea
               placeholder='댓글 내용'
               value={selectedComment?.body || ''}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+              onChange={(e) => {
+                if (!selectedComment) return;
+                setSelectedComment({ ...selectedComment, body: e.target.value });
+              }}
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
@@ -668,11 +500,11 @@ const PostsManager = () => {
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className='max-w-3xl'>
           <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
+            <DialogTitle>{highlightText(selectedPost?.title || '', searchQuery || '')}</DialogTitle>
           </DialogHeader>
           <div className='space-y-4'>
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
+            <p>{highlightText(selectedPost?.body || '', searchQuery || '')}</p>
+            {selectedPost ? renderComments(selectedPost.id) : null}
           </div>
         </DialogContent>
       </Dialog>

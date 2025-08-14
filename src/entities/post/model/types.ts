@@ -3,6 +3,12 @@ export type PostReaction = {
   dislikes?: number;
 };
 
+export type PostAuthor = {
+  id?: number;
+  username?: string;
+  image?: string;
+};
+
 export type Post = {
   id: number;
   title: string;
@@ -10,4 +16,5 @@ export type Post = {
   userId: number;
   tags?: string[];
   reactions?: PostReaction;
+  author?: PostAuthor;
 };
