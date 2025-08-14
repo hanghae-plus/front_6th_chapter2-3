@@ -10,6 +10,7 @@ type PostTableProps = {
   selectedTag?: string;
   onClickTag?: (tag: string) => void;
   onOpenDetail: (post: Post) => void;
+  onOpenUser?: (userId: number) => void;
   onEdit: (post: Post) => void;
   onDelete: (postId: number) => void;
 };
@@ -37,6 +38,7 @@ export function PostTable({
   selectedTag,
   onClickTag,
   onOpenDetail,
+  onOpenUser,
   onEdit,
   onDelete,
 }: PostTableProps) {
@@ -84,7 +86,10 @@ export function PostTable({
               <TableCell>
                 <div
                   className='flex items-center space-x-2 cursor-pointer'
-                  onClick={() => post.author && onOpenDetail(post)}
+                  onClick={() => {
+                    if (post.author?.id && onOpenUser) return onOpenUser(post.author.id);
+                    return onOpenDetail(post);
+                  }}
                 >
                   <img
                     src={post.author?.image}

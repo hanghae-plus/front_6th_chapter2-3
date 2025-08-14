@@ -27,10 +27,11 @@
 ```
 src/
   apps/
-    web/
-      providers/
-      routes/
+    routes/
       index.ts
+  pages/
+    home/
+      ui/
   entities/
     post/
       model/
@@ -134,8 +135,8 @@ src/
 4. [ ] 디렉토리 스캐폴딩 생성: 위 구조대로 빈 폴더 및 `index.ts` 파일 틀 준비.
 5. [ ] 기존 `shared/ui/*` 점검: 각 컴포넌트 폴더에 `index.ts` 존재 확인. 없으면 생성하고 필요한 export만 노출.
 6. [ ] 기존 `widgets/header`, `widgets/footer` 정리: 각 위젯 루트에 `index.ts` 생성 후 `ui/*`만 노출. 현재 파일(`widgets/header/header.tsx`, `widgets/footer/footer.tsx`)은 `ui/` 하위로 이동.
-7. [ ] `pages/` → `apps/web/routes/`로 이동: 예) `src/pages/PostsManagerPage.tsx` → `src/apps/web/routes/PostsManagerPage.tsx`.
-8. [ ] `App.tsx` 역할 재배치: `apps/web/routes` 중심으로 라우팅 조립, `main.tsx`는 `apps/web` 부트스트랩만 담당.
+7. [ ] `pages/` 구조 FSD화: 괄호 그룹으로 도메인 구분. 예) `src/pages/(post)/posts-manager`.
+8. [ ] 라우트 어댑터 유지: `apps/routes/*`는 `pages`의 public index만 import.
 9. [ ] 모든 임포트 경로를 별칭 + Public API로 변경: 딥 임포트 제거. 예) `@/shared/ui/select`(index를 통한 노출)만 허용, `@/shared/ui/select/select.tsx` 금지.
 10. [ ] 빌드/실행 점검: 타입 에러 및 런타임 이슈 수정.
 11. [ ] 린트/포맷 통과 확인: import 정리, 순환 참조 없는지 확인.
@@ -157,7 +158,7 @@ export function AddCart() {
 ```
 
 ```ts
-// apps/web/routes/ProductsPage.tsx
+// apps/routes/ProductsPage.tsx
 import { AddCart } from '@/features/ui'; // 내부 파일로의 직접 경로 사용 금지
 ```
 

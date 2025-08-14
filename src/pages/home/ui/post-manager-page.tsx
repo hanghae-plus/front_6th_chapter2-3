@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Edit2, Plus, Trash2, ThumbsUp } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
-  Input,
   Textarea,
   Dialog,
   DialogContent,
@@ -20,12 +19,19 @@ import { usePostSearch } from '@/features/(post)/search-posts';
 import { PaginationControls } from '@/features/(post)/paginate-posts';
 import { SortSelect } from '@/features/(post)/sort-posts';
 import { usePostSort } from '@/features/(post)/sort-posts';
+import { PostDetailDialog } from '@/features/(post)/view-post-detail';
+import { AddPostDialog } from '@/features/(post)/add-post';
+import { EditPostDialog } from '@/features/(post)/edit-post';
+import { CommentList } from '@/features/(comment)/list-comments';
+import { useComments } from '@/features/(comment)/list-comments';
+import { UserModal } from '@/features/(user)/view-user-modal';
+import { useUserModal } from '@/features/(user)/view-user-modal';
 import { tagApi } from '@/entities/tag';
 import type { Post } from '@/entities/post';
 import type { Comment } from '@/entities/comment';
 import type { User } from '@/entities/user';
 
-const PostsManager = () => {
+export function PostsManagerPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -46,7 +52,6 @@ const PostsManager = () => {
   );
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [tags, setTags] = useState<string[]>([]);
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
   const [comments, setComments] = useState<Record<number, Comment[]>>({});
@@ -59,8 +64,7 @@ const PostsManager = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const userModal = useUserModal();
 
   const { posts, total, loading, refetch } = usePosts({
     limit,
@@ -94,39 +98,7 @@ const PostsManager = () => {
     }
   };
 
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch('/api/posts/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost),
-      });
-      await response.json();
-      void refetch();
-      setShowAddDialog(false);
-      setNewPost({ title: '', body: '', userId: 1 });
-    } catch (error) {
-      console.error('게시물 추가 오류:', error);
-    }
-  };
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      if (!selectedPost) return;
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedPost),
-      });
-      await response.json();
-      void refetch();
-      setShowEditDialog(false);
-    } catch (error) {
-      console.error('게시물 업데이트 오류:', error);
-    }
-  };
+  // 게시물 추가/수정은 feature UI에서 처리
 
   // 게시물 삭제
   const deletePost = async (id: number) => {
@@ -152,19 +124,11 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 추가
+  // 댓글 기능 훅 사용
+  const commentsFeature = useComments(selectedPost?.id ?? null);
   const addComment = async () => {
     try {
-      const response = await fetch('/api/comments/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newComment),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }));
+      await commentsFeature.add(newComment as any);
       setShowAddCommentDialog(false);
       setNewComment({ body: '', postId: null, userId: 1 });
     } catch (error) {
@@ -176,18 +140,7 @@ const PostsManager = () => {
   const updateComment = async () => {
     try {
       if (!selectedComment) return;
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: selectedComment.body }),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) =>
-          comment.id === data.id ? data : comment,
-        ),
-      }));
+      await commentsFeature.update(selectedComment.id, { body: selectedComment.body } as any);
       setShowEditCommentDialog(false);
     } catch (error) {
       console.error('댓글 업데이트 오류:', error);
@@ -195,36 +148,18 @@ const PostsManager = () => {
   };
 
   // 댓글 삭제
-  const deleteComment = async (id: number, postId: number) => {
+  const deleteComment = async (id: number) => {
     try {
-      await fetch(`/api/comments/${id}`, {
-        method: 'DELETE',
-      });
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }));
+      await commentsFeature.remove(id);
     } catch (error) {
       console.error('댓글 삭제 오류:', error);
     }
   };
 
   // 댓글 좋아요
-  const likeComment = async (id: number, postId: number) => {
+  const likeComment = async (id: number) => {
     try {
-      const target = comments[postId]?.find((c) => c.id === id);
-      const response = await fetch(`/api/comments/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ likes: (target?.likes ?? 0) + 1 }),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: (comment.likes ?? 0) + 1 } : comment,
-        ),
-      }));
+      await commentsFeature.like(id);
     } catch (error) {
       console.error('댓글 좋아요 오류:', error);
     }
@@ -237,16 +172,10 @@ const PostsManager = () => {
     setShowPostDetailDialog(true);
   };
 
-  // 사용자 모달 열기
+  // 사용자 모달 열기 (feature 사용)
   const openUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`);
-      const userData = await response.json();
-      setSelectedUser(userData);
-      setShowUserModal(true);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 오류:', error);
-    }
+    if (!user?.id) return;
+    await userModal.show(user.id);
   };
 
   useEffect(() => {
@@ -267,22 +196,7 @@ const PostsManager = () => {
     setSelectedTag(params.get('tag') || '');
   }, [location.search, setQuery, setSortBy, setSortOrder, setSelectedTag]);
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null;
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
-        )}
-      </span>
-    );
-  };
+  // (제거됨) 페이지 내부 하이라이트는 feature UI 컴포넌트에서 처리
 
   // 게시물 테이블 렌더링 (Feature UI 사용)
   const renderPostTable = () => (
@@ -296,6 +210,7 @@ const PostsManager = () => {
         updateURL();
       }}
       onOpenDetail={(post) => openPostDetail(post)}
+      onOpenUser={(userId) => openUserModal({ id: userId } as User)}
       onEdit={(post) => {
         setSelectedPost(post);
         setShowEditDialog(true);
@@ -305,14 +220,14 @@ const PostsManager = () => {
   );
 
   // 댓글 렌더링
-  const renderComments = (postId: number) => (
+  const renderComments = () => (
     <div className='mt-2'>
       <div className='flex items-center justify-between mb-2'>
         <h3 className='text-sm font-semibold'>댓글</h3>
         <Button
           size='sm'
           onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }));
+            setNewComment((prev) => ({ ...prev, postId: selectedPost?.id ?? null }));
             setShowAddCommentDialog(true);
           }}
         >
@@ -320,35 +235,15 @@ const PostsManager = () => {
           댓글 추가
         </Button>
       </div>
-      <div className='space-y-1'>
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className='flex items-center justify-between text-sm border-b pb-1'>
-            <div className='flex items-center space-x-2 overflow-hidden'>
-              <span className='font-medium truncate'>{comment.user.username}:</span>
-              <span className='truncate'>{highlightText(comment.body, searchQuery || '')}</span>
-            </div>
-            <div className='flex items-center space-x-1'>
-              <Button variant='ghost' size='sm' onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className='w-3 h-3' />
-                <span className='ml-1 text-xs'>{comment.likes}</span>
-              </Button>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => {
-                  setSelectedComment(comment);
-                  setShowEditCommentDialog(true);
-                }}
-              >
-                <Edit2 className='w-3 h-3' />
-              </Button>
-              <Button variant='ghost' size='sm' onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className='w-3 h-3' />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <CommentList
+        comments={commentsFeature.comments}
+        onLike={(id) => void likeComment(id)}
+        onEdit={(comment) => {
+          setSelectedComment(comment);
+          setShowEditCommentDialog(true);
+        }}
+        onDelete={(id) => void deleteComment(id)}
+      />
     </div>
   );
 
@@ -401,64 +296,6 @@ const PostsManager = () => {
         </div>
       </Card.Content>
 
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder='내용'
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type='number'
-              placeholder='사용자 ID'
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={selectedPost?.title || ''}
-              onChange={(e) => {
-                if (!selectedPost) return;
-                setSelectedPost({ ...selectedPost, title: e.target.value });
-              }}
-            />
-            <Textarea
-              rows={15}
-              placeholder='내용'
-              value={selectedPost?.body || ''}
-              onChange={(e) => {
-                if (!selectedPost) return;
-                setSelectedPost({ ...selectedPost, body: e.target.value });
-              }}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
         <DialogContent>
@@ -496,59 +333,37 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className='max-w-3xl'>
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title || '', searchQuery || '')}</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <p>{highlightText(selectedPost?.body || '', searchQuery || '')}</p>
-            {selectedPost ? renderComments(selectedPost.id) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 게시물 상세 보기 대화상자 (Feature UI) */}
+      <PostDetailDialog
+        open={showPostDetailDialog}
+        post={selectedPost}
+        searchQuery={searchQuery || ''}
+        onOpenChange={setShowPostDetailDialog}
+      >
+        {selectedPost ? renderComments() : null}
+      </PostDetailDialog>
 
-      {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <img
-              src={selectedUser?.image}
-              alt={selectedUser?.username}
-              className='w-24 h-24 rounded-full mx-auto'
-            />
-            <h3 className='text-xl font-semibold text-center'>{selectedUser?.username}</h3>
-            <div className='space-y-2'>
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address},{' '}
-                {selectedUser?.address?.city}, {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} -{' '}
-                {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Feature Dialogs */}
+      <AddPostDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={() => void refetch()}
+      />
+      <EditPostDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        post={selectedPost}
+        onSuccess={() => void refetch()}
+      />
+
+      {/* 사용자 모달 (Feature UI 사용) */}
+      <UserModal
+        open={userModal.open}
+        user={userModal.user}
+        onOpenChange={(o) => {
+          if (!o) userModal.hide();
+        }}
+      />
     </Card>
   );
-};
-
-export default PostsManager;
+}
