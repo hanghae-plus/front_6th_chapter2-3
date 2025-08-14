@@ -18,7 +18,7 @@ interface PostsTableProps {
   deletePost: (id: number) => void
 }
 
-export default function PostsTable({
+export const PostsTable: React.FC<PostsTableProps> = ({
   posts,
   searchQuery,
   selectedTag,
@@ -29,7 +29,7 @@ export default function PostsTable({
   setSelectedPost,
   setShowEditDialog,
   deletePost
-}: PostsTableProps) {
+}) => {
   return (
     <Table>
       <TableHeader>

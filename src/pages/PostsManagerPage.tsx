@@ -428,9 +428,9 @@ const PostsManager = () => {
       <PostForm
         open={showAddDialog}
         isNewPost={true}
-        onChangeOpen={showAddDialog}
+        onChangeOpen={setShowAddDialog}
         formTitle="새 게시물 추가"
-        useIdValue={newPost.userId}
+        userIdValue={newPost.userId}
         titleValue={newPost.title}
         contentValue={newPost.body}
         onChangeTitle={(value) => setNewPost({ ...newPost, title: value })}
@@ -446,7 +446,7 @@ const PostsManager = () => {
         isNewPost={false}
         onChangeOpen={setShowEditDialog}
         formTitle="게시물 수정"
-        useIdValue={newPost.userId}
+        userIdValue={newPost.userId}
         titleValue={selectedPost?.title || ""}
         contentValue={selectedPost?.body || ""}
         onChangeTitle={(value) => selectedPost && setSelectedPost({ ...selectedPost, title: value })}
