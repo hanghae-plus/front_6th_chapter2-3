@@ -55,48 +55,73 @@ Feature-Sliced Design(FSD)을 프로젝트에 적용하면서 가장 애매했�
 | **remove-post**        | ✅ 게시물 삭제    | ✅ useDeletePost  | **🟢 HIGH**   | ✅ **분리완료** | DELETE 작업 + 확인 로직      |
 | **like-comment**       | ✅ 댓글 좋아요    | ✅ usePatchLikes  | **🟢 HIGH**   | ✅ **분리완료** | PATCH + optimistic update    |
 | **remove-comment**     | ✅ 댓글 삭제      | ✅ useDeleteComment | **🟢 HIGH**   | ✅ **분리완료** | DELETE + 즉시 UI 업데이트    |
-| **post-filters**       | ✅ 필터/검색 제어 | ✅ tags API       | **🟡 MEDIUM** | ❌ **유지**     | props drilling으로 분리불가  |
-| **user-dialog**        | ❌ 단순 조회      | ❌ GET만          | **🔴 LOW**    | ❌ **유지**     | 단순 데이터 표시             |
+| **post-dialog**        | ✅ 다이얼로그 상태 | ✅ dialog-store   | **🟢 HIGH**   | ✅ **분리완료** | 전역 상태 관리 + 상태 제어   |
+| **comment-dialog**     | ✅ 다이얼로그 상태 | ✅ dialog-store   | **🟢 HIGH**   | ✅ **분리완료** | 전역 상태 관리 + 상태 제어   |
+| **user-dialog**        | ❌ 단순 조회      | ❌ GET API만      | **🔴 LOW**    | ❌ **유지**     | 단순 데이터 표시, 다이얼로그 상태만 관리 |
+| **post-filters**       | ✅ 필터/검색 제어 | ✅ tags API       | **🟡 MEDIUM** | ❌ **유지**     | Widget으로 유지, 복합 UI 블록|
 | **post-detail-dialog** | ❌ 조합 위젯      | ❌ GET + 조합     | **🔴 LOW**    | ❌ **유지**     | Feature들을 배치하는 역할    |
-| pagination             | ❌ 순수 UI        | ❌ 계산만         | **🔴 LOW**    | ❌ **유지**     | 비즈니스 로직 없음           |
-| header                 | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 단순 네비게이션              |
-| footer                 | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 정적 컨텐츠                  |
-| post-table             | ❌ 데이터 표시    | ❌ 복합 API 호출  | **🔴 LOW**    | ❌ **유지**     | 복합 UI 블록 + 데이터 통합   |
+| **comment-form-dialog** | ❌ 조합 위젯     | ❌ 폼 배치만      | **🔴 LOW**    | ❌ **유지**     | add/edit-comment 조합       |
+| **post-manager-header** | ❌ 헤더 UI       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 페이지 상단 액션 버튼들     |
+| **post-table**         | ❌ 데이터 표시    | ❌ 복합 API 호출  | **🔴 LOW**    | ❌ **유지**     | 복합 UI 블록 + 데이터 통합   |
+| **pagination**         | ❌ 순수 UI        | ❌ 계산만         | **🔴 LOW**    | ❌ **유지**     | 비즈니스 로직 없음           |
+| **header**             | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 단순 네비게이션              |
+| **footer**             | ❌ 레이아웃       | ❌ 없음           | **🔴 LOW**    | ❌ **유지**     | 정적 컨텐츠                  |
 
 ### 분석 결과 요약
 
 **🟢 HIGH (Feature 분리 완료):**
 
-- **사용자 행위(User Action)** + **서버 상태 변경** + **비즈니스 로직**
-- 분리 완료: add-post, edit-post, add-comment, edit-comment, remove-post, like-comment, remove-comment
-- 총 7개 Feature로 분리하여 단일 책임 원칙 준수
+- **사용자 행위(User Action)** + **서버 상태 변경** + **비즈니스 로직** + **의미있는 상태 관리**
+- CRUD 기능: add-post, edit-post, add-comment, edit-comment, remove-post, like-comment, remove-comment
+- 다이얼로그 상태 관리: post-dialog, comment-dialog
+- 총 9개 Feature로 분리하여 단일 책임 원칙 준수
 
 **🟡 MEDIUM (분리 검토 후 유지):**
 
-- **post-filters**: props drilling 문제로 분리 불가능
+- **post-filters**: Widget으로 유지, 복합 UI 블록으로서 기능
 - API 의존성이 있으나 완전한 캡슐화가 어려운 경우
 
 **🔴 LOW (분리 불필요):**
 
-- **순수 UI** + **정적 컨텐츠** + **단순 계산** + **GET API만 사용**
+- **순수 UI** + **정적 컨텐츠** + **단순 계산** + **조합 위젯** + **단순 조회**
 - Widget으로 유지하여 복잡성 방지
+- post-detail-dialog, comment-form-dialog, post-manager-header, post-table, pagination, header, footer, user-dialog
 
 ## 실제 적용 예시
 
 **현재 프로젝트 구조:**
 
 ```
-src/features/add-post/
-  model/...
-  ui/add-post-form.tsx   // form + react-query mutation
+src/features/
+├── add-post/           # 게시물 생성 기능
+├── edit-post/          # 게시물 수정 기능
+├── add-comment/        # 댓글 생성 기능
+├── edit-comment/       # 댓글 수정 기능
+├── remove-post/        # 게시물 삭제 기능
+├── like-comment/       # 댓글 좋아요 기능
+├── remove-comment/     # 댓글 삭제 기능
+├── post-dialog/        # 게시물 다이얼로그 상태 관리
+└── comment-dialog/     # 댓글 다이얼로그 상태 관리
 
-src/widgets/post-table/   // 단순 데이터 표 렌더링
+src/widgets/
+├── post-table/         # 게시물 테이블 렌더링
+├── post-filters/       # 검색/필터 UI
+├── post-detail-dialog/ # 게시물 상세 조합 UI
+├── comment-form-dialog/# 댓글 폼 조합 UI
+├── post-manager-header/# 페이지 헤더 UI
+├── user-dialog/        # 사용자 정보 조회 UI
+└── pagination/        # 페이지네이션 UI
 ```
 
-**새로운 기능 추가 시나리오:**
+**다이얼로그 상태 관리 Feature vs Widget 구분:**
 
-1. **1단계:** `src/widgets/comment-like-button` (단순 버튼 + prop으로 onClick 전달)
-2. **2단계:** 서버 mutation, optimistic update 등이 추가되면 `src/features/toggle-comment-like/{model,ui}`로 승급
+기존에는 다이얼로그 상태가 여러 위젯에 흩어져 있었지만, **의미있는 전역 상태 관리**가 필요한 경우만 Feature로 분리:
+
+1. **post-dialog** (Feature): 게시물 상세 다이얼로그 - 복합적인 상태 제어 필요
+2. **comment-dialog** (Feature): 댓글 폼 다이얼로그 - add/edit 모드 전환 등 복잡한 상태
+3. **user-dialog** (Widget): 사용자 정보 다이얼로그 - 단순 조회만, 상태 관리 최소
+
+Feature로 분리된 dialog-store는 zustand를 통해 전역 상태 제어가 가능하지만, **단순 조회용 다이얼로그는 Widget으로 유지**하여 과도한 추상화를 방지
 
 ## 최종 구조의 역할 분담
 

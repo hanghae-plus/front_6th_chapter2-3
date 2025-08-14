@@ -7,4 +7,3 @@ export { RemovePostButton } from "@features/remove-post/ui"
 // Dialog Stores
 export { usePostDialogStore } from "@features/post-dialog"
 export { useCommentDialogStore } from "@features/comment-dialog"
-export { useUserDialogStore } from "@features/user-dialog"

@@ -10,7 +10,7 @@ import { Pagination } from "@widgets"
 import { useGetUsers } from "@entities/user"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import { usePostDialogStore } from "@/features/post-dialog"
-import { useUserDialogStore } from "@/features/user-dialog"
+import { useUserDialogStore } from "@widgets/user-dialog"
 
 export const PostTable: React.FC = () => {
   const { param, updateUrl } = usePostQueryParams()

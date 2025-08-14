@@ -1,7 +1,7 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
 import { useGetUser } from "@entities/user"
-import { useUserDialogStore } from "@/features/user-dialog"
+import { useUserDialogStore } from "../model"
 
 export const UserDialog: React.FC = () => {
   const open = useUserDialogStore((s) => s.isUserDialogOpen)
