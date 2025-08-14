@@ -38,13 +38,7 @@ export const getPostsBySearch = async ({
   return response.json();
 };
 
-export interface CreatePostParams {
-  newPost: Pick<Post, 'title' | 'body' | 'userId'>;
-}
-
-export const createPost = async ({
-  newPost,
-}: CreatePostParams): Promise<Post> => {
+export const createPost = async (newPost: Omit<Post, 'id'>): Promise<Post> => {
   const response = await fetch('/api/posts/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

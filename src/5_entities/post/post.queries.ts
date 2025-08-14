@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { queryKeys } from '@/shared/index';
+import { queryKeys } from '@/shared/lib';
 
 import {
   createPost,
@@ -15,22 +15,24 @@ import { Post } from './post.type';
 
 export const useGetPostsQuery = (params: GetPostsParams) => {
   return useQuery({
-    queryKey: queryKeys.posts.list(params),
+    queryKey: queryKeys.posts.lists(),
     queryFn: () => getPosts(params),
   });
 };
 
 export const useGetPostsByTagQuery = (tag: string) => {
   return useQuery({
-    queryKey: queryKeys.posts.list({ tag }),
+    queryKey: queryKeys.posts.lists(),
     queryFn: () => getPostsByTag({ tag }),
+    enabled: !!tag && tag !== 'all',
   });
 };
 
 export const useGetPostsBySearchQuery = (search: string) => {
   return useQuery({
-    queryKey: queryKeys.posts.list({ search }),
+    queryKey: queryKeys.posts.lists(),
     queryFn: () => getPostsBySearch({ search }),
+    enabled: !!search && search.trim() !== '',
   });
 };
 
@@ -46,18 +48,26 @@ export const useCreatePostMutation = ({
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newPost: Omit<Post, 'id'>) => createPost({ newPost }),
+    mutationFn: (newPost: Omit<Post, 'id'>) => createPost(newPost),
     onMutate: async newPost => {
       await queryClient.cancelQueries({
-        queryKey: queryKeys.posts.lists(),
+        queryKey: queryKeys.posts.all,
       });
 
       const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
 
       queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        if (!old) {
+          return {
+            posts: [newPost],
+            total: 1,
+            skip: 0,
+            limit: 10,
+          };
+        }
         return {
           ...old,
-          posts: [newPost, ...old.posts],
+          posts: [newPost, ...(old.posts || [])],
         };
       });
 
@@ -68,7 +78,7 @@ export const useCreatePostMutation = ({
       onError?.(error);
     },
     onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
       onSuccess?.(data);
     },
   });
@@ -81,15 +91,18 @@ export const usePutPostMutation = ({ onError, onSuccess }: MutationProps) => {
     mutationFn: (updatedPost: Post) => putPost(updatedPost),
     onMutate: async updatedPost => {
       await queryClient.cancelQueries({
-        queryKey: queryKeys.posts.lists(),
+        queryKey: queryKeys.posts.all,
       });
 
       const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
 
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: Post[]) => {
+      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        if (!old || !old.posts) {
+          return old;
+        }
         return {
           ...old,
-          posts: old.map(post =>
+          posts: old.posts.map((post: Post) =>
             post.id === updatedPost.id ? updatedPost : post
           ),
         };
@@ -102,7 +115,7 @@ export const usePutPostMutation = ({ onError, onSuccess }: MutationProps) => {
       onError?.(error);
     },
     onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
       onSuccess?.(data);
     },
   });
@@ -118,15 +131,18 @@ export const useDeletePostMutation = ({
     mutationFn: (postId: number) => deletePost(postId),
     onMutate: async postId => {
       await queryClient.cancelQueries({
-        queryKey: queryKeys.posts.lists(),
+        queryKey: queryKeys.posts.all,
       });
 
       const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
 
-      queryClient.setQueryData(queryKeys.posts.lists(), (old: Post[]) => {
+      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        if (!old || !old.posts) {
+          return old;
+        }
         return {
           ...old,
-          posts: old.filter(post => post.id !== postId),
+          posts: old.posts.filter((post: Post) => post.id !== postId),
         };
       });
 
@@ -138,7 +154,7 @@ export const useDeletePostMutation = ({
       onError?.(error);
     },
     onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
       onSuccess?.(data);
     },
   });

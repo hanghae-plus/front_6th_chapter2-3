@@ -40,16 +40,14 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import {
-  useCreatePostMutation,
-  useDeletePostMutation,
-  usePutPostMutation,
-} from '@/entities/post';
+import { useDeletePostMutation, usePutPostMutation } from '@/entities/post';
 import type { User } from '@/entities/user';
+import { AddPostFormDialog } from '@/features/add-post/ui/AddPostFormDialog';
 import { useFilteredPosts } from '@/features/posts-list';
 import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText } from '@/shared/lib';
+import { useDialogStore } from '@/shared/lib/store/dialogStore';
 import {
   Button,
   Card,
@@ -86,11 +84,6 @@ const PostsManager = () => {
     API_CONSTANTS.REACTIONS.DEFAULT_LIKES
   ); // 전체 게시물 수 (페이지네이션용)
   const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
-  const [newPost, setNewPost] = useState({
-    title: '',
-    body: '',
-    userId: API_CONSTANTS.DEFAULT_USER_ID,
-  }); // 새 게시물 임시 데이터
 
   // ==================== 페이지네이션 상태 ====================
   const [skip, setSkip] = useState(
@@ -123,14 +116,6 @@ const PostsManager = () => {
     userId: API_CONSTANTS.DEFAULT_USER_ID,
   }); // 새 댓글 임시 데이터
 
-  // ==================== UI 다이얼로그 상태 ====================
-  const [showAddDialog, setShowAddDialog] = useState(false); // 게시물 추가 모달
-  const [showEditDialog, setShowEditDialog] = useState(false); // 게시물 수정 모달
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false); // 댓글 추가 모달
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false); // 댓글 수정 모달
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false); // 게시물 상세 모달
-  const [showUserModal, setShowUserModal] = useState(false); // 사용자 정보 모달
-
   // ==================== 기타 상태 ====================
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자 정보
@@ -154,26 +139,25 @@ const PostsManager = () => {
   };
 
   // ======== 개선 =======
+  const {
+    showEditDialog,
+    showAddCommentDialog,
+    showEditCommentDialog,
+    showPostDetailDialog,
+    showUserModal,
+    setShowAddDialog,
+    setShowEditDialog,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+    setShowPostDetailDialog,
+    setShowUserModal,
+  } = useDialogStore();
 
-  const { posts, setPosts } = useFilteredPosts({
+  const { posts } = useFilteredPosts({
     tag: selectedTag,
     search: searchQuery,
   });
-
-  const { mutate: createPost } = useCreatePostMutation({
-    onError: (error: unknown) => {
-      console.error('게시물 추가 오류:', error);
-    },
-    onSuccess: () => {
-      setShowAddDialog(false);
-      setNewPost({
-        title: '',
-        body: '',
-        userId: API_CONSTANTS.DEFAULT_USER_ID,
-      });
-    },
-  });
-
+  console.log('posts', posts);
   const { mutate: updatePost } = usePutPostMutation({
     onError: (error: unknown) => {
       console.error('게시물 업데이트 오류:', error);
@@ -664,35 +648,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={newPost.title}
-              onChange={e => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={UI_CONSTANTS.TEXTAREA_ROWS.LARGE}
-              placeholder='내용'
-              value={newPost.body}
-              onChange={e => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type='number'
-              placeholder='사용자 ID'
-              value={newPost.userId}
-              onChange={e =>
-                setNewPost({ ...newPost, userId: Number(e.target.value) })
-              }
-            />
-            <Button onClick={() => createPost(newPost)}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddPostFormDialog />
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
