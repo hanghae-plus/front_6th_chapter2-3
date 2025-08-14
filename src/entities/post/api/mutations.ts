@@ -40,6 +40,7 @@ export const useDeletePost = () => {
   return useMutation({
     mutationFn: (id: number) => deletePost(id),
     onSuccess: () => {
+      console.log("게시물 삭제 성공")
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
     onError: (error) => {
