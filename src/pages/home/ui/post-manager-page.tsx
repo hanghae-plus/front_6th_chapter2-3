@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useInitialQueryParams } from '../model/useInitialQueryParams';
+import { updateUrl } from '../lib/updateUrl';
 import {
   Button,
   Card,
@@ -35,11 +37,12 @@ export function PostsManagerPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  const initial = useInitialQueryParams();
 
   // 상태 관리
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
-  const { searchQuery, setQuery } = usePostSearch(queryParams.get('search') || '');
+  const [skip, setSkip] = useState(initial.skip);
+  const [limit, setLimit] = useState(initial.limit);
+  const { searchQuery, setQuery } = usePostSearch(initial.searchQuery);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const {
     sortBy,
@@ -77,14 +80,7 @@ export function PostsManagerPage() {
 
   // URL 업데이트 함수
   const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
+    updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
   };
 
   // 태그 가져오기 (slug 배열)
@@ -188,13 +184,25 @@ export function PostsManagerPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || '0'));
-    setLimit(parseInt(params.get('limit') || '10'));
-    setQuery(params.get('search') || '');
-    setSortBy((params.get('sortBy') as any) || 'none');
-    setSortOrder((params.get('sortOrder') as any) || 'asc');
-    setSelectedTag(params.get('tag') || '');
-  }, [location.search, setQuery, setSortBy, setSortOrder, setSelectedTag]);
+    setSkip(parseInt(params.get('skip') || String(initial.skip)));
+    setLimit(parseInt(params.get('limit') || String(initial.limit)));
+    setQuery(params.get('search') || initial.searchQuery);
+    setSortBy((params.get('sortBy') as any) || initial.sortBy);
+    setSortOrder((params.get('sortOrder') as any) || initial.sortOrder);
+    setSelectedTag(params.get('tag') || initial.selectedTag);
+  }, [
+    location.search,
+    setQuery,
+    setSortBy,
+    setSortOrder,
+    setSelectedTag,
+    initial.skip,
+    initial.limit,
+    initial.searchQuery,
+    initial.sortBy,
+    initial.sortOrder,
+    initial.selectedTag,
+  ]);
 
   // (제거됨) 페이지 내부 하이라이트는 feature UI 컴포넌트에서 처리
 

@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { PostsManagerPage } from '@/pages/home';
-import { Header } from '@/widgets/header/ui/index.ts';
-import { Footer } from '@/widgets/footer/ui/index.ts';
+import { Header } from '@/widgets/header';
+import { Footer } from '@/widgets/footer';
 
 export function App() {
   return (
