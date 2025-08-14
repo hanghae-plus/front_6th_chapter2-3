@@ -2,14 +2,14 @@ import { Button, HighlightText } from "../../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useCommentStore } from "../model/store"
 import { useSearchQueryStore, useSelectedPostStore } from "../../post/model/store"
-import { useCommnet } from "../model/hook"
+import { useComment } from "../model/hook"
 
 export const Comments = () => {
   const { searchQuery } = useSearchQueryStore()
   const { selectedPost } = useSelectedPostStore()
   const postId = selectedPost.id
   const { setShowEditCommentDialog, setSelectedComment } = useCommentStore()
-  const { comments, handleAddComment, likeComment, deleteComment } = useCommnet()
+  const { comments, handleAddComment, likeComment, deleteComment } = useComment()
 
   return (
     <div className="mt-2">

@@ -3,8 +3,16 @@ import { DeleteComment, UpsertComment } from "../type"
 import { useCommentStore } from "./store"
 import { Comment } from "../../../entities"
 
-export const useCommnet = () => {
-  const { comments, setComments, setNewComment, setShowAddCommentDialog } = useCommentStore()
+export const useComment = () => {
+  const {
+    comments,
+    setComments,
+    newComment,
+    selectedComment,
+    setNewComment,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+  } = useCommentStore()
 
   // 댓글 좋아요
   const likeComment = async (id: number, postId: number) => {
@@ -27,6 +35,46 @@ export const useCommnet = () => {
       }
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
+    }
+  }
+
+  const addComment = async (postId: number) => {
+    try {
+      const { result, data } = await requestApi<UpsertComment>(`/api/comments/add`, {
+        method: "POST",
+        body: JSON.stringify({ ...newComment, postId: postId }),
+      })
+
+      if (result && data) {
+        setComments((prev) => ({
+          ...prev,
+          [data.postId]: [...(prev[data.postId] || []), data],
+        }))
+      }
+      setShowAddCommentDialog(false)
+      setNewComment({ body: "", postId: null, userId: 1 })
+    } catch (error) {
+      console.error("댓글 추가 오류:", error)
+    }
+  }
+
+  // 댓글 업데이트
+  const updateComment = async () => {
+    try {
+      const { result, data } = await requestApi<UpsertComment>(`/api/comments/${selectedComment?.id}`, {
+        method: "PUT",
+        body: { body: selectedComment?.body },
+      })
+
+      if (result && data) {
+        setComments({
+          ...comments,
+          [data.postId]: (comments[data.postId] ?? []).map((c) => (c.id === data.id ? data : c)),
+        })
+        setShowEditCommentDialog(false)
+      }
+    } catch (error) {
+      console.error("댓글 업데이트 오류:", error)
     }
   }
 
@@ -56,6 +104,8 @@ export const useCommnet = () => {
   return {
     comments,
     likeComment,
+    addComment,
+    updateComment,
     deleteComment,
     handleAddComment,
   }

@@ -1,35 +1,13 @@
 import { useState } from "react"
 import { Button, Dialog, Textarea } from "../../../shared/ui"
 import { useCommentStore } from "../model/store"
-import { UpsertComment, NewComment } from "../type"
-import { requestApi } from "../../../shared/lib"
 import { useSelectedPostStore } from "../../post/model/store"
+import { useComment } from "../model/hook"
 
 export const CommentAddDialog = () => {
   const { selectedPost } = useSelectedPostStore()
-  const { setComments, showAddCommentDialog, setShowAddCommentDialog } = useCommentStore()
-  const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: 0, userId: 1 })
-
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const { result, data } = await requestApi<UpsertComment>(`/api/comments/add`, {
-        method: "POST",
-        body: JSON.stringify({ ...newComment, postId: selectedPost.id }),
-      })
-
-      if (result && data) {
-        setComments((prev) => ({
-          ...prev,
-          [data.postId]: [...(prev[data.postId] || []), data],
-        }))
-      }
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
+  const { newComment, setNewComment, showAddCommentDialog, setShowAddCommentDialog } = useCommentStore()
+  const { addComment } = useComment()
 
   return (
     <Dialog open={showAddCommentDialog} handleChange={setShowAddCommentDialog} title="새 댓글 추가">
@@ -39,7 +17,7 @@ export const CommentAddDialog = () => {
           value={newComment.body}
           onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
         />
-        <Button onClick={addComment}>댓글 추가</Button>
+        <Button onClick={() => addComment(selectedPost.id)}>댓글 추가</Button>
       </div>
     </Dialog>
   )
