@@ -1,31 +1,17 @@
-import { useMemo } from "react"
-import { useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, getPostBySearch, getPostByTag } from "@/entities/post/api"
 import { getUsers } from "@/entities/user/api"
 import { Post, Author, POST_QK } from "@/entities/post/model"
 import { User } from "@/entities/user/model"
-import { BaseQueryParams } from "@/shared/lib"
+import { useBaseQueryParams } from "@/shared/hooks"
 
 export function usePosts() {
-  const [searchParams] = useSearchParams()
-
-  const filters: BaseQueryParams = useMemo(
-    () => ({
-      skip: Number(searchParams.get("skip")) || 0,
-      limit: Number(searchParams.get("limit")) || 10,
-      search: searchParams.get("search") || "",
-      tag: searchParams.get("tag") || "",
-      sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || "none",
-      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
-    }),
-    [searchParams],
-  )
+  const baseQueryParams = useBaseQueryParams()
 
   const { data, isLoading, error } = useQuery({
-    queryKey: POST_QK.list({ ...filters }),
+    queryKey: POST_QK.list({ ...baseQueryParams }),
     queryFn: async () => {
-      const { search: searchQuery, tag: selectedTag, ...otherFilters } = filters
+      const { search: searchQuery, tag: selectedTag, ...otherFilters } = baseQueryParams
 
       let postsResponse
 
@@ -50,7 +36,7 @@ export function usePosts() {
     select: (data) => {
       if (!data) return data
 
-      const { search: searchQuery, tag: selectedTag, skip, limit, sortBy, sortOrder } = filters
+      const { search: searchQuery, tag: selectedTag, skip, limit, sortBy, sortOrder } = baseQueryParams
 
       const sortedPosts = [...data.posts]
 

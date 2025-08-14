@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSearchParams } from "react-router-dom"
 import { createPost as createPostApi } from "@/entities/post/api"
 import { getUserById } from "@/entities/user/api"
 import { POST_QK } from "@/entities/post/model"
 import { PostPaginatedResponse, PostWithAuthor, CreatePost } from "@/entities/post/model"
+import { useBaseQueryParams } from "@/shared/hooks"
 
 export const useCreatePost = () => {
   const queryClient = useQueryClient()
-  const [searchParams] = useSearchParams()
+  const baseQueryParams = useBaseQueryParams()
   const {
     mutate: createPost,
     isPending,
@@ -34,12 +34,7 @@ export const useCreatePost = () => {
       queryClient.setQueriesData(
         {
           queryKey: POST_QK.list({
-            limit: Number(searchParams.get("limit")) || 10,
-            skip: Number(searchParams.get("skip")) || 0,
-            search: searchParams.get("search") || "",
-            tag: searchParams.get("tag") || "",
-            sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || "none",
-            sortOrder: (searchParams.get("sortOrder") as "desc" | "asc") || "desc",
+            ...baseQueryParams,
           }),
         },
         (old: PostPaginatedResponse | undefined) => {
