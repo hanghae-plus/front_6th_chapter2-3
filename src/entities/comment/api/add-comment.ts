@@ -1,6 +1,12 @@
 import type { Comment } from '@/entities/comment/model';
 
-export async function addComment(payload: Omit<Comment, 'id'>): Promise<Comment> {
+export type AddCommentPayload = {
+  body: string;
+  postId: number;
+  userId: number;
+};
+
+export async function addComment(payload: AddCommentPayload): Promise<Comment> {
   const res = await fetch('/api/comments/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

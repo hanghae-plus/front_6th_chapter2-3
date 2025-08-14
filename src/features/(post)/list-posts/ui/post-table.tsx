@@ -1,7 +1,8 @@
-import { MessageSquare, Edit2, Trash2, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { MessageSquare, Edit2, ThumbsDown, ThumbsUp } from 'lucide-react';
 import type { Post } from '@/entities/post';
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui';
 import { useMemo } from 'react';
+import { DeletePostButton } from '@/features/(post)/delete-post';
 
 type PostTableProps = {
   posts: Post[];
@@ -115,9 +116,7 @@ export function PostTable({
                   <Button variant='ghost' size='sm' onClick={() => onEdit(post)}>
                     <Edit2 className='w-4 h-4' />
                   </Button>
-                  <Button variant='ghost' size='sm' onClick={() => onDelete(post.id)}>
-                    <Trash2 className='w-4 h-4' />
-                  </Button>
+                  <DeletePostButton postId={post.id} onDeleted={() => onDelete(post.id)} />
                 </div>
               </TableCell>
             </TableRow>

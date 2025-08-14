@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { commentApi, type Comment } from '@/entities/comment';
+import type { AddCommentPayload } from '@/entities/comment/api/add-comment';
 
 export type UseCommentsResult = {
   comments: Comment[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
-  add: (payload: Omit<Comment, 'id'>) => Promise<void>;
+  add: (payload: AddCommentPayload) => Promise<void>;
   update: (id: number, patch: Partial<Comment>) => Promise<void>;
   remove: (id: number) => Promise<void>;
   like: (id: number) => Promise<void>;
@@ -35,7 +36,7 @@ export function useComments(postId: number | null): UseCommentsResult {
     void fetcher();
   }, [fetcher]);
 
-  const add = useCallback(async (payload: Omit<Comment, 'id'>) => {
+  const add = useCallback(async (payload: AddCommentPayload) => {
     const created = await commentApi.addComment(payload);
     setComments((prev) => [...prev, created]);
   }, []);

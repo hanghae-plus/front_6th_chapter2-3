@@ -15,6 +15,7 @@ import { usePagination } from '@/features/(post)/paginate-posts';
 import { SortSelect } from '@/features/(post)/sort-posts';
 import { usePostSort } from '@/features/(post)/sort-posts';
 import { PostDetailDialog } from '@/features/(post)/view-post-detail';
+import { usePostDetail } from '@/features/(post)/view-post-detail';
 import { AddPostDialog } from '@/features/(post)/add-post';
 import { EditPostDialog } from '@/features/(post)/edit-post';
 import { CommentList } from '@/features/(comment)/list-comments';
@@ -23,7 +24,7 @@ import { EditCommentDialog } from '@/features/(comment)/edit-comment';
 import { useComments } from '@/features/(comment)/list-comments';
 import { UserModal } from '@/features/(user)/view-user-modal';
 import { useUserModal } from '@/features/(user)/view-user-modal';
-import { tagApi } from '@/entities/tag';
+import { useTags } from '../model';
 import type { Post } from '@/entities/post';
 import type { Comment } from '@/entities/comment';
 import type { User } from '@/entities/user';
@@ -52,13 +53,13 @@ export function PostsManagerPage() {
   );
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const { tags } = useTags();
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
   // 댓글 입력 상태는 feature dialog 내부에서 관리
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
+  const postDetail = usePostDetail();
   const userModal = useUserModal();
 
   const { posts, total, loading, refetch } = usePosts({
@@ -75,29 +76,11 @@ export function PostsManagerPage() {
     updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
   };
 
-  // 태그 가져오기 (slug 배열)
-  const fetchTags = async () => {
-    try {
-      const data = await tagApi.getTags();
-      const slugs = Array.isArray(data) ? data.map((t) => t.slug) : [];
-      setTags(slugs);
-    } catch (error) {
-      console.error('태그 가져오기 오류:', error);
-    }
-  };
-
   // 게시물 추가/수정은 feature UI에서 처리
 
-  // 게시물 삭제
-  const deletePost = async (id: number) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-      });
-      void refetch();
-    } catch (error) {
-      console.error('게시물 삭제 오류:', error);
-    }
+  // 게시물 삭제 후처리 (feature에서 삭제 수행 후 호출됨)
+  const onPostDeleted = async (_id: number) => {
+    void refetch();
   };
 
   // 댓글 데이터는 useComments 훅에서 관리
@@ -127,7 +110,7 @@ export function PostsManagerPage() {
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
     setSelectedPost(post);
-    setShowPostDetailDialog(true);
+    postDetail.show(post);
   };
 
   // 사용자 모달 열기 (feature 사용)
@@ -136,9 +119,7 @@ export function PostsManagerPage() {
     await userModal.show(user.id);
   };
 
-  useEffect(() => {
-    fetchTags();
-  }, []);
+  // 태그는 useTags 훅에서 초기 로딩
 
   useEffect(() => {
     updateURL();
@@ -168,8 +149,6 @@ export function PostsManagerPage() {
     setSkip,
   ]);
 
-  // (제거됨) 페이지 내부 하이라이트는 feature UI 컴포넌트에서 처리
-
   // 게시물 테이블 렌더링 (Feature UI 사용)
   const renderPostTable = () => (
     <PostTable
@@ -187,7 +166,7 @@ export function PostsManagerPage() {
         setSelectedPost(post);
         setShowEditDialog(true);
       }}
-      onDelete={(postId) => deletePost(postId)}
+      onDelete={(postId) => void onPostDeleted(postId)}
     />
   );
 
@@ -270,7 +249,7 @@ export function PostsManagerPage() {
       <AddCommentDialog
         open={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
-        postId={selectedPost?.id ?? null}
+        postId={postDetail.post?.id ?? null}
         onSuccess={() => void commentsFeature.refetch()}
       />
 
@@ -283,12 +262,14 @@ export function PostsManagerPage() {
 
       {/* 게시물 상세 보기 대화상자 (Feature UI) */}
       <PostDetailDialog
-        open={showPostDetailDialog}
-        post={selectedPost}
+        open={postDetail.open}
+        post={postDetail.post}
         searchQuery={searchQuery || ''}
-        onOpenChange={setShowPostDetailDialog}
+        onOpenChange={(o) => {
+          if (!o) postDetail.hide();
+        }}
       >
-        {selectedPost ? renderComments() : null}
+        {postDetail.post ? renderComments() : null}
       </PostDetailDialog>
 
       {/* Feature Dialogs */}
