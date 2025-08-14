@@ -7,6 +7,7 @@ import { useShallow } from "zustand/shallow"
 
 import { Post } from "@/entities/post/model"
 import { useDeletePostMutation } from "@/features/delete-post/api"
+import { usePostsSearchQuery } from "@/features/get-post/api"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
@@ -56,22 +57,25 @@ export function PostsManagerPage() {
       })
   }
 
-  // 게시물 검색
+  const { data: searchData, isLoading: isSearchLoading } = usePostsSearchQuery({ query: search })
+
+  useEffect(() => {
+    if (search && search.trim() && searchData && !isSearchLoading) {
+      setPosts(searchData.posts)
+      setTotal(searchData.total)
+    }
+  }, [search, searchData, isSearchLoading])
+
   const searchPosts = async () => {
     if (!search) {
       fetchPosts()
       return
     }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${search}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
+    // React Query가 이미 데이터를 가져왔으면 사용
+    if (searchData) {
+      setPosts(searchData.posts)
+      setTotal(searchData.total)
     }
-    setLoading(false)
   }
 
   // 태그별 게시물 가져오기
