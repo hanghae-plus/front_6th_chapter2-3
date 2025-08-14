@@ -4,7 +4,6 @@ import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
 import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hooks/useFetchPostsByMode.ts"
 import { useSearchMode } from "../features/posts/fetch-posts-by-mode/hooks/useSearchMode.ts"
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/hooks/useTagMode.ts.ts"
-import { useTagsQuery } from "../entities/post/hook.ts"
 import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/hooks/usePageNavigateMode.ts"
 import { useAddPost } from "../features/posts/hooks/useAddPost.ts"
 import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
@@ -24,9 +23,7 @@ import DetailPostModal from "../features/posts/ui/modals/DetailPostModal.tsx"
 import DetailUserModal from "../features/user/ui/modals/DetailUserModal.tsx"
 import PaginationBar from "../widgets/pagination/PaginationBar.tsx"
 import TableLoading from "../features/posts/ui/loading/TableLoading.tsx"
-import SortControls from "../features/posts/ui/selects/SortControls.tsx"
-import TagSelect from "../features/posts/ui/selects/TagSelect.tsx"
-import SearchInput from "../features/posts/ui/search/SearchInput.tsx"
+import PostFilter from "../widgets/post-filter/ui/PostFilter.tsx"
 import PostManagerHeader from "../widgets/post-manager-header/ui/PostManagerHeader.tsx"
 
 const PostsManager = () => {
@@ -35,7 +32,6 @@ const PostsManager = () => {
   const tagMode = useTagMode()
   const pageNavigateMode = usePageNavigateMode()
   const limitMode = useLimitMode()
-  const tags = useTagsQuery()
 
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
@@ -55,11 +51,7 @@ const PostsManager = () => {
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <SearchInput searchMode={searchMode} />
-            <TagSelect tagMode={tagMode} tags={tags.data || []} />
-            <SortControls />
-          </div>
+          <PostFilter />
 
           {/* 게시물 테이블 */}
           {posts.loading ? (
