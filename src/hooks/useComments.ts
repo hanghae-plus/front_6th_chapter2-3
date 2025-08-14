@@ -1,94 +1,62 @@
-import { useState, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    fetchCommentsByPostId,
-    addComment as apiAddComment,
-    updateComment as apiUpdateComment,
-    deleteComment as apiDeleteComment,
-    likeComment as apiLikeComment,
+  fetchCommentsByPostId,
+  addComment as apiAddComment,
+  updateComment as apiUpdateComment,
+  deleteComment as apiDeleteComment,
+  likeComment as apiLikeComment,
 } from "../api/comments";
 import type { Comment } from "../types";
 
-export const useComments = () => {
-    const [comments, setComments] = useState<Record<number, Comment[]>>({});
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+export const useComments = (postId: number | null) => {
+  const queryClient = useQueryClient();
 
-    const getComments = useCallback(async (postId: number) => {
-        if (comments[postId]) return; // Avoid re-fetching
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetchCommentsByPostId(postId);
-            setComments(prev => ({ ...prev, [postId]: response.comments }));
-        } catch (e) {
-            setError(e as Error);
-            console.error(`Failed to fetch comments for post ${postId}:`, e);
-        } finally {
-            setLoading(false);
-        }
-    }, [comments]);
+  const {
+    data: comments = [],
+    isLoading,
+    error,
+  } = useQuery<Comment[], Error>({
+    queryKey: ["comments", postId],
+    queryFn: () => fetchCommentsByPostId(postId!).then(res => res.comments),
+    enabled: !!postId, // Only run query if postId is not null
+  });
 
-    const addComment = async (postId: number, body: string, userId: number) => {
-        try {
-            const newComment = await apiAddComment({ body, postId, userId });
-            setComments(prev => ({
-                ...prev,
-                [postId]: [...(prev[postId] || []), newComment],
-            }));
-        } catch (e) {
-            console.error("Failed to add comment:", e);
-            // Optionally re-throw or handle error in UI
-        }
-    };
+  const onSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+  };
 
-    const updateComment = async (postId: number, commentId: number, body: string) => {
-        try {
-            const updatedComment = await apiUpdateComment(commentId, body);
-            setComments(prev => ({
-                ...prev,
-                [postId]: prev[postId].map(c => (c.id === commentId ? updatedComment : c)),
-            }));
-        } catch (e) {
-            console.error("Failed to update comment:", e);
-        }
-    };
+  const addCommentMutation = useMutation({
+    mutationFn: (newComment: { body: string; postId: number; userId: number }) => apiAddComment(newComment),
+    onSuccess,
+  });
 
-    const deleteComment = async (postId: number, commentId: number) => {
-        try {
-            await apiDeleteComment(commentId);
-            setComments(prev => ({
-                ...prev,
-                [postId]: prev[postId].filter(c => c.id !== commentId),
-            }));
-        } catch (e) {
-            console.error("Failed to delete comment:", e);
-        }
-    };
+  const updateCommentMutation = useMutation({
+    mutationFn: (variables: { commentId: number; body: string }) =>
+      apiUpdateComment(variables.commentId, variables.body),
+    onSuccess,
+  });
 
-    const likeComment = async (postId: number, commentId: number) => {
-        try {
-            const commentToLike = comments[postId].find(c => c.id === commentId);
-            if (!commentToLike) return;
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: number) => apiDeleteComment(commentId),
+    onSuccess,
+  });
 
-            const updatedComment = await apiLikeComment(commentId, commentToLike.likes);
-            setComments(prev => ({
-                ...prev,
-                [postId]: prev[postId].map(c => (c.id === commentId ? { ...updatedComment, likes: c.likes + 1 } : c)),
-            }));
-        } catch (e) {
-            console.error("Failed to like comment:", e);
-        }
-    };
+  const likeCommentMutation = useMutation({
+    mutationFn: (commentId: number) => {
+        const comment = comments.find(c => c.id === commentId);
+        if (!comment) throw new Error("Comment not found");
+        return apiLikeComment(commentId, comment.likes);
+    },
+    onSuccess,
+  });
 
-
-    return {
-        comments,
-        loading,
-        error,
-        getComments,
-        addComment,
-        updateComment,
-        deleteComment,
-        likeComment,
-    };
+  return {
+    comments,
+    isLoading,
+    error,
+    addComment: addCommentMutation.mutateAsync,
+    updateComment: updateCommentMutation.mutateAsync,
+    deleteComment: deleteCommentMutation.mutateAsync,
+    likeComment: likeCommentMutation.mutateAsync,
+  };
 };
