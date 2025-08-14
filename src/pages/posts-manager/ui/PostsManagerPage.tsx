@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Plus, Search } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
-import { PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
+import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
-import { Input } from "@/shared/ui/Input"
 import { CommentAddDialog, CommentUpdateDialog } from "@/widgets/comment-dialog/ui"
 import { PostAddDialog, PostDetailDialog, PostUpdateDialog } from "@/widgets/post-dialog/ui"
 import { PostPagination } from "@/widgets/post-pagination/ui"
@@ -346,18 +345,7 @@ export function PostsManagerPage() {
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
           <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
+            <PostSearchInput searchQuery={searchQuery} onSearchChange={setSearchQuery} onSearch={searchPosts} />
 
             <PostTagFilterSelect
               selectedTag={selectedTag}
