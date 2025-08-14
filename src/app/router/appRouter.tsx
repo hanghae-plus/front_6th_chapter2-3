@@ -3,15 +3,21 @@ import { createBrowserRouter } from "react-router-dom"
 import { AppLayout } from "@/app/ui/AppLayout"
 import { PostsManagerPage } from "@/pages/posts-manager/ui"
 
-export const appRouter = createBrowserRouter([
-  {
-    path: "/",
-    element: <AppLayout />,
-    children: [
-      {
-        index: true,
-        element: <PostsManagerPage />,
-      },
-    ],
-  },
-])
+const isProd = import.meta.env.MODE === "production"
+const basename = isProd ? "/front_6th_chapter2-3" : "/"
+
+export const appRouter = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <AppLayout />,
+      children: [
+        {
+          index: true,
+          element: <PostsManagerPage />,
+        },
+      ],
+    },
+  ],
+  { basename },
+)
