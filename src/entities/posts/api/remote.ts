@@ -21,7 +21,7 @@ export const getPosts = async (
     return await remote(`/api/posts/search?q=${searchQuery}`);
   }
 
-  if (selectedTag) {
+  if (selectedTag && selectedTag !== 'all') {
     return await remote(`/api/posts/tag/${selectedTag}`);
   }
 
