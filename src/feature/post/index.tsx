@@ -74,7 +74,7 @@ export const PostList = () => {
       },
       staleTime: 5 * 60 * 1000,
     })
-    
+
     setSelectedUser(userData)
     setShowUserModal(true)
   }

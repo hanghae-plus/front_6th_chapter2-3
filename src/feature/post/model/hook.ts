@@ -5,6 +5,7 @@ import { DeletePost, NewPost, Post } from "../type"
 import { getPosts, getPostsByTag, getSeachPosts, getUsers } from "../../../entities"
 import { QUERY_KEYS } from "../../../shared/constants/query"
 import { useQuery } from "@tanstack/react-query"
+import { useAddPostMutation, useDeletePostMutation, useUpdatePostMutation } from "./mutations"
 
 export const userPostInfo = (limit: number, skip: number, sortBy: string, sortOrder: string, selectedTag: string) => {
   const { setPosts } = useSelectedPostStore()
@@ -120,29 +121,19 @@ export const usePostForm = () => {
   }
 
   // 게시물 추가
+  const addPostMutation = useAddPostMutation()
   const addPost = async () => {
-    try {
-      const { result, data } = await requestApi<Post>(`/api/posts/add`, {
-        method: "POST",
-        body: newPost,
-      })
-      if (result && data) {
-        setPosts([
-          {
-            ...data,
-            reactions: { likes: 0, dislikes: 0 },
-            tags: [],
-            views: 0,
-          },
-          ...posts,
-        ])
-      }
-
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
+    if (!newPost.title.trim() || !newPost.body.trim()) {
+      alert("제목과 내용을 입력해주세요")
+      return
     }
+
+    addPostMutation.mutate(newPost, {
+      onSuccess: () => {
+        // 성공 시 폼 초기화
+        setNewPost({ title: "", body: "", userId: 1 })
+      }
+    })
   }
 
   const handleChangeSelectedPost = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -151,35 +142,20 @@ export const usePostForm = () => {
   }
 
   // 게시물 업데이트
+  const updatePostMutation = useUpdatePostMutation()
   const updatePost = async () => {
-    try {
-      const { result, data } = await requestApi<Post>(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        body: selectedPost,
-      })
-      if (result && data) {
-        setPosts(posts.map((post) => (post.id === data.id ? data : post)))
-      }
-
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
+    if (!selectedPost.title.trim() || !selectedPost.body.trim()) {
+      alert("제목과 내용을 입력해주세요")
+      return
     }
+
+    updatePostMutation.mutate(selectedPost)
   }
 
   // 게시물 삭제
+  const deletePostMutation = useDeletePostMutation()
   const deletePost = async (id: number) => {
-    try {
-      const { result } = await requestApi<DeletePost>(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      if (result) {
-        setPosts(posts.filter((post) => post.id !== id))
-      }
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
+    deletePostMutation.mutate(id)
 
   return {
     newPost,
