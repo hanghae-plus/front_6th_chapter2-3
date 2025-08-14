@@ -11,7 +11,10 @@ export const fetchComments = async (
   try {
     const response = await fetch(`/api/comments/post/${postId}`);
     const data = await response.json();
-    setComments((prev) => ({ ...prev, [postId]: data.comments }));
+
+    // Zustand와 호환되도록 함수 대신 직접 값 전달
+    const updatedComments = { ...comments, [postId]: data.comments };
+    setComments(updatedComments);
   } catch (error) {
     console.error('댓글 가져오기 오류:', error);
   }
@@ -26,16 +29,38 @@ export const addComment = async (
   newComment: NewComment,
 ) => {
   try {
+    console.log('=== addComment API 호출 ===');
+    console.log('전송할 데이터:', newComment);
+    console.log('newComment.postId:', newComment.postId);
+    console.log('newComment.body:', newComment.body);
+    console.log('newComment.userId:', newComment.userId);
+    
     const response = await fetch('/api/comments/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newComment),
     });
+    
+    console.log('API 응답 상태:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API 에러 응답:', errorText);
+      throw new Error(`API 호출 실패: ${response.status} ${errorText}`);
+    }
+    
     const data = await response.json();
-    setComments((prev) => ({
-      ...prev,
-      [data.postId]: [...(prev[data.postId] || []), data],
-    }));
+    console.log('API 응답 데이터:', data);
+    console.log('응답 data.postId:', data.postId);
+    
+    // Zustand와 호환되도록 함수 대신 직접 값 전달
+    const updatedComments = {
+      ...comments,
+      [data.postId]: [...(comments[data.postId] || []), data],
+    };
+    
+    console.log('업데이트된 comments:', updatedComments);
+    setComments(updatedComments);
     setShowAddCommentDialog(false);
     setNewComment({ body: '', postId: null, userId: 1 });
   } catch (error) {
@@ -57,12 +82,16 @@ export const updateComment = async (
       body: JSON.stringify({ body: selectedComment.body }),
     });
     const data = await response.json();
-    setComments((prev) => ({
-      ...prev,
-      [data.postId]: prev[data.postId].map((comment) =>
+
+    // Zustand와 호환되도록 함수 대신 직접 값 전달
+    const updatedComments = {
+      ...comments,
+      [data.postId]: comments[data.postId].map((comment) =>
         comment.id === data.id ? data : comment,
       ),
-    }));
+    };
+
+    setComments(updatedComments);
     setShowEditCommentDialog(false);
   } catch (error) {
     console.error('댓글 업데이트 오류:', error);
@@ -80,10 +109,14 @@ export const deleteComment = async (
     await fetch(`/api/comments/${id}`, {
       method: 'DELETE',
     });
-    setComments((prev) => ({
-      ...prev,
-      [postId]: prev[postId].filter((comment) => comment.id !== id),
-    }));
+
+    // Zustand와 호환되도록 함수 대신 직접 값 전달
+    const updatedComments = {
+      ...comments,
+      [postId]: comments[postId].filter((comment) => comment.id !== id),
+    };
+
+    setComments(updatedComments);
   } catch (error) {
     console.error('댓글 삭제 오류:', error);
   }
@@ -97,18 +130,25 @@ export const likeComment = async (
   postId: number,
 ) => {
   try {
+    const currentComment = comments[postId]?.find((c) => c.id === id);
+    if (!currentComment) return;
+
     const response = await fetch(`/api/comments/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id)?.likes + 1 }),
+      body: JSON.stringify({ likes: currentComment.likes + 1 }),
     });
     const data = await response.json();
-    setComments((prev) => ({
-      ...prev,
-      [postId]: prev[postId].map((comment) =>
+
+    // Zustand와 호환되도록 함수 대신 직접 값 전달
+    const updatedComments = {
+      ...comments,
+      [postId]: comments[postId].map((comment) =>
         comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
       ),
-    }));
+    };
+
+    setComments(updatedComments);
   } catch (error) {
     console.error('댓글 좋아요 오류:', error);
   }

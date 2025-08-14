@@ -63,10 +63,16 @@ const PostsManager = () => {
   } = usePostFeature();
 
   // 디버깅용 로그
+  console.log('=== PostsManager 렌더링 ===');
+  console.log('posts:', posts);
+  console.log('loading:', loading);
   console.log('handleDeletePost:', handleDeletePost);
   console.log('typeof handleDeletePost:', typeof handleDeletePost);
 
-  // Comment Feature 사용
+  // User Feature 사용
+  const { showUserModal, user, setShowUserModal, openUserModal } = useUserFeature();
+
+  // Comment Feature 사용 (컴포넌트 최상위에서 호출)
   const {
     comments,
     selectedComment,
@@ -82,22 +88,89 @@ const PostsManager = () => {
     handleUpdateComment,
     handleDeleteComment,
     handleLikeComment,
+    setComments,
   } = useCommentFeature();
 
-  // User Feature 사용
-  const { showUserModal, user, setShowUserModal, openUserModal } = useUserFeature();
+  // Comment Feature 디버깅용 로그
+  console.log('=== Comment Feature 상태 ===');
+  console.log('comments:', comments);
+  console.log('handleFetchComments:', handleFetchComments);
+  console.log('typeof handleFetchComments:', typeof handleFetchComments);
 
   // 게시물 상세 보기 (댓글도 함께 가져오기)
   const openPostDetailWithComments = (post: any) => {
+    console.log('게시물 상세 보기 열기:', post);
     openPostDetail(post);
+    console.log('댓글 가져오기 시작, postId:', post.id);
     handleFetchComments(post.id);
+    console.log('현재 comments 상태:', comments);
   };
 
   // 댓글 추가 시 postId 설정
   const handleAddCommentWithPostId = () => {
+    console.log('=== 댓글 추가 시작 ===');
+    console.log('selectedPost:', selectedPost);
+    console.log('newComment:', newComment);
+
     if (selectedPost) {
-      setNewComment((prev) => ({ ...prev, postId: selectedPost.id }));
-      handleAddComment();
+      console.log('postId 설정:', selectedPost.id);
+      // userId를 보존하면서 postId만 업데이트
+      const updatedComment = {
+        ...newComment,
+        postId: selectedPost.id,
+        userId: newComment.userId || 1, // userId가 없으면 기본값 1 사용
+      };
+      console.log('업데이트된 댓글:', updatedComment);
+
+      // setNewComment 완료 후 댓글 추가 함수 호출
+      setNewComment(updatedComment);
+
+      // 상태 업데이트가 완료된 후 댓글 추가 실행
+      // useCallback을 사용하여 updatedComment를 클로저로 캡처
+      const addCommentWithUpdatedData = () => {
+        console.log('댓글 추가 함수 호출, updatedComment:', updatedComment);
+        // updatedComment를 직접 사용하여 API 호출
+        handleAddCommentWithData(updatedComment);
+      };
+
+      // 다음 렌더링 사이클에서 실행
+      setTimeout(addCommentWithUpdatedData, 0);
+    } else {
+      console.error('selectedPost가 없습니다!');
+    }
+  };
+
+  // 특정 데이터로 댓글 추가하는 함수
+  const handleAddCommentWithData = async (commentData: any) => {
+    console.log('handleAddCommentWithData 호출:', commentData);
+
+    try {
+      const response = await fetch('/api/comments/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(commentData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API 에러 응답:', errorText);
+        throw new Error(`API 호출 실패: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('댓글 추가 성공:', data);
+
+      // 댓글 상태 업데이트 (useCommentFeature에서 가져온 함수들 사용)
+      const updatedComments = {
+        ...comments,
+        [data.postId]: [...(comments[data.postId] || []), data],
+      };
+
+      setComments(updatedComments);
+      setShowAddCommentDialog(false);
+      setNewComment({ body: '', postId: null, userId: 1 });
+    } catch (error) {
+      console.error('댓글 추가 오류:', error);
     }
   };
 
@@ -314,7 +387,11 @@ const PostsManager = () => {
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className='max-w-3xl'>
           <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title || '', searchQuery)}</DialogTitle>
+            <DialogTitle>
+              {selectedPost?.title && selectedPost.title.trim()
+                ? highlightText(selectedPost.title, searchQuery)
+                : '게시물 상세 보기'}
+            </DialogTitle>
           </DialogHeader>
           <div className='space-y-4'>
             <p>{highlightText(selectedPost?.body || '', searchQuery)}</p>

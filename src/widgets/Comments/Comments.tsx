@@ -1,4 +1,4 @@
-import { Edit2, Plus, ThumbsUp } from 'lucide-react';
+import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import { Button } from '../../shared/ui';
 import { Comment } from '../../entities/comment';
 import { highlightText } from '../../shared/utils';
@@ -49,7 +49,11 @@ export const Comments = ({
               <span className='truncate'>{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className='flex items-center space-x-1'>
-              <Button variant='ghost' size='sm' onClick={() => handleLikeComment(comment.id, postId)}>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => handleLikeComment(comment.id, postId)}
+              >
                 <ThumbsUp className='w-3 h-3' />
                 <span className='ml-1 text-xs'>{comment.likes}</span>
               </Button>
@@ -63,8 +67,12 @@ export const Comments = ({
               >
                 <Edit2 className='w-3 h-3' />
               </Button>
-              <Button variant='ghost' size='sm' onClick={() => handleDeleteComment(comment.id, postId)}>
-                <Edit2 className='w-3 h-3' />
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => handleDeleteComment(comment.id, postId)}
+              >
+                <Trash2 className='w-3 h-3' />
               </Button>
             </div>
           </div>

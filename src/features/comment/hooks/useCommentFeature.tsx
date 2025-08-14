@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCommentStore } from '../store/index';
 import { Comment, NewComment } from '../../../entities/comment';
 import {
   fetchComments,
@@ -9,20 +9,49 @@ import {
 } from '../../../entities/comment';
 
 export const useCommentFeature = () => {
-  // Comment 관련 상태 (PostsManagerPage.tsx에서 그대로 복사)
-  const [comments, setComments] = useState<Record<number, Comment[]>>({});
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  const [newComment, setNewComment] = useState<NewComment>({ body: '', postId: null, userId: 1 });
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
+  // Zustand 스토어 직접 테스트
+  console.log('=== Zustand 스토어 직접 테스트 ===');
+  console.log('useCommentStore 함수:', useCommentStore);
+  console.log('useCommentStore.getState():', useCommentStore.getState());
 
-  // API 호출 핸들러들
+  // Zustand 스토어 사용 (기존 useState와 동일한 기능)
+  const {
+    comments,
+    selectedComment,
+    newComment,
+    showAddCommentDialog,
+    showEditCommentDialog,
+    setComments,
+    setSelectedComment,
+    setNewComment,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+    clearNewComment,
+    clearSelectedComment,
+  } = useCommentStore();
+
+  // 디버깅용 로그
+  console.log('=== useCommentFeature 내부 ===');
+  console.log('Zustand comments:', comments);
+  console.log('Zustand setComments:', setComments);
+  console.log('Zustand selectedComment:', selectedComment);
+  console.log('Zustand newComment:', newComment);
+
+  // API 호출 핸들러들 (기존과 동일, Zustand 스토어의 setter 사용)
   const handleFetchComments = async (postId: number) => {
+    console.log('handleFetchComments 호출, postId:', postId);
     await fetchComments(postId, comments, setComments);
   };
 
   const handleAddComment = async () => {
+    console.log('=== handleAddComment 시작 ===');
+    console.log('현재 newComment:', newComment);
+    console.log('현재 comments:', comments);
+    console.log('setComments 함수:', setComments);
+
     await addComment(setComments, comments, setShowAddCommentDialog, setNewComment, newComment);
+
+    console.log('handleAddComment 완료');
   };
 
   const handleUpdateComment = async () => {
@@ -40,23 +69,26 @@ export const useCommentFeature = () => {
   };
 
   return {
-    // 상태
+    // 상태 (Zustand 스토어에서 가져옴)
     comments,
     selectedComment,
     newComment,
     showAddCommentDialog,
     showEditCommentDialog,
-    // 상태 설정자
+    // 상태 설정자 (Zustand 스토어에서 가져옴)
     setComments,
     setSelectedComment,
     setNewComment,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
-    // 함수들
+    // 함수들 (기존과 동일)
     handleFetchComments,
     handleAddComment,
     handleUpdateComment,
     handleDeleteComment,
     handleLikeComment,
+    // 유틸리티 함수들 (Zustand 스토어에서 가져옴)
+    clearNewComment,
+    clearSelectedComment,
   };
 };
