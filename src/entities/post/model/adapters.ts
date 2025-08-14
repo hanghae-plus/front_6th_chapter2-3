@@ -1,23 +1,34 @@
 import type { PostsApiResponse, Post } from "./types"
 
-export const applyInsertTop = (
-  data: PostsApiResponse,
-  post: Post,
-): PostsApiResponse => ({ ...data, posts: [post, ...data.posts], total: (data.total ?? 0) + 1 })
+export const applyInsertTop = (data: PostsApiResponse, post: Post): PostsApiResponse => ({
+  ...data,
+  posts: [post, ...data.posts],
+  total: (data.total ?? 0) + 1,
+})
 
-export const applyInsertBottom = (
-  data: PostsApiResponse,
-  post: Post,
-): PostsApiResponse => ({ ...data, posts: [...data.posts, post], total: (data.total ?? 0) + 1 })
+export const applyInsertBottom = (data: PostsApiResponse, post: Post): PostsApiResponse => ({
+  ...data,
+  posts: [...data.posts, post],
+  total: (data.total ?? 0) + 1,
+})
 
-export const applyDeleteByIdOrClient = (
+export const applyDeleteByIdOrClient = (data: PostsApiResponse, id: number, clientId?: string): PostsApiResponse => ({
+  ...data,
+  posts: data.posts.filter((p: Post) => (clientId ? p.clientId !== clientId : p.id !== id)),
+  total: Math.max(0, (data.total ?? 1) - 1),
+})
+
+export const applyUpdateByIdOrClient = (
   data: PostsApiResponse,
   id: number,
-  clientId?: string,
+  clientId: string | undefined,
+  patch: (p: Post) => Post,
 ): PostsApiResponse => ({
   ...data,
-  posts: data.posts.filter((p: any) => (clientId ? p.clientId !== clientId : p.id !== id)),
-  total: Math.max(0, (data.total ?? 1) - 1),
+  posts: data.posts.map((p: Post) => {
+    const isTarget = clientId ? p.clientId === clientId : p.id === id
+    return isTarget ? patch(p) : p
+  }),
 })
 
 export const applyPatchReactions = (
@@ -27,10 +38,8 @@ export const applyPatchReactions = (
   patch: (p: Post) => Post,
 ): PostsApiResponse => ({
   ...data,
-  posts: data.posts.map((p: any) => {
+  posts: data.posts.map((p: Post) => {
     const isTarget = clientId ? p.clientId === clientId : p.id === id
-    return isTarget ? (patch(p) as any) : p
+    return isTarget ? patch(p) : p
   }),
 })
-
-

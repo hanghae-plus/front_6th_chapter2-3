@@ -15,7 +15,7 @@ import { CommentDialog } from "../features/comment-manage/ui/CommentDialog"
 import { PostDetailDialog } from "../features/post-detail/ui/PostDetailDialog"
 import { UserDialog } from "../features/user-detail/ui/UserDialog"
 import { PostFilters } from "../widgets/post-filters/PostFilters"
-import { PostsTable } from "../widgets/post-list/PostsTable"
+import { PostsTable, type PostRowVM } from "../widgets/post-list/PostsTable"
 import { PaginationControls } from "../widgets/pagination/PaginationControls"
 
 const PostsManagerPage = () => {
@@ -85,25 +85,33 @@ const PostsManagerPage = () => {
             <div className="text-red-500 text-center p-4">Error: {postsError.message}</div>
           ) : (
             <PostsTable
-              posts={posts}
+              rows={posts.map((p, idx): PostRowVM => ({
+                clientKey: p.clientId ?? `${p.id}`,
+                rowNo: sortOrder === "desc" ? total - (skip + idx) : skip + idx + 1,
+                title: p.title,
+                body: p.body,
+                tags: p.tags ?? [],
+                author: p.author,
+                likes: p.reactions?.likes ?? 0,
+                dislikes: p.reactions?.dislikes ?? 0,
+                origin: { id: p.id, clientId: p.clientId },
+              }))}
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               searchQuery={searchQuery}
-              onEdit={postEdit.openEditDialog}
+              onEdit={(origin) => postEdit.openEditDialog({ ...posts.find((pp) => (pp.clientId ?? `${pp.id}`) === (origin.clientId ?? `${origin.id}`))!, id: origin.id })}
               onDelete={(id, clientId) => postDelete.handleDelete({ postId: id, clientId })}
               onLike={(id, likes, clientId) => postReactions.handleLike(id, likes, clientId)}
               onDislike={(id, dislikes, clientId) => postReactions.handleDislike(id, dislikes, clientId)}
-              skip={skip}
-              total={total}
-              sortOrder={sortOrder}
               onUserClick={(user) => {
-                // 사용자 상세 정보 모달 열기
                 userDetail.openUserDetail(user)
               }}
-              onPostClick={(post) => {
-                // 게시물 상세 보기 다이얼로그 열기
-                postDetail.openPostDetail(post)
-                commentManage.openPostComments(post.id)
+              onPostClick={(origin) => {
+                const post = posts.find((pp) => (pp.clientId ?? `${pp.id}`) === (origin.clientId ?? `${origin.id}`))
+                if (post) {
+                  postDetail.openPostDetail(post)
+                  commentManage.openPostComments(post.id)
+                }
               }}
             />
           )}

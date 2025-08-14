@@ -3,6 +3,8 @@ import { deletePost } from "../../../entities/post/api"
 import { useAtomValue } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
 import type { PostsApiResponse } from "../../../entities/post/model"
+import { applyDeleteByIdOrClient } from "../../../entities/post/model/adapters"
+import { postsKey } from "../../../shared/api/queryKeys"
 
 export const usePostDelete = () => {
   const queryClient = useQueryClient()
@@ -18,16 +20,12 @@ export const usePostDelete = () => {
     mutationFn: ({ postId }) =>
       localCreatedIds.has(postId) ? Promise.resolve({ isDeleted: true }) : deletePost(postId),
     onMutate: async ({ postId, clientId }) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] })
-      const previous = queryClient.getQueriesData({ queryKey: ["posts"] }) as PreviousCtx
-      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: PostsApiResponse | undefined) => {
+      await queryClient.cancelQueries({ queryKey: postsKey.all })
+      const previous = queryClient.getQueriesData({ queryKey: postsKey.all }) as PreviousCtx
+      queryClient.setQueriesData({ queryKey: postsKey.all }, (old: PostsApiResponse | undefined) => {
         const data = old
         if (!data) return old
-        return {
-          ...data,
-          posts: data.posts.filter((p) => (clientId ? p.clientId !== clientId : p.id !== postId)),
-          total: Math.max(0, (data.total ?? 1) - 1),
-        }
+        return applyDeleteByIdOrClient(data, postId, clientId)
       })
       return { previous }
     },

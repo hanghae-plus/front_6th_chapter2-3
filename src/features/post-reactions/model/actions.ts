@@ -1,24 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { likePost, dislikePost } from "../../../entities/post/api"
 import type { PostsApiResponse, Post } from "../../../entities/post/model"
+import { applyUpdateByIdOrClient } from "../../../entities/post/model/adapters"
 import { useAtomValue } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
+import { postsKey } from "../../../shared/api/queryKeys"
 
 export const usePostReactions = () => {
   const queryClient = useQueryClient()
   const localCreatedIds = useAtomValue(localCreatedPostIdsAtom)
 
   const optimisticallyUpdatePosts = (postId: number, updater: (p: Post) => Post, clientId?: string) => {
-    queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
+    queryClient.setQueriesData({ queryKey: postsKey.all }, (old: any) => {
       const data = old as PostsApiResponse | undefined
       if (!data) return old
-      return {
-        ...data,
-        posts: data.posts.map((p) => {
-          const isTarget = clientId ? p.clientId === clientId : p.id === postId
-          return isTarget ? updater(p) : p
-        }),
-      }
+      return applyUpdateByIdOrClient(data, postId, clientId, updater)
     })
   }
 
@@ -26,8 +22,8 @@ export const usePostReactions = () => {
     mutationFn: ({ postId, currentLikes }: { postId: number; currentLikes: number; clientId?: string }) =>
       localCreatedIds.has(postId) ? Promise.resolve({} as any) : likePost(postId, currentLikes),
     onMutate: async ({ postId, clientId }: { postId: number; clientId?: string }) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] })
-      const previous = queryClient.getQueriesData({ queryKey: ["posts"] })
+      await queryClient.cancelQueries({ queryKey: postsKey.all })
+      const previous = queryClient.getQueriesData({ queryKey: postsKey.all })
       optimisticallyUpdatePosts(
         postId,
         (post) => ({
@@ -51,8 +47,8 @@ export const usePostReactions = () => {
     mutationFn: ({ postId, currentDislikes }: { postId: number; currentDislikes: number; clientId?: string }) =>
       localCreatedIds.has(postId) ? Promise.resolve({} as any) : dislikePost(postId, currentDislikes),
     onMutate: async ({ postId, clientId }: { postId: number; clientId?: string }) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] })
-      const previous = queryClient.getQueriesData({ queryKey: ["posts"] })
+      await queryClient.cancelQueries({ queryKey: postsKey.all })
+      const previous = queryClient.getQueriesData({ queryKey: postsKey.all })
       optimisticallyUpdatePosts(
         postId,
         (post) => ({

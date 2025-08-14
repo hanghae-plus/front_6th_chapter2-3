@@ -6,6 +6,8 @@ import { editablePostAtom, showEditPostDialogAtom } from "./atoms"
 import type { Post } from "../../../entities/post/model"
 import { useAtomValue } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
+import { postsKey } from "../../../shared/api/queryKeys"
+import { applyUpdateByIdOrClient } from "../../../entities/post/model/adapters"
 
 export const usePostEdit = () => {
   const [editablePost, setEditablePost] = useAtom(editablePostAtom)
@@ -17,13 +19,12 @@ export const usePostEdit = () => {
     mutationFn: ({ postId, postData }: { postId: number; postData: { title: string; body: string } }) =>
       localCreatedIds.has(postId) ? Promise.resolve({} as any) : updatePost(postId, postData),
     onMutate: async ({ postId, postData }) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] })
-      const previous = queryClient.getQueriesData({ queryKey: ["posts"] })
-      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
-        return {
-          ...old,
-          posts: old.posts.map((p: Post) => (p.id === postId ? { ...p, ...postData } : p)),
-        }
+      await queryClient.cancelQueries({ queryKey: postsKey.all })
+      const previous = queryClient.getQueriesData({ queryKey: postsKey.all })
+      queryClient.setQueriesData({ queryKey: postsKey.all }, (old: any) => {
+        const data = old as { posts: Post[] } | undefined
+        if (!data) return old
+        return applyUpdateByIdOrClient(data as any, postId, undefined, (p) => ({ ...p, ...postData }))
       })
       return { previous }
     },

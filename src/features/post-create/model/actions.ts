@@ -8,14 +8,21 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { localCreatedPostIdsAtom } from "../../../shared/lib/localAtoms"
 import { listSortOrderAtom } from "../../../shared/lib/viewAtoms"
 import { toastsAtom } from "../../../shared/lib/toastAtoms"
+import { applyInsertTop } from "../../../entities/post/model/adapters"
 
-export const usePostCreate = () => {
+type UsePostCreateOptions = {
+  sortOrder?: "asc" | "desc"
+  onNotify?: (message: string) => void
+}
+
+export const usePostCreate = (options: UsePostCreateOptions = {}) => {
   const [newPostData, setNewPostData] = useAtom(newPostDataAtom)
   const setLocalCreated = useSetAtom(localCreatedPostIdsAtom)
-  const sortOrder = useAtomValue(listSortOrderAtom)
+  const sortOrderFromAtom = useAtomValue(listSortOrderAtom)
   const [showDialog, setShowDialog] = useAtom(showAddPostDialogAtom)
   const setToasts = useSetAtom(toastsAtom)
   const queryClient = useQueryClient()
+  const sortOrder = options.sortOrder ?? sortOrderFromAtom
 
   const addPostMutation = useMutation({
     mutationFn: addPost,
@@ -37,23 +44,30 @@ export const usePostCreate = () => {
       queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
         const data = old as PostsApiResponse | undefined
         if (!data) return old
-        // asc: 마지막 페이지 끝에만 추가되도록 현재 페이지 데이터에서는 제거
-        const posts = sortOrder === "desc" ? [createdNormalized, ...data.posts] : [...data.posts] // asc는 현재 페이지에는 추가하지 않음(마지막 페이지에만 나타나야 함)
-        return { ...data, posts, total: (data.total ?? 0) + 1 }
+        if (sortOrder === "desc") {
+          return applyInsertTop(data, createdNormalized)
+        }
+        // asc: 현재 페이지에는 추가하지 않음(마지막 페이지에서 나타남)
+        return { ...data, posts: [...data.posts], total: (data.total ?? 0) + 1 }
       })
 
       if (sortOrder === "asc") {
         const id = `${Date.now()}`
-        setToasts((prev) => [
-          ...prev,
-          {
-            id,
-            message: "새 게시물이 생성되었습니다 · 마지막 페이지에서 확인",
-            type: "success",
-            createdAt: Date.now(),
-            durationMs: 3500,
-          },
-        ])
+        const notify = options.onNotify
+        if (notify) {
+          notify("새 게시물이 생성되었습니다 · 마지막 페이지에서 확인")
+        } else {
+          setToasts((prev) => [
+            ...prev,
+            {
+              id,
+              message: "새 게시물이 생성되었습니다 · 마지막 페이지에서 확인",
+              type: "success",
+              createdAt: Date.now(),
+              durationMs: 3500,
+            },
+          ])
+        }
       }
     },
     onSettled: () => {
