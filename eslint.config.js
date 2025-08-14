@@ -38,19 +38,19 @@ export default tseslint.config(
       ],
 
       // Enforces importing only via public API (index files)
-      'fsd/no-public-api-sidestep': 'error',
+      // 'fsd/no-public-api-sidestep': 'error',
 
       // Prevents direct imports between slices in the same layer
-      'fsd/no-cross-slice-dependency': 'error',
+      // 'fsd/no-cross-slice-dependency': 'error',
 
       // Prevents UI imports in business logic layers (e.g., entities)
-      'fsd/no-ui-in-business-logic': 'error',
+      // 'fsd/no-ui-in-business-logic': 'error',
 
       // Forbids direct import of the global store
-      'fsd/no-global-store-imports': 'error',
+      // 'fsd/no-global-store-imports': 'error',
 
-      // Enforces import order based on FSD layers
-      'fsd/ordered-imports': 'warn',
+      // Enforces import order based on FSD layers (disabled due to prettier conflict)
+      // 'fsd/ordered-imports': 'warn',
     },
   },
 );

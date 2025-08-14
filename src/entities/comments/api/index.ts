@@ -1,10 +1,10 @@
-import { api } from '@/shared/lib/api.ts';
-
 import {
+  Comments,
   CommentsResponse,
   PostAddComment,
   PutCommentsDetail,
 } from '../model/types';
+import { api } from '@/shared/lib/api.ts';
 
 /**
  * Comments API
@@ -13,12 +13,8 @@ export const commentsApi = {
   /**
    * 댓글 조회
    */
-  getComments: async (
-    postId: number,
-  ): Promise<{ comments: CommentsResponse[] }> => {
-    return api.get<{ comments: CommentsResponse[] }>(
-      `/comments/post/${postId}`,
-    );
+  getComments: async (postId: number) => {
+    return api.get<{ comments: Comments[] }>(`/comments/post/${postId}`);
   },
 
   /**
@@ -32,12 +28,14 @@ export const commentsApi = {
    * 댓글 수정
    */
   updateComment: async (
-    id: number,
-    commentData: Omit<PutCommentsDetail, 'id'>,
+    commentData: PutCommentsDetail,
   ): Promise<CommentsResponse> => {
-    return api.put<CommentsResponse, { body: string }>(`/comments/${id}`, {
-      body: commentData.body,
-    });
+    return api.put<CommentsResponse, { body: string }>(
+      `/comments/${commentData.id}`,
+      {
+        body: commentData.body,
+      },
+    );
   },
 
   /**

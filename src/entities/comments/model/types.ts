@@ -4,7 +4,7 @@ interface CommentsUser {
   id: number;
   username: string;
 }
-interface Comments {
+export interface Comments {
   id: number;
   body: string;
   postId: number;

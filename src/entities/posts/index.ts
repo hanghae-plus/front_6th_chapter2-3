@@ -1,3 +1,3 @@
-export { default as PostTable } from '@/widgets/posts/table-post/ui/PostTable.tsx';
-
-export { usePosts } from './model/hooks.ts';
+// export { default as PostTable } from '@/widgets/posts/posts-table/ui/PostTable.tsx';
+export * from './api';
+export * from './model';

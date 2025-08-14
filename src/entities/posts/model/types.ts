@@ -1,4 +1,6 @@
 // http://localhost:5173/api/posts?limit=10&skip=0
+import { BasicUser } from '@/shared/model/types.ts';
+
 export interface PostsResponse {
   posts: Post[];
   total: number;
@@ -35,11 +37,8 @@ export type PutPostsDetailRequest<
   T extends Pick<Post, RequiredPutPostsDetailRequestKey> &
     Partial<Omit<Post, RequiredPutPostsDetailRequestKey>>,
 > = T;
-export interface PostAuthor {
-  id: number;
-  image: string;
-  username: string;
-}
+
+export type PostAuthor = BasicUser;
 // DELETE http://localhost:5173/api/posts/252
 export type DeletePostsDetailResponse = Pick<Post, 'id'>;
 
@@ -67,10 +66,21 @@ export interface Post {
     likes: number;
     dislikes: number;
   };
-  author: PostAuthor;
+  author?: PostAuthor;
   // 조회수
   views: number;
 
   // 작성자 유저 아이디
   userId: number;
+}
+
+export interface NewPostAddedRequest {
+  newPost: PostsAddRequest;
+  setNewPost: (post: PostsAddRequest) => void;
+  resetNewPost: () => void;
+}
+
+export interface SelectedPost {
+  title: string;
+  body?: string;
 }

@@ -1,3 +1,5 @@
+import { BasicUser } from '@/shared/model/types.ts';
+
 type Gender = 'male' | 'femail';
 
 interface Hair {
@@ -98,10 +100,13 @@ export interface UserResponse {
   ein: string;
   ssn: string;
 }
-
 //http://localhost:5173/api/users
-export interface UserInComment {
-  id: number;
-  image: string;
-  username: string;
+export type UserInComment = BasicUser;
+
+//http://localhost:5173/api/users?limit=0&select=username,image
+export interface UserInit {
+  limit: number;
+  skip: number;
+  total: number;
+  users: UserInComment[];
 }
