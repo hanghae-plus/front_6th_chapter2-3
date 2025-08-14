@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { PostType, UserType } from '../entities';
-import { CreatePostModal, DeletePostButton, UpdatePostButton, DetailUserModal } from '../features';
+import { CreatePostModal, DeletePostButton, UpdatePostButton, DetailUserModal, TagSelectFilter } from '../features';
 import {
   Button,
   Card,
@@ -440,26 +440,8 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value);
-                fetchPostsByTag(value);
-                updateURL();
-              }}
-            >
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='태그 선택' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <TagSelectFilter />
+        
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className='w-[180px]'>
                 <SelectValue placeholder='정렬 기준' />
