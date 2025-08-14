@@ -4,21 +4,30 @@ import {
   GetPostsWithFiltersParams,
   Post,
   POST_CONSTANTS,
+  SORT_BY,
+  SORT_ORDER,
 } from '@/entities/post';
 import { getSearchParams } from '@/shared/lib';
+import { EmptyStringable, SortOrder } from '@/shared/types';
 
 export interface GetPostsParams {
   limit: number;
   skip: number;
+  sortBy?: EmptyStringable<SORT_BY>;
+  sortOrder?: SortOrder;
 }
 
 export const getPosts = async ({
   limit = POST_CONSTANTS.DEFAULT_LIMIT,
   skip = POST_CONSTANTS.DEFAULT_SKIP,
+  sortBy,
+  sortOrder,
 }: GetPostsParams): Promise<GetPostsResponse> => {
   const params = getSearchParams({
     limit: limit.toString(),
     skip: skip.toString(),
+    sortBy: sortBy || '',
+    sortOrder: sortOrder || SORT_ORDER.ASC,
   });
 
   const response = await fetch(`/api/posts?${params.toString()}`);
@@ -29,10 +38,14 @@ export const getPostsByTag = async ({
   tag,
   limit,
   skip,
+  sortBy,
+  sortOrder,
 }: GetPostsByTagParams): Promise<GetPostsResponse> => {
   const params = getSearchParams({
     limit: limit?.toString() || '0',
     skip: skip?.toString() || '0',
+    sortBy: sortBy || '',
+    sortOrder: sortOrder || SORT_ORDER.ASC,
   });
 
   const response = await fetch(`/api/posts/tag/${tag}?${params.toString()}`);
@@ -47,6 +60,8 @@ export const getPostsBySearch = async ({
   search,
   limit,
   skip,
+  sortBy,
+  sortOrder,
 }: GetPostsBySearchParams): Promise<GetPostsResponse> => {
   const params = getSearchParams({
     limit: limit?.toString() || '0',

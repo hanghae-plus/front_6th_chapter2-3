@@ -1,7 +1,7 @@
 import { User, UserPick } from '@/entities/user';
-import { PaginationResponse } from '@/shared/types';
+import { PaginationMeta } from '@/shared/types';
 
-export interface GetUsersResponse<T> extends PaginationResponse {
+export interface GetUsersResponse<T> extends PaginationMeta {
   users: T[];
 }
 

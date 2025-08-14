@@ -10,19 +10,18 @@ import {
   getPostsBySearch,
   GetPostsBySearchParams,
   getPostsByTag,
-  GetPostsParams,
   putPost,
 } from './post.api';
-import { GetPostsResponse, Post } from './post.type';
+import { GetPostsResponse, GetPostsWithFiltersParams, Post } from './post.type';
 
-export const useGetPostsQuery = (params: GetPostsParams) => {
+export const useGetPostsQuery = (params: GetPostsWithFiltersParams) => {
   return useQuery({
     queryKey: queryKeys.posts.list(params),
     queryFn: () => getPosts(params),
   });
 };
 
-export interface GetPostsByTagParams extends GetPostsParams {
+export interface GetPostsByTagParams extends GetPostsWithFiltersParams {
   tag: string;
 }
 
@@ -42,6 +41,8 @@ export const useGetPostsBySearchQuery = ({
   return useQuery({
     queryKey: queryKeys.posts.list({
       searchQuery: search,
+      limit,
+      skip,
     }),
     queryFn: () => getPostsBySearch({ search, limit, skip }),
     enabled: !!search && search.trim() !== '',

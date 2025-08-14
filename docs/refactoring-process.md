@@ -256,13 +256,13 @@ FSD 아키텍처에 따라 `5_entities` 레이어에 도메인별 엔티티 구�
 
 - **Post 엔티티**: PostReactions, Post 인터페이스 및 getPosts API 함수
 - **User 엔티티**: User 인터페이스 및 getUsers API 함수
-- **공유 타입**: PaginationResponse, PaginationParams, Nullable, Undefinable 등
+- **공유 타입**: PaginationMeta, PaginationParams, Nullable, Undefinable 등
 
 #### 🎯 **커밋 895e518**: refactor: FSD 엔티티 폴더 구조 구성 및 게시물 조회, 사용자조회 API 작성
 
 - Post, User 엔티티 도메인별 구조 분리
 - API 함수 및 타입 정의 분리
-- 공유 타입 시스템 구축 (PaginationResponse, 유틸리티 타입)
+- 공유 타입 시스템 구축 (PaginationMeta, 유틸리티 타입)
 - Public API 인덱스 파일 구성
 
 ### 3) React Query 훅 및 QueryKey 구조적 관리

@@ -1,3 +1,4 @@
+import { SORT_ORDER } from '@/entities/post';
 import { usePostsFilterStore } from '@/shared/lib';
 import {
   Select,
@@ -7,9 +8,9 @@ import {
   SelectValue,
 } from '@/shared/ui';
 
-const SORT_ORDER_OPTIONS = [
-  { value: 'asc', label: '오름차순' },
-  { value: 'desc', label: '내림차순' },
+const SORT_ORDER_OPTIONS: { value: SORT_ORDER; label: string }[] = [
+  { value: SORT_ORDER.ASC, label: '오름차순' },
+  { value: SORT_ORDER.DESC, label: '내림차순' },
 ];
 
 export const SelectSortOrder = () => {

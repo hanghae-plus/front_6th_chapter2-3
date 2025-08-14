@@ -1,4 +1,4 @@
-import { PaginationResponse } from '@/shared/types';
+import { PaginationMeta } from '@/shared/types';
 
 import { BaseUser, User } from '../user';
 
@@ -24,6 +24,6 @@ export interface DeletedComment extends Comment {
 
 export type CreatedComment = CommentToCreate;
 
-export interface GetCommentsResponse extends PaginationResponse {
+export interface GetCommentsResponse extends PaginationMeta {
   comments: Comment[];
 }

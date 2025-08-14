@@ -2,15 +2,20 @@ import { useEffect } from 'react';
 
 import { atom, useAtom } from 'jotai';
 
-import { SortOrder } from '@/shared/types';
+import { SORT_BY } from '@/entities/post';
+import { UI_CONSTANTS } from '@/shared/constants';
+import { EmptyStringable, PaginationMeta, SortOrder } from '@/shared/types';
 
 export interface PostsFilterState {
   searchQuery: string;
   selectedTag: string;
-  sortBy: string;
+  sortBy: EmptyStringable<SORT_BY>;
   sortOrder: SortOrder;
-  skip: number;
-  limit: number;
+  pagination: {
+    limit: number;
+    skip: number;
+    total: number;
+  };
 }
 
 const initialFilterState: PostsFilterState = {
@@ -18,8 +23,11 @@ const initialFilterState: PostsFilterState = {
   selectedTag: '',
   sortBy: '',
   sortOrder: SortOrder.ASC,
-  skip: 0,
-  limit: 10,
+  pagination: {
+    limit: UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT,
+    skip: UI_CONSTANTS.PAGINATION.DEFAULT_SKIP,
+    total: 0,
+  },
 };
 
 // URL에서 초기 상태를 읽어오는 함수
@@ -30,10 +38,13 @@ const getInitialStateFromURL = (): PostsFilterState => {
   return {
     searchQuery: params.get('search') || '',
     selectedTag: params.get('tag') || '',
-    sortBy: params.get('sortBy') || '',
+    sortBy: (params.get('sortBy') as SORT_BY) || '',
     sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
-    skip: parseInt(params.get('skip') || '0'),
-    limit: parseInt(params.get('limit') || '10'),
+    pagination: {
+      skip: parseInt(params.get('skip') || '0'),
+      limit: parseInt(params.get('limit') || '10'),
+      total: parseInt(params.get('total') || '0'),
+    },
   };
 };
 
@@ -62,7 +73,7 @@ export const selectedTagAtom = atom(
 
 export const sortByAtom = atom(
   get => get(postsFilterAtom).sortBy,
-  (get, set, newValue: string) => {
+  (get, set, newValue: EmptyStringable<SORT_BY>) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
       sortBy: newValue,
@@ -81,21 +92,27 @@ export const sortOrderAtom = atom(
 );
 
 export const limitAtom = atom(
-  get => get(postsFilterAtom).limit,
+  get => get(postsFilterAtom).pagination.limit,
   (get, set, newValue: number) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      limit: newValue,
+      pagination: {
+        ...get(postsFilterAtom).pagination,
+        limit: newValue,
+      },
     });
   }
 );
 
 export const skipAtom = atom(
-  get => get(postsFilterAtom).skip,
+  get => get(postsFilterAtom).pagination.skip,
   (get, set, newValue: number) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      skip: newValue,
+      pagination: {
+        ...get(postsFilterAtom).pagination,
+        skip: newValue,
+      },
     });
   }
 );
@@ -104,14 +121,26 @@ export const resetFiltersAtom = atom(null, (_, set) => {
   set(postsFilterAtom, initialFilterState);
 });
 
+export const paginationAtom = atom(
+  get => get(postsFilterAtom).pagination,
+  (get, set, newValue: PaginationMeta) => {
+    set(postsFilterAtom, {
+      ...get(postsFilterAtom),
+      pagination: newValue,
+    });
+  }
+);
+
 // URL 동기화를 위한 atom
 export const urlSyncAtom = atom(
   get => {
     const filter = get(postsFilterAtom);
     const params = new URLSearchParams();
 
-    if (filter.skip > 0) params.set('skip', filter.skip.toString());
-    if (filter.limit !== 10) params.set('limit', filter.limit.toString());
+    if (filter.pagination.skip > 0)
+      params.set('skip', filter.pagination.skip.toString());
+    if (filter.pagination.limit !== 10)
+      params.set('limit', filter.pagination.limit.toString());
     if (filter.searchQuery) params.set('search', filter.searchQuery);
     if (filter.sortBy) params.set('sortBy', filter.sortBy);
     if (filter.sortOrder !== 'asc') params.set('sortOrder', filter.sortOrder);
@@ -124,10 +153,13 @@ export const urlSyncAtom = atom(
     const newState: PostsFilterState = {
       searchQuery: params.get('search') || '',
       selectedTag: params.get('tag') || '',
-      sortBy: params.get('sortBy') || '',
+      sortBy: (params.get('sortBy') as SORT_BY) || '',
       sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
-      skip: parseInt(params.get('skip') || '0'),
-      limit: parseInt(params.get('limit') || '10'),
+      pagination: {
+        skip: parseInt(params.get('skip') || '0'),
+        limit: parseInt(params.get('limit') || '10'),
+        total: parseInt(params.get('total') || '0'),
+      },
     };
 
     set(postsFilterAtom, newState);
@@ -159,6 +191,7 @@ export const usePostsFilterStore = () => {
   const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
   const [skip, setSkip] = useAtom(skipAtom);
   const [limit, setLimit] = useAtom(limitAtom);
+  const [pagination, setPagination] = useAtom(paginationAtom);
 
   const { updateURL, syncFromURL } = useURLSync();
 
@@ -195,5 +228,7 @@ export const usePostsFilterStore = () => {
     setSkip,
     limit,
     setLimit,
+    pagination,
+    setPagination,
   };
 };

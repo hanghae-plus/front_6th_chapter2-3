@@ -1,3 +1,4 @@
+import { SORT_BY } from '@/entities/post';
 import { usePostsFilterStore } from '@/shared/lib';
 import {
   Select,
@@ -7,11 +8,11 @@ import {
   SelectValue,
 } from '@/shared/ui';
 
-const SORT_BY_OPTIONS = [
-  { value: 'none', label: '없음' },
-  { value: 'id', label: 'ID' },
-  { value: 'title', label: '제목' },
-  { value: 'reactions', label: '반응' },
+const SORT_BY_OPTIONS: { value: SORT_BY; label: string }[] = [
+  { value: SORT_BY.NONE, label: '없음' },
+  { value: SORT_BY.ID, label: 'ID' },
+  { value: SORT_BY.TITLE, label: '제목' },
+  { value: SORT_BY.REACTIONS, label: '반응' },
 ];
 
 export const SelectSortBy = () => {

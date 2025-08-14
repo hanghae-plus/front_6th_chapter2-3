@@ -26,116 +26,34 @@
  * - 관심사 분리 부족 (UI, 비즈니스 로직, API 호출 혼재)
  * - 상태 관리 복잡성 (18개의 useState)
  */
-import { useState } from 'react';
-
-import { useLocation } from 'react-router-dom';
-
-import { Plus } from 'lucide-react';
-
 import { AddCommentDialog } from '@/features/comment-management';
 import { EditCommentFormDialog } from '@/features/comment-management/ui/EditCommentFormDialog';
 import { Filters } from '@/features/filter-posts';
-import { PostDetailDialog, PostTable } from '@/features/post-management';
+import {
+  AddPostButton,
+  PostDetailDialog,
+  PostTable,
+} from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
+import { PostPagination } from '@/features/post-management/ui/PostPagination';
 import { UserProfileDialog } from '@/features/user-profile';
-import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
-import { useUIStore } from '@/shared/lib/store/UIStore';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 const PostsManager = () => {
-  // ==================== 라우팅 및 URL 관리 ====================
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  // ==================== 게시물 관련 상태 ====================
-  const [total, setTotal] = useState<number>(
-    API_CONSTANTS.REACTIONS.DEFAULT_LIKES
-  );
-
-  // ==================== 페이지네이션 상태 ====================
-  const [skip, setSkip] = useState(
-    parseInt(
-      queryParams.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
-    )
-  ); // 건너뛸 데이터 수
-  const [limit, setLimit] = useState(
-    parseInt(
-      queryParams.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
-    )
-  ); // 페이지당 표시할 데이터 수
-
-  // ======== 개선 =======
-  const { setShowAddDialog } = useUIStore();
-
   return (
     <Card className='w-full max-w-6xl mx-auto'>
       <CardHeader>
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className={`${UI_CONSTANTS.ICON_SIZES.MEDIUM} mr-2`} />
-            게시물 추가
-          </Button>
+          <AddPostButton />
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className='flex flex-col gap-4'>
           <Filters />
-
           <PostTable />
-
-          {/* 페이지네이션 */}
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-2'>
-              <span>표시</span>
-              <Select
-                value={limit.toString()}
-                onValueChange={value => setLimit(Number(value))}
-              >
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='10' />
-                </SelectTrigger>
-                <SelectContent>
-                  {UI_CONSTANTS.PAGINATION.LIMIT_OPTIONS.map(option => (
-                    <SelectItem key={option} value={String(option)}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <div className='flex gap-2'>
-              <Button
-                disabled={skip === UI_CONSTANTS.PAGINATION.DEFAULT_SKIP}
-                onClick={() =>
-                  setSkip(
-                    Math.max(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP, skip - limit)
-                  )
-                }
-              >
-                이전
-              </Button>
-              <Button
-                disabled={skip + limit >= total}
-                onClick={() => setSkip(skip + limit)}
-              >
-                다음
-              </Button>
-            </div>
-          </div>
+          <PostPagination />
         </div>
       </CardContent>
 

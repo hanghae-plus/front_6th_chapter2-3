@@ -7,6 +7,8 @@
  */
 export type Nullable<T> = T | null;
 
+export type EmptyStringable<T> = T | '';
+
 /**
  * T 또는 undefined를 허용하는 타입
  */

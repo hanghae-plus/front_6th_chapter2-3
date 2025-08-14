@@ -14,34 +14,56 @@ import { PostWithAuthor } from '../../post-management/types';
 export type SelectedUserProperties = 'id' | 'username' | 'image';
 
 export const useFilteredPosts = () => {
-  const { selectedTag, searchQuery, limit, skip } = usePostsFilterStore();
+  const {
+    selectedTag,
+    searchQuery,
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
+    pagination,
+    setPagination,
+  } = usePostsFilterStore();
 
   const [posts, setPosts] = useState<PostWithAuthor<SelectedUserProperties>[]>(
     []
   );
+
+  const baseFilters = {
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
+  };
+
+  const filtersWithTag = {
+    ...baseFilters,
+    tag: selectedTag,
+  };
+
+  const filtersWithSearch = {
+    ...baseFilters,
+    search: searchQuery,
+  };
 
   const { data: usersData, isLoading: isLoadingUsers } =
     useGetUsersQuery<SelectedUserProperties>({
       limit: 0,
       select: ['id', 'username', 'image'],
     });
+
   const { data: postsData, isLoading: isLoadingPosts } = useGetPostsQuery({
-    limit,
-    skip,
+    ...baseFilters,
   });
 
-  // 조건부로 쿼리 실행
   const { data: postsByTagData, isLoading: isLoadingPostsByTag } =
     useGetPostsByTagQuery({
-      tag: selectedTag ?? '',
-      limit,
-      skip,
+      ...filtersWithTag,
     });
+
   const { data: postsBySearchData, isLoading: isLoadingPostsBySearch } =
     useGetPostsBySearchQuery({
-      search: searchQuery,
-      limit,
-      skip,
+      ...filtersWithSearch,
     });
 
   const postsWithAuthor = useMemo(() => {
@@ -49,21 +71,30 @@ export const useFilteredPosts = () => {
       postsData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsData?.posts, usersData?.users]);
+  }, [postsData?.posts, usersData?.users, ...[Object.values(baseFilters)]]);
 
   const postsWithAuthorByTag = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
       postsByTagData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsByTagData?.posts, usersData?.users, selectedTag]);
+  }, [
+    postsByTagData?.posts,
+    usersData?.users,
+    selectedTag,
+    ...[Object.values(filtersWithTag)],
+  ]);
 
   const postsWithAuthorBySearch = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
       postsBySearchData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsBySearchData?.posts, usersData?.users, searchQuery]);
+  }, [
+    postsBySearchData?.posts,
+    usersData?.users,
+    ...[Object.values(filtersWithSearch)],
+  ]);
 
   const isLoading =
     isLoadingUsers ||
@@ -93,6 +124,31 @@ export const useFilteredPosts = () => {
     searchQuery,
     selectedTag,
   ]);
+
+  useEffect(() => {
+    if (searchQuery && searchQuery.trim()) {
+      setPagination({
+        ...pagination,
+        total: postsBySearchData?.total ?? 0,
+      });
+      return;
+    }
+
+    // 태그가 있고 'all'이 아니면 태그 결과 사용
+    if (selectedTag && selectedTag !== 'all' && selectedTag.trim()) {
+      setPagination({
+        ...pagination,
+        total: postsByTagData?.total ?? 0,
+      });
+      return;
+    }
+
+    // 기본 게시물 목록 사용
+    setPagination({
+      ...pagination,
+      total: postsData?.total ?? 0,
+    });
+  }, [postsBySearchData, postsByTagData, postsData]);
 
   return {
     posts,

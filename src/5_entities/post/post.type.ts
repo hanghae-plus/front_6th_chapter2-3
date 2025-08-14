@@ -1,4 +1,4 @@
-import { PaginationResponse } from '@/shared/types';
+import { EmptyStringable, PaginationMeta, SortOrder } from '@/shared/types';
 
 export interface Post {
   id: number;
@@ -14,15 +14,27 @@ export interface PostReactions {
   dislikes: number;
 }
 
-export interface GetPostsResponse extends PaginationResponse {
+export interface GetPostsResponse extends PaginationMeta {
   posts: Post[];
 }
 
 export interface GetPostsWithFiltersParams {
-  limit?: number;
-  skip?: number;
+  limit: number;
+  skip: number;
   searchQuery?: string;
   selectedTag?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: EmptyStringable<SORT_BY>;
+  sortOrder?: SortOrder;
+}
+
+export enum SORT_ORDER {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export enum SORT_BY {
+  NONE = 'none',
+  ID = 'id',
+  TITLE = 'title',
+  REACTIONS = 'reactions',
 }

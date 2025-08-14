@@ -1,6 +1,4 @@
-import { Post } from '@/entities/post';
-
-export interface PaginationResponse {
+export interface PaginationMeta {
   total: number;
   skip: number;
   limit: number;
