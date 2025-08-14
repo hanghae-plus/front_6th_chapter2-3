@@ -58,26 +58,30 @@ export const getPosts = async (
   async function remotePosts(
     limit: number,
     skip: number,
-    searchQuery: string,
+    q: string,
     selectedTag: string,
     sortBy: string,
-    sortOrder: string,
+    order: string,
   ) {
-    if (searchQuery) {
-      return await remote(
-        `/api/posts/search?q=${searchQuery}&limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
-      );
+    const options = {
+      params: {
+        q,
+        limit,
+        skip,
+        sortBy,
+        order,
+      },
+    };
+
+    if (q) {
+      return await remote(`/api/posts/search`, options);
     }
 
     if (selectedTag && selectedTag !== 'all') {
-      return await remote(
-        `/api/posts/tag/${selectedTag}?limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
-      );
+      return await remote(`/api/posts/tag/${selectedTag}`, options);
     }
 
-    return await remote(
-      `/api/posts?limit=${limit}&skip=${skip}&sortBy=${sortBy}&order=${sortOrder}`,
-    );
+    return await remote(`/api/posts`, options);
   }
 };
 
@@ -98,7 +102,7 @@ export const patchPostCommentLike = async (
   return await remote(`/api/comments/${commentId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ likes }),
+    data: { likes },
   });
 };
 
@@ -116,7 +120,7 @@ export const addPostComment = async (
   return await remote('/api/comments/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ body, postId, userId }),
+    data: { body, postId, userId },
   });
 };
 
@@ -127,7 +131,7 @@ export const updatePostComment = async (
   return await remote(`/api/comments/${commentId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(commentData),
+    data: commentData,
   });
 };
 
@@ -135,7 +139,7 @@ export const updatePost = async (postId: number, post: Post): Promise<Post> => {
   return await remote(`/api/posts/${postId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(post),
+    data: post,
   });
 };
 
@@ -151,6 +155,6 @@ export const addPost = async (
   return await remote('/api/posts/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(postData),
+    data: postData,
   });
 };
