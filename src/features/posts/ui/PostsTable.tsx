@@ -6,14 +6,10 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useEditPostDialog, usePostDialog } from '../model';
+import { useSearch } from '../model';
 import { useUsers, type UsersResponse } from '@/entities/users';
 import type { Post } from '@/entities/posts';
-import {
-  useDeletePost,
-  usePosts,
-  useSearchQuery,
-  useTag,
-} from '@/entities/posts';
+import { useDeletePost, usePosts, useTag } from '@/entities/posts';
 import {
   Button,
   Table,
@@ -34,7 +30,7 @@ interface Props {
 }
 
 export const PostsTable = ({ onClickOpenUserModal }: Props) => {
-  const [searchQuery] = useSearchQuery();
+  const { search } = useSearch();
   const [selectedTag, setSelectedTag] = useTag();
   const { data: postsData, isLoading: postsLoading } = usePosts();
   const { data: usersData, isLoading: usersLoading } = useUsers();
@@ -69,7 +65,7 @@ export const PostsTable = ({ onClickOpenUserModal }: Props) => {
             <TableCell>{post.id}</TableCell>
             <TableCell>
               <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
+                <div>{highlightText(post.title, search)}</div>
 
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag) => (
