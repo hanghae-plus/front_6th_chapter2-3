@@ -40,7 +40,7 @@ export const useAddPost = () => {
     },
     onError: (_e, _v, ctx) => {
       if (ctx?.previousPosts !== undefined) {
-        queryClient.setQueryData(queryKey, ctx.previousPosts) // ← 이전값 그대로 복원
+        queryClient.setQueryData(queryKey, ctx.previousPosts)
       }
     },
     onSettled: () => {

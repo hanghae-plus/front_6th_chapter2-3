@@ -53,7 +53,7 @@ const PostsManager = () => {
   // const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
 
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
+  // const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
@@ -120,7 +120,7 @@ const PostsManager = () => {
       const response = await fetch(`/api/comments/post/${postId}`)
       const data = await response.json()
       console.log("댓글가져오기", data)
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
+      // setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
@@ -135,10 +135,10 @@ const PostsManager = () => {
         body: JSON.stringify(newComment),
       })
       const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
+      // setComments((prev) => ({
+      //   ...prev,
+      //   [data.postId]: [...(prev[data.postId] || []), data],
+      // }))
       setShowAddCommentDialog(false)
       setNewComment({ body: "", postId: null, userId: 1 })
     } catch (error) {
@@ -155,10 +155,10 @@ const PostsManager = () => {
         body: JSON.stringify({ body: selectedComment.body }),
       })
       const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      }))
+      // setComments((prev) => ({
+      //   ...prev,
+      //   [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
+      // }))
       setShowEditCommentDialog(false)
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
@@ -171,10 +171,10 @@ const PostsManager = () => {
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
       })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }))
+      // setComments((prev) => ({
+      //   ...prev,
+      //   [postId]: prev[postId].filter((comment) => comment.id !== id),
+      // }))
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
@@ -189,12 +189,12 @@ const PostsManager = () => {
         body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
       })
       const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
+      // setComments((prev) => ({
+      //   ...prev,
+      //   [postId]: prev[postId].map((comment) =>
+      //     comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+      //   ),
+      // }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
@@ -238,7 +238,7 @@ const PostsManager = () => {
   // 댓글 렌더링
   const renderComments = (postId) => {
     console.log("댓글 렌더링", postId)
-    console.log(comments)
+    // console.log(comments)
     return (
       <div className="mt-2">
         <div className="flex items-center justify-between mb-2 ">
@@ -255,7 +255,7 @@ const PostsManager = () => {
           </Button>
         </div>
         <div className="space-y-1">
-          {comments[postId]?.map((comment) => (
+          {detailPost.state.comments?.map((comment) => (
             <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
               <div className="flex items-center space-x-2 overflow-hidden">
                 <span className="font-medium truncate">{comment.user.username}:</span>

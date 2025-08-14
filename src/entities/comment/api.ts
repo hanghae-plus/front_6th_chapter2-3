@@ -1,4 +1,5 @@
 import { api } from "../../shared/api/api"
+import { ListResponse } from "../../shared/types/types"
 import { Comment, CommentRequest } from "./model"
 
 /**
@@ -7,7 +8,7 @@ import { Comment, CommentRequest } from "./model"
  * @returns 댓글 목록
  */
 export const fetchComments = async (postId: number) => {
-  const response = await api.get<Comment[]>(`/comments/post/${postId}`)
+  const response = await api.get<ListResponse<"comments", Comment>>(`/comments/post/${postId}`)
   return response
 }
 
