@@ -7,7 +7,7 @@ import { commentKeys } from "@/entities/comment/model/query-key"
 import { Comment, CreateComment } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
 import { useDialogActions, useDialogStore } from "@/shared/model"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea, EditCommentDialog } from "@/shared/ui"
 import { usePostDetail } from "../model"
 
 interface DetailPostDialogProps {
@@ -16,11 +16,11 @@ interface DetailPostDialogProps {
 
 export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const isOpen = useDialogStore((state) => state.dialogs.POST_DETAIL)
-  const { hideDialog } = useDialogActions()
+  const isEditCommentOpen = useDialogStore((state) => state.dialogs.EDIT_COMMENT)
+  const { hideDialog, showDialog } = useDialogActions()
   const queryClient = useQueryClient()
 
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false) // 댓글 수정 대화상자
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
@@ -48,19 +48,17 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   }
 
   // TODO : 댓글 추가 으로 분리
-  const updateComment = async () => {
-    if (!selectedComment || !postId) return
+  const updateComment = async (commentId: number, body: string) => {
+    if (!postId) return
 
     try {
-      await HttpClient.put<Comment>(`/comments/${selectedComment.id}`, {
-        body: selectedComment.body,
+      await HttpClient.put<Comment>(`/comments/${commentId}`, {
+        body: body,
       })
 
       // 댓글 수정 후 쿼리 무효화하여 데이터 새로고침
       queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
-
-      setShowEditCommentDialog(false)
-      setSelectedComment(null)
+      queryClient.invalidateQueries({ queryKey: commentKeys.listByPost(postId) })
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
@@ -131,7 +129,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
                 onLike={likeComment}
                 onEdit={(comment) => {
                   setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
+                  showDialog("EDIT_COMMENT")
                 }}
                 onDelete={deleteComment}
               />
@@ -203,24 +201,17 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
         </DialogContent>
       </Dialog>
 
-      {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) =>
-                setSelectedComment(selectedComment ? { ...selectedComment, body: e.target.value } : null)
-              }
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCommentDialog
+        open={isEditCommentOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            hideDialog("EDIT_COMMENT")
+            setSelectedComment(null)
+          }
+        }}
+        comment={selectedComment}
+        onUpdate={updateComment}
+      />
     </>
   )
 }

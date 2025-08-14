@@ -11,4 +11,5 @@ export {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog/Dialog"
+export { EditCommentDialog } from "@/shared/ui/dialog/EditCommentDialog"
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/ui/table/Table"
