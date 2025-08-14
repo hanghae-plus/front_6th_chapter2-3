@@ -1,13 +1,13 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
+import { useComments } from "@/features/comment/read-comment/model/useComments"
+import { CommentItem } from "@/entities/comment/ui"
+import { commentKeys } from "@/entities/comment/model/query-key"
+import { Comment, CreateComment } from "@/shared/types"
+import { HttpClient } from "@/shared/api/http"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
-import { HttpClient } from "@/shared/api/http"
-import { Comment, CreateComment } from "@/shared/types"
-import { commentKeys } from "@/entities/comment/model/query-key"
-import { CommentItem } from "@/entities/comment/ui"
-import { useComments } from "@/features/comment/read-comment/model/useComments"
 import { usePostDetail } from "../model"
 
 interface DetailPostDialogProps {
@@ -25,7 +25,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
   const { data, isLoading, error } = usePostDetail(postId)
-  const { data: commentsData } = useComments(postId || 0)
+  const { data: commentsData } = useComments(postId || -1)
 
   const addComment = async () => {
     if (!postId) return

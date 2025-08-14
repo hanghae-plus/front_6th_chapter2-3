@@ -3,7 +3,7 @@ import { commentKeys } from "@/entities/comment/model/query-key"
 import { getCommentsByPost } from "@/entities/comment/api"
 
 // seletedPostId
-export const useComments = (postId: number) => {
+export const useComments = (postId: number | null) => {
   return useQuery(
     queryOptions({
       queryKey: commentKeys.listByPost(postId),
