@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent } from '../shared/ui';
 import { PostsTable } from '../widgets/postsTable/ui/PostsTable';
 import { PostsFilter } from '../widgets/postsFilter/ui/PostsFilter';
@@ -8,21 +8,19 @@ import { AddPostDialog } from '../features/posts/add-post/ui/AddPostDialog';
 import { EditPostDialog } from '../features/posts/edit-post/ui/EditPostDialog';
 import { AddCommentDialog } from '../features/comment/add-comment/ui/AddCommentDialog';
 import { EditCommentDialog } from '../features/comment/update-comment/ui/EditCommentDialog';
-import { CommentsList } from '../widgets/commentsList/ui/CommentsList';
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
 import { deletePost as deletePostAPI } from '../features/posts/delete-post/api/api';
-import { fetchPostComments } from '../features/posts/view-post/api/api';
 
 import { usePostsStore } from '../entities/post/model/store';
 import { useTagsStore } from '../entities/tags/model/store';
-import { useCommentStore } from '../entities/comment/model/store';
 import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 import { useDialogStore } from '../shared/store/dialog';
 import { DIALOG_KEYS } from '../shared/constant/dialog';
 import { useViewUser } from '../features/user/view-user/model/hooks';
 import { usePostsUrlParams } from '../features/posts/list-posts/model/hooks';
+import { useViewPost } from '../features/posts/view-post/model/hooks';
 
 const PostsManager = () => {
   const location = useLocation();
@@ -38,15 +36,6 @@ const PostsManager = () => {
     setSelectedPost,
   } = usePostsStore();
   const { tags, selectedTag, setSelectedTag, fetchTags: fetchTagsFromStore } = useTagsStore();
-  const {
-    comments,
-    newComment,
-    setCommentsForPost,
-    setSelectedComment,
-    setNewComment,
-    updateCommentInPost,
-    removeCommentFromPost,
-  } = useCommentStore();
 
   const {
     skip,
@@ -63,7 +52,7 @@ const PostsManager = () => {
   } = usePostsUrlParams();
 
   const { openUserModal } = useViewUser();
-
+  const { openPostDetail } = useViewPost();
   const { openDialog } = useDialogStore();
 
   const fetchPosts = () => {
@@ -121,54 +110,6 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 가져오기
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const commentsData = await fetchPostComments(postId);
-      setCommentsForPost(postId, commentsData);
-    } catch (error) {
-      console.error('댓글 가져오기 오류:', error);
-    }
-  };
-
-  // 댓글 삭제
-  const deleteComment = async (id: number, postId: number) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: 'DELETE',
-      });
-      removeCommentFromPost(postId, id);
-    } catch (error) {
-      console.error('댓글 삭제 오류:', error);
-    }
-  };
-
-  // 댓글 좋아요
-  const likeComment = async (id: number, postId: number) => {
-    try {
-      const currentComment = comments[postId]?.find((c) => c.id === id);
-      if (!currentComment) return;
-
-      const response = await fetch(`/api/comments/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ likes: currentComment.likes + 1 }),
-      });
-      const data = await response.json();
-      updateCommentInPost(postId, id, { ...data, likes: currentComment.likes + 1 });
-    } catch (error) {
-      console.error('댓글 좋아요 오류:', error);
-    }
-  };
-
-  // 게시물 상세 보기
-  const openPostDetail = (post: any) => {
-    setSelectedPost(post);
-    fetchComments(post.id);
-    openDialog(DIALOG_KEYS.POST_DETAIL);
-  };
-
   useEffect(() => {
     fetchTagsFromStore();
     // URL에서 selectedTag 초기화
@@ -197,26 +138,6 @@ const PostsManager = () => {
     const tagFromURL = params.get('tag') || '';
     setSelectedTag(tagFromURL);
   }, [location.search]);
-
-  // 댓글 렌더링
-  const renderComments = (postId: number) => (
-    <CommentsList
-      postId={postId}
-      comments={comments[postId] || []}
-      searchQuery={searchQuery}
-      highlightText={highlightText}
-      onAddComment={(postId) => {
-        setNewComment({ ...newComment, postId });
-        openDialog(DIALOG_KEYS.ADD_COMMENT);
-      }}
-      onEditComment={(comment) => {
-        setSelectedComment(comment);
-        openDialog(DIALOG_KEYS.EDIT_COMMENT);
-      }}
-      onDeleteComment={deleteComment}
-      onLikeComment={likeComment}
-    />
-  );
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>

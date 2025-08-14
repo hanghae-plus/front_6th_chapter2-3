@@ -1,23 +1,23 @@
-import { useCommentStore } from '../../../../entities/comment/model/store';
+/**
+ * 댓글 삭제 관련 API
+ */
 
-export const deleteComment = async (id: number, postId: number) => {
-  const { setComments } = useCommentStore.getState();
-
+/**
+ * 댓글 삭제
+ */
+export const deleteCommentAPI = async (commentId: number) => {
   try {
-    const response = await fetch(`/api/comments/${id}`, {
+    const response = await fetch(`/api/comments/${commentId}`, {
       method: 'DELETE',
     });
 
-    if (!response.ok) throw new Error('댓글 삭제 실패');
+    if (!response.ok) {
+      throw new Error('댓글 삭제 실패');
+    }
 
-    const currentComments = useCommentStore.getState().comments;
-
-    setComments({
-      ...currentComments,
-      [postId]: currentComments[postId].filter((comment) => comment.id !== id),
-    });
+    return response;
   } catch (error) {
-    console.error('댓글 삭제 오류:', error);
+    console.error('댓글 삭제 API 오류:', error);
     throw error;
   }
 };
