@@ -6,9 +6,14 @@ export interface PostType {
   author?: {
     image: string;
     username: string;
-  }
+  };
   reactions: {
     likes: number;
     dislikes: number;
-  }
+  };
+}
+
+export interface GetPostsListResponseType {
+  posts: PostType[];
+  total: number;
 }
