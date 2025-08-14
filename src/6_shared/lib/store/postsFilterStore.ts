@@ -1,6 +1,6 @@
 import { atom, useAtom } from 'jotai';
 
-import { SortOrder } from '../..';
+import { SortOrder } from '@/shared/types';
 
 export interface PostsFilterState {
   searchQuery: string;
@@ -63,15 +63,22 @@ export const sortOrderAtom = atom(
   }
 );
 
-export const paginationAtom = atom(
-  get => ({
-    skip: get(postsFilterAtom).skip,
-    limit: get(postsFilterAtom).limit,
-  }),
-  (get, set, newValue: { skip: number; limit: number }) => {
+export const limitAtom = atom(
+  get => get(postsFilterAtom).limit,
+  (get, set, newValue: number) => {
     set(postsFilterAtom, {
       ...get(postsFilterAtom),
-      ...newValue,
+      limit: newValue,
+    });
+  }
+);
+
+export const skipAtom = atom(
+  get => get(postsFilterAtom).skip,
+  (get, set, newValue: number) => {
+    set(postsFilterAtom, {
+      ...get(postsFilterAtom),
+      skip: newValue,
     });
   }
 );
@@ -115,8 +122,8 @@ export const usePostsFilterStore = () => {
   const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
   const [sortBy, setSortBy] = useAtom(sortByAtom);
   const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
-  const [skip, setSkip] = useAtom(paginationAtom);
-  const [limit, setLimit] = useAtom(paginationAtom);
+  const [skip, setSkip] = useAtom(skipAtom);
+  const [limit, setLimit] = useAtom(limitAtom);
 
   return {
     searchQuery,

@@ -1,4 +1,4 @@
-import { useUIStore } from '@/shared/index';
+import { useUIStore } from '@/shared/lib';
 import { Button, ContentDialog, Textarea } from '@/shared/ui';
 
 import { useEditCommentForm } from '../hooks/useEditCommentForm';

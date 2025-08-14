@@ -1,4 +1,5 @@
 import { useGetTagsQuery } from '@/entities/tag';
+import { usePostsFilterStore } from '@/shared/lib';
 import {
   LoadingSpinner,
   Select,
@@ -9,16 +10,11 @@ import {
 } from '@/shared/ui';
 
 interface Props {
-  selectedTag: string;
-  setSelectedTag: (tag: string) => void;
   updateURL: () => void;
 }
 
-export const SelectTag = ({
-  selectedTag,
-  setSelectedTag,
-  updateURL,
-}: Props) => {
+export const SelectTag = ({ updateURL }: Props) => {
+  const { selectedTag, setSelectedTag } = usePostsFilterStore();
   const { data: tags, isLoading } = useGetTagsQuery();
 
   const handleTagChange = (value: string) => {

@@ -7,11 +7,12 @@ import {
 } from 'lucide-react';
 
 import { Post, useDeletePostMutation } from '@/entities/post';
-import { User } from '@/entities/user';
+import { UserPick } from '@/entities/user';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText, usePostsFilterStore, useUIStore } from '@/shared/lib';
 import {
   Button,
+  LoadingSpinner,
   Table,
   TableBody,
   TableCell,
@@ -20,15 +21,19 @@ import {
   TableRow,
 } from '@/shared/ui';
 
-import { useFilteredPosts } from '../hooks/useFilteredPosts';
+import {
+  SelectedUserProperties,
+  useFilteredPosts,
+} from '../../filter-posts/hooks/useFilteredPosts';
 
 interface Props {
   updateURL: () => void;
 }
 
 export const PostTable = ({ updateURL }: Props) => {
-  const { posts } = useFilteredPosts();
-  const { selectedTag, setSelectedTag, searchQuery } = usePostsFilterStore();
+  const { posts, isLoading } = useFilteredPosts();
+  const { selectedTag, setSelectedTag, searchQuery, limit } =
+    usePostsFilterStore();
   const {
     setShowUserModal,
     setSelectedUser,
@@ -61,7 +66,7 @@ export const PostTable = ({ updateURL }: Props) => {
     setShowPostDetailDialog(true);
   };
 
-  const handleClickUser = (user: User) => {
+  const handleClickUser = (user: UserPick<SelectedUserProperties>) => {
     setShowUserModal(true);
     setSelectedUser(user);
   };
@@ -78,84 +83,94 @@ export const PostTable = ({ updateURL }: Props) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {posts.map(post => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className='space-y-1'>
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className='flex flex-wrap gap-1'>
-                  {post.tags?.map(tag => (
-                    <span
-                      key={tag}
-                      className={`${UI_CONSTANTS.STYLES.TAG_SIZE} ${
-                        selectedTag === tag
-                          ? UI_CONSTANTS.STYLES.TAG_SELECTED
-                          : UI_CONSTANTS.STYLES.TAG_DEFAULT
-                      }`}
-                      onClick={() => handleClickTag(tag)}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => post.author && handleClickUser(post.author)}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className={`${UI_CONSTANTS.ICON_SIZES.LARGE} rounded-full`}
-                />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                <span>
-                  {post.reactions?.likes ||
-                    API_CONSTANTS.REACTIONS.DEFAULT_LIKES}
-                </span>
-                <ThumbsDown className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                <span>
-                  {post.reactions?.dislikes ||
-                    API_CONSTANTS.REACTIONS.DEFAULT_DISLIKES}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => handleClickDetailPost(post)}
-                >
-                  <MessageSquare className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => handleClickEditPost(post)}
-                >
-                  <Edit2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => handleClickDeletePost(post.id)}
-                >
-                  <Trash2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
+        {isLoading ? (
+          <TableRow>
+            <TableCell className={`h-[${80 * limit}px]`} {...{ colSpan: 5 }}>
+              <div className='flex justify-center items-center w-full h-full'>
+                <LoadingSpinner />
               </div>
             </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          posts.map(post => (
+            <TableRow key={post.id}>
+              <TableCell>{post.id}</TableCell>
+              <TableCell>
+                <div className='space-y-1'>
+                  <div>{highlightText(post.title, searchQuery)}</div>
+
+                  <div className='flex flex-wrap gap-1'>
+                    {post.tags?.map(tag => (
+                      <span
+                        key={tag}
+                        className={`${UI_CONSTANTS.STYLES.TAG_SIZE} ${
+                          selectedTag === tag
+                            ? UI_CONSTANTS.STYLES.TAG_SELECTED
+                            : UI_CONSTANTS.STYLES.TAG_DEFAULT
+                        }`}
+                        onClick={() => handleClickTag(tag)}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div
+                  className='flex items-center space-x-2 cursor-pointer'
+                  onClick={() => post.author && handleClickUser(post.author)}
+                >
+                  <img
+                    src={post.author?.image}
+                    alt={post.author?.username}
+                    className={`${UI_CONSTANTS.ICON_SIZES.LARGE} rounded-full`}
+                  />
+                  <span>{post.author?.username}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                  <span>
+                    {post.reactions?.likes ||
+                      API_CONSTANTS.REACTIONS.DEFAULT_LIKES}
+                  </span>
+                  <ThumbsDown className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                  <span>
+                    {post.reactions?.dislikes ||
+                      API_CONSTANTS.REACTIONS.DEFAULT_DISLIKES}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => handleClickDetailPost(post)}
+                  >
+                    <MessageSquare className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => handleClickEditPost(post)}
+                  >
+                    <Edit2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => handleClickDeletePost(post.id)}
+                  >
+                    <Trash2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );

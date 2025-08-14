@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { queryKeys } from '@/shared/index';
+import { queryKeys } from '@/shared/lib';
 import { MutationProps, Nullable } from '@/shared/types';
 
 import {

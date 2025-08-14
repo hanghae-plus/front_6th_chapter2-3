@@ -6,12 +6,12 @@ import {
   useGetPostsQuery,
 } from '@/entities/post';
 import { useGetUsersQuery } from '@/entities/user';
-import { usePostsFilterStore } from '@/shared/index';
+import { usePostsFilterStore } from '@/shared/lib';
 
-import { getPostsWithAuthor } from '../lib/post.util';
-import { PostWithAuthor } from '../types';
+import { getPostsWithAuthor } from '../../post-management/lib/post.util';
+import { PostWithAuthor } from '../../post-management/types';
 
-type SelectedUserProperties = 'id' | 'username' | 'image';
+export type SelectedUserProperties = 'id' | 'username' | 'image';
 
 export const useFilteredPosts = () => {
   const { selectedTag, searchQuery } = usePostsFilterStore();
@@ -20,19 +20,23 @@ export const useFilteredPosts = () => {
     []
   );
 
-  const { data: usersData } = useGetUsersQuery<SelectedUserProperties>({
-    limit: 0,
-    select: ['id', 'username', 'image'],
+  const { data: usersData, isLoading: isLoadingUsers } =
+    useGetUsersQuery<SelectedUserProperties>({
+      limit: 0,
+      select: ['id', 'username', 'image'],
+    });
+  const { data: postsData, isLoading: isLoadingPosts } = useGetPostsQuery({
+    limit: 10,
+    skip: 0,
   });
-  const { data: postsData } = useGetPostsQuery({ limit: 10, skip: 0 });
 
   // 조건부로 쿼리 실행
-  const { data: postsByTagData } = useGetPostsByTagQuery(
-    selectedTag && selectedTag !== 'all' ? selectedTag : ''
-  );
-  const { data: postsBySearchData } = useGetPostsBySearchQuery(
-    searchQuery ? searchQuery : ''
-  );
+  const { data: postsByTagData, isLoading: isLoadingPostsByTag } =
+    useGetPostsByTagQuery(
+      selectedTag && selectedTag !== 'all' ? selectedTag : ''
+    );
+  const { data: postsBySearchData, isLoading: isLoadingPostsBySearch } =
+    useGetPostsBySearchQuery(searchQuery ? searchQuery : '');
 
   const postsWithAuthor = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
@@ -54,6 +58,12 @@ export const useFilteredPosts = () => {
       usersData?.users ?? []
     );
   }, [postsBySearchData?.posts, usersData?.users]);
+
+  const isLoading =
+    isLoadingUsers ||
+    isLoadingPosts ||
+    isLoadingPostsByTag ||
+    isLoadingPostsBySearch;
 
   useEffect(() => {
     // 검색어가 있으면 검색 결과 사용
@@ -81,5 +91,6 @@ export const useFilteredPosts = () => {
   return {
     posts,
     setPosts,
+    isLoading,
   };
 };

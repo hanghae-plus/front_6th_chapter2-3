@@ -1,4 +1,5 @@
-import { UI_CONSTANTS, useUIStore } from '@/shared/index';
+import { UI_CONSTANTS } from '@/shared/constants';
+import { useUIStore } from '@/shared/lib';
 import { Button, ContentDialog, Input, Textarea } from '@/shared/ui';
 
 import { useEditPostForm } from '../hooks/useEditPostForm';

@@ -34,10 +34,11 @@ import { Plus, Search } from 'lucide-react';
 
 import { AddCommentDialog } from '@/features/comment-management';
 import { EditCommentFormDialog } from '@/features/comment-management/ui/EditCommentFormDialog';
+import { SelectTag } from '@/features/filter-posts';
+import { SelectSortBy, SelectSortOrder } from '@/features/filter-posts';
 import { PostDetailDialog, PostTable } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
-import { SelectTag } from '@/features/select-tag';
 import { UserProfileDialog } from '@/features/user-profile';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { useUIStore } from '@/shared/lib/store/UIStore';
@@ -197,40 +198,12 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <SelectTag
-              selectedTag={selectedTag}
-              setSelectedTag={setSelectedTag}
-              updateURL={updateURL}
-            />
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 기준' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='none'>없음</SelectItem>
-                <SelectItem value='id'>ID</SelectItem>
-                <SelectItem value='title'>제목</SelectItem>
-                <SelectItem value='reactions'>반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='정렬 순서' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='asc'>오름차순</SelectItem>
-                <SelectItem value='desc'>내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+            <SelectTag updateURL={updateURL} />
+            <SelectSortBy />
+            <SelectSortOrder />
           </div>
 
-          {/* 게시물 테이블 */}
-          {loading ? (
-            <div className='flex justify-center p-4'>로딩 중...</div>
-          ) : (
-            <PostTable updateURL={updateURL} />
-          )}
+          <PostTable updateURL={updateURL} />
 
           {/* 페이지네이션 */}
           <div className='flex justify-between items-center'>
@@ -275,22 +248,11 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
       <AddPostFormDialog />
-
-      {/* 게시물 수정 대화상자 */}
       <EditPostFormDialog />
-
-      {/* 댓글 추가 대화상자 */}
       <AddCommentDialog />
-
-      {/* 댓글 수정 대화상자 */}
       <EditCommentFormDialog />
-
-      {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog />
-
-      {/* 사용자 모달 */}
       <UserProfileDialog />
     </Card>
   );
