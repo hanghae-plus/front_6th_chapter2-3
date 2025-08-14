@@ -1,5 +1,5 @@
 import { Post, PostsApiResponse, NewPost } from "@entities/post/model/types"
-import { createURLParams } from "@shared/lib"
+import { createURLParams, createApiUrl } from "@shared/lib"
 
 // Export hooks
 export * from "./queries"
@@ -16,7 +16,7 @@ export const fetchPosts = async (
     skip,
     ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
   })
-  const response = await fetch(`/api/posts?${query}`)
+  const response = await fetch(createApiUrl(`posts?${query}`))
   return response.json()
 }
 
@@ -33,7 +33,7 @@ export const searchPosts = async (
     skip,
     ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
   })
-  const response = await fetch(`/api/posts/search?${queryString}`)
+  const response = await fetch(createApiUrl(`posts/search?${queryString}`))
   return response.json()
 }
 
@@ -49,12 +49,12 @@ export const fetchPostsByTag = async (
     skip,
     ...(sortBy && sortBy !== "none" ? { sortBy, order: sortOrder } : {}),
   })
-  const response = await fetch(`/api/posts/tag/${encodeURIComponent(tag)}?${queryString}`)
+  const response = await fetch(createApiUrl(`posts/tag/${encodeURIComponent(tag)}?${queryString}`))
   return response.json()
 }
 
 export const addPost = async (post: NewPost): Promise<Post> => {
-  const response = await fetch("/api/posts/add", {
+  const response = await fetch(createApiUrl("posts/add"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(post),
@@ -63,7 +63,7 @@ export const addPost = async (post: NewPost): Promise<Post> => {
 }
 
 export const updatePost = async (id: number, post: Partial<Post>): Promise<Post> => {
-  const response = await fetch(`/api/posts/${id}`, {
+  const response = await fetch(createApiUrl(`posts/${id}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(post),
@@ -72,12 +72,12 @@ export const updatePost = async (id: number, post: Partial<Post>): Promise<Post>
 }
 
 export const deletePost = async (id: number): Promise<void> => {
-  await fetch(`/api/posts/${id}`, {
+  await fetch(createApiUrl(`posts/${id}`), {
     method: "DELETE",
   })
 }
 
 export const fetchTags = async () => {
-  const response = await fetch("/api/posts/tags")
+  const response = await fetch(createApiUrl("posts/tags"))
   return response.json()
 }

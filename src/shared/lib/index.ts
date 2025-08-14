@@ -6,3 +6,6 @@ export * from "./url-utils"
 
 // React Query optimistic utils
 export * from "./react-query-optimistic"
+
+// API configuration
+export * from "./api-config"
