@@ -1,4 +1,3 @@
-import { CommentList } from '@/entities/comment/ui/CommentList';
 import { usePosts } from '@/entities/post/model/usePosts';
 import { PostTable } from '@/entities/post/ui/PostTable';
 import { CreateCommentDialog } from '@/features/comment-create/ui/CreateCommentDialog';
@@ -11,6 +10,7 @@ import { Pagination } from '@/features/post-pagination/ui/Pagination';
 import { PostSearch } from '@/features/post-search/ui/PostSearch';
 import { ViewPostDialog } from '@/features/post-view/ui/ViewPostDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
+import { PostCommentsWidget } from '@/widgets/post-comments/ui/PostCommentsWidget';
 import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileDialog';
 
 export const PostManagerWidget = () => {
@@ -56,7 +56,7 @@ export const PostManagerWidget = () => {
 
       {/* 게시물 상세 보기 대화상자 */}
       <ViewPostDialog>
-        <CommentList />
+        <PostCommentsWidget />
       </ViewPostDialog>
 
       {/* 사용자 모달 */}
