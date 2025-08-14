@@ -40,8 +40,10 @@ import {
 import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
 import HighlightText from "../../shared/ui/HighlightText"
 import PostsTable from "../../features/posts-management/ui/posts-table"
-import UserInfo from "../../entities/users/ui/user-info-card"
+
 import UserInfoModal from "../../widgets/user-modal"
+
+import { CommentsSection } from "../../features/comments-management/ui/CommentSection"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -345,52 +347,21 @@ const PostsManager = () => {
 
   // 댓글 렌더링
   const renderComments = (postId) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">
-                <HighlightText text={comment.body} highlight={searchQuery} />
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <CommentsSection
+      postId={postId}
+      comments={comments[postId]}
+      searchQuery={searchQuery}
+      onAddComment={() => {
+        setNewComment((prev) => ({ ...prev, postId }))
+        setShowAddCommentDialog(true)
+      }}
+      onClickLike={(id, postId) => likeComment(id, postId)}
+      onClickEdit={(comment) => {
+        setSelectedComment(comment)
+        setShowEditCommentDialog(true)
+      }}
+      onClickDelete={(id, postId) => deleteComment(id, postId)}
+    />
   )
 
   return (
