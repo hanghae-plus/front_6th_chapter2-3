@@ -4,6 +4,7 @@ import PostContent from '@/widgets/PostContent.tsx';
 import { useURLSync } from '@/features/posts/lib/useURLSync.ts';
 import Dialog from '@/widgets/Dialog.tsx';
 
+// 쥬스탄드 탄스탁 적용끝
 const PostsManager = () => {
   useURLSync();
 
