@@ -1,6 +1,6 @@
 import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui"
 import type { Post } from "@/entities/posts"
-import { postEntityQueries, usePostMutations } from "@/entities/posts"
+import { usePostMutations, usePostsQuery } from "@/entities/posts"
 import type { User } from "@/entities/users"
 import { userEntityQueries } from "@/entities/users"
 import { usePostListFilterQueryParams } from "@/widgets/post-list-table"
@@ -29,17 +29,7 @@ export const PostListTable = ({
   })
   const [commentsMap, setCommentsMap] = useState<CommentsMap>({})
 
-  const postsQuery = useQuery({
-    ...postEntityQueries.getPosts({ ...postListFilter.queryParams }),
-  })
-
-  const postsByTagQuery = useQuery({
-    ...postEntityQueries.getPostsBySlug({
-      ...postListFilter.queryParams,
-      slug: postListFilter.queryParams.selectedTag,
-    }),
-    enabled: !!postListFilter.queryParams.selectedTag,
-  })
+  const postsQuery = usePostsQuery({ ...postListFilter.queryParams, slug: postListFilter.queryParams.selectedTag })
 
   const usersQuery = useQuery({
     ...userEntityQueries.getUsers({ limit: 0, select: "username,image" }),
@@ -50,9 +40,7 @@ export const PostListTable = ({
     }),
   })
 
-  const posts = postListFilter.queryParams.selectedTag ? postsByTagQuery.data : postsQuery.data
-
-  const postWithAuthors = posts?.posts.map((post) => ({
+  const postWithAuthors = postsQuery.posts?.posts.map((post) => ({
     ...post,
     author: usersQuery.data?.data.find((user) => user.id === post.userId),
   }))

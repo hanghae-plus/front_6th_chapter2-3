@@ -1,25 +1,10 @@
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
-import { postEntityQueries } from "@/entities/posts"
+import { usePostsQuery } from "@/entities/posts"
 import { POST_PAGINATION_LIMIT_OPTIONS, usePostListFilterQueryParams } from "@/widgets/post-list-table"
-
-import { useQuery } from "@tanstack/react-query"
 
 export const PostListTablePagination = () => {
   const postListFilter = usePostListFilterQueryParams()
-
-  const postsQuery = useQuery({
-    ...postEntityQueries.getPosts({ ...postListFilter.queryParams }),
-  })
-
-  const postsByTagQuery = useQuery({
-    ...postEntityQueries.getPostsBySlug({
-      ...postListFilter.queryParams,
-      slug: postListFilter.queryParams.selectedTag,
-    }),
-    enabled: !!postListFilter.queryParams.selectedTag,
-  })
-
-  const posts = postListFilter.queryParams.selectedTag ? postsByTagQuery.data : postsQuery.data
+  const postsQuery = usePostsQuery({ ...postListFilter.queryParams, slug: postListFilter.queryParams.selectedTag })
 
   const handleLimitChange = (limit: number) => {
     postListFilter.onLimitChange(limit)
@@ -59,7 +44,7 @@ export const PostListTablePagination = () => {
           이전
         </Button>
         <Button
-          disabled={postListFilter.queryParams.skip + postListFilter.queryParams.limit >= (posts?.total ?? 0)}
+          disabled={postListFilter.queryParams.skip + postListFilter.queryParams.limit >= (postsQuery.posts?.total ?? 0)}
           onClick={handleNextPage}
         >
           다음
