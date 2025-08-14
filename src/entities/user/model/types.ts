@@ -16,4 +16,8 @@ export interface UserWithInfo extends User {
     city: string
     state: string
   }
+  company: {
+    name: string
+    title: string
+  }
 }

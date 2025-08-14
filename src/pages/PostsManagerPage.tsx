@@ -15,7 +15,7 @@ import {
 import {highlightText} from "../shared/lib/text-utils"
 import { getPosts } from "../entities/post/api/api.ts"
 import { Post } from "../entities/post/model/types.ts"
-import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm } from "../widgets/"
+import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm } from "../features"
 
 const PostsManager = () => {
   const navigate = useNavigate()

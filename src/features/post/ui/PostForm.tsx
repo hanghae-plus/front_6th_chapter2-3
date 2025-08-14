@@ -57,7 +57,7 @@ export const PostForm: React.FC<PostFormProps> = ({
               type="number"
               placeholder="사용자 ID"
               value={userIdValue}
-              onChange={(e) => onChangeUserId(Number(e.target.value))}
+              onChange={(e) => onChangeUserId?.(Number(e.target.value))}
             />
           )}
           <Button onClick={onSubmit}>{submitActionLabel}</Button>

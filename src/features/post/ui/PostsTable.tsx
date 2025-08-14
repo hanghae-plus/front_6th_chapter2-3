@@ -1,8 +1,8 @@
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { Post } from "../../../entities/post/model/types.ts"
-import { highlightText } from "../../../shared/lib/text-utils.tsx"
-import { User } from "../../../entities/user/model/types.ts"
+import { Post } from "../../../entities/post/model/types"
+import { highlightText } from "../../../shared/lib/text-utils"
+import { User } from "../../../entities/user/model/types"
 import React from "react"
 
 interface PostsTableProps {
@@ -71,7 +71,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+                <img src={post?.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
             </TableCell>

@@ -1,7 +1,7 @@
 import { Search } from "lucide-react"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui"
 import React from "react"
-import { Tag } from "../../../entities/tag"
+import { Tag } from "../../../entities/tag/model/types.ts"
 
 interface PostsFilterProps {
   searchQuery: string

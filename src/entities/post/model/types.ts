@@ -1,4 +1,3 @@
-import type { Tag } from "../../tag/model/types"
 import { User } from "../../user/model/types"
 
 export interface Post {
@@ -13,11 +12,7 @@ export interface Post {
     dislikes: number
   }
   author?: User
-  tagIds?: Tag["id"][]
-}
-
-export interface PostWithTags extends Post {
-  tags?: Tag[]
+  tags?: string[]
 }
 
 // api 호출 관련

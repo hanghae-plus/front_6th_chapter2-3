@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui"
-import { UserWithInfo } from "../../../entities/user/model/types.ts"
+import { UserWithInfo } from "../../../entities/user/model/types"
 import React from "react"
 
 interface UserModalProps {
