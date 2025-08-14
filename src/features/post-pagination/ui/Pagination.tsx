@@ -1,6 +1,10 @@
+import { usePagination } from '../model/usePagination';
+
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui';
 
-export const Pagination = ({ limit, setLimit, skip, setSkip, total }) => {
+export const Pagination = () => {
+  const { limit, setLimit, skip, setSkip } = usePagination();
+
   return (
     <div className='flex justify-between items-center'>
       <div className='flex items-center gap-2'>
