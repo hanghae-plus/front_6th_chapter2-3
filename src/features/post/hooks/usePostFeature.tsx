@@ -14,6 +14,7 @@ import {
 } from '../../../entities/post';
 import { fetchTags } from '../../../entities/tag';
 import { usePostStore } from '../store';
+import { updateURL as updateURLUtil } from '../../../shared/utils';
 
 export const usePostFeature = () => {
   const navigate = useNavigate();
@@ -46,16 +47,9 @@ export const usePostFeature = () => {
   const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
 
-  // URL 업데이트 함수 (기존과 동일)
+  // URL 업데이트 함수 (shared/utils에서 가져옴)
   const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
+    updateURLUtil(navigate, { skip, limit, searchQuery, sortBy, sortOrder, selectedTag });
   };
 
   // 태그 가져오기 (기존과 동일)

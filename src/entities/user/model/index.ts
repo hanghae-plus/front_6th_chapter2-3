@@ -1,7 +1,7 @@
-import { User, UserBasic } from '../types';
+import { User } from '../types';
 
 // 사용자 기본 정보를 찾는 함수
-export const findUserById = (users: UserBasic[], userId: number): UserBasic | undefined => {
+export const findUserById = (users: User[], userId: number): User | undefined => {
   return users.find((user) => user.id === userId);
 };
 
