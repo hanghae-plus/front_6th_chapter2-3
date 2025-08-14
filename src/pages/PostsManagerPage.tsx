@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Plus, Search } from "lucide-react"
 import {
   Button,
@@ -6,10 +5,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
   Select,
   SelectContent,
@@ -22,19 +17,13 @@ import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
 import { postMutations } from "../entities/post/api/mutations"
-import { commentMutations } from "../entities/comment/api/mutations"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
-import { commentQueries } from "../entities/comment/api/queries"
-import { CommentItem } from "../entities/comment/model"
-import { CommentList } from "../entities/comment/ui"
 import { useUserProfileDialog } from "../features/user/view-profile/lib/useUserProfileDialog"
-import { useEditComment } from "../features/comment/edit-comment/lib/useEditComment"
 import { PostsTable } from "../widgets/posts-table/ui"
-import { highlightText } from "../shared/lib"
 import { useAddPost } from "../features/post/add-post"
 import { useEditPost } from "../features/post/edit-post"
-import { useAddComment } from "../features/comment/add-comment"
+import { usePostDetailDialog } from "../widgets/post-detail"
 
 const PostsManager = () => {
   const [queryParams, setQueryParams] = useQueryStates({
@@ -48,9 +37,6 @@ const PostsManager = () => {
 
   const { skip, limit, search: searchQuery, sortBy, order, tag: selectedTag } = queryParams
 
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const { openProfile, overlay: profileOverlay } = useUserProfileDialog()
 
   const postQuery = useQuery({
@@ -108,29 +94,10 @@ const PostsManager = () => {
     deletePostMutation.mutate(id)
   }
 
-  const { data: comments = [] } = useQuery({
-    ...commentQueries.byPostQuery(selectedPost?.id ?? 0),
-    select: (res) => res.comments,
-  })
-
-  const { updateComment, overlay: editOverlay } = useEditComment()
-
-  const deleteCommentMutation = useMutation(commentMutations.deleteMutation())
-  const deleteComment = (id: number) => {
-    deleteCommentMutation.mutate({ id, postId: selectedPost?.id ?? 0 })
-  }
-
-  const likeCommentMutation = useMutation({
-    ...commentMutations.likeMutation(),
-  })
-  const likeComment = (id: number) => {
-    const currentLikes = comments.find((c: CommentItem) => c.id === id)?.likes ?? 0
-    likeCommentMutation.mutate({ id, postId: selectedPost?.id ?? 0, likes: currentLikes + 1 })
-  }
+  const { openDetail, overlay: detailOverlay } = usePostDetailDialog()
 
   const openPostDetail = (post: Post) => {
-    setSelectedPost(post)
-    setShowPostDetailDialog(true)
+    openDetail(post, searchQuery)
   }
 
   const openUserModal = (user: User) => {
@@ -139,7 +106,6 @@ const PostsManager = () => {
 
   const { addPost, overlay: addPostOverlay } = useAddPost()
   const { editPost, overlay: editPostOverlay } = useEditPost()
-  const { addComment, overlay: addCommentOverlay } = useAddComment()
 
   const renderPostTable = () => (
     <PostsTable
@@ -260,36 +226,10 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title ?? "", searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body ?? "", searchQuery)}</p>
-            <CommentList
-              comments={comments}
-              searchQuery={searchQuery}
-              onAddComment={() => {
-                if (!selectedPost) return
-                addComment(selectedPost.id, 1)
-              }}
-              onEditComment={async (comment) => {
-                await updateComment(comment)
-              }}
-              onDeleteComment={deleteComment}
-              onLikeComment={likeComment}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {editOverlay}
       {profileOverlay}
       {addPostOverlay}
       {editPostOverlay}
-      {addCommentOverlay}
+      {detailOverlay}
     </Card>
   )
 }
