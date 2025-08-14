@@ -4,10 +4,12 @@ import { getUsers } from "@/entities/user/api"
 import { getCommentsByPost } from "@/entities/comment/api"
 import type { Author } from "@/shared/types"
 
-export const usePostDetail = (id: number) => {
+export const usePostDetail = (id: number | null) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["posts", "detail", id],
     queryFn: async () => {
+      if (!id) throw new Error("Post ID is required")
+
       // 게시물과 댓글을 병렬로 가져오기
       const [postResponse, commentsResponse, usersResponse] = await Promise.all([
         getPost(id),
@@ -33,6 +35,7 @@ export const usePostDetail = (id: number) => {
         total: commentsResponse.total,
       }
     },
+    enabled: !!id, // id가 있을 때만 쿼리 실행
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   })

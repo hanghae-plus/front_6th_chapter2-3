@@ -21,7 +21,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
-  const { data, isLoading, error } = usePostDetail(postId!)
+  const { data, isLoading, error } = usePostDetail(postId)
 
   const addComment = async () => {
     if (!postId) return
