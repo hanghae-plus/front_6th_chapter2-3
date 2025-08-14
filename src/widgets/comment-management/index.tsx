@@ -12,6 +12,14 @@ import { usePostsUI } from '@shared/store/posts-ui'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/ui/Dialog'
 import { Button } from '@shared/ui/Button'
 import { Textarea } from '@shared/ui/Textarea'
+import { highlightText } from '@shared/lib/highlightText'
+
+const renderHighlighted = (text: string, highlight: string) => {
+  const parts = highlightText(text || '', highlight || '')
+  if (parts.length === 0) return null
+
+  return <span>{parts.map((p, i) => (p.isMatch ? <mark key={i}>{p.text}</mark> : <span key={i}>{p.text}</span>))}</span>
+}
 
 // 댓글 섹션 컴포넌트
 const CommentsSection = ({ postId }: { postId: number }) => {
@@ -24,21 +32,6 @@ const CommentsSection = ({ postId }: { postId: number }) => {
   const { data: comments = [], isLoading: isCommentsLoading } = useCommentsQuery(postId)
   const likeCommentMutation = useLikeCommentMutation()
   const deleteCommentMutation = useDeleteCommentMutation()
-
-  // 하이라이트 함수
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi')
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
 
   if (isCommentsLoading) {
     return <div>댓글 로딩 중...</div>
@@ -63,7 +56,7 @@ const CommentsSection = ({ postId }: { postId: number }) => {
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+              <span className="truncate">{renderHighlighted(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Button
@@ -121,11 +114,11 @@ export const CommentManagementWidget = () => {
 
   // ID로 데이터 조회
   const { data: selectedPost, isLoading: isPostLoading } = usePostQuery(selectedPostId!, {
-    enabled: !!selectedPostId && showPostDetailDialog
+    enabled: !!selectedPostId && showPostDetailDialog,
   })
 
   const { data: selectedComment, isLoading: isCommentLoading } = useCommentQuery(selectedCommentId!, {
-    enabled: !!selectedCommentId && showEditCommentDialog
+    enabled: !!selectedCommentId && showEditCommentDialog,
   })
 
   const location = useLocation()
@@ -143,7 +136,7 @@ export const CommentManagementWidget = () => {
 
   // 댓글 수정 상태 (로컬 편집용)
   const [editingComment, setEditingComment] = useState<{ body: string }>({
-    body: ''
+    body: '',
   })
 
   // 수정 모드에서 데이터 로드 시 편집 상태 초기화
@@ -156,21 +149,6 @@ export const CommentManagementWidget = () => {
   // 댓글 뮤테이션들
   const addCommentMutation = useAddCommentMutation()
   const updateCommentMutation = useUpdateCommentMutation()
-
-  // 하이라이트 함수
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi')
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
 
   // 댓글 추가 핸들러
   const handleAddComment = () => {
@@ -202,7 +180,7 @@ export const CommentManagementWidget = () => {
             setSelectedCommentId(null)
             setEditingComment({ body: '' })
           },
-        }
+        },
       )
     }
   }
@@ -214,7 +192,7 @@ export const CommentManagementWidget = () => {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {isPostLoading ? '로딩 중...' : highlightText(selectedPost?.title || '', searchQuery)}
+              {isPostLoading ? '로딩 중...' : renderHighlighted(selectedPost?.title || '', searchQuery)}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -222,7 +200,7 @@ export const CommentManagementWidget = () => {
               <div>게시물 로딩 중...</div>
             ) : (
               <>
-                <p>{highlightText(selectedPost?.body || '', searchQuery)}</p>
+                <p>{renderHighlighted(selectedPost?.body || '', searchQuery)}</p>
                 {selectedPostId && <CommentsSection postId={selectedPostId} />}
               </>
             )}
