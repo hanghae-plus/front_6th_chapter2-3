@@ -14,7 +14,7 @@ export const useRemovePost = () => {
       onSuccess: () => {
         callbacks.onSuccess?.()
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         callbacks.onError?.(error)
       },
     })

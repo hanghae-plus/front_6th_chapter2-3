@@ -1,6 +1,6 @@
 // 게시물 도메인 타입 정의
 
-import { User } from "../../user/model/types"
+import type { User } from "@entities/user"
 
 export interface Post {
   id: number

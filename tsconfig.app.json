@@ -29,11 +29,15 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@pages": ["src/pages"], // barrel-only
       "@pages/*": ["src/pages/*"],
       "@features": ["src/features"], // barrel-only
       "@features/*": ["src/features/*"],
       "@widgets": ["src/widgets"], // barrel-only
+      "@widgets/*": ["src/widgets/*"],
+      "@entities": ["src/entities"], // barrel-only
       "@entities/*": ["src/entities/*"],
+      "@shared": ["src/shared"], // barrel-only
       "@shared/*": ["src/shared/*"]
     }
   },

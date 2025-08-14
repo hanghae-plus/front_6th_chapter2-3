@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from "react-router-dom"
 import { QueryProvider } from "./app/providers/query-provider"
-import { Header, Footer } from "./widgets"
-import PostsManagerPage from "./pages/PostsManagerPage.tsx"
+import { Header, Footer } from "@widgets"
+import { PostsManagerPage } from "@pages"
 
 const App = () => {
   return (

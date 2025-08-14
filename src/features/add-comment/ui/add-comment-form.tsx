@@ -1,6 +1,6 @@
 import React from "react"
 import { DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
-import { useAddCommentForm } from "@/features/add-comment/model"
+import { useAddCommentForm } from "../model"
 
 export interface AddCommentFormProps {
   open: boolean

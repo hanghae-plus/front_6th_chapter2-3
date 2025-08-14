@@ -6,7 +6,7 @@ import type { Post } from "@entities/post"
 import type { Comment, NewComment } from "@entities/comment"
 import { PostTable, PostFilters, PostDetailDialog, UserDialog, PostFormDialog, CommentFormDialog } from "@widgets"
 
-const PostsManager = () => {
+export const PostsManagerPage = () => {
   // URL 파라미터 – 단일 출처
   const { param, updateUrl } = usePostQueryParams()
 
@@ -120,4 +120,3 @@ const PostsManager = () => {
   )
 }
 
-export default PostsManager

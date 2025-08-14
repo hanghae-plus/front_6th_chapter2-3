@@ -1,2 +1,2 @@
-export * from "@/features/remove-post/model"
-export * from "@/features/remove-post/ui"
+export * from "./model"
+export * from "./ui"

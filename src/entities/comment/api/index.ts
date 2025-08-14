@@ -1,5 +1,9 @@
 import { Comment, NewComment } from "@entities/comment/model/types"
 
+// Export hooks
+export * from "./queries"
+export * from "./mutations"
+
 export const fetchComments = async (postId: number) => {
   const response = await fetch(`/api/comments/post/${postId}`)
   return response.json()

@@ -1,7 +1,7 @@
 import React from "react"
 import { Trash2 } from "lucide-react"
 import { Button } from "@shared/ui"
-import { useRemovePost } from "@/features/remove-post/model/use-remove-post"
+import { useRemovePost } from "../model"
 
 interface RemovePostButtonProps {
   postId: number

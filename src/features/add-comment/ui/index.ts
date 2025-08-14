@@ -1,1 +1,1 @@
-export { AddCommentForm } from "@/features/add-comment/ui/add-comment-form"
+export { AddCommentForm } from "./add-comment-form"

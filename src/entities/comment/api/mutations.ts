@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { addComment, deleteComment, likeComment, updateComment } from "@entities/comment"
-import type { NewComment, Comment } from "@entities/comment"
+import { addComment, deleteComment, likeComment, updateComment } from "./index"
+import type { NewComment, Comment } from "../model/types"
 import { updateQueriesWithRollback } from "@shared/lib"
 
 type CommentsListData = { comments: Comment[] }

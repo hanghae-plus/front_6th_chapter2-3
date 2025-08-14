@@ -1,5 +1,8 @@
 import { User, UsersApiResponse } from "@entities/user/model/types"
 
+// Export hooks
+export * from "./queries"
+
 export const fetchUsers = async (params?: string): Promise<UsersApiResponse> => {
   const url = params ? `/api/users?${params}` : "/api/users"
   const response = await fetch(url)

@@ -1,6 +1,6 @@
 import React from "react"
 import { DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
-import { useEditCommentForm } from "@/features/edit-comment/model"
+import { useEditCommentForm } from "../model"
 import type { Comment } from "@entities/comment"
 
 interface EditCommentFormProps {

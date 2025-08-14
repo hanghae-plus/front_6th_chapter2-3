@@ -2,8 +2,8 @@ import React from "react"
 import { Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
 import type { Comment } from "@entities/comment"
-import { LikeCommentButton } from "@/features/like-comment"
-import { RemoveCommentButton } from "@/features/remove-comment/ui"
+import { LikeCommentButton } from "@features/like-comment"
+import { RemoveCommentButton } from "@features/remove-comment"
 
 interface CommentItemProps {
   comment: Comment

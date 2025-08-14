@@ -1,1 +1,1 @@
-export { RemovePostButton } from "@/features/remove-post/ui/remove-post-button"
+export { RemovePostButton } from "./remove-post-button"

@@ -1,6 +1,10 @@
 import { Post, PostsApiResponse, NewPost } from "@entities/post/model/types"
 import { createURLParams } from "@shared/lib"
 
+// Export hooks
+export * from "./queries"
+export * from "./mutations"
+
 export const fetchPosts = async (
   limit: number,
   skip: number,

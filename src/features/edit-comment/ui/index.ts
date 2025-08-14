@@ -1,1 +1,1 @@
-export { EditCommentForm } from "@/features/edit-comment/ui/edit-comment-form"
+export { EditCommentForm } from "./edit-comment-form"

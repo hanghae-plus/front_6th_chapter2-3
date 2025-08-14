@@ -5,11 +5,11 @@ import { highlightText } from "@shared/lib"
 import { useGetPosts, useGetPostsByTag, useGetPostSearch } from "@entities/post"
 import { mergePostsWithAuthors } from "@entities/post"
 import { LIMIT_OPTIONS } from "@shared/constants"
-import { RemovePostButton } from "@/features/remove-post/ui"
+import { RemovePostButton } from "@features/remove-post"
 import type { Post } from "@entities/post"
-import { Pagination } from "@/widgets/pagination"
-import { useGetUsers } from "@/entities/user"
-import { usePostQueryParams } from "@/shared/hooks/use-post-query-params"
+import { Pagination } from "@widgets"
+import { useGetUsers } from "@entities/user"
+import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 
 interface PostTableProps {
   searchQuery: string
