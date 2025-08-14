@@ -16,9 +16,8 @@ import {
   TableRow,
 } from "../shared/ui";
 import { DropdownSelect } from "../shared/ui/DropdownSelect";
-import { addPost, deletePost, getPostBySearch, getPostByTag, getPosts, updatePost } from "../entities/post/api";
 import { getTags } from "../entities/tag/api";
-import { getAllUsers, getUser } from "../entities/user/api";
+import { getUser } from "../entities/user/api";
 import { HighlightText } from "../shared/ui/HighlightText";
 import { UserModal } from "../entities/user/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
@@ -30,6 +29,8 @@ import { CommentUpdateDialog } from "../features/comment/ui/CommentUpdateDialog"
 import { PostDetailDialog } from "../features/post/ui/PostDetailDialog";
 import { Comments } from "../features/comment/ui/Comments";
 import { useComments } from "../features/comment/models/useComment";
+import { usePosts } from "../features/post/models/usePost";
+import { Post } from "../entities/post/types";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -37,18 +38,15 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
-  const [posts, setPosts] = useState([]);
-  const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"));
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"));
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "");
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
-  const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
   const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
@@ -68,6 +66,27 @@ const PostsManager = () => {
       setShowEditCommentDialog,
     });
 
+  const {
+    posts,
+    total,
+    loading,
+    fetchPosts,
+    searchPosts,
+    fetchPostsByTag,
+    handleAddPost,
+    handleUpdatePost,
+    handleDeletePost,
+  } = usePosts({
+    limit,
+    skip,
+    searchQuery,
+    newPost,
+    setNewPost,
+    selectedPost,
+    setShowAddDialog,
+    setShowEditDialog,
+  });
+
   // URL 업데이트 함수
   const updateURL = () => {
     const params = new URLSearchParams();
@@ -80,26 +99,6 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // 게시물 가져오기
-  const fetchPosts = async () => {
-    setLoading(true);
-    const postsData = await getPosts({ limit, skip });
-    const usersData = await getAllUsers();
-
-    try {
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }));
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // 태그 가져오기
   const fetchTags = async () => {
     try {
@@ -107,87 +106,6 @@ const PostsManager = () => {
       setTags(tagsData);
     } catch (error) {
       console.error("태그 가져오기 오류:", error);
-    }
-  };
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const postsData = await getPostBySearch({ search: searchQuery });
-      setPosts(postsData.posts);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error("게시물 검색 오류:", error);
-    }
-    setLoading(false);
-  };
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
-    if (!tag || tag === "all") {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const postsData = await getPostByTag({ tag });
-      const usersData = await getAllUsers();
-
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }));
-
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error);
-    }
-    setLoading(false);
-  };
-
-  // 게시물 추가
-  const handleAddPost = async () => {
-    try {
-      const data = await addPost({ post: newPost });
-      const usersData = await getAllUsers();
-      data.author = usersData.users.find((user) => user.id === data.userId);
-
-      setPosts([data, ...posts]);
-      setShowAddDialog(false);
-      setNewPost({ title: "", body: "", userId: 1 });
-    } catch (error) {
-      console.error("게시물 추가 오류:", error);
-    }
-  };
-
-  // 게시물 업데이트
-  const handleUpdatePost = async () => {
-    try {
-      if (!selectedPost) return;
-      const updatedPost = await updatePost({ post: selectedPost });
-      const usersData = await getAllUsers();
-      updatedPost.author = usersData.users.find((user) => user.id === updatedPost.userId);
-
-      setPosts(posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
-      setShowEditDialog(false);
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error);
-    }
-  };
-
-  // 게시물 삭제
-  const handleDeletePost = async (id) => {
-    try {
-      await deletePost({ id });
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error);
     }
   };
 
@@ -233,7 +151,7 @@ const PostsManager = () => {
   }, [location.search]);
 
   // 게시물 테이블 렌더링
-  const renderPostTable = () => (
+  const PostTable = () => (
     <Table>
       <TableHeader>
         <TableRow>
@@ -382,7 +300,7 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : <PostTable />}
 
           {/* 페이지네이션 */}
           <Pagination limit={limit} setLimit={setLimit} skip={skip} setSkip={setSkip} total={total} />
