@@ -3,6 +3,8 @@ import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { Comment } from "../../../entities"
 import { useCommentStore } from "../model/store"
 import { useSearchQueryStore, useSelectedPostStore } from "../../post/model/store"
+import { requestApi } from "../../../shared/lib"
+import { DeleteComment, UpsertComment } from "../type"
 
 export const Comments = () => {
   const { searchQuery } = useSearchQueryStore()
@@ -24,18 +26,21 @@ export const Comments = () => {
   const likeComment = async (id: number, postId: number) => {
     const filtredComments = comments[postId]
     try {
-      const response = await fetch(`/api/comments/${id}`, {
+      const { result, data } = await requestApi<UpsertComment>(`/api/comments/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: filtredComments.find((comment) => (comment as Comment).id === id)!.likes + 1 }),
+        body: JSON.stringify({
+          likes: (filtredComments.find((comment) => (comment as Comment).id === id)!.likes ?? 0) + 1,
+        }),
       })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
+
+      if (result && data) {
+        setComments((prev) => ({
+          ...prev,
+          [postId]: prev[postId].map((comment) =>
+            comment.id === data.id ? { ...data, likes: (comment.likes ?? 0) + 1 } : comment,
+          ),
+        }))
+      }
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
@@ -44,13 +49,16 @@ export const Comments = () => {
   // 댓글 삭제
   const deleteComment = async (id: number, postId: number) => {
     try {
-      await fetch(`/api/comments/${id}`, {
+      const { result, data } = await requestApi<DeleteComment>(`/api/comments/${id}`, {
         method: "DELETE",
       })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }))
+
+      if (result && data) {
+        setComments((prev) => ({
+          ...prev,
+          [postId]: prev[postId].filter((comment) => comment.id !== id),
+        }))
+      }
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }

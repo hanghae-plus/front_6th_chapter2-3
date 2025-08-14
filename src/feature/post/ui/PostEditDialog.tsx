@@ -1,19 +1,22 @@
 import React from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { useSelectedPostStore } from "../model/store"
+import { requestApi } from "../../../shared/lib"
+import { Post } from "../type"
 
 export const PostEditDialog = () => {
-  const { selectedPost, setSelectedPost, showEditDialog, setShowEditDialog } = useSelectedPostStore()
+  const { setPosts, posts, selectedPost, setSelectedPost, showEditDialog, setShowEditDialog } = useSelectedPostStore()
   // 게시물 업데이트
   const updatePost = async () => {
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
+      const { result, data } = await requestApi<Post>(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
+        body: selectedPost,
       })
-      const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      if (result && data) {
+        setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      }
+
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)

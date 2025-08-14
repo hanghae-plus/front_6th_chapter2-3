@@ -2,6 +2,8 @@ import { useState } from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { NewPost } from "../type"
 import { useSelectedPostStore } from "../model/store"
+import { requestApi } from "../../../shared/lib"
+import { Post } from "../../../entities"
 
 export const PostAddDialog = () => {
   const { showAddDialog, setShowAddDialog, setPosts, posts } = useSelectedPostStore()
@@ -9,13 +11,22 @@ export const PostAddDialog = () => {
   // 게시물 추가
   const addPost = async () => {
     try {
-      const response = await fetch("/api/posts/add", {
+      const { result, data } = await requestApi<Post>(`/api/posts/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
+        body: newPost,
       })
-      const data = await response.json()
-      setPosts([data, ...posts])
+      if (result && data) {
+        setPosts([
+          {
+            ...data,
+            reactions: { likes: 0, dislikes: 0 },
+            tags: [],
+            views: 0,
+          },
+          ...posts,
+        ])
+      }
+
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {

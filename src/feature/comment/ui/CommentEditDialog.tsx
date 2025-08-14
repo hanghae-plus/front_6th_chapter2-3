@@ -1,6 +1,8 @@
 import { Button, Dialog, Textarea } from "../../../shared/ui"
 import { useCommentStore } from "../model/store"
 import { Comment } from "../../../entities"
+import { requestApi } from "../../../shared/lib"
+import { UpsertComment } from "../type"
 
 export const CommentEditDialog = () => {
   const {
@@ -15,17 +17,18 @@ export const CommentEditDialog = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
-      const response = await fetch(`/api/comments/${selectedComment?.id}`, {
+      const { result, data } = await requestApi<UpsertComment>(`/api/comments/${selectedComment?.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: selectedComment?.body }),
       })
-      const data = await response.json()
-      setComments({
-        ...comments,
-        [data.postId]: (comments[data.postId] ?? []).map((c) => (c.id === data.id ? data : c)),
-      })
-      setShowEditCommentDialog(false)
+
+      if (result && data) {
+        setComments({
+          ...comments,
+          [data.postId]: (comments[data.postId] ?? []).map((c) => (c.id === data.id ? data : c)),
+        })
+        setShowEditCommentDialog(false)
+      }
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }

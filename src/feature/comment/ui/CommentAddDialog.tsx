@@ -1,26 +1,29 @@
 import { useState } from "react"
 import { Button, Dialog, Textarea } from "../../../shared/ui"
 import { useCommentStore } from "../model/store"
-import { NewComment } from "../type"
+import { UpsertComment, NewComment } from "../type"
+import { requestApi } from "../../../shared/lib"
+import { useSelectedPostStore } from "../../post/model/store"
 
 export const CommentAddDialog = () => {
+  const { selectedPost } = useSelectedPostStore()
   const { setComments, showAddCommentDialog, setShowAddCommentDialog } = useCommentStore()
   const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: 0, userId: 1 })
 
   // 댓글 추가
   const addComment = async () => {
     try {
-      const response = await fetch("/api/comments/add", {
+      const { result, data } = await requestApi<UpsertComment>(`/api/comments/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
+        body: JSON.stringify({ ...newComment, postId: selectedPost.id }),
       })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
 
+      if (result && data) {
+        setComments((prev) => ({
+          ...prev,
+          [data.postId]: [...(prev[data.postId] || []), data],
+        }))
+      }
       setShowAddCommentDialog(false)
       setNewComment({ body: "", postId: null, userId: 1 })
     } catch (error) {

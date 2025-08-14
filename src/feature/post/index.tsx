@@ -3,13 +3,14 @@ import { CardContent } from "../../shared/ui"
 import PostSearchFilter from "./ui/PostSearchFilter"
 import { Pagination } from "../../widgets"
 import { PostTable } from "./ui/PostTable"
-import { Post } from "./type"
+import { DeletePost, Post } from "./type"
 import { getTags, Tags } from "../../entities"
 import { getComments, getPosts, getPostsByTag, getSeachPosts, getUser, getUsers } from "../../entities"
 import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedPostStore, useSelectedUserStore } from "./model/store"
 import { useCommentStore } from "../comment/model/store"
 import { useNavigate } from "react-router-dom"
+import { requestApi } from "../../shared/lib"
 
 export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
   const navigate = useNavigate()
@@ -67,10 +68,12 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
   // 게시물 삭제
   const deletePost = async (id: number) => {
     try {
-      await fetch(`/api/posts/${id}`, {
+      const { result } = await requestApi<DeletePost>(`/api/posts/${id}`, {
         method: "DELETE",
       })
-      setPosts(posts.filter((post) => post.id !== id))
+      if (result) {
+        setPosts(posts.filter((post) => post.id !== id))
+      }
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }

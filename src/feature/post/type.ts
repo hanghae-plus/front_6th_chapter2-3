@@ -10,3 +10,8 @@ export interface NewPost {
   body: string
   userId: number
 }
+
+export interface DeletePost extends originPost {
+  deletedOn: string
+  isDeleted: boolean
+}

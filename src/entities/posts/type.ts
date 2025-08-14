@@ -3,8 +3,8 @@ import { Pagination } from "../../shared/types"
 export interface Post {
   body: string
   id: number
-  reactions: Reactions
-  tags: Array<String>
+  reactions?: Reactions
+  tags?: Array<String>
   title: string
   userId: number
   views: number
