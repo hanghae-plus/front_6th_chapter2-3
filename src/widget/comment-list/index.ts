@@ -1,3 +1,5 @@
 export { CommentList } from "./CommentList"
-export { CommentInputForm } from "./CommentInputForm"
 export { CommentEditForm } from "./CommentEditForm"
+export { CommentInputForm } from "./CommentInputForm"
+export { CommentAddForm } from "./CommentAddForm"
+export { CommentSection } from "./CommentSection"

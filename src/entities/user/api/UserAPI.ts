@@ -1,4 +1,5 @@
 import { ApiClient } from "../../../shared/api/api"
+import { User } from "../model/types"
 
 class UserAPI extends ApiClient {
   constructor() {
@@ -11,8 +12,8 @@ class UserAPI extends ApiClient {
    * @param select - 선택할 필드
    * @returns 사용자 목록
    */
-  async getUserList(limit: number, select: string) {
-    return await this.get(`?limit=${limit}&select=${select}`)
+  async getUserList(limit: number, select: string): Promise<User[]> {
+    return await this.get<User[]>(`?limit=${limit}&select=${select}`)
   }
 
   /**
@@ -20,8 +21,8 @@ class UserAPI extends ApiClient {
    * @param id - 사용자 ID
    * @returns 사용자 정보
    */
-  async getUserInfo(id: number) {
-    return await this.get(`/${id}`)
+  async getUserInfo(id: number): Promise<User> {
+    return await this.get<User>(`/${id}`)
   }
 }
 

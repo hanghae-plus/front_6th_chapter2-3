@@ -1,18 +1,17 @@
 import { Button, Textarea } from "../../shared/ui"
 import { Comment } from "../../entities/comment/model/types"
 
-interface CommentEditFormProps {
-  comment: Comment | null
-  onCommentChange: (comment: Comment | null) => void
+interface CommentAddFormProps {
+  comment: { body: string; postId: number | null; userId: number }
+  onCommentChange: (comment: { body: string; postId: number | null; userId: number }) => void
   onSubmit: () => void
+  isLoading: boolean
 }
 
-export const CommentEditForm = ({ comment, onCommentChange, onSubmit }: CommentEditFormProps) => {
-  if (!comment) return null
-
+export const CommentAddForm = ({ comment, onCommentChange, onSubmit, isLoading }: CommentAddFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (comment.body.trim()) {
+    if (comment.body.trim() && comment.postId) {
       onSubmit()
     }
   }
@@ -25,8 +24,8 @@ export const CommentEditForm = ({ comment, onCommentChange, onSubmit }: CommentE
         onChange={(e) => onCommentChange({ ...comment, body: e.target.value })}
         required
       />
-      <Button type="submit" disabled={!comment.body.trim()}>
-        댓글 업데이트
+      <Button type="submit" disabled={isLoading || !comment.body.trim() || !comment.postId}>
+        {isLoading ? "추가 중..." : "댓글 추가"}
       </Button>
     </form>
   )
