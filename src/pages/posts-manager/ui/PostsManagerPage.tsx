@@ -5,32 +5,26 @@ import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
-import type { User } from "@/entities/user/model"
-import { usePostDialogStore, usePostParamsStore } from "@/features/get-post/model"
-import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
-import { useUserDialogStore } from "@/features/get-user/model"
+import { Post, PostTag } from "@/entities/post/model"
+import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
 import { CommentAddDialog, CommentUpdateDialog } from "@/widgets/comment-dialog/ui"
 import { PostAddDialog, PostDetailDialog, PostUpdateDialog } from "@/widgets/post-dialog/ui"
-import { PostPagination } from "@/widgets/post-pagination/ui"
-import { PostTable } from "@/widgets/post-table/ui"
+import { PostsContent } from "@/widgets/posts-content/ui"
 import { UserInfoDialog } from "@/widgets/user-dialog/ui"
 
 export function PostsManagerPage() {
   const { openDialog } = useDialogStore((state) => state.actions)
   const { actions, limit, search, skip, sortBy, sortOrder, tag } = usePostParamsStore(useShallow((state) => state))
-  const { updateParam, initializeFromURL } = actions
-
-  const { setSelectedPost } = usePostDialogStore((state) => state.actions)
-  const { setSelectedUserId } = useUserDialogStore((state) => state.actions)
+  const { initializeFromURL } = actions
 
   // 데이터 상태
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
+  const [tags, setTags] = useState<PostTag[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState<any[]>([])
 
   // 게시물 가져오기
   const fetchPosts = () => {
@@ -92,7 +86,7 @@ export function PostsManagerPage() {
   }
 
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: any) => {
+  const fetchPostsByTag = async (tag: string) => {
     if (!tag || tag === "all") {
       fetchPosts()
       return
@@ -131,18 +125,6 @@ export function PostsManagerPage() {
     }
   }
 
-  // 게시물 상세 보기
-  const openPostDetail = (post: any) => {
-    setSelectedPost(post)
-    openDialog(DialogType.POST_DETAIL)
-  }
-
-  // 사용자 모달 열기
-  const handleOpenUserModal = (user: User) => {
-    setSelectedUserId(user.id)
-    openDialog(DialogType.USER_MODAL)
-  }
-
   useEffect(() => {
     initializeFromURL()
     fetchTags()
@@ -168,54 +150,39 @@ export function PostsManagerPage() {
   }, [skip, limit, sortBy, sortOrder, tag])
 
   return (
-    <Card className="mx-auto w-full max-w-6xl">
-      <Card.Header>
-        <Card.Title className="flex items-center justify-between">
-          <span>게시물 관리자</span>
-          <Button onClick={() => openDialog(DialogType.ADD_POST)}>
-            <Plus className="mr-2 h-4 w-4" />
-            게시물 추가
-          </Button>
-        </Card.Title>
-      </Card.Header>
+    <>
+      {/* contents */}
+      <Card className="mx-auto w-full max-w-6xl">
+        <Card.Header>
+          <Card.Title className="flex items-center justify-between">
+            <span>게시물 관리자</span>
+            <Button onClick={() => openDialog(DialogType.ADD_POST)}>
+              <Plus className="mr-2 h-4 w-4" />
+              게시물 추가
+            </Button>
+          </Card.Title>
+        </Card.Header>
 
-      <Card.Content>
-        <div className="flex flex-col gap-4">
-          {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <PostSearchInput onSearch={searchPosts} />
-            <PostTagFilterSelect tags={tags} onTagChange={fetchPostsByTag} />
-            <PostSortBySelect />
-            <PostSortOrderSelect />
-          </div>
+        <Card.Content>
+          <PostsContent
+            posts={posts}
+            total={total}
+            loading={loading}
+            tags={tags}
+            searchPosts={searchPosts}
+            fetchPostsByTag={fetchPostsByTag}
+            deletePost={deletePost}
+          />
+        </Card.Content>
+      </Card>
 
-          {/* 게시물 테이블 */}
-          {loading ? (
-            <div className="flex justify-center p-4">로딩 중...</div>
-          ) : (
-            <PostTable
-              posts={posts}
-              onTagClick={(tagValue: string) => updateParam("tag", tagValue)}
-              onUserClick={handleOpenUserModal}
-              onPostDetailClick={openPostDetail}
-              onPostEditClick={(post: any) => {
-                setSelectedPost(post)
-                openDialog(DialogType.EDIT_POST)
-              }}
-              onPostDeleteClick={deletePost}
-            />
-          )}
-
-          <PostPagination total={total} />
-        </div>
-      </Card.Content>
-
+      {/* dialogs */}
       <CommentAddDialog />
       <CommentUpdateDialog />
       <PostAddDialog />
       <PostDetailDialog />
       <PostUpdateDialog />
       <UserInfoDialog />
-    </Card>
+    </>
   )
 }
