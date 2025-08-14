@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { PostsAddRequest, postsApi } from '@/entities/posts';
+import { PostsAddRequest, postsApi, PostsResponse } from '@/entities/posts';
 import { Post } from '@/entities/posts';
 import { userApi } from '@/entities/users';
 
@@ -73,8 +73,22 @@ export const usePosts = () => {
       mutationFn: async (newPost: PostsAddRequest) =>
         await postsApi.createPost(newPost),
       onSuccess: (newPost) => {
-        queryClient.invalidateQueries({ queryKey: ['posts'] });
-        queryClient.setQueryData(['posts', newPost.id], newPost);
+        // queryClient.invalidateQueries({ queryKey: ['posts'] });
+
+        const queries = queryClient.getQueriesData({ queryKey: ['posts'] });
+        queries.forEach(([queryKey, data]) => {
+          if (data && typeof data === 'object' && 'posts' in data) {
+            const currentData = data as PostsResponse;
+            const updatedData: PostsResponse = {
+              ...currentData,
+              posts: [newPost, ...currentData.posts],
+              total: currentData.total + 1,
+            };
+            queryClient.setQueryData(queryKey, updatedData);
+          }
+        });
+        // onSuccess?.();
+        // queryClient.setQueryData(['posts', newPost.id], newPost);
       },
     }),
 

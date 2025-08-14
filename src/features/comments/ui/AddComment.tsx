@@ -3,13 +3,16 @@ import { Dialog } from '@/shared/ui/dialog';
 import { Input } from '@/shared/ui/input';
 import { useCommentStore } from '../model/store';
 import { useComments } from '../model/hooks.ts';
+import { useSelectedPostStore } from '../../../features/posts/model/store';
 
 const AddComment = () => {
   const { showAddCommentDialog, setShowAddCommentDialog } = useCommentStore();
+  const { selectedPost } = useSelectedPostStore();
   const { newComment, setNewComment } = useCommentStore();
   const { createComments } = useComments();
   const handelAddComment = () => {
-    createComments.mutate(newComment);
+    setNewComment({ ...newComment, postId: selectedPost?.id as number });
+    createComments.mutateAsync(newComment);
   };
   return (
     <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>

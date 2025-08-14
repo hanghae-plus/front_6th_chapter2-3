@@ -6,6 +6,8 @@ import { Button } from '@/shared/ui/button';
 const PostTableDetailButton = ({ post }: { post: Post }) => {
   const { setShowDetailDialog } = useDialogStore();
   const { setSelectedPost } = useSelectedPostStore();
+
+  console.log('SelectedPost', post);
   return (
     <Button
       variant="ghost"
