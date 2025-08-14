@@ -10,7 +10,8 @@ type CommentAddDialogProps = {
 }
 
 export function CommentAddDialog({ addComment, newComment, setNewComment }: CommentAddDialogProps) {
-  const { currentDialog, closeDialog } = useDialogStore()
+  const currentDialog = useDialogStore((state) => state.currentDialog)
+  const { closeDialog } = useDialogStore((state) => state.actions)
   const isOpen = currentDialog === DialogType.ADD_COMMENT
 
   return (

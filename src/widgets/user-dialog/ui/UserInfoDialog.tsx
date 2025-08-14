@@ -8,7 +8,8 @@ type UserInfoDialogProps = {
 }
 
 export function UserInfoDialog({ selectedUser }: UserInfoDialogProps) {
-  const { currentDialog, closeDialog } = useDialogStore()
+  const currentDialog = useDialogStore((state) => state.currentDialog)
+  const { closeDialog } = useDialogStore((state) => state.actions)
   const isOpen = currentDialog === DialogType.USER_MODAL
 
   return (

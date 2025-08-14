@@ -9,16 +9,27 @@ export enum DialogType {
   USER_MODAL = "userModal",
 }
 
-interface DialogStore {
+interface State {
   currentDialog: DialogType | null
-  openDialog: (type: DialogType) => void
-  closeDialog: () => void
-  resetStore: () => void
 }
 
-export const useDialogStore = create<DialogStore>((set) => ({
+interface Actions {
+  actions: {
+    openDialog: (type: DialogType) => void
+    closeDialog: () => void
+    resetState: () => void
+  }
+}
+
+const initialState: State = {
   currentDialog: null,
-  openDialog: (type: DialogType) => set({ currentDialog: type }),
-  closeDialog: () => set({ currentDialog: null }),
-  resetStore: () => set({ currentDialog: null }),
+}
+
+export const useDialogStore = create<State & Actions>((set) => ({
+  ...initialState,
+  actions: {
+    openDialog: (type: DialogType) => set({ currentDialog: type }),
+    closeDialog: () => set({ currentDialog: null }),
+    resetState: () => set(initialState),
+  },
 }))

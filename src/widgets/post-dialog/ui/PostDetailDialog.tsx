@@ -25,7 +25,8 @@ export function PostDetailDialog({
 }: PostDetailDialogProps) {
   const search = usePostParamsStore((state) => state.search)
 
-  const { currentDialog, closeDialog } = useDialogStore()
+  const currentDialog = useDialogStore((state) => state.currentDialog)
+  const { closeDialog } = useDialogStore((state) => state.actions)
   const isOpen = currentDialog === DialogType.POST_DETAIL
 
   return (

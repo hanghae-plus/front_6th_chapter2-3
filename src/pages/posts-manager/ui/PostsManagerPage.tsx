@@ -17,7 +17,7 @@ import { PostTable } from "@/widgets/post-table/ui"
 import { UserInfoDialog } from "@/widgets/user-dialog/ui"
 
 export function PostsManagerPage() {
-  const { openDialog, closeDialog } = useDialogStore()
+  const { openDialog, closeDialog } = useDialogStore((state) => state.actions)
   const { actions, limit, search, skip, sortBy, sortOrder, tag } = usePostParamsStore(useShallow((state) => state))
   const { updateParam, initializeFromURL } = actions
 

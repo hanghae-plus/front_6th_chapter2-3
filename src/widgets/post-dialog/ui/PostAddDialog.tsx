@@ -10,7 +10,8 @@ type PostAddDialogProps = {
 }
 
 export function PostAddDialog({ addPost, newPost, setNewPost }: PostAddDialogProps) {
-  const { currentDialog, closeDialog } = useDialogStore()
+  const currentDialog = useDialogStore((state) => state.currentDialog)
+  const { closeDialog } = useDialogStore((state) => state.actions)
   const isOpen = currentDialog === DialogType.ADD_POST
 
   return (

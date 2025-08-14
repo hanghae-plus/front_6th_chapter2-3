@@ -21,7 +21,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
     vi.clearAllMocks()
     queryClient.clear()
     resetMockData()
-    useDialogStore.getState().resetStore()
+    useDialogStore.getState().actions.resetState()
   })
 
   describe("🎨 기본 렌더링 및 초기 로딩", () => {
