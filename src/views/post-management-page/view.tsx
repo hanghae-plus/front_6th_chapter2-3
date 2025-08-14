@@ -1,26 +1,33 @@
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
-import type { Post } from "@/entities/posts"
+import { useCommentMutations } from "@/entities/comments"
+import { type Post, usePostMutations } from "@/entities/posts"
 import type { User } from "@/entities/users"
 import { openAddPostDialog } from "@/features/add-post"
 import { openUpdatePostDialog } from "@/features/update-post/ui"
 import { openPostDetailDialog } from "@/widgets/post-detail-dialog"
-import { PostListTable, PostListTableFilter, PostListTablePagination } from "@/widgets/post-list-table"
+import { PostListTable, PostListTableFilter, PostListTablePagination, usePostListFilterQueryParams } from "@/widgets/post-list-table"
 import { openUserInfoDialog } from "@/widgets/user-info-dialog"
 
-import { usePostManagement } from "./model"
-
 import { Plus } from "lucide-react"
+import { useState } from "react"
 
 const PostManagementView = () => {
-  const { queryParamsPagination, addPost, updatePost, deleteComment, likeComment } = usePostManagement()
+  const { queryParams } = usePostListFilterQueryParams()
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+
+  const { addPost, updatePost } = usePostMutations({ queryParams })
+  const { deleteComment, likeComment } = useCommentMutations({
+    postId: selectedPostId as number,
+  })
 
   const handleOpenPostDetailDialog = (post: Post) => {
+    setSelectedPostId(post.id)
     openPostDetailDialog({
       post: post,
-      searchQuery: queryParamsPagination.searchQuery,
-
+      searchQuery: queryParams.searchQuery,
       onDeleteComment: (commentId) => deleteComment.mutate({ id: commentId }),
       onLikeComment: (commentId, likes) => likeComment.mutate({ id: commentId, likes }),
+      onCloseCallback: () => setSelectedPostId(null),
     })
   }
 
@@ -35,9 +42,11 @@ const PostManagementView = () => {
   }
 
   const handleOpenUpdatePostDialog = (post: Post) => {
+    setSelectedPostId(post.id)
     openUpdatePostDialog({
       post: post,
       onSubmit: (formValues) => updatePost.mutate({ id: post.id, title: formValues.title, body: formValues.body }),
+      onCloseCallback: () => setSelectedPostId(null),
     })
   }
 
