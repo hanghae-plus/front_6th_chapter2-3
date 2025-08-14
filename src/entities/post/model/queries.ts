@@ -1,12 +1,12 @@
 import { queryOptions } from "@tanstack/react-query"
 import { POST_QK } from "./query-key"
 import { getPosts, getPost } from "../api"
-import { PostFilter } from "./types"
+import { PostOptions } from "./types"
 
 export const postQueries = {
   keys: POST_QK,
 
-  list: (filters: PostFilter = {}) =>
+  list: (filters: PostOptions = {}) =>
     queryOptions({
       queryKey: POST_QK.list(filters),
       queryFn: () => getPosts(filters),
