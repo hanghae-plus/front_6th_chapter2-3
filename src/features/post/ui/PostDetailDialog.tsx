@@ -7,13 +7,13 @@ export const PostDetailDialog = ({
   setShowPostDetailDialog,
   selectedPost,
   searchQuery,
-  Comments,
+  bottom,
 }: {
   showPostDetailDialog: boolean;
   setShowPostDetailDialog: (show: boolean) => void;
   selectedPost: Post | null;
   searchQuery: string;
-  Comments: React.ReactNode;
+  bottom: React.ReactNode;
 }) => {
   return (
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
@@ -27,7 +27,7 @@ export const PostDetailDialog = ({
           <p>
             <HighlightText text={selectedPost?.body ?? ""} highlight={searchQuery} />
           </p>
-          {Comments}
+          {bottom}
         </div>
       </DialogContent>
     </Dialog>
