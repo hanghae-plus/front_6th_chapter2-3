@@ -23,4 +23,6 @@ export interface PostsState {
   setPosts: (posts: Posts[]) => void;
   setTotal: (total: number) => void;
   fetchPosts: (limit: number, skip: string) => Promise<void>;
+  selectedPost: Posts | null;
+  setSelectedPost: (post: Posts | null) => void;
 }

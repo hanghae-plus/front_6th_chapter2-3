@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '../shared/ui';
+import { Card, CardContent } from '../shared/ui';
 import { PostsTable } from '../widgets/postsTable/ui/PostsTable';
 import { PostsFilter } from '../widgets/postsFilter/ui/PostsFilter';
 import { PostsPagination } from '../widgets/postsPagination/ui/PostsPagination';
@@ -12,15 +11,12 @@ import { EditCommentDialog } from '../features/comment/update-comment/ui/EditCom
 import { CommentsList } from '../widgets/commentsList/ui/CommentsList';
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
-import { addPost as addPostAPI } from '../features/posts/add-post/api/api';
-import { updatePost as updatePostAPI } from '../features/posts/edit-post/api/api';
 import { deletePost as deletePostAPI } from '../features/posts/delete-post/api/api';
 import { fetchPostComments, fetchUserDetail } from '../features/posts/view-post/api/api';
 
 import { usePostsStore } from '../entities/post/model/store';
 import { useTagsStore } from '../entities/tags/model/store';
 import { useCommentStore } from '../entities/comment/model/store';
-import { NewPost, NewComment } from './PostsManagerPage/types';
 import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 import { useDialogStore } from '../shared/store/dialog';
@@ -41,6 +37,8 @@ const PostsManager = () => {
     setPosts,
     setTotal,
     fetchPosts: fetchPostsFromStore,
+    selectedPost,
+    setSelectedPost,
   } = usePostsStore();
   const { tags, selectedTag, setSelectedTag, fetchTags: fetchTagsFromStore } = useTagsStore();
   const {
@@ -58,24 +56,16 @@ const PostsManager = () => {
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
   const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
   const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [selectedPost, setSelectedPost] = useState<any | null>(null);
+  // const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  // const [newPost, setNewPost] = useState<NewPost>({ title: '', body: '', userId: 1 });
-  // const [loading, setLoading] = useState(false);
-  // const [tags, setTags] = useState<any[]>([]); // → useTagsStore로 대체
-  // const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // → useTagsStore로 대체
-  // const [comments, setComments] = useState<Record<number, any[]>>({}); // → useCommentStore로 대체
-  // const [selectedComment, setSelectedComment] = useState<any | null>(null); // → useCommentStore로 대체
-  // const [newComment, setNewComment] = useState<NewComment>({ body: '', postId: null, userId: 1 }); // → useCommentStore로 대체
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
-  const { closeDialog } = useDialogStore();
+  const { openDialog, closeDialog } = useDialogStore();
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -331,7 +321,7 @@ const PostsManager = () => {
               onPostDetail={openPostDetail}
               onEditPost={(post) => {
                 setSelectedPost(post);
-                setShowEditDialog(true);
+                openDialog(DIALOG_KEYS.EDIT_POST);
               }}
               onDeletePost={deletePost}
             />
@@ -355,11 +345,7 @@ const PostsManager = () => {
       <EditPostDialog />
 
       {/* 댓글 추가 대화상자 */}
-      <AddCommentDialog
-        newComment={newComment}
-        onCommentChange={setNewComment}
-        onSubmit={addComment}
-      />
+      <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
       <EditCommentDialog

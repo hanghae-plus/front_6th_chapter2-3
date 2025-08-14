@@ -19,4 +19,6 @@ export const usePostsStore = create<PostsState>((set) => ({
       set({ loading: false });
     }
   },
+  selectedPost: null,
+  setSelectedPost: (post) => set({ selectedPost: post }),
 }));

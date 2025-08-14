@@ -8,14 +8,11 @@ import {
   Button,
   Textarea,
 } from '../../../../shared/ui';
-import { AddCommentDialogProps } from '../model/type';
+import { useAddComment } from '../model/hooks';
 
-export const AddCommentDialog = ({
-  newComment,
-  onCommentChange,
-  onSubmit,
-}: AddCommentDialogProps) => {
+export const AddCommentDialog = () => {
   const { isDialogOpen, closeDialog } = useDialogStore();
+  const { newComment, setNewComment, addComment } = useAddComment();
   return (
     <Dialog
       open={isDialogOpen(DIALOG_KEYS.ADD_COMMENT)}
@@ -29,9 +26,9 @@ export const AddCommentDialog = ({
           <Textarea
             placeholder='댓글 내용'
             value={newComment.body}
-            onChange={(e) => onCommentChange({ ...newComment, body: e.target.value })}
+            onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
           />
-          <Button onClick={onSubmit}>댓글 추가</Button>
+          <Button onClick={addComment}>댓글 추가</Button>
         </div>
       </DialogContent>
     </Dialog>
