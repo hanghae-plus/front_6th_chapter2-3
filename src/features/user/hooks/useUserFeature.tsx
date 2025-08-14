@@ -1,24 +1,25 @@
-import { useState } from 'react';
+import { useUserStore } from '../store';
 import { User } from '../../../entities/user';
 import { fetchUser } from '../../../entities/user';
 
 export const useUserFeature = () => {
-  // User 관련 상태 (PostsManagerPage.tsx에서 그대로 복사)
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  // Zustand 스토어 사용 (기존 useState와 동일한 기능)
+  const { user, setUser, clearUser, showUserModal, setShowUserModal } = useUserStore();
 
-  // 사용자 모달 열기 (PostsManagerPage.tsx에서 그대로 복사)
+  // 기존 함수들 (변경 없음)
   const openUserModal = async (user: User) => {
-    await fetchUser(user.id, setSelectedUser, setShowUserModal);
+    await fetchUser(user.id, setUser, setShowUserModal);
   };
 
+  // 기존 반환값과 동일 (변경 없음)
   return {
     // 상태
     showUserModal,
-    selectedUser,
+    user,
     // 상태 설정자
     setShowUserModal,
-    setSelectedUser,
+    setUser,
+    clearUser,
     // 함수들
     openUserModal,
   };

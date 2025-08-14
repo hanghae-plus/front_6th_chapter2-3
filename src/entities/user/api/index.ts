@@ -4,13 +4,13 @@ import { User } from '../types';
 // 사용자 정보 가져오기
 export const fetchUser = async (
   userId: number,
-  setSelectedUser: (user: User) => void,
+  setUser: (user: User) => void,
   setShowUserModal: (show: boolean) => void,
 ) => {
   try {
     const response = await fetch(`/api/users/${userId}`);
     const userData = await response.json();
-    setSelectedUser(userData);
+    setUser(userData);
     setShowUserModal(true);
   } catch (error) {
     console.error('사용자 정보 가져오기 오류:', error);
