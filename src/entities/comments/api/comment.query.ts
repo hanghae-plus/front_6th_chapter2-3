@@ -1,13 +1,13 @@
+import { createEntityQueries } from "@/shared/lib"
+
 import { getCommentsByPostId } from "./comment.api"
 
-import { queryOptions } from "@tanstack/react-query"
+const factory = createEntityQueries("comments")
+
+const getCommentsByPostIdQuery = factory.build<number, Awaited<ReturnType<typeof getCommentsByPostId>>>("getCommentsByPostId", (postId) => getCommentsByPostId({ postId }))
 
 export const commentEntityQueries = {
-  all: ["comments"] as const,
-  getCommentsByPostIdKey: (postId: number) => [...commentEntityQueries.all, "getCommentsByPostId", postId] as const,
-  getCommentsByPostId: (postId: number) =>
-    queryOptions({
-      queryKey: commentEntityQueries.getCommentsByPostIdKey(postId),
-      queryFn: () => getCommentsByPostId({ postId }),
-    }),
+  all: factory.all,
+  getCommentsByPostIdKey: getCommentsByPostIdQuery.getKey,
+  getCommentsByPostId: getCommentsByPostIdQuery.getOptions,
 }

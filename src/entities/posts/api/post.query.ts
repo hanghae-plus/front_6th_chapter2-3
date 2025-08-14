@@ -1,31 +1,19 @@
-import type { getPostsRequestParamsSchema } from "../model"
+import { createEntityQueries } from "@/shared/lib"
+
 import { getPosts, getPostsBySlug, getPostTags } from "./post.api"
 
-import { queryOptions } from "@tanstack/react-query"
-import type z from "zod"
+const factory = createEntityQueries("post")
+
+const getPostsQuery = factory.build("getPosts", getPosts)
+const getPostsBySlugQuery = factory.build("getPostsBySlug", getPostsBySlug)
+const getPostTagsQuery = factory.buildParamless<Awaited<ReturnType<typeof getPostTags>>>("getPostTags", getPostTags)
 
 export const postEntityQueries = {
-  all: ["post"] as const,
-
-  getPostsKey: (requestParams: z.infer<typeof getPostsRequestParamsSchema>) =>
-    [...postEntityQueries.all, "getPosts", requestParams] as const,
-  getPosts: (requestParams: z.infer<typeof getPostsRequestParamsSchema>) =>
-    queryOptions({
-      queryKey: postEntityQueries.getPostsKey(requestParams),
-      queryFn: () => getPosts(requestParams),
-    }),
-
-  getPostsBySlugKey: (slug: string) => [...postEntityQueries.all, "getPostsBySlug", slug] as const,
-  getPostsBySlug: (slug: string) =>
-    queryOptions({
-      queryKey: postEntityQueries.getPostsBySlugKey(slug),
-      queryFn: () => getPostsBySlug(slug),
-    }),
-
-  getPostTagsKey: () => [...postEntityQueries.all, "getPostTags"] as const,
-  getPostTags: () =>
-    queryOptions({
-      queryKey: postEntityQueries.getPostTagsKey(),
-      queryFn: () => getPostTags(),
-    }),
+  all: factory.all,
+  getPostsKey: getPostsQuery.getKey,
+  getPosts: getPostsQuery.getOptions,
+  getPostsBySlugKey: getPostsBySlugQuery.getKey,
+  getPostsBySlug: getPostsBySlugQuery.getOptions,
+  getPostTagsKey: getPostTagsQuery.getKey,
+  getPostTags: getPostTagsQuery.getOptions,
 }

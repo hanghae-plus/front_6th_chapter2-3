@@ -1,23 +1,22 @@
+import { createEntityQueries } from "@/shared/lib"
+
 import type { getUsersRequestParamsSchema } from "../model"
 import { getUser, getUsers } from "./user.api"
 
-import { queryOptions } from "@tanstack/react-query"
 import type z from "zod"
 
-export const userEntityQueries = {
-  all: ["users"] as const,
-  getUsersKey: (requestParams: z.infer<typeof getUsersRequestParamsSchema>) =>
-    [...userEntityQueries.all, "getUsers", requestParams] as const,
-  getUsers: (requestParams: z.infer<typeof getUsersRequestParamsSchema>) =>
-    queryOptions({
-      queryKey: userEntityQueries.getUsersKey(requestParams),
-      queryFn: () => getUsers(requestParams),
-    }),
+const factory = createEntityQueries("users")
 
-  getUserKey: (userId: number) => [...userEntityQueries.all, "getUser", userId] as const,
-  getUser: (userId: number) =>
-    queryOptions({
-      queryKey: userEntityQueries.getUserKey(userId),
-      queryFn: () => getUser(userId),
-    }),
+const getUsersQ = factory.build<z.infer<typeof getUsersRequestParamsSchema>, Awaited<ReturnType<typeof getUsers>>>(
+  "getUsers",
+  getUsers,
+)
+const getUserQ = factory.build<number, Awaited<ReturnType<typeof getUser>>>("getUser", getUser)
+
+export const userEntityQueries = {
+  all: factory.all,
+  getUsersKey: getUsersQ.getKey,
+  getUsers: getUsersQ.getOptions,
+  getUserKey: getUserQ.getKey,
+  getUser: getUserQ.getOptions,
 }
