@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
@@ -426,56 +426,35 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostForm
+        open={showAddDialog}
+        isNewPost={true}
+        onChangeOpen={showAddDialog}
+        formTitle="새 게시물 추가"
+        useIdValue={newPost.userId}
+        titleValue={newPost.title}
+        contentValue={newPost.body}
+        onChangeTitle={(value) => setNewPost({ ...newPost, title: value })}
+        onChangeContent={(value) => setNewPost({ ...newPost, body: value })}
+        onChangeUserId={(value) => setNewPost({ ...newPost, userId: value })}
+        submitActionLabel="게시물 추가"
+        onSubmit={() => addPost()}
+      />
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostForm
+        open={showEditDialog}
+        isNewPost={false}
+        onChangeOpen={setShowEditDialog}
+        formTitle="게시물 수정"
+        useIdValue={newPost.userId}
+        titleValue={selectedPost?.title || ""}
+        contentValue={selectedPost?.body || ""}
+        onChangeTitle={(value) => selectedPost && setSelectedPost({ ...selectedPost, title: value })}
+        onChangeContent={(value) => selectedPost && setSelectedPost({ ...selectedPost, body: value })}
+        submitActionLabel="게시물 업데이트"
+        onSubmit={() => updatePost()}
+      />
 
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
