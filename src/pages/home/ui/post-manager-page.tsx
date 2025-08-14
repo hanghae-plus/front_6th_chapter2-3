@@ -3,15 +3,7 @@ import { Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useInitialQueryParams } from '../model/useInitialQueryParams';
 import { updateUrl } from '../lib/updateUrl';
-import {
-  Button,
-  Card,
-  Textarea,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/ui';
+import { Button, Card } from '@/shared/ui';
 import { PostTable } from '@/features/(post)/list-posts';
 import { usePosts } from '@/features/(post)/list-posts';
 import { TagFilterSelect } from '@/features/(post)/filter-by-tag';
@@ -19,12 +11,15 @@ import { useTagFilter } from '@/features/(post)/filter-by-tag';
 import { SearchInput } from '@/features/(post)/search-posts';
 import { usePostSearch } from '@/features/(post)/search-posts';
 import { PaginationControls } from '@/features/(post)/paginate-posts';
+import { usePagination } from '@/features/(post)/paginate-posts';
 import { SortSelect } from '@/features/(post)/sort-posts';
 import { usePostSort } from '@/features/(post)/sort-posts';
 import { PostDetailDialog } from '@/features/(post)/view-post-detail';
 import { AddPostDialog } from '@/features/(post)/add-post';
 import { EditPostDialog } from '@/features/(post)/edit-post';
 import { CommentList } from '@/features/(comment)/list-comments';
+import { AddCommentDialog } from '@/features/(comment)/add-comment';
+import { EditCommentDialog } from '@/features/(comment)/edit-comment';
 import { useComments } from '@/features/(comment)/list-comments';
 import { UserModal } from '@/features/(user)/view-user-modal';
 import { useUserModal } from '@/features/(user)/view-user-modal';
@@ -40,8 +35,10 @@ export function PostsManagerPage() {
   const initial = useInitialQueryParams();
 
   // 상태 관리
-  const [skip, setSkip] = useState(initial.skip);
-  const [limit, setLimit] = useState(initial.limit);
+  const { limit, skip, next, prev, setPageSize, setSkip } = usePagination(
+    initial.limit,
+    initial.skip,
+  );
   const { searchQuery, setQuery } = usePostSearch(initial.searchQuery);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const {
@@ -57,13 +54,8 @@ export function PostsManagerPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
-  const [comments, setComments] = useState<Record<number, Comment[]>>({});
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  const [newComment, setNewComment] = useState<{
-    body: string;
-    postId: number | null;
-    userId: number;
-  }>({ body: '', postId: null, userId: 1 });
+  // 댓글 입력 상태는 feature dialog 내부에서 관리
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
@@ -108,40 +100,11 @@ export function PostsManagerPage() {
     }
   };
 
-  // 댓글 가져오기
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`);
-      const data = await response.json();
-      setComments((prev) => ({ ...prev, [postId]: data.comments }));
-    } catch (error) {
-      console.error('댓글 가져오기 오류:', error);
-    }
-  };
+  // 댓글 데이터는 useComments 훅에서 관리
 
   // 댓글 기능 훅 사용
   const commentsFeature = useComments(selectedPost?.id ?? null);
-  const addComment = async () => {
-    try {
-      await commentsFeature.add(newComment as any);
-      setShowAddCommentDialog(false);
-      setNewComment({ body: '', postId: null, userId: 1 });
-    } catch (error) {
-      console.error('댓글 추가 오류:', error);
-    }
-  };
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      if (!selectedComment) return;
-      await commentsFeature.update(selectedComment.id, { body: selectedComment.body } as any);
-      setShowEditCommentDialog(false);
-    } catch (error) {
-      console.error('댓글 업데이트 오류:', error);
-    }
-  };
+  // 댓글 추가/수정은 feature dialog에서 처리
 
   // 댓글 삭제
   const deleteComment = async (id: number) => {
@@ -164,7 +127,6 @@ export function PostsManagerPage() {
   // 게시물 상세 보기
   const openPostDetail = (post: Post) => {
     setSelectedPost(post);
-    fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
@@ -185,7 +147,7 @@ export function PostsManagerPage() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSkip(parseInt(params.get('skip') || String(initial.skip)));
-    setLimit(parseInt(params.get('limit') || String(initial.limit)));
+    setPageSize(parseInt(params.get('limit') || String(initial.limit)));
     setQuery(params.get('search') || initial.searchQuery);
     setSortBy((params.get('sortBy') as any) || initial.sortBy);
     setSortOrder((params.get('sortOrder') as any) || initial.sortOrder);
@@ -202,6 +164,8 @@ export function PostsManagerPage() {
     initial.sortBy,
     initial.sortOrder,
     initial.selectedTag,
+    setPageSize,
+    setSkip,
   ]);
 
   // (제거됨) 페이지 내부 하이라이트는 feature UI 컴포넌트에서 처리
@@ -235,7 +199,6 @@ export function PostsManagerPage() {
         <Button
           size='sm'
           onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId: selectedPost?.id ?? null }));
             setShowAddCommentDialog(true);
           }}
         >
@@ -297,49 +260,26 @@ export function PostsManagerPage() {
             limit={limit}
             skip={skip}
             total={total}
-            onPrev={() => setSkip(Math.max(0, skip - limit))}
-            onNext={() => setSkip(skip + limit)}
-            onChangeLimit={(v) => setLimit(v)}
+            onPrev={prev}
+            onNext={next}
+            onChangeLimit={(v) => setPageSize(v)}
           />
         </div>
       </Card.Content>
 
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddCommentDialog
+        open={showAddCommentDialog}
+        onOpenChange={setShowAddCommentDialog}
+        postId={selectedPost?.id ?? null}
+        onSuccess={() => void commentsFeature.refetch()}
+      />
 
-      {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={selectedComment?.body || ''}
-              onChange={(e) => {
-                if (!selectedComment) return;
-                setSelectedComment({ ...selectedComment, body: e.target.value });
-              }}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCommentDialog
+        open={showEditCommentDialog}
+        onOpenChange={setShowEditCommentDialog}
+        comment={selectedComment}
+        onSuccess={() => void commentsFeature.refetch()}
+      />
 
       {/* 게시물 상세 보기 대화상자 (Feature UI) */}
       <PostDetailDialog
