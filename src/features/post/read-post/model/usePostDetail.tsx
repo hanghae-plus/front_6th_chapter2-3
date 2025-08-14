@@ -26,8 +26,6 @@ export const usePostDetail = (id: number | null) => {
       }
     },
     enabled: !!id, // id가 있을 때만 쿼리 실행
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
   })
 
   return { data, isLoading, error }

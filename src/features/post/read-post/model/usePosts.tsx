@@ -47,8 +47,6 @@ export function usePosts() {
 
       return { posts, total: postsResponse.total }
     },
-    staleTime: 30_000,
-    gcTime: 10 * 60 * 1000,
   })
 
   return { posts: data?.posts, total: data?.total, isLoading, error }

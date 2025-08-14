@@ -7,7 +7,5 @@ export const useUserProfile = (id: number, enabled: boolean = true) => {
     queryKey: USER_QUERY_KEYS.detail(id),
     queryFn: () => getUserById(id),
     enabled: enabled && !!id,
-    staleTime: 15 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
   })
 }
