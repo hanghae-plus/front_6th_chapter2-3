@@ -60,6 +60,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.33.0)
+      eslint-plugin-fsd-lint:
+        specifier: ^1.0.9
+        version: 1.0.9(eslint@9.33.0)
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
         version: 5.2.0(eslint@9.33.0)
@@ -1401,6 +1404,11 @@ packages:
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
+
+  eslint-plugin-fsd-lint@1.0.9:
+    resolution: {integrity: sha512-D5Rh40tX9oqD63uD4RfYK6ZfbsMOGEstTC/nbRWmE5S4AK+WB2dibISyw9LQ5BIoP77yew/SmJ7fZ1iIH5IneA==}
+    peerDependencies:
+      eslint: '>=9.0.0'
 
   eslint-plugin-react-hooks@5.2.0:
     resolution: {integrity: sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg==}
@@ -3629,6 +3637,10 @@ snapshots:
   escape-string-regexp@4.0.0: {}
 
   eslint-config-prettier@10.1.8(eslint@9.33.0):
+    dependencies:
+      eslint: 9.33.0
+
+  eslint-plugin-fsd-lint@1.0.9(eslint@9.33.0):
     dependencies:
       eslint: 9.33.0
 
