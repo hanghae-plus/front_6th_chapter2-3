@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { CommentList } from "@/entities/comment/ui"
+import { PostHighlightText } from "@/entities/post/ui"
 import { Dialog } from "@/shared/ui"
 
 type PostDetailDialogProps = {
   showPostDetailDialog: any
   setShowPostDetailDialog: any
-  highlightText: any
   selectedPost: any
   searchQuery: any
   comments: any
@@ -17,7 +17,6 @@ type PostDetailDialogProps = {
 }
 
 export function PostDetailDialog({
-  highlightText,
   searchQuery,
   selectedPost,
   setShowPostDetailDialog,
@@ -32,15 +31,18 @@ export function PostDetailDialog({
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
       <Dialog.Content className="max-w-3xl">
         <Dialog.Header>
-          <Dialog.Title>{highlightText(selectedPost?.title, searchQuery)}</Dialog.Title>
+          <Dialog.Title>
+            <PostHighlightText text={selectedPost?.title || ""} highlight={searchQuery} />
+          </Dialog.Title>
         </Dialog.Header>
         <div className="space-y-4">
-          <p>{highlightText(selectedPost?.body, searchQuery)}</p>
+          <p>
+            <PostHighlightText text={selectedPost?.body || ""} highlight={searchQuery} />
+          </p>
           <CommentList
             postId={selectedPost?.id}
             comments={comments}
             searchQuery={searchQuery}
-            highlightText={highlightText}
             onAddComment={onAddComment}
             onEditComment={onEditComment}
             onDeleteComment={onDeleteComment}

@@ -315,21 +315,6 @@ export function PostsManagerPage() {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
-
   return (
     <Card className="mx-auto w-full max-w-6xl">
       <Card.Header>
@@ -368,7 +353,6 @@ export function PostsManagerPage() {
               posts={posts}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
-              highlightText={highlightText}
               onTagClick={(tag: string) => setSelectedTag(tag)}
               onUserClick={openUserModal}
               onPostDetailClick={openPostDetail}
@@ -414,7 +398,6 @@ export function PostsManagerPage() {
 
       {/* 게시물 상세 보기 다이얼로그 */}
       <PostDetailDialog
-        highlightText={highlightText}
         searchQuery={searchQuery}
         selectedPost={selectedPost}
         setShowPostDetailDialog={setShowPostDetailDialog}

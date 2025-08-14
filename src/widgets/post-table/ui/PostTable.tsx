@@ -2,14 +2,14 @@
 
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 
+import { PostHighlightText } from "@/entities/post/ui"
 import { Button } from "@/shared/ui/Button"
 import { Table } from "@/shared/ui/Table"
 
-interface PostTableProps {
+type PostTableProps = {
   posts: any[]
   searchQuery: string
   selectedTag: string
-  highlightText: (text: string, query: string) => any
   onTagClick: (tag: string) => void
   onUserClick: (author: any) => void
   onPostDetailClick: (post: any) => void
@@ -22,7 +22,6 @@ export function PostTable({
   posts,
   searchQuery,
   selectedTag,
-  highlightText,
   onTagClick,
   onUserClick,
   onPostDetailClick,
@@ -48,7 +47,7 @@ export function PostTable({
             <Table.Cell>{post.id}</Table.Cell>
             <Table.Cell>
               <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
+                <PostHighlightText text={post.title} highlight={searchQuery} />
                 <div className="flex flex-wrap gap-1">
                   {post.tags?.map((tag: any) => (
                     <span

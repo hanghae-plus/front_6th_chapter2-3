@@ -2,13 +2,13 @@
 
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 
+import { PostHighlightText } from "@/entities/post/ui"
 import { Button } from "@/shared/ui/Button"
 
-interface CommentListProps {
+type CommentListProps = {
   postId: any
   comments: any
   searchQuery: string
-  highlightText: (text: string, query: string) => any
   onAddComment: (postId: any) => void
   onEditComment: (comment: any) => void
   onDeleteComment: (commentId: any, postId: any) => void
@@ -19,7 +19,6 @@ export function CommentList({
   postId,
   comments,
   searchQuery,
-  highlightText,
   onAddComment,
   onEditComment,
   onDeleteComment,
@@ -39,7 +38,9 @@ export function CommentList({
           <div key={comment.id} className="flex items-center justify-between border-b pb-1 text-sm">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="truncate font-medium">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+              <span className="truncate">
+                <PostHighlightText text={comment.body} highlight={searchQuery} />
+              </span>
             </div>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="sm" onClick={() => onLikeComment(comment.id, postId)}>
