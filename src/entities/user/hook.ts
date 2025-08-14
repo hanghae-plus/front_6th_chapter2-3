@@ -15,5 +15,6 @@ export const useUsersQuery = (limit: number, select: string) => {
   return useQuery({
     queryKey: [USER_QUERY_KEY.LIST, limit, select],
     queryFn: () => fetchUsers(limit, select),
+    staleTime: Infinity, // 캐시 값을 유지하기 위해 staleTime을 Infinity로 설정합니다.
   })
 }

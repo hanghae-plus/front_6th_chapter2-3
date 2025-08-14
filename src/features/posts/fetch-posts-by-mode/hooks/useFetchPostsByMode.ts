@@ -34,6 +34,7 @@ export const useFetchPostsByMode = () => {
     queryKey: ["postsView", ...Object.values(state)],
     queryFn: async () => await fetchPostsByUrl(queryUrl),
     placeholderData: (prev) => prev,
+    staleTime: Infinity, // 캐시 값을 유지하기 위해 staleTime을 Infinity로 설정합니다.
   })
 
   // 포스트와 유저 정보를 합친다.
