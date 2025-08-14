@@ -1,4 +1,4 @@
-import { http } from "../../../shared/lib/httpClient"
+import { http } from "@shared/lib"
 import type { User } from "../model"
 
 export interface UsersResponse {

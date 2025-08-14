@@ -1,8 +1,8 @@
+import type { QueryKey } from "@tanstack/react-query"
 import { postApi } from "./api"
 import { postQueries } from "./queries"
-import { queryClient } from "../../../shared/config/query-client"
+import { queryClient } from "@shared/config/query-client"
 import type { CreatePostRequest, UpdatePostRequest, PostsResponse } from "./api"
-import type { QueryKey } from "@tanstack/react-query"
 
 export const postMutations = {
   addMutation: () => ({

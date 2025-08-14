@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "../../../../shared/ui"
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 
 interface EditCommentDialogProps {
   isOpen: boolean
@@ -10,10 +10,6 @@ interface EditCommentDialogProps {
 
 export const EditCommentDialog = ({ isOpen, onClose, initialBody, onConfirm }: EditCommentDialogProps) => {
   const [body, setBody] = useState(initialBody)
-
-  useEffect(() => {
-    setBody(initialBody)
-  }, [initialBody])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -1,5 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
-import { UserDetail } from "../../../../entities/user/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
+import { UserDetail } from "@entities/user/ui"
 
 interface UserProfileDialogProps {
   isOpen: boolean

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { commentMutations } from "../../../../entities/comment/api/mutations"
+import { commentMutations } from "@entities/comment/api/mutations"
 
 export const useLikeComment = () => {
   const likeMutation = useMutation({ ...commentMutations.likeMutation() })

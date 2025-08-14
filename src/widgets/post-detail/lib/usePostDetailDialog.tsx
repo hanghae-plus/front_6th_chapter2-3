@@ -1,5 +1,5 @@
-import { useOverlay } from "../../../shared/lib/useOverlay"
-import type { Post } from "../../../entities/post/model"
+import { useOverlay } from "@shared/lib"
+import type { Post } from "@entities/post/model"
 import { PostDetailDialog } from "../ui/PostDetailDialog"
 
 export const usePostDetailDialog = () => {

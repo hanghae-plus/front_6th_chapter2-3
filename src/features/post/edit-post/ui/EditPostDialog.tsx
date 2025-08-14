@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../../../../shared/ui"
-import type { Post } from "../../../../entities/post/model"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "@shared/ui"
+import type { Post } from "@entities/post/model"
 
 interface EditPostDialogProps {
   isOpen: boolean

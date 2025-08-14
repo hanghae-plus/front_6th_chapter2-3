@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "../../../../shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 
 interface AddCommentDialogProps {
   isOpen: boolean

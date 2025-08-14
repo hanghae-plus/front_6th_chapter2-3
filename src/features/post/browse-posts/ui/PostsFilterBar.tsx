@@ -1,9 +1,9 @@
 import { Search } from "lucide-react"
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../shared/ui"
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui"
 import type { PostsBrowseParams } from ".."
-import type { Tag } from "../../../../entities/post/model"
+import type { Tag } from "@entities/post/model"
 import type { ChangeEvent } from "react"
-import { SortOrder } from "../../../../shared/types/sort"
+import { SortOrder } from "@shared/types/sort"
 
 interface PostsFilterBarProps {
   tags?: Tag[]

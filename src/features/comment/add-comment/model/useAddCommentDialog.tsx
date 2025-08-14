@@ -1,4 +1,4 @@
-import { useOverlay } from "../../../../shared/lib/useOverlay"
+import { useOverlay } from "@shared/lib/useOverlay"
 import { AddCommentDialog } from "../ui/AddCommentDialog"
 
 export const useAddCommentDialog = () => {
@@ -6,7 +6,7 @@ export const useAddCommentDialog = () => {
 
   const openAdd = (): Promise<string | undefined> =>
     open<string>(({ isOpen, close }) => (
-      <AddCommentDialog isOpen={isOpen} onClose={() => close(undefined)} onConfirm={(body) => close(body)} />
+      <AddCommentDialog isOpen={isOpen} onClose={close} onConfirm={(body) => close(body)} />
     ))
 
   return { openAdd, overlay }

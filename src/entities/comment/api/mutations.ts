@@ -1,7 +1,7 @@
+import { mutationOptions } from "@tanstack/react-query"
 import { AddCommentRequest, commentApi } from "./api"
 import { commentQueries } from "./queries"
-import { mutationOptions } from "@tanstack/react-query"
-import { queryClient } from "../../../shared/config/query-client"
+import { queryClient } from "@shared/config/query-client"
 import type { CommentItem } from "../model"
 
 export const commentMutations = {

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
-import { commentMutations } from "../../../../entities/comment/api/mutations"
-import type { CommentItem } from "../../../../entities/comment/model"
+import { commentMutations } from "@entities/comment/api/mutations"
+import type { CommentItem } from "@entities/comment/model"
 import { useEditCommentDialog } from "./useEditCommentDialog"
 
 export const useEditComment = () => {

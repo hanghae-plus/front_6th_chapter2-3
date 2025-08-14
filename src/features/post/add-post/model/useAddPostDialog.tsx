@@ -1,6 +1,6 @@
-import { useOverlay } from "../../../../shared/lib/useOverlay"
+import { useOverlay } from "@shared/lib/useOverlay"
 import { AddPostDialog } from "../ui/AddPostDialog"
-import type { CreatePostRequest } from "../../../../entities/post/api/api"
+import type { CreatePostRequest } from "@entities/post/api/api"
 
 export const useAddPostDialog = () => {
   const { open, overlay } = useOverlay()

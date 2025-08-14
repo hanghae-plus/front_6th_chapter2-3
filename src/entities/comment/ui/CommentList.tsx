@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react"
-import { Button } from "../../../shared/ui"
+import { Button } from "@shared/ui"
 import { CommentItem as CommentType } from "../model"
 import { CommentItem } from "./CommentItem"
 

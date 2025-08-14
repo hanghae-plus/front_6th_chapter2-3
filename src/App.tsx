@@ -1,7 +1,7 @@
-import { AppProviders } from "./app/providers"
-import Footer from "./app/layouts/Footer"
-import Header from "./app/layouts/Header"
-import PostsManagerPage from "./pages/posts-manager/ui/PostsManagerPage"
+import { AppProviders } from "@app/providers"
+import Footer from "@app/layouts/Footer"
+import Header from "@/app/layouts/Header"
+import PostsManagerPage from "@pages/posts-manager/ui/PostsManagerPage"
 
 const App = () => {
   return (

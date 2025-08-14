@@ -11,19 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
   PaginationBar,
-} from "../../../shared/ui"
-import { usePostsBrowseParams, PostsFilterBar } from "../../../features/post/browse-posts"
+} from "@shared/ui"
+import { usePostsBrowseParams, PostsFilterBar } from "@features/post/browse-posts"
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
-import { postQueries } from "../../../entities/post/api/queries"
-import { userQueries } from "../../../entities/user/api/queries"
-import { postMutations } from "../../../entities/post/api/mutations"
-import { Post } from "../../../entities/post/model"
-import { User } from "../../../entities/user/model"
-import { useUserProfileDialog } from "../../../features/user/view-profile/lib/useUserProfileDialog"
-import { PostsTable } from "../../../widgets/posts-table/ui"
-import { useAddPost } from "../../../features/post/add-post"
-import { useEditPost } from "../../../features/post/edit-post"
-import { usePostDetailDialog } from "../../../widgets/post-detail"
+import { postQueries } from "@entities/post/api/queries"
+import { userQueries } from "@entities/user/api/queries"
+import { postMutations } from "@entities/post/api/mutations"
+import { Post } from "@entities/post/model"
+import { User } from "@entities/user/model"
+import { useUserProfileDialog } from "@features/user/view-profile/lib/useUserProfileDialog"
+import { PostsTable } from "@widgets/posts-table/ui"
+import { useAddPost } from "@features/post/add-post"
+import { useEditPost } from "@features/post/edit-post"
+import { usePostDetailDialog } from "@widgets/post-detail"
 
 const PostsManager = () => {
   const { params, setParams, stepPrev, stepNext } = usePostsBrowseParams()

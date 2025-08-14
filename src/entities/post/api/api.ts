@@ -1,6 +1,6 @@
-import { http } from "../../../shared/lib/httpClient"
+import { http } from "@shared/lib"
 import type { Tag, Post } from "../model"
-import type { PaginationParams } from "../../../shared/types/pagination"
+import type { PaginationParams } from "@shared/types/pagination"
 
 export type CreatePostRequest = Pick<Post, "title" | "body" | "userId">
 export type UpdatePostRequest = Partial<Post>

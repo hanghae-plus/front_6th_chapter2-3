@@ -1,4 +1,4 @@
-import { useOverlay } from "../../../../shared/lib/useOverlay"
+import { useOverlay } from "@shared/lib"
 import { UserProfileDialog } from "../ui/UserProfileDialog"
 
 export const useUserProfileDialog = () => {
