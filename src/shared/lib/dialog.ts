@@ -17,7 +17,7 @@ interface Actions {
   actions: {
     openDialog: (type: DialogType) => void
     closeDialog: () => void
-    resetState: () => void
+    resetState: (keys?: Array<keyof State>) => void
   }
 }
 
@@ -30,6 +30,14 @@ export const useDialogStore = create<State & Actions>((set) => ({
   actions: {
     openDialog: (type: DialogType) => set({ currentDialog: type }),
     closeDialog: () => set({ currentDialog: null }),
-    resetState: () => set(initialState),
+    resetState: (keys) => {
+      if (!keys) {
+        set(initialState)
+        return
+      }
+      keys.forEach((key) => {
+        set({ [key]: initialState[key] })
+      })
+    },
   },
 }))

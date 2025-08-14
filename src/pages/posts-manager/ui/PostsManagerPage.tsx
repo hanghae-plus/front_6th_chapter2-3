@@ -6,8 +6,9 @@ import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
 import type { User } from "@/entities/user/model"
-import { usePostParamsStore } from "@/features/get-post/model"
+import { usePostDialogStore, usePostParamsStore } from "@/features/get-post/model"
 import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
+import { useUserDialogStore } from "@/features/get-user/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
@@ -18,16 +19,12 @@ import { PostTable } from "@/widgets/post-table/ui"
 import { UserInfoDialog } from "@/widgets/user-dialog/ui"
 
 export function PostsManagerPage() {
-  const { openDialog, closeDialog } = useDialogStore((state) => state.actions)
+  const { openDialog } = useDialogStore((state) => state.actions)
   const { actions, limit, search, skip, sortBy, sortOrder, tag } = usePostParamsStore(useShallow((state) => state))
   const { updateParam, initializeFromURL } = actions
 
-  // Dialog 관련 상태
-  const [selectedPost, setSelectedPost] = useState<any>(null)
-  const [selectedComment, setSelectedComment] = useState<any>(null)
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
-  const [newPost, setNewPost] = useState<any>({ title: "", body: "", userId: 1 })
-  const [addCommentPostId, setAddCommentPostId] = useState<number | null>(null)
+  const { setSelectedPost } = usePostDialogStore((state) => state.actions)
+  const { setSelectedUserId } = useUserDialogStore((state) => state.actions)
 
   // 데이터 상태
   const [posts, setPosts] = useState<any[]>([])
@@ -122,39 +119,6 @@ export function PostsManagerPage() {
     setLoading(false)
   }
 
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts])
-      closeDialog()
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
-  }
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      setPosts(posts.map((post: any) => (post.id === data.id ? data : post)))
-      closeDialog()
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
-  }
-
   // 게시물 삭제
   const deletePost = async (id: any) => {
     try {
@@ -164,48 +128,6 @@ export function PostsManagerPage() {
       setPosts(posts.filter((post: any) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
-    }
-  }
-
-  // TODO: 댓글 업데이트는 React Query로 마이그레이션 필요
-  const updateComment = async () => {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      await response.json()
-      // React Query가 자동으로 캐시를 무효화함
-      openDialog(DialogType.POST_DETAIL)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
-    }
-  }
-
-  // TODO: 댓글 삭제는 React Query로 마이그레이션 필요
-  const deleteComment = async (id: any) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      // React Query가 자동으로 캐시를 무효화함
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // TODO: 댓글 좋아요는 React Query로 마이그레이션 필요
-  const likeComment = async (id: any) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: 1 }), // 간소화된 버전
-      })
-      // React Query가 자동으로 캐시를 무효화함
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
     }
   }
 
@@ -224,6 +146,17 @@ export function PostsManagerPage() {
   useEffect(() => {
     initializeFromURL()
     fetchTags()
+
+    // 게시물 새로고침 이벤트 리스너 등록
+    const handleRefreshPosts = () => {
+      fetchPosts()
+    }
+
+    window.addEventListener("refreshPosts", handleRefreshPosts)
+
+    return () => {
+      window.removeEventListener("refreshPosts", handleRefreshPosts)
+    }
   }, [])
 
   useEffect(() => {
@@ -277,39 +210,12 @@ export function PostsManagerPage() {
         </div>
       </Card.Content>
 
-      {/* 댓글 추가 다이얼로그 */}
-      <CommentAddDialog postId={addCommentPostId} />
-
-      {/* 댓글 수정 다이얼로그 */}
-      <CommentUpdateDialog
-        selectedComment={selectedComment}
-        setSelectedComment={setSelectedComment}
-        updateComment={updateComment}
-      />
-
-      {/* 게시물 추가 다이얼로그 */}
-      <PostAddDialog addPost={addPost} newPost={newPost} setNewPost={setNewPost} />
-
-      {/* 게시물 상세 보기 다이얼로그 */}
-      <PostDetailDialog
-        selectedPost={selectedPost}
-        onAddComment={(postId: any) => {
-          setAddCommentPostId(postId)
-          openDialog(DialogType.ADD_COMMENT)
-        }}
-        onEditComment={(comment: any) => {
-          setSelectedComment(comment)
-          openDialog(DialogType.EDIT_COMMENT)
-        }}
-        onDeleteComment={deleteComment}
-        onLikeComment={likeComment}
-      />
-
-      {/* 게시물 수정 다이얼로그 */}
-      <PostUpdateDialog selectedPost={selectedPost} setSelectedPost={setSelectedPost} updatePost={updatePost} />
-
-      {/* 사용자 정보 보기 다이얼로그 */}
-      {selectedUserId && <UserInfoDialog userId={selectedUserId} />}
+      <CommentAddDialog />
+      <CommentUpdateDialog />
+      <PostAddDialog />
+      <PostDetailDialog />
+      <PostUpdateDialog />
+      <UserInfoDialog />
     </Card>
   )
 }

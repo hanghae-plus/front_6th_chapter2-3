@@ -1,18 +1,20 @@
 import { UserProfile } from "@/entities/user/ui"
 import { useUserQuery } from "@/features/get-user/api"
+import { useUserDialogStore } from "@/features/get-user/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Dialog } from "@/shared/ui"
 
-type UserInfoDialogProps = {
-  userId: number
-}
-
-export function UserInfoDialog({ userId }: UserInfoDialogProps) {
+export function UserInfoDialog() {
   const currentDialog = useDialogStore((state) => state.currentDialog)
   const { closeDialog } = useDialogStore((state) => state.actions)
-  const isOpen = currentDialog === DialogType.USER_MODAL
+  const { selectedUserId } = useUserDialogStore((state) => state)
 
-  const { data: user, isLoading } = useUserQuery({ id: userId })
+  const isOpen = currentDialog === DialogType.USER_MODAL
+  const { data: user, isLoading } = useUserQuery({ id: selectedUserId || 0 })
+
+  if (!selectedUserId) {
+    return null
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={closeDialog}>

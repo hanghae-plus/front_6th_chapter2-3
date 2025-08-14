@@ -1,33 +1,64 @@
+import { useState } from "react"
+
 import type { Comment } from "@/entities/comment/model"
 import { CommentList } from "@/entities/comment/ui"
-import type { Post } from "@/entities/post/model"
 import { PostHighlightText } from "@/entities/post/ui"
+import { useCommentDialogStore } from "@/features/get-comments/model"
+import { usePostDialogStore } from "@/features/get-post/model"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Dialog } from "@/shared/ui"
 
-type PostDetailDialogProps = {
-  selectedPost: Post
-  onAddComment: (postId: number) => void
-  onEditComment: (comment: Comment) => void
-  onDeleteComment: (commentId: number, postId: number) => void
-  onLikeComment: (commentId: number, postId: number) => void
-}
-
-export function PostDetailDialog({
-  selectedPost,
-  onAddComment,
-  onEditComment,
-  onDeleteComment,
-  onLikeComment,
-}: PostDetailDialogProps) {
-  const search = usePostParamsStore((state) => state.search)
+export function PostDetailDialog() {
+  const [, setIsDeleting] = useState(false)
+  const [, setIsLiking] = useState(false)
 
   const currentDialog = useDialogStore((state) => state.currentDialog)
-  const { closeDialog } = useDialogStore((state) => state.actions)
+  const { openDialog, closeDialog } = useDialogStore((state) => state.actions)
+  const { selectedPost } = usePostDialogStore((state) => state)
+  const { setSelectedComment, setAddCommentPostId } = useCommentDialogStore((state) => state.actions)
+  const search = usePostParamsStore((state) => state.search)
+
   const isOpen = currentDialog === DialogType.POST_DETAIL
 
-  // TODO: selectedPost 분기 임시처리 나중에 삭제 필요!
+  const handleAddComment = (postId: number) => {
+    setAddCommentPostId(postId)
+    openDialog(DialogType.ADD_COMMENT)
+  }
+
+  const handleEditComment = (comment: Comment) => {
+    setSelectedComment(comment)
+    openDialog(DialogType.EDIT_COMMENT)
+  }
+
+  const handleDeleteComment = async (commentId: number) => {
+    setIsDeleting(true)
+    try {
+      await fetch(`/api/comments/${commentId}`, {
+        method: "DELETE",
+      })
+    } catch (error) {
+      console.error("댓글 삭제 오류:", error)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const handleLikeComment = async (commentId: number) => {
+    setIsLiking(true)
+    try {
+      await fetch(`/api/comments/${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ likes: 1 }),
+      })
+    } catch (error) {
+      console.error("댓글 좋아요 오류:", error)
+    } finally {
+      setIsLiking(false)
+    }
+  }
+
   if (!selectedPost) {
     return null
   }
@@ -47,10 +78,10 @@ export function PostDetailDialog({
           <CommentList
             postId={selectedPost.id}
             searchQuery={search}
-            onAddComment={onAddComment}
-            onEditComment={onEditComment}
-            onDeleteComment={onDeleteComment}
-            onLikeComment={onLikeComment}
+            onAddComment={handleAddComment}
+            onEditComment={handleEditComment}
+            onDeleteComment={handleDeleteComment}
+            onLikeComment={handleLikeComment}
           />
         </div>
       </Dialog.Content>

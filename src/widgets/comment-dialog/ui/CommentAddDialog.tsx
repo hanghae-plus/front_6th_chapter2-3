@@ -1,18 +1,16 @@
 import { type ChangeEvent, useState } from "react"
 
 import { useCreateCommentMutation } from "@/features/create-comment/api"
+import { useCommentDialogStore } from "@/features/get-comments/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button, Dialog, Textarea } from "@/shared/ui"
 
-type CommentAddDialogProps = {
-  postId: number | null
-}
-
-export function CommentAddDialog({ postId }: CommentAddDialogProps) {
+export function CommentAddDialog() {
   const [body, setBody] = useState("")
 
   const currentDialog = useDialogStore((state) => state.currentDialog)
   const { openDialog, closeDialog } = useDialogStore((state) => state.actions)
+  const { addCommentPostId } = useCommentDialogStore((state) => state)
 
   const isOpen = currentDialog === DialogType.ADD_COMMENT
   const createCommentMutation = useCreateCommentMutation()
@@ -22,10 +20,10 @@ export function CommentAddDialog({ postId }: CommentAddDialogProps) {
   }
 
   const handleAddComment = () => {
-    if (!postId || !body.trim()) return
+    if (!addCommentPostId || !body.trim()) return
 
     createCommentMutation.mutate(
-      { body: body.trim(), postId, userId: 1 },
+      { body: body.trim(), postId: addCommentPostId, userId: 1 },
       {
         onSuccess: () => {
           setBody("")
