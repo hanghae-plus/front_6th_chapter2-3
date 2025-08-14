@@ -9,17 +9,12 @@ import {
   SelectValue,
 } from '@/shared/ui';
 
-interface Props {
-  updateURL: () => void;
-}
-
-export const SelectTag = ({ updateURL }: Props) => {
+export const SelectTag = () => {
   const { selectedTag, setSelectedTag } = usePostsFilterStore();
   const { data: tags, isLoading } = useGetTagsQuery();
 
   const handleTagChange = (value: string) => {
     setSelectedTag(value);
-    updateURL();
   };
 
   return (

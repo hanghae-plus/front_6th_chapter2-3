@@ -26,16 +26,15 @@
  * - 관심사 분리 부족 (UI, 비즈니스 로직, API 호출 혼재)
  * - 상태 관리 복잡성 (18개의 useState)
  */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-import { Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { AddCommentDialog } from '@/features/comment-management';
 import { EditCommentFormDialog } from '@/features/comment-management/ui/EditCommentFormDialog';
-import { SelectTag } from '@/features/filter-posts';
-import { SelectSortBy, SelectSortOrder } from '@/features/filter-posts';
+import { Filters } from '@/features/filter-posts';
 import { PostDetailDialog, PostTable } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
@@ -48,7 +47,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -58,15 +56,13 @@ import {
 
 const PostsManager = () => {
   // ==================== 라우팅 및 URL 관리 ====================
-  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
   // ==================== 게시물 관련 상태 ====================
   const [total, setTotal] = useState<number>(
     API_CONSTANTS.REACTIONS.DEFAULT_LIKES
-  ); // 전체 게시물 수 (페이지네이션용)
-  const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
+  );
 
   // ==================== 페이지네이션 상태 ====================
   const [skip, setSkip] = useState(
@@ -80,90 +76,8 @@ const PostsManager = () => {
     )
   ); // 페이지당 표시할 데이터 수
 
-  // ==================== 검색 및 필터링 상태 ====================
-  const [searchQuery, setSearchQuery] = useState(
-    queryParams.get('search') || ''
-  ); // 검색어
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || ''); // 정렬 기준
-  const [sortOrder, setSortOrder] = useState(
-    queryParams.get('sortOrder') || 'asc'
-  ); // 정렬 순서
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || ''); // 선택된 태그
-
-  // ==================== 댓글 관련 상태 ====================
-  const [comments, setComments] = useState({}); // 게시물별 댓글 캐시 {postId: comments[]}
-  const [selectedComment, setSelectedComment] = useState(null); // 현재 선택된 댓글
-  const [newComment, setNewComment] = useState({
-    body: '',
-    postId: null,
-    userId: API_CONSTANTS.DEFAULT_USER_ID,
-  }); // 새 댓글 임시 데이터
-
-  // ==================== 기타 상태 ====================
-  const [loading, setLoading] = useState(false); // 로딩 상태
-  const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자 정보
-
-  // ==================== URL 동기화 함수 ====================
-  /**
-   * 현재 상태를 URL 쿼리 파라미터에 반영
-   * - 브라우저 히스토리 관리로 뒤로가기/앞으로가기 지원
-   * - 페이지 새로고침 시 상태 복원 가능
-   * - 링크 공유를 통한 상태 전달 가능
-   */
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
-  };
-
   // ======== 개선 =======
-  const {
-    showUserModal,
-    setShowAddDialog,
-    setShowAddCommentDialog,
-    setShowEditCommentDialog,
-    setShowUserModal,
-  } = useUIStore();
-
-  // ==================== 라이프사이클 및 사이드 이펙트 ====================
-
-  /**
-   * 페이지네이션, 정렬, 태그 변경 시 데이터 재조회
-   * - 태그가 선택된 경우: 태그별 게시물 조회
-   * - 태그가 없는 경우: 일반 게시물 목록 조회
-   * - URL 상태 동기화
-   */
-  useEffect(() => {
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
-
-  /**
-   * URL 변경 시 상태 동기화
-   * - 브라우저 뒤로가기/앞으로가기 대응
-   * - 직접 URL 접근 시 상태 복원
-   */
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(
-      parseInt(
-        params.get('skip') || String(UI_CONSTANTS.PAGINATION.DEFAULT_SKIP)
-      )
-    );
-    setLimit(
-      parseInt(
-        params.get('limit') || String(UI_CONSTANTS.PAGINATION.DEFAULT_LIMIT)
-      )
-    );
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
-    setSelectedTag(params.get('tag') || '');
-  }, [location.search]);
+  const { setShowAddDialog } = useUIStore();
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -178,32 +92,9 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className='flex flex-col gap-4'>
-          {/* 검색 및 필터 컨트롤 */}
-          <div className='flex gap-4'>
-            <div className='flex-1'>
-              <div className='relative'>
-                <Search
-                  className={`absolute left-2 top-2.5 ${UI_CONSTANTS.ICON_SIZES.MEDIUM} text-muted-foreground`}
-                />
-                <Input
-                  placeholder='게시물 검색...'
-                  className='pl-8'
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      setSearchQuery(e.currentTarget.value);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            <SelectTag updateURL={updateURL} />
-            <SelectSortBy />
-            <SelectSortOrder />
-          </div>
+          <Filters />
 
-          <PostTable updateURL={updateURL} />
+          <PostTable />
 
           {/* 페이지네이션 */}
           <div className='flex justify-between items-center'>

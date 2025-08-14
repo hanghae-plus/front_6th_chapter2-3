@@ -26,11 +26,7 @@ import {
   useFilteredPosts,
 } from '../../filter-posts/hooks/useFilteredPosts';
 
-interface Props {
-  updateURL: () => void;
-}
-
-export const PostTable = ({ updateURL }: Props) => {
+export const PostTable = () => {
   const { posts, isLoading } = useFilteredPosts();
   const { selectedTag, setSelectedTag, searchQuery, limit } =
     usePostsFilterStore();
@@ -49,7 +45,6 @@ export const PostTable = ({ updateURL }: Props) => {
 
   const handleClickTag = (tag: string) => {
     setSelectedTag(tag);
-    updateURL();
   };
 
   const handleClickDeletePost = (id: number) => {

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { atom, useAtom } from 'jotai';
 
 import { SortOrder } from '@/shared/types';
@@ -20,7 +22,22 @@ const initialFilterState: PostsFilterState = {
   limit: 10,
 };
 
-export const postsFilterAtom = atom<PostsFilterState>(initialFilterState);
+// URL에서 초기 상태를 읽어오는 함수
+const getInitialStateFromURL = (): PostsFilterState => {
+  if (typeof window === 'undefined') return initialFilterState;
+
+  const params = new URLSearchParams(window.location.search);
+  return {
+    searchQuery: params.get('search') || '',
+    selectedTag: params.get('tag') || '',
+    sortBy: params.get('sortBy') || '',
+    sortOrder: (params.get('sortOrder') as SortOrder) || SortOrder.ASC,
+    skip: parseInt(params.get('skip') || '0'),
+    limit: parseInt(params.get('limit') || '10'),
+  };
+};
+
+export const postsFilterAtom = atom<PostsFilterState>(getInitialStateFromURL());
 
 // 개별 필터 atoms (더 세밀한 제어를 위해)
 export const searchQueryAtom = atom(
@@ -117,6 +134,24 @@ export const urlSyncAtom = atom(
   }
 );
 
+export const useURLSync = () => {
+  const [urlSync, setUrlSync] = useAtom(urlSyncAtom);
+
+  const updateURL = () => {
+    const newURL = `${window.location.pathname}?${urlSync}`;
+    window.history.pushState({}, '', newURL);
+  };
+
+  const syncFromURL = () => {
+    const currentParams = window.location.search;
+    if (currentParams) {
+      setUrlSync(currentParams.substring(1));
+    }
+  };
+
+  return { updateURL, syncFromURL };
+};
+
 export const usePostsFilterStore = () => {
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
@@ -124,6 +159,28 @@ export const usePostsFilterStore = () => {
   const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
   const [skip, setSkip] = useAtom(skipAtom);
   const [limit, setLimit] = useAtom(limitAtom);
+
+  const { updateURL, syncFromURL } = useURLSync();
+
+  // 컴포넌트 마운트 시 URL에서 상태 복원
+  useEffect(() => {
+    syncFromURL();
+  }, []);
+
+  // 필터 상태 변경 시 URL 업데이트
+  useEffect(() => {
+    updateURL();
+  }, [searchQuery, selectedTag, sortBy, sortOrder, skip, limit]);
+
+  // 브라우저 뒤로가기/앞으로가기 처리
+  useEffect(() => {
+    const handlePopState = () => {
+      syncFromURL();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return {
     searchQuery,
