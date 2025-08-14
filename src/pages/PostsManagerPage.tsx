@@ -12,7 +12,7 @@ import { CommentsList } from '../widgets/commentsList/ui/CommentsList';
 import { UserModal } from '../features/user/view-user/ui/UserModal';
 import { PostDetailDialog } from '../features/posts/view-post/ui/PostDetailDialog';
 import { deletePost as deletePostAPI } from '../features/posts/delete-post/api/api';
-import { fetchPostComments, fetchUserDetail } from '../features/posts/view-post/api/api';
+import { fetchPostComments } from '../features/posts/view-post/api/api';
 
 import { usePostsStore } from '../entities/post/model/store';
 import { useTagsStore } from '../entities/tags/model/store';
@@ -25,7 +25,6 @@ import { useViewUser } from '../features/user/view-user/model/hooks';
 import { usePostsUrlParams } from '../features/posts/list-posts/model/hooks';
 
 const PostsManager = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
@@ -36,7 +35,6 @@ const PostsManager = () => {
     setPosts,
     setTotal,
     fetchPosts: fetchPostsFromStore,
-    selectedPost,
     setSelectedPost,
   } = usePostsStore();
   const { tags, selectedTag, setSelectedTag, fetchTags: fetchTagsFromStore } = useTagsStore();
@@ -64,12 +62,9 @@ const PostsManager = () => {
     updatePostsURL,
   } = usePostsUrlParams();
 
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const { openUserModal } = useViewUser();
 
-  const { openDialog, closeDialog } = useDialogStore();
+  const { openDialog } = useDialogStore();
 
   const fetchPosts = () => {
     fetchPostsFromStore(limit, skip.toString());
@@ -171,7 +166,7 @@ const PostsManager = () => {
   const openPostDetail = (post: any) => {
     setSelectedPost(post);
     fetchComments(post.id);
-    setShowPostDetailDialog(true);
+    openDialog(DIALOG_KEYS.POST_DETAIL);
   };
 
   useEffect(() => {
@@ -212,11 +207,11 @@ const PostsManager = () => {
       highlightText={highlightText}
       onAddComment={(postId) => {
         setNewComment({ ...newComment, postId });
-        setShowAddCommentDialog(true);
+        openDialog(DIALOG_KEYS.ADD_COMMENT);
       }}
       onEditComment={(comment) => {
         setSelectedComment(comment);
-        setShowEditCommentDialog(true);
+        openDialog(DIALOG_KEYS.EDIT_COMMENT);
       }}
       onDeleteComment={deleteComment}
       onLikeComment={likeComment}
