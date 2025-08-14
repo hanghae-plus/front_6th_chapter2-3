@@ -1,13 +1,11 @@
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import { CreatePost } from "@/shared/types"
 import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
-import { postMutations } from "../model/mutations"
+import { useCreatePost } from "../model/useCreatePost"
 
 export const AddPostDialog = () => {
-  const queryClient = useQueryClient()
-  const createPostMutation = useMutation(postMutations.create(queryClient))
+  const { createPost } = useCreatePost()
 
   const isOpen = useDialogStore((state) => state.dialogs.ADD)
   const { hideDialog } = useDialogActions()
@@ -27,7 +25,7 @@ export const AddPostDialog = () => {
 
     setIsSubmitting(true)
     try {
-      await createPostMutation.mutateAsync(newPost)
+      await createPost(newPost)
       // 성공 시 폼 초기화
       setNewPost({ title: "", body: "", userId: 1 })
       hideDialog("ADD")

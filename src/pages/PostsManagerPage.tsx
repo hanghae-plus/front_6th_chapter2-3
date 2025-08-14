@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react"
 import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { AddPostDialog } from "@/features/post/ui/AddPostDialog"
-import { AddPostDialogOpenButton } from "@/features/post/ui/AddPostDialogOpenButton"
-import { DeletePostButton } from "@/features/post/ui/DeletePostButton"
-import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenButton"
-import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
-import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
-import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
+import { AddPostDialog } from "@/features/post/create-post/ui/AddPostDialog"
+import { AddPostDialogOpenButton } from "@/features/post/create-post/ui/AddPostDialogOpenButton"
+import { DeletePostButton } from "@/features/post/delete-post/ui/DeletePostButton"
+import { EditPostDialogOpenButton } from "@/features/post/update-post/ui/EditPostDialogOpenButton"
+import { EditPostDialog } from "@/features/post/update-post/ui/EditPostDialog"
+import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui/DetailPostDialogOpenButton"
 import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
+import { DetailPostDialog } from "@/features/post/read-post/ui/DetailPostDialog"
 import { TagSelectBox } from "@/features/post/ui/TagSelectBox"
 import { SearchPostInput } from "@/features/post/ui/SearchPostInput"
-import { usePostWithAuthor } from "@/features/post/model/usePostWithAuthor"
-import { Comment, PostWithAuthor } from "@/shared/types"
-import { HttpClient } from "@/shared/api/http"
+import { usePosts } from "@/features/post/read-post/model/usePosts"
 import {
   Table,
   TableBody,
@@ -51,10 +49,9 @@ const PostsManager = () => {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null) // 선택된 게시물 ID
 
   // 데이터 상태
-  const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
 
   // 게시물 목록 조회 (with author) - 태그별 필터링
-  const postsQuery = usePostWithAuthor()
+  const postsQuery = usePosts()
 
   const posts = postsQuery.posts || []
 
@@ -76,51 +73,9 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
-  // ===== 게시물 관련 함수들 =====
-  // fetchPostsByTag 함수 제거 - postWithAuthorQueries.listByTag가 자동으로 처리
-
-  // ===== 댓글 관련 함수들 =====
-  /**
-   * 특정 게시물의 댓글을 가져오는 함수
-   * 이미 불러온 댓글이 있으면 다시 불러오지 않음
-   * 클릭했을 때 모달안에서 들고옴.
-   * @param postId - 게시물 ID
-   */
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const { comments } = await HttpClient.get<{ comments: Comment[] }>(`/comments/post/${postId}`)
-      console.log("---comments---")
-      console.log(comments)
-      setComments((prev) => ({ ...prev, [postId]: comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요 기능은 현재 사용되지 않음
-
-  // ===== UI 관련 함수들 =====
-  /**
-   * 게시물 상세 보기 대화상자를 여는 함수
-   * @param postId - 상세 보기할 게시물 ID
-   */
   const openPostDetail = (postId: number) => {
     setSelectedPostId(postId)
   }
-
-  // ===== useEffect 훅들 =====
-  // 태그 목록은 TagSelectBox에서 자동으로 처리됨
-
-  // 페이지네이션, 정렬, 태그 변경 시 게시물 다시 가져오기
-  // useEffect(() => {
-  //   // postsQuery.posts는 게시물 목록 배열
-  //   if (postsQuery.posts) {
-  //     // author가 undefined인 경우를 필터링하여 PostWithAuthor[] 타입 보장
-  //     const validPosts = postsQuery.posts.filter((post) => post.author) as PostWithAuthor[]
-  //     setPosts(validPosts)
-  //   }
-  // }, [postsQuery.posts])
 
   // URL 쿼리 파라미터 변경 시 상태 동기화
   useEffect(() => {

@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { Comment, CreateComment } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
 import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
-import { postWithAuthorQueries } from "../model/queries"
+import { usePostDetail } from "../model/usePostDetail"
 
 interface DetailPostDialogProps {
   postId: number | null
@@ -21,10 +21,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
-  const { data, isLoading, error } = useQuery({
-    ...postWithAuthorQueries.detail(postId!),
-    enabled: !!postId,
-  })
+  const { data, isLoading, error } = usePostDetail(postId!)
 
   const addComment = async () => {
     if (!postId) return

@@ -1,5 +1,5 @@
-export { AddPostDialog } from "./AddPostDialog"
-export { AddPostDialogOpenButton } from "./AddPostDialogOpenButton"
+export { AddPostDialog } from "../create-post/ui/AddPostDialog"
+export { AddPostDialogOpenButton } from "../create-post/ui/AddPostDialogOpenButton"
 export { SearchPostInput } from "./SearchPostInput"
-export { DeletePostButton } from "./DeletePostButton"
+export { DeletePostButton } from "../delete-post/ui/DeletePostButton"
 export { TagSelectBox } from "./TagSelectBox"

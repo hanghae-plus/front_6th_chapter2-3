@@ -1,31 +1,23 @@
 import { useState, useEffect } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
 import { PostWithAuthor } from "@/shared/types"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
-import { postMutations } from "../model/mutations"
-import { postWithAuthorQueries } from "../model/queries"
+import { useUpdatePost } from "../model/useUpdatePost"
+import { usePostDetail } from "../../read-post/model/usePostDetail"
 
 interface EditPostDialogProps {
   postId: number | null
 }
 
 export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
-  const queryClient = useQueryClient()
+  const { data, isLoading, error } = usePostDetail(postId!)
 
   // 로컬 상태로 수정 중인 데이터 관리
   const [editingPost, setEditingPost] = useState<PostWithAuthor | null>(null)
 
   const isOpen = useDialogStore((state) => state.dialogs.EDIT)
   const { hideDialog } = useDialogActions()
-
-  const updatePostMutation = useMutation(postMutations.update(queryClient))
-
-  // postId가 있을 때만 쿼리 실행
-  const { data, isLoading, error } = useQuery({
-    ...postWithAuthorQueries.detail(postId!),
-    enabled: !!postId,
-  })
+  const { updatePost, isPending } = useUpdatePost()
 
   // data가 변경될 때마다 로컬 상태 초기화
   useEffect(() => {
@@ -38,7 +30,7 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
     console.log(editingPost)
     if (!editingPost) return
 
-    updatePostMutation.mutate({
+    updatePost({
       id: editingPost.id,
       data: {
         title: editingPost.title,
@@ -104,8 +96,8 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
               setEditingPost((prev) => (prev ? { ...prev, body: e.target.value } : null))
             }}
           />
-          <Button onClick={handleUpdate} disabled={updatePostMutation.isPending}>
-            {updatePostMutation.isPending ? "업데이트 중..." : "게시물 업데이트"}
+          <Button onClick={handleUpdate} disabled={isPending}>
+            {isPending ? "업데이트 중..." : "게시물 업데이트"}
           </Button>
         </div>
       </DialogContent>
