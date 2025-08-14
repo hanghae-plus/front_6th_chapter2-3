@@ -206,7 +206,7 @@ const PostsManager = () => {
   }
 
   // 게시물 추가
-  const addPost = async () => {
+  const handlePostAdd = async () => {
     try {
       const response = await fetch("/api/posts/add", {
         method: "POST",
@@ -223,7 +223,7 @@ const PostsManager = () => {
   }
 
   // 게시물 업데이트
-  const updatePost = async () => {
+  const handlePostUpdate = async () => {
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
@@ -239,7 +239,7 @@ const PostsManager = () => {
   }
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const handlePostDelete = async (id) => {
     try {
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
@@ -251,7 +251,7 @@ const PostsManager = () => {
   }
 
   // 댓글 가져오기
-  const fetchComments = async (postId) => {
+  const handleCommentsFetch = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`)
@@ -263,7 +263,7 @@ const PostsManager = () => {
   }
 
   // 댓글 추가
-  const addComment = async () => {
+  async function handleCommentAdd() {
     try {
       const response = await fetch("/api/comments/add", {
         method: "POST",
@@ -283,7 +283,7 @@ const PostsManager = () => {
   }
 
   // 댓글 업데이트
-  const updateComment = async () => {
+  async function handleCommentUpdate() {
     try {
       const response = await fetch(`/api/comments/${selectedComment.id}`, {
         method: "PUT",
@@ -302,7 +302,7 @@ const PostsManager = () => {
   }
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
+  async function handleCommentDelete(id, postId) {
     try {
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
@@ -317,7 +317,7 @@ const PostsManager = () => {
   }
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
+  async function handleCommentLike(id, postId) {
     try {
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
@@ -337,14 +337,14 @@ const PostsManager = () => {
   }
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  function handleOpenPostDetail(post) {
     setSelectedPost(post)
-    fetchComments(post.id)
+    handleCommentsFetch(post.id)
     setShowPostDetailDialog(true)
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  async function handleOpenUserModal(user) {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
@@ -425,7 +425,10 @@ const PostsManager = () => {
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => handleOpenUserModal(post.author)}
+              >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
@@ -440,7 +443,7 @@ const PostsManager = () => {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
+                <Button variant="ghost" size="sm" onClick={() => handleOpenPostDetail(post)}>
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button
@@ -453,7 +456,7 @@ const PostsManager = () => {
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => handlePostDelete(post.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -488,7 +491,7 @@ const PostsManager = () => {
               <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
+              <Button variant="ghost" size="sm" onClick={() => handleCommentLike(comment.id, postId)}>
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>
@@ -502,7 +505,7 @@ const PostsManager = () => {
               >
                 <Edit2 className="w-3 h-3" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
+              <Button variant="ghost" size="sm" onClick={() => handleCommentDelete(comment.id, postId)}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -636,7 +639,7 @@ const PostsManager = () => {
               value={newPost.userId}
               onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
             />
-            <Button onClick={addPost}>게시물 추가</Button>
+            <Button onClick={handlePostAdd}>게시물 추가</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -659,7 +662,7 @@ const PostsManager = () => {
               value={selectedPost?.body || ""}
               onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
             />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
+            <Button onClick={handlePostUpdate}>게시물 업데이트</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -676,7 +679,7 @@ const PostsManager = () => {
               value={newComment.body}
               onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
             />
-            <Button onClick={addComment}>댓글 추가</Button>
+            <Button onClick={handleCommentAdd}>댓글 추가</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -693,7 +696,7 @@ const PostsManager = () => {
               value={selectedComment?.body || ""}
               onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
             />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
+            <Button onClick={handleCommentUpdate}>댓글 업데이트</Button>
           </div>
         </DialogContent>
       </Dialog>
