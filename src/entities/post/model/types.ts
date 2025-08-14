@@ -26,7 +26,6 @@ export interface CreatePost {
 
 export interface UpdatePost {
   body: string
-  id: number
   reactions: {
     dislikes: number
     likes: number

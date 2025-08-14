@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import PostAPI from "../api/PostAPI"
 import { CreatePost, UpdatePost } from "./types"
 
@@ -46,8 +46,14 @@ export const usePosts = (
  * @returns 추가된 게시글 정보
  */
 export const useCreatePost = () => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (post: CreatePost) => PostAPI.createPost(post),
+    onSuccess: () => {
+      // 게시글 추가 성공 후 모든 posts 관련 쿼리 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] })
+    },
   })
 }
 
@@ -68,8 +74,14 @@ export const useUpdatePost = (id: number) => {
  * @returns 삭제된 게시글 정보
  */
 export const useDeletePost = () => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (id: number) => PostAPI.deletePost(id),
+    onSuccess: () => {
+      // 게시글 삭제 성공 후 모든 posts 관련 쿼리 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] })
+    },
   })
 }
 

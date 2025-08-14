@@ -4,6 +4,11 @@ import { Button, HighlightText } from "../../shared/ui"
 import { PostItem } from "../../entities/post/model/types"
 import { User } from "../../entities/user/model/types"
 
+// PostItem에 author 속성이 추가된 타입
+interface PostWithAuthor extends PostItem {
+  author?: User
+}
+
 export const PostTable = ({
   posts,
   searchQuery,
@@ -16,15 +21,15 @@ export const PostTable = ({
   setShowEditDialog,
   deletePost,
 }: {
-  posts: PostItem[]
+  posts: PostWithAuthor[]
   searchQuery: string
   selectedTag: string
   setSelectedTag: (tag: string) => void
   updateURL: () => void
   openUserModal: (user: User) => void
-  openPostDetail: (post: PostItem) => void
-  setSelectedPost: (post: PostItem) => void
-  setShowEditDialog: (show: boolean) => void
+  openPostDetail: (post: PostWithAuthor) => void
+  setSelectedPost: (post: PostWithAuthor) => void
+  setShowEditDialog: (post: PostWithAuthor) => void
   deletePost: (id: number) => void
 }) => {
   return (
@@ -69,7 +74,10 @@ export const PostTable = ({
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => post.author && openUserModal(post.author)}
+              >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
@@ -92,7 +100,7 @@ export const PostTable = ({
                   size="sm"
                   onClick={() => {
                     setSelectedPost(post)
-                    setShowEditDialog(true)
+                    setShowEditDialog(post)
                   }}
                 >
                   <Edit2 className="w-4 h-4" />

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useQueryClient } from "@tanstack/react-query"
 
 import {
   Button,
@@ -22,10 +21,19 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useGetPosts } from "../features/post/get-posts/hooks"
-import { useAddPost } from "../features/post/add-posts/hooks"
+import { useUpdatePost, useDeletePost } from "../entities/post/model/hooks"
 import { useDialogStore } from "../shared/stores/dialogStore"
 import { PostTable } from "../widget/post-table/PostTable"
 import { PostFilter } from "../widget/post-filter/PostFilter"
+import { AddPostForm } from "../features/post/add-posts/AddPostForm"
+import { UpdatePostForm } from "../features/post/update-posts/UpdatePostForm"
+import { PostItem } from "../entities/post/model/types"
+import { User } from "../entities/user/model/types"
+
+// PostItem에 author 속성이 추가된 타입
+interface PostWithAuthor extends PostItem {
+  author?: User
+}
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -59,7 +67,7 @@ const PostsManager = () => {
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
   const [searchInputValue, setSearchInputValue] = useState(queryParams.get("search") || "") // 검색 입력값을 별도로 관리
-  const [selectedPost, setSelectedPost] = useState(null)
+  const [selectedPost, setSelectedPost] = useState<PostWithAuthor | null>(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
@@ -80,23 +88,7 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
-  const queryClient = useQueryClient()
   const { posts, total, loading } = useGetPosts(limit, skip, sortBy, sortOrder, selectedTag, searchQuery)
-
-  // 게시물 추가 custom hook 사용
-  const {
-    newPost,
-    setTitle,
-    setBody,
-    setUserId,
-    addPost,
-    resetForm,
-    isLoading: isAddingPost,
-    isError: isAddError,
-    error: addError,
-  } = useAddPost(() => {
-    closeAddDialog()
-  })
 
   // 게시물 검색
   const searchPosts = async () => {
@@ -109,32 +101,13 @@ const PostsManager = () => {
     setSkip(0)
   }
 
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      // updatePost
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      // 게시물 업데이트 후 쿼리 무효화
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      closeEditDialog()
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
-  }
+  // 게시물 삭제 훅 사용
+  const deletePostMutation = useDeletePost()
 
   // 게시물 삭제
   const deletePost = async (id) => {
     try {
-      // deletePost
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      setPosts(posts.filter((post) => post.id !== id))
+      await deletePostMutation.mutateAsync(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
@@ -361,7 +334,7 @@ const PostsManager = () => {
               openUserModal={handleOpenUserModal}
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
-              setShowEditDialog={(post) => {
+              setShowEditDialog={(post: PostWithAuthor) => {
                 setSelectedPost(post)
                 openEditDialog()
               }}
@@ -405,30 +378,14 @@ const PostsManager = () => {
             openAddDialog()
           } else {
             closeAddDialog()
-            resetForm()
           }
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
+            <DialogTitle>게시물 추가</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input placeholder="제목" value={newPost.title} onChange={(e) => setTitle(e.target.value)} />
-            <Textarea rows={30} placeholder="내용" value={newPost.body} onChange={(e) => setBody(e.target.value)} />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setUserId(Number(e.target.value))}
-            />
-            <Button onClick={addPost} disabled={isAddingPost}>
-              {isAddingPost ? "추가 중..." : "게시물 추가"}
-            </Button>
-            {isAddError && (
-              <p className="text-red-500 text-sm">게시물 추가 중 오류가 발생했습니다: {addError?.message}</p>
-            )}
-          </div>
+          <AddPostForm />
         </DialogContent>
       </Dialog>
 
@@ -447,20 +404,7 @@ const PostsManager = () => {
           <DialogHeader>
             <DialogTitle>게시물 수정</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
+          {selectedPost && <UpdatePostForm selectedPost={selectedPost as PostItem} />}
         </DialogContent>
       </Dialog>
 
