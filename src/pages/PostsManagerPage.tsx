@@ -26,31 +26,28 @@ import {
   Textarea,
 } from '../components'
 import { usePostsStore } from '../shared/stores/postsStore'
+import {
+  usePostsQuery,
+  useTagsQuery,
+  useAddPostMutation,
+  useUpdatePostMutation,
+  useDeletePostMutation,
+} from '../entities/post/hooks'
+import type { Post, Comment, User } from '../shared/api/posts'
 
 const PostsManagerPage = () => {
   /* ----------------------- zustand 상태 & 액션 ----------------------- */
   const {
-    posts,
-    total,
     skip,
     limit,
-    tags,
     selectedTag,
     searchQuery,
     comments,
-    loading,
     /* setters */
     setPagination,
     setSelectedTag,
     setSearchQuery,
     /* actions */
-    fetchPosts,
-    fetchTags,
-    fetchPostsByTag,
-    searchPosts,
-    addPost: addPostStore,
-    updatePost: updatePostStore,
-    deletePost: deletePostStore,
     fetchComments,
     addComment: addCommentStore,
     updateComment: updateCommentStore,
@@ -58,23 +55,37 @@ const PostsManagerPage = () => {
     likeComment: likeCommentStore,
   } = usePostsStore()
 
+  // React Query data
+  const { data: tagsData } = useTagsQuery()
+  const tags = tagsData ?? []
+
+  const postsResult = usePostsQuery({ skip, limit, tag: selectedTag, search: searchQuery })
+  const posts: Post[] = postsResult.data?.posts ?? []
+  const total = postsResult.data?.total ?? 0
+  const loading = postsResult.isLoading
+
+  // Mutations
+  const addPostMutation = useAddPostMutation()
+  const updatePostMutation = useUpdatePostMutation()
+  const deletePostMutation = useDeletePostMutation()
+
   const navigate = useNavigate()
   const location = useLocation()
 
   /* ----------------------- 로컬 UI 상태 ----------------------- */
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [selectedPost, setSelectedPost] = useState(null as any)
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 })
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [newPost, setNewPost] = useState<Omit<Post, 'id'>>({ title: '', body: '', userId: 1 })
 
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [selectedComment, setSelectedComment] = useState(null as any)
-  const [newComment, setNewComment] = useState({ body: '', postId: null as any, userId: 1 })
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
+  const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({ body: '', postId: null, userId: 1 })
 
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null as any)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   /* ----------------------- URL 쿼리 동기화 ----------------------- */
   const updateURL = useCallback(() => {
@@ -105,16 +116,16 @@ const PostsManagerPage = () => {
 
   /* ----------------------- 최초 로드 ----------------------- */
   useEffect(() => {
-    fetchTags()
-  }, [fetchTags])
+    // fetchTags() // Removed as per edit hint
+  }, []) // Removed fetchTags from dependencies
 
   useEffect(() => {
     if (selectedTag) {
-      fetchPostsByTag(selectedTag)
+      // fetchPostsByTag(selectedTag) // Removed as per edit hint
     } else {
-      fetchPosts()
+      // fetchPosts() // Removed as per edit hint
     }
-  }, [skip, limit, selectedTag, fetchPosts, fetchPostsByTag])
+  }, [skip, limit, selectedTag]) // Removed fetchPosts, fetchPostsByTag from dependencies
 
   /* ----------------------- 헬퍼 ----------------------- */
   const highlightText = (text: string, highlight: string) => {
@@ -131,7 +142,7 @@ const PostsManagerPage = () => {
 
   /* ----------------------- CRUD 래퍼 ----------------------- */
   const handleAddPost = async () => {
-    const created = await addPostStore(newPost)
+    const created = await addPostMutation.mutateAsync(newPost)
     if (created) {
       setShowAddDialog(false)
       setNewPost({ title: '', body: '', userId: 1 })
@@ -139,7 +150,7 @@ const PostsManagerPage = () => {
   }
 
   const handleUpdatePost = async () => {
-    await updatePostStore(selectedPost)
+    await updatePostMutation.mutateAsync(selectedPost!)
     setShowEditDialog(false)
   }
 
@@ -156,7 +167,7 @@ const PostsManagerPage = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {posts.map((post) => (
+        {posts.map((post: Post) => (
           <TableRow key={post.id}>
             <TableCell>{post.id}</TableCell>
             <TableCell>
@@ -186,13 +197,14 @@ const PostsManagerPage = () => {
               <div
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={async () => {
+                  if (!post.author?.id) return
                   const resp = await fetch(`/api/users/${post.author.id}`)
                   const data = await resp.json()
                   setSelectedUser(data)
                   setShowUserModal(true)
                 }}
               >
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+                <img src={post.author?.image ?? ''} alt={post.author?.username ?? ''} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
             </TableCell>
@@ -223,7 +235,7 @@ const PostsManagerPage = () => {
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePostStore(post.id)}>
+                <Button variant="ghost" size="sm" onClick={() => deletePostMutation.mutate(post.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -250,10 +262,10 @@ const PostsManagerPage = () => {
       </div>
       <div className="space-y-1">
         {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
+          <div key={comment.id} className="flex items-start justify-between text-sm border-b pb-1 break-words">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+              <span className="truncate break-words">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="sm" onClick={() => likeCommentStore(comment.id, postId)}>
@@ -300,10 +312,9 @@ const PostsManagerPage = () => {
                   placeholder="게시물 검색..."
                   className="pl-8"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === 'Enter') {
-                      searchPosts()
                       updateURL()
                     }
                   }}
@@ -314,7 +325,6 @@ const PostsManagerPage = () => {
               value={selectedTag}
               onValueChange={(value) => {
                 setSelectedTag(value)
-                fetchPostsByTag(value)
                 updateURL()
               }}
             >
@@ -376,11 +386,15 @@ const PostsManagerPage = () => {
             <DialogTitle>새 게시물 추가</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input placeholder="제목" value={newPost.title} onChange={(e) => setNewPost({ ...newPost, title: e.target.value })} />
+            <Input
+              placeholder="제목"
+              value={typeof newPost.title === 'string' ? newPost.title : ''}
+              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+            />
             <Textarea
               rows={15}
               placeholder="내용"
-              value={newPost.body}
+              value={typeof newPost.body === 'string' ? newPost.body : ''}
               onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
             />
             <Button onClick={handleAddPost}>게시물 추가</Button>
@@ -398,13 +412,13 @@ const PostsManagerPage = () => {
             <Input
               placeholder="제목"
               value={selectedPost?.title || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
+              onChange={(e) => setSelectedPost({ ...selectedPost!, title: e.target.value })}
             />
             <Textarea
               rows={15}
               placeholder="내용"
               value={selectedPost?.body || ''}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
+              onChange={(e) => setSelectedPost({ ...selectedPost!, body: e.target.value })}
             />
             <Button onClick={handleUpdatePost}>게시물 업데이트</Button>
           </div>
@@ -446,11 +460,11 @@ const PostsManagerPage = () => {
             <Textarea
               placeholder="댓글 내용"
               value={selectedComment?.body || ''}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+              onChange={(e) => setSelectedComment({ ...selectedComment!, body: e.target.value })}
             />
             <Button
               onClick={async () => {
-                await updateCommentStore(selectedComment)
+                await updateCommentStore(selectedComment!)
                 setShowEditCommentDialog(false)
               }}
             >
@@ -462,12 +476,12 @@ const PostsManagerPage = () => {
 
       {/* 게시물 상세 Dialog */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
+            <DialogTitle>{highlightText(selectedPost?.title ?? '', searchQuery)}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
+          <div className="space-y-4 break-words">
+            <p>{highlightText(selectedPost?.body ?? '', searchQuery)}</p>
             {selectedPost && renderComments(selectedPost.id)}
           </div>
         </DialogContent>

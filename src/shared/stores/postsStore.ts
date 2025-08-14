@@ -4,7 +4,7 @@ interface User {
   id: number
   username: string
   image: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface Post {
@@ -15,7 +15,7 @@ interface Post {
   tags?: string[]
   reactions?: { likes: number; dislikes: number }
   author?: User
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface Comment {
@@ -24,7 +24,7 @@ interface Comment {
   body: string
   likes: number
   user: User
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface PostsState {
