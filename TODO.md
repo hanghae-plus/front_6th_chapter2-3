@@ -13,6 +13,7 @@
   - `apps`: 상위 조립 레이어. 모든 하위 레이어에 의존 가능하나 반대 방향 금지.
 - **코드 스타일**: 선언형 프로그래밍, Clean Code 지향, 의미 있는 네이밍, 얕은 중첩, 가드 절 적극 사용.
 - **파일 노출**: 각 슬라이스 루트의 `index.ts`에서만 export. 하위 파일은 외부 노출 금지.
+- **그룹핑 디렉토리 규칙**: `features` 내부 도메인 그룹은 괄호 표기 폴더로 작성한다. 예) `(post)`, `(comment)`, `(user)`. 외부 임포트는 항상 하위 feature의 `index.ts`를 통해서만 한다.
 
 ### 경로 별칭(plan)
 
@@ -38,11 +39,70 @@ src/
       lib/
       index.ts
   features/
-    posts-manager/
-      model/
-      ui/
-      lib/
-      index.ts
+    (post)/
+      add-post/
+        model/
+        ui/
+        index.ts
+      edit-post/
+        model/
+        ui/
+        index.ts
+      delete-post/
+        model/
+        ui/
+        index.ts
+      list-posts/
+        model/
+        ui/
+        lib/
+        index.ts
+      filter-by-tag/
+        model/
+        ui/
+        index.ts
+      search-posts/
+        model/
+        ui/
+        index.ts
+      sort-posts/
+        model/
+        ui/
+        index.ts
+      paginate-posts/
+        model/
+        ui/
+        index.ts
+      view-post-detail/
+        model/
+        ui/
+        index.ts
+    (comment)/
+      add-comment/
+        model/
+        ui/
+        index.ts
+      edit-comment/
+        model/
+        ui/
+        index.ts
+      delete-comment/
+        model/
+        ui/
+        index.ts
+      like-comment/
+        model/
+        ui/
+        index.ts
+      list-comments/
+        model/
+        ui/
+        index.ts
+    (user)/
+      view-user-modal/
+        model/
+        ui/
+        index.ts
   widgets/
     header/
       ui/
