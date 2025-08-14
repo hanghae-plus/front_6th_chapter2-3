@@ -1,3 +1,5 @@
+import { DIALOG_KEYS } from '../../../../shared/constant/dialog';
+import { useDialogStore } from '../../../../shared/store/dialog';
 import {
   Dialog,
   DialogContent,
@@ -6,24 +8,19 @@ import {
   Button,
   Textarea,
 } from '../../../../shared/ui';
-
-interface EditCommentDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedComment: any;
-  onCommentChange: (comment: any) => void;
-  onSubmit: () => void;
-}
+import { EditCommentDialogProps } from '../model/type';
 
 export const EditCommentDialog = ({
-  open,
-  onOpenChange,
   selectedComment,
   onCommentChange,
   onSubmit,
 }: EditCommentDialogProps) => {
+  const { isDialogOpen, closeDialog } = useDialogStore();
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isDialogOpen(DIALOG_KEYS.EDIT_COMMENT)}
+      onOpenChange={() => closeDialog(DIALOG_KEYS.EDIT_COMMENT)}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>댓글 수정</DialogTitle>

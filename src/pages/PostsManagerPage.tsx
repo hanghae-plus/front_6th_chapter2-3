@@ -413,8 +413,6 @@ const PostsManager = () => {
 
       {/* 댓글 수정 대화상자 */}
       <EditCommentDialog
-        open={showEditCommentDialog}
-        onOpenChange={setShowEditCommentDialog}
         selectedComment={selectedComment}
         onCommentChange={setSelectedComment}
         onSubmit={updateComment}
