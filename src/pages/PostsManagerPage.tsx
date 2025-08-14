@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input } from "../shared/ui";
-import { DropdownSelect } from "../shared/ui/DropdownSelect";
+import { Plus } from "lucide-react";
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
 import { getUser } from "../entities/user/api";
 import { UserModal } from "../entities/user/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
@@ -14,34 +12,32 @@ import { CommentUpdateDialog } from "../features/comment/ui/CommentUpdateDialog"
 import { PostDetailDialog } from "../features/post/ui/PostDetailDialog";
 import { Comments } from "../features/comment/ui/Comments";
 import { useComments } from "../features/comment/models/useComment";
-import { usePosts } from "../features/post/models/usePost";
+import { usePosts } from "../features/post/models/usePosts";
 import { Post } from "../entities/post/types";
 import { PostTable } from "../entities/post/ui/PostTable";
 import { useTags } from "../entities/tag/models";
+import { PostFiltersBar } from "../widgets/post-filters/ui/PostFiltersBar";
+import { usePostQuery } from "../features/post/models/usePostQuery";
+import { User } from "../entities/user/types";
 
 const PostsManager = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  // 상태 관리
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"));
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"));
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "");
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc");
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
+  const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
+
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
-  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
-  const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+
+  const { postQuery, setSkip, setLimit, setSearchQuery, setSortBy, setSortOrder, setSelectedTag, updateURL } =
+    usePostQuery();
+  const { skip, limit, searchQuery, sortBy, sortOrder, selectedTag } = postQuery;
 
   const { comments, fetchComments, handleAddComment, handleLikeComment, handleDeleteComment, handleUpdateComment } =
     useComments({
@@ -52,50 +48,20 @@ const PostsManager = () => {
       setShowEditCommentDialog,
     });
 
-  const {
-    posts,
-    total,
-    loading,
-    fetchPosts,
-    searchPosts,
-    fetchPostsByTag,
-    handleAddPost,
-    handleUpdatePost,
-    handleDeletePost,
-  } = usePosts({
-    limit,
-    skip,
-    searchQuery,
-    newPost,
-    setNewPost,
-    selectedPost,
-    setShowAddDialog,
-    setShowEditDialog,
-  });
+  const { posts, total, loading, searchPosts, fetchPostsByTag, handleAddPost, handleUpdatePost, handleDeletePost } =
+    usePosts({ ...postQuery, newPost, updateURL, setNewPost, selectedPost, setShowAddDialog, setShowEditDialog });
 
   const { tags, fetchTags } = useTags();
 
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set("skip", skip.toString());
-    if (limit) params.set("limit", limit.toString());
-    if (searchQuery) params.set("search", searchQuery);
-    if (sortBy) params.set("sortBy", sortBy);
-    if (sortOrder) params.set("sortOrder", sortOrder);
-    if (selectedTag) params.set("tag", selectedTag);
-    navigate(`?${params.toString()}`);
-  };
-
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: Post) => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
       const userData = await getUser({ id: user.id });
       setSelectedUser(userData);
@@ -108,25 +74,6 @@ const PostsManager = () => {
   useEffect(() => {
     fetchTags();
   }, []);
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get("skip") || "0"));
-    setLimit(parseInt(params.get("limit") || "10"));
-    setSearchQuery(params.get("search") || "");
-    setSortBy(params.get("sortBy") || "");
-    setSortOrder(params.get("sortOrder") || "asc");
-    setSelectedTag(params.get("tag") || "");
-  }, [location.search]);
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -141,59 +88,20 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
-
-            <DropdownSelect
-              value={selectedTag}
-              onChange={(value) => {
-                setSelectedTag(value);
-                fetchPostsByTag(value);
-                updateURL();
-              }}
-              options={[
-                { key: "all", label: "모든 태그", value: "all" },
-                ...tags.map((tag) => ({ key: tag.url, label: tag.slug, value: tag.slug })),
-              ]}
-              placeholder="태그 선택"
-            />
-            <DropdownSelect
-              value={sortBy}
-              onChange={(value) => {
-                setSortBy(value);
-              }}
-              options={[
-                { key: "none", label: "없음", value: "none" },
-                { key: "id", label: "ID", value: "id" },
-                { key: "title", label: "제목", value: "title" },
-                { key: "reactions", label: "반응", value: "reactions" },
-              ]}
-              placeholder="정렬 기준"
-            />
-            <DropdownSelect
-              value={sortOrder}
-              onChange={(value) => {
-                setSortOrder(value);
-              }}
-              options={[
-                { key: "asc", label: "오름차순", value: "asc" },
-                { key: "desc", label: "내림차순", value: "desc" },
-              ]}
-              placeholder="정렬 순서"
-            />
-          </div>
+          <PostFiltersBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchPosts={searchPosts}
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+            fetchPostsByTag={fetchPostsByTag}
+            updateURL={updateURL}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            tags={tags}
+          />
 
           {/* 게시물 테이블 */}
           {loading ? (
@@ -260,7 +168,7 @@ const PostsManager = () => {
         setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
-        Comments={
+        bottom={
           <Comments
             comments={comments[selectedPost?.id ?? 0] ?? []}
             searchQuery={searchQuery}
