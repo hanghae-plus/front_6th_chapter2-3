@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
 
 import {
   Button,
@@ -21,6 +22,8 @@ import {
   Textarea,
 } from "../shared/ui"
 import { useGetPosts } from "../features/post/get-posts/hooks"
+import { useAddPost } from "../features/post/add-posts/hooks"
+import { useDialogStore } from "../shared/stores/dialogStore"
 import { PostTable } from "../widget/post-table/PostTable"
 import { PostFilter } from "../widget/post-filter/PostFilter"
 
@@ -28,6 +31,28 @@ const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
+
+  // Zustand store 사용
+  const {
+    showAddDialog,
+    showEditDialog,
+    showAddCommentDialog,
+    showEditCommentDialog,
+    showPostDetailDialog,
+    showUserModal,
+    openAddDialog,
+    closeAddDialog,
+    openEditDialog,
+    closeEditDialog,
+    openAddCommentDialog,
+    closeAddCommentDialog,
+    openEditCommentDialog,
+    closeEditCommentDialog,
+    openPostDetailDialog,
+    closePostDetailDialog,
+    openUserModal,
+    closeUserModal,
+  } = useDialogStore()
 
   // 상태 관리
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
@@ -37,17 +62,10 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
@@ -62,7 +80,23 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
+  const queryClient = useQueryClient()
   const { posts, total, loading } = useGetPosts(limit, skip, sortBy, sortOrder, selectedTag, searchQuery)
+
+  // 게시물 추가 custom hook 사용
+  const {
+    newPost,
+    setTitle,
+    setBody,
+    setUserId,
+    addPost,
+    resetForm,
+    isLoading: isAddingPost,
+    isError: isAddError,
+    error: addError,
+  } = useAddPost(() => {
+    closeAddDialog()
+  })
 
   // 게시물 검색
   const searchPosts = async () => {
@@ -75,24 +109,6 @@ const PostsManager = () => {
     setSkip(0)
   }
 
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      // createPost
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts])
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
-  }
-
   // 게시물 업데이트
   const updatePost = async () => {
     try {
@@ -103,8 +119,9 @@ const PostsManager = () => {
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
-      setShowEditDialog(false)
+      // 게시물 업데이트 후 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      closeEditDialog()
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
     }
@@ -150,7 +167,7 @@ const PostsManager = () => {
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
       }))
-      setShowAddCommentDialog(false)
+      closeAddCommentDialog()
       setNewComment({ body: "", postId: null, userId: 1 })
     } catch (error) {
       console.error("댓글 추가 오류:", error)
@@ -170,7 +187,7 @@ const PostsManager = () => {
         ...prev,
         [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
       }))
-      setShowEditCommentDialog(false)
+      closeEditCommentDialog()
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
@@ -217,17 +234,17 @@ const PostsManager = () => {
   const openPostDetail = (post) => {
     setSelectedPost(post)
     fetchComments(post.id)
-    setShowPostDetailDialog(true)
+    openPostDetailDialog()
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const handleOpenUserModal = async (user) => {
     try {
       // getUserInfo
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
       setSelectedUser(userData)
-      setShowUserModal(true)
+      openUserModal()
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
@@ -256,7 +273,7 @@ const PostsManager = () => {
           size="sm"
           onClick={() => {
             setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
+            openAddCommentDialog()
           }}
         >
           <Plus className="w-3 h-3 mr-1" />
@@ -280,7 +297,7 @@ const PostsManager = () => {
                 size="sm"
                 onClick={() => {
                   setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
+                  openEditCommentDialog()
                 }}
               >
                 <Edit2 className="w-3 h-3" />
@@ -300,7 +317,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={openAddDialog}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -341,10 +358,13 @@ const PostsManager = () => {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              openUserModal={openUserModal}
+              openUserModal={handleOpenUserModal}
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
-              setShowEditDialog={setShowEditDialog}
+              setShowEditDialog={(post) => {
+                setSelectedPost(post)
+                openEditDialog()
+              }}
               deletePost={deletePost}
             />
           )}
@@ -378,36 +398,51 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog
+        open={showAddDialog}
+        onOpenChange={(open) => {
+          if (open) {
+            openAddDialog()
+          } else {
+            closeAddDialog()
+            resetForm()
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 게시물 추가</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
+            <Input placeholder="제목" value={newPost.title} onChange={(e) => setTitle(e.target.value)} />
+            <Textarea rows={30} placeholder="내용" value={newPost.body} onChange={(e) => setBody(e.target.value)} />
             <Input
               type="number"
               placeholder="사용자 ID"
               value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
+              onChange={(e) => setUserId(Number(e.target.value))}
             />
-            <Button onClick={addPost}>게시물 추가</Button>
+            <Button onClick={addPost} disabled={isAddingPost}>
+              {isAddingPost ? "추가 중..." : "게시물 추가"}
+            </Button>
+            {isAddError && (
+              <p className="text-red-500 text-sm">게시물 추가 중 오류가 발생했습니다: {addError?.message}</p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      <Dialog
+        open={showEditDialog}
+        onOpenChange={(open) => {
+          if (open) {
+            openEditDialog()
+          } else {
+            closeEditDialog()
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>게시물 수정</DialogTitle>
@@ -430,7 +465,16 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
+      <Dialog
+        open={showAddCommentDialog}
+        onOpenChange={(open) => {
+          if (open) {
+            openAddCommentDialog()
+          } else {
+            closeAddCommentDialog()
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 댓글 추가</DialogTitle>
@@ -447,7 +491,16 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
+      <Dialog
+        open={showEditCommentDialog}
+        onOpenChange={(open) => {
+          if (open) {
+            openEditCommentDialog()
+          } else {
+            closeEditCommentDialog()
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>댓글 수정</DialogTitle>
@@ -464,7 +517,16 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+      <Dialog
+        open={showPostDetailDialog}
+        onOpenChange={(open) => {
+          if (open) {
+            openPostDetailDialog()
+          } else {
+            closePostDetailDialog()
+          }
+        }}
+      >
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{selectedPost?.title}</DialogTitle>
@@ -477,7 +539,16 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
+      <Dialog
+        open={showUserModal}
+        onOpenChange={(open) => {
+          if (open) {
+            openUserModal()
+          } else {
+            closeUserModal()
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>

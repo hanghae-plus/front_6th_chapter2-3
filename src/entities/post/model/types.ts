@@ -19,7 +19,6 @@ export interface PostItem {
   tags: string[]
 }
 export interface CreatePost {
-  id: number
   title: string
   body: string
   userId: number
