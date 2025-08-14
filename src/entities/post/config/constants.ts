@@ -9,7 +9,7 @@ export const POST = {
   BY_TAG: (tag: string, paramString: string) =>
     `${BASE_URL}/posts/tag/${tag}?${paramString}`,
 
-  ADD: '${BASE_URL}/posts/add',
+  ADD: `${BASE_URL}/posts/add`,
   UPDATE: (postId: number) => `${BASE_URL}/posts/${postId}`,
   DELETE: (postId: number) => `${BASE_URL}/posts/${postId}`,
 };
