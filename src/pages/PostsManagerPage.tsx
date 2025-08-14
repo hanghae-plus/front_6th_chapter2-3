@@ -43,12 +43,10 @@ const PostsManager = () => {
   const { tags, selectedTag, setSelectedTag, fetchTags: fetchTagsFromStore } = useTagsStore();
   const {
     comments,
-    selectedComment,
     newComment,
     setCommentsForPost,
     setSelectedComment,
     setNewComment,
-    addCommentToPost,
     updateCommentInPost,
     removeCommentFromPost,
   } = useCommentStore();
@@ -147,23 +145,6 @@ const PostsManager = () => {
       setCommentsForPost(postId, commentsData);
     } catch (error) {
       console.error('댓글 가져오기 오류:', error);
-    }
-  };
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    if (!selectedComment) return;
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: selectedComment.body }),
-      });
-      const data = await response.json();
-      updateCommentInPost(data.postId, selectedComment.id, data);
-      setShowEditCommentDialog(false);
-    } catch (error) {
-      console.error('댓글 업데이트 오류:', error);
     }
   };
 
@@ -334,12 +315,7 @@ const PostsManager = () => {
       <EditCommentDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <PostDetailDialog
-        selectedPost={selectedPost}
-        searchQuery={searchQuery}
-        highlightText={highlightText}
-        renderComments={renderComments}
-      />
+      <PostDetailDialog searchQuery={searchQuery} />
 
       {/* 사용자 모달 */}
       <UserModal open={showUserModal} onOpenChange={setShowUserModal} selectedUser={selectedUser} />
