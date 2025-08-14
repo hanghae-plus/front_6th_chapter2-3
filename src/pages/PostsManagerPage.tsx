@@ -26,9 +26,10 @@ import {
   Textarea,
 } from "../components"
 import { atom, useAtom } from "jotai"
-import type { Post } from "../entities/Post"
+import type { Post, PostResponse } from "../entities/Post/Post.ts"
+import { PostDialogAdd } from "./PostDialogAdd.tsx"
 
-const postsAtom = atom([])
+const postsAtom = atom<Post[]>([])
 
 function usePosts({
   limit,
@@ -37,7 +38,6 @@ function usePosts({
   sortOrder,
   selectedTag,
   searchQuery,
-  updateURL,
 }: {
   limit: number
   skip: number
@@ -45,7 +45,6 @@ function usePosts({
   sortOrder: string
   selectedTag: string
   searchQuery: string
-  updateURL: () => void
 }) {
   const [posts, setPosts] = useAtom(postsAtom)
   const [total, setTotal] = useState(0)
@@ -133,7 +132,6 @@ function usePosts({
     } else {
       fetchPosts()
     }
-    updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
 
   return {
@@ -146,30 +144,17 @@ function usePosts({
   }
 }
 
-const PostsManager = () => {
-  const navigate = useNavigate()
+function useQueryParams() {
   const location = useLocation()
+  const navigate = useNavigate()
   const queryParams = new URLSearchParams(location.search)
 
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [tags, setTags] = useState([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -183,6 +168,59 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
+  // useEffect 쪼개기
+  useEffect(() => {
+    updateURL()
+  }, [])
+
+  return {
+    skip,
+    setSkip,
+    limit,
+    setLimit,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    selectedTag,
+    setSelectedTag,
+    updateURL,
+  }
+}
+
+const PostsManager = () => {
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+
+  const [selectedPost, setSelectedPost] = useState(null)
+  const [tags, setTags] = useState([])
+  const [comments, setComments] = useState({})
+  const [selectedComment, setSelectedComment] = useState(null)
+  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
+  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+  const [showUserModal, setShowUserModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+
+  const {
+    skip,
+    setSkip,
+    limit,
+    setLimit,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    selectedTag,
+    setSelectedTag,
+    updateURL,
+  } = useQueryParams()
+
   // Post 엔티티 기준으로 필요한 인자를 받고 반환하는 커스텀 훅으로 분리
   const { posts, setPosts, total, loading, fetchPostsByTag, searchPosts } = usePosts({
     limit,
@@ -191,9 +229,7 @@ const PostsManager = () => {
     sortOrder,
     selectedTag,
     searchQuery,
-    updateURL,
   })
-
 
   // 태그 가져오기
   async function fetchTags() {
@@ -206,31 +242,12 @@ const PostsManager = () => {
     }
   }
 
-
-  // 게시물 추가
-  async function handlePostAdd() {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts])
-      setShowAddDialog(false)
-      setNewPost({title: "", body: "", userId: 1})
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
-  }
-
-
   // 게시물 업데이트
   async function handlePostUpdate() {
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
@@ -240,7 +257,6 @@ const PostsManager = () => {
       console.error("게시물 업데이트 오류:", error)
     }
   }
-
 
   // 게시물 삭제
   async function handlePostDelete(id) {
@@ -254,14 +270,13 @@ const PostsManager = () => {
     }
   }
 
-
   // 댓글 가져오기
   async function handleCommentsFetch(postId) {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`)
       const data = await response.json()
-      setComments((prev) => ({...prev, [postId]: data.comments}))
+      setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
@@ -621,33 +636,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={handlePostAdd}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDialogAdd showAddDialog={showAddDialog} setShowAddDialog={setShowAddDialog} setPosts={setPosts} />
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
