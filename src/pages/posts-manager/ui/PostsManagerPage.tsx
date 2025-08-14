@@ -1,17 +1,5 @@
 import { Plus } from "lucide-react"
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  PaginationBar,
-} from "@shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostsBrowseParams, PostsFilterBar } from "@features/post/browse-posts"
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "@entities/post/api/queries"
@@ -24,6 +12,7 @@ import { PostsTable } from "@widgets/posts-table/ui"
 import { useAddPost } from "@features/post/add-post"
 import { useEditPost } from "@features/post/edit-post"
 import { usePostDetailDialog } from "@widgets/post-detail"
+import { PostsPagination } from "@widgets/posts-pagination"
 
 const PostsManager = () => {
   const { params, setParams, stepPrev, stepNext } = usePostsBrowseParams()
@@ -128,23 +117,14 @@ const PostsManager = () => {
             isLoading={isLoading}
           />
 
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span>표시</span>
-              <Select value={String(limit)} onValueChange={(value) => setParams({ limit: Number(value) })}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <PaginationBar skip={skip} limit={limit} total={total} onPrev={stepPrev} onNext={stepNext} />
-          </div>
+          <PostsPagination
+            limit={limit}
+            skip={skip}
+            total={total}
+            onLimitChange={(newLimit) => setParams({ limit: newLimit })}
+            onPrev={stepPrev}
+            onNext={stepNext}
+          />
         </div>
       </CardContent>
 
