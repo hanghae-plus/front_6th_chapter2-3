@@ -1,6 +1,6 @@
-// PostsManagerPage.tsx에서 그대로 복사한 함수들
+import React from 'react';
 
-// 하이라이트 함수 추가
+// PostsManagerPage.tsx에서 이동한 텍스트 하이라이트 유틸리티 함수
 export const highlightText = (text: string, highlight: string) => {
   if (!text) return null;
   if (!highlight.trim()) {

@@ -1,12 +1,13 @@
-import { TagsResponse } from '../types';
+import { Tag } from '../types';
 
-export const tagAPI = {
-  // 태그 목록 가져오기
-  async fetchTags(): Promise<TagsResponse> {
+// PostsManagerPage.tsx에서 그대로 복사한 Tag 관련 함수들
+// 태그 가져오기
+export const fetchTags = async (setTags: (tags: Tag[]) => void) => {
+  try {
     const response = await fetch('/api/posts/tags');
-    if (!response.ok) {
-      throw new Error('태그 가져오기 실패');
-    }
-    return response.json();
-  },
+    const data = await response.json();
+    setTags(data);
+  } catch (error) {
+    console.error('태그 가져오기 오류:', error);
+  }
 };

@@ -1,3 +1,4 @@
+// PostsManagerPage.tsx에서 추론한 Comment 관련 타입 정의들
 export interface Comment {
   id: number;
   body: string;
@@ -5,9 +6,7 @@ export interface Comment {
   userId: number;
   likes: number;
   user: {
-    id: number;
     username: string;
-    image: string;
   };
 }
 
@@ -15,8 +14,4 @@ export interface NewComment {
   body: string;
   postId: number | null;
   userId: number;
-}
-
-export interface CommentsResponse {
-  comments: Comment[];
 }

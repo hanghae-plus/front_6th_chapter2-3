@@ -1,5 +1,4 @@
 // PostsManagerPage.tsx에서 추론한 Post 관련 타입 정의들
-
 export interface Post {
   id: number;
   title: string;

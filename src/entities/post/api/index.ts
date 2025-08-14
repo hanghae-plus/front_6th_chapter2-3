@@ -1,7 +1,6 @@
 import { Post, NewPost, User } from '../types';
 
 // PostsManagerPage.tsx에서 그대로 복사한 Post 관련 함수들
-
 // 게시물 가져오기
 export const fetchPosts = (
   setLoading: (loading: boolean) => void,
@@ -23,9 +22,9 @@ export const fetchPosts = (
     .then((response) => response.json())
     .then((users) => {
       usersData = users.users;
-      const postsWithUsers = postsData.posts.map((post: any) => ({
+      const postsWithUsers = postsData.posts.map((post: Post) => ({
         ...post,
-        author: usersData.find((user: User) => user.id === post.userId),
+        author: usersData.find((user) => user.id === post.userId),
       }));
       setPosts(postsWithUsers);
       setTotal(postsData.total);
@@ -64,10 +63,10 @@ export const searchPosts = async (
 
 // 태그별 게시물 가져오기
 export const fetchPostsByTag = async (
-  tag: string,
   setLoading: (loading: boolean) => void,
   setPosts: (posts: Post[]) => void,
   setTotal: (total: number) => void,
+  tag: string,
   fetchPosts: () => void,
 ) => {
   if (!tag || tag === 'all') {
@@ -83,9 +82,9 @@ export const fetchPostsByTag = async (
     const postsData = await postsResponse.json();
     const usersData = await usersResponse.json();
 
-    const postsWithUsers = postsData.posts.map((post: any) => ({
+    const postsWithUsers = postsData.posts.map((post: Post) => ({
       ...post,
-      author: usersData.users.find((user: User) => user.id === post.userId),
+      author: usersData.users.find((user) => user.id === post.userId),
     }));
 
     setPosts(postsWithUsers);
@@ -98,11 +97,11 @@ export const fetchPostsByTag = async (
 
 // 게시물 추가
 export const addPost = async (
-  newPost: NewPost,
   setPosts: (posts: Post[]) => void,
   posts: Post[],
   setShowAddDialog: (show: boolean) => void,
   setNewPost: (post: NewPost) => void,
+  newPost: NewPost,
 ) => {
   try {
     const response = await fetch('/api/posts/add', {
@@ -121,10 +120,10 @@ export const addPost = async (
 
 // 게시물 업데이트
 export const updatePost = async (
-  selectedPost: Post,
   setPosts: (posts: Post[]) => void,
   posts: Post[],
   setShowEditDialog: (show: boolean) => void,
+  selectedPost: Post,
 ) => {
   try {
     const response = await fetch(`/api/posts/${selectedPost.id}`, {
@@ -141,7 +140,11 @@ export const updatePost = async (
 };
 
 // 게시물 삭제
-export const deletePost = async (id: number, setPosts: (posts: Post[]) => void, posts: Post[]) => {
+export const deletePost = async (
+  setPosts: (posts: Post[]) => void,
+  posts: Post[],
+  id: number,
+) => {
   try {
     await fetch(`/api/posts/${id}`, {
       method: 'DELETE',
