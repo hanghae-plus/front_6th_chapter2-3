@@ -55,7 +55,7 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
   // 태그 가져오기
   const fetchTags = async () => {
     try {
-      const { result, tags } = await getTags()
+      const { result, data: tags } = await getTags()
       if (result && tags) {
         setTags(tags)
       }
@@ -81,9 +81,9 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
     setLoading(true)
 
     try {
-      const { result, posts } = await getPosts(limit, skip)
+      const { result, data: posts } = await getPosts(limit, skip)
       if (result && posts) {
-        const { result, users } = await getUsers()
+        const { result, data: users } = await getUsers()
         if (result && users) {
           const postsWithUsers = posts.posts.map((post) => ({
             ...post,
@@ -109,7 +109,7 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
     }
     setLoading(true)
     try {
-      const { result, posts: postsData } = await getSeachPosts(searchQuery)
+      const { result, data: postsData } = await getSeachPosts(searchQuery)
 
       if (result && postsData) {
         setPosts(postsData.posts)
@@ -135,8 +135,8 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
     }
     setLoading(true)
     try {
-      const { result: postResult, posts } = await getPostsByTag(tag)
-      const { result: userResult, users } = await getUsers()
+      const { result: postResult, data: posts } = await getPostsByTag(tag)
+      const { result: userResult, data: users } = await getUsers()
 
       if (postResult && posts && userResult && users) {
         const postsWithUsers = posts.posts.map((post) => ({
@@ -162,7 +162,7 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
   // 사용자 모달 열기
   const openUserModal = async (user: Author) => {
     try {
-      const { result, user: userData } = await getUser(user.id)
+      const { result, data: userData } = await getUser(user.id)
       if (result && userData) {
         setSelectedUser(userData)
         setShowUserModal(true)
@@ -177,7 +177,7 @@ export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       setComments([])
-      const { result, comments: commentData } = await getComments(postId)
+      const { result, data: commentData } = await getComments(postId)
       if (result && commentData) {
         console.log("commentData")
         console.log(commentData)
