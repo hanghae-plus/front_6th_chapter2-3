@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import ReactQueryProvider from './provider/ReactQueryProvider.tsx';
+import App from './app/App.tsx';
+import ReactQueryProvider from './app/provider/ReactQueryProvider.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ReactQueryProvider>
