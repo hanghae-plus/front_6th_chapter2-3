@@ -2,7 +2,12 @@ import { api } from "../../shared/api/api"
 import { ListResponse } from "../../shared/types/types"
 import { AddPostRequest, PostItem, Tag, UpdatePostRequest } from "./model"
 
-export const fetchPostsTest = async (url: string) => {
+/**
+ * 주소에 따라 게시물 조회
+ * @param url - 주소
+ * @returns 게시물 목록
+ */
+export const fetchPostsByUrl = async (url: string) => {
   const response = await api.get<ListResponse<"posts", PostItem>>(url)
   return response
 }

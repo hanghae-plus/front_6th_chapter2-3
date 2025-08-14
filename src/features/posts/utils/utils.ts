@@ -1,4 +1,4 @@
-import { ModeType } from "../../features/posts/fetch-posts-by-mode/fetchMode.store"
+import { ModeType } from "../fetch-posts-by-mode/fetchMode.store"
 
 export const queryBuilderHelper = (mode: ModeType, obj: Record<string, string | number>) => {
   const { limit, skip, sortBy, order, tag, q } = obj
