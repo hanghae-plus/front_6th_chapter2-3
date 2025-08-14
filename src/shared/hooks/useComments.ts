@@ -23,7 +23,7 @@ export const useComments = (postId: number) => {
 // 댓글 생성
 export const useCreateComment = () => {
   const queryClient = useQueryClient()
-  const [comments, setComments] = useAtom(commentsAtom)
+  const [, setComments] = useAtom(commentsAtom)
 
   return useMutation({
     mutationFn: async (commentData: { body: string; postId: number | null; userId: number }) => {
@@ -47,7 +47,7 @@ export const useCreateComment = () => {
 // 댓글 수정
 export const useUpdateComment = () => {
   const queryClient = useQueryClient()
-  const [comments, setComments] = useAtom(commentsAtom)
+  const [, setComments] = useAtom(commentsAtom)
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: { body: string } }) => {
@@ -71,7 +71,7 @@ export const useUpdateComment = () => {
 // 댓글 삭제
 export const useDeleteComment = () => {
   const queryClient = useQueryClient()
-  const [comments, setComments] = useAtom(commentsAtom)
+  const [, setComments] = useAtom(commentsAtom)
 
   return useMutation({
     mutationFn: async ({ id, postId }: { id: number; postId: number }) => {
@@ -93,7 +93,7 @@ export const useDeleteComment = () => {
 // 댓글 좋아요
 export const useLikeComment = () => {
   const queryClient = useQueryClient()
-  const [comments, setComments] = useAtom(commentsAtom)
+  const [, setComments] = useAtom(commentsAtom)
 
   return useMutation({
     mutationFn: async ({ id, likes }: { id: number; likes: number }) => {
