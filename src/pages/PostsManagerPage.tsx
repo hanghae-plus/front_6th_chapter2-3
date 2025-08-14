@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { SearchPostInput, TagSelectBox, SortSelectBox } from "@/widgets/post/ui"
+import { SearchPostInput, TagSelectBox, SortSelectBox, PaginationControl } from "@/widgets/post/ui"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
 import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
@@ -205,6 +205,9 @@ const PostsManager = () => {
           </div>
 
           {renderPostTable()}
+
+          {/* 페이지네이션 컨트롤 */}
+          <PaginationControl />
         </div>
       </CardContent>
 
