@@ -1,3 +1,7 @@
+import importPlugin from 'eslint-plugin-import';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -6,14 +10,14 @@ import js from '@eslint/js';
 export default tseslint.config(
   { ignores: ['dist'] },
   {
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommended,
-      'airbnb',
-      'airbnb-typescript',
-      'airbnb/hooks',
-    ],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      import: importPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -24,7 +28,8 @@ export default tseslint.config(
         ecmaFeatures: {
           jsx: true,
         },
-        project: './tsconfig.json',
+        project: './tsconfig.app.json',
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     settings: {
@@ -34,7 +39,7 @@ export default tseslint.config(
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.json',
+          project: './tsconfig.app.json',
         },
         alias: {
           map: [
@@ -55,7 +60,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      // Airbnb 기본 규칙 유지하면서 프로젝트에 맞게 조정
+      // Airbnb 스타일 규칙들을 직접 정의
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
@@ -71,6 +76,12 @@ export default tseslint.config(
           namedComponents: 'arrow-function',
           unnamedComponents: 'arrow-function',
         },
+      ],
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
       ],
       'import/extensions': [
         'error',

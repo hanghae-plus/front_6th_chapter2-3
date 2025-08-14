@@ -9,6 +9,18 @@ export interface Post {
   reactions?: PostReactions;
 }
 
+export interface DeletedPost {
+  id: number;
+  title: string;
+  body: string;
+  tags: string[];
+  reactions: PostReactions;
+  views: number;
+  userId: number;
+  isDeleted: boolean;
+  deletedOn: string;
+}
+
 export interface PostReactions {
   likes: number;
   dislikes: number;

@@ -7,7 +7,7 @@ import { cva, VariantProps } from 'class-variance-authority';
  * - size: 크기별 스타일 (default, sm, lg, icon)
  * - 접근성 기본 스타일 포함 (focus-visible, disabled)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',
   {

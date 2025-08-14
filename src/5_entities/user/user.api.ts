@@ -1,4 +1,5 @@
 import { User, UserPick } from '@/entities/user';
+import { ApiService } from '@/shared/lib';
 import { PaginationMeta } from '@/shared/types';
 
 export interface GetUsersResponse<T> extends PaginationMeta {
@@ -17,10 +18,11 @@ export const getUsers = async <K extends keyof User>({
   limit,
   select,
 }: GetUsersParams<K>): Promise<GetUsersResponse<UserPick<K>>> => {
-  const response = await fetch(
-    `/api/users?limit=${limit}&select=${select.join(',')}`
-  );
-  return response.json();
+  const params = {
+    limit: limit.toString(),
+    select: select.join(','),
+  };
+  return ApiService.get<GetUsersResponse<UserPick<K>>>('/users', params);
 };
 
 export const postUser = async () => {};
@@ -30,6 +32,5 @@ export const putUser = async () => {};
 export const deleteUser = async () => {};
 
 export const getUser = async (userId: number): Promise<User> => {
-  const response = await fetch(`/api/users/${userId}`);
-  return response.json();
+  return ApiService.get<User>(`/users/${userId}`);
 };

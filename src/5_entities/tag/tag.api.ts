@@ -1,6 +1,6 @@
 import { Tag } from '@/entities/tag';
+import { ApiService } from '@/shared/lib';
 
 export const getTags = async (): Promise<Tag[]> => {
-  const response = await fetch('/api/posts/tags');
-  return response.json();
+  return ApiService.get<Tag[]>('/posts/tags');
 };
