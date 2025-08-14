@@ -17,3 +17,16 @@ export interface GetPostsListResponseType {
   posts: PostType[];
   total: number;
 }
+
+export interface PostPostRequestType {
+  title: string;
+  body: string;
+  userId: number;
+}
+
+export interface PutPostRequestType {
+  title: string;
+  body: string;
+  userId: number;
+  id: number;
+}
