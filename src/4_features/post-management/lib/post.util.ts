@@ -1,14 +1,18 @@
 import type { Post } from '@/entities/post';
-import type { User } from '@/entities/user';
+import type { User, UserPick } from '@/entities/user';
 
 import { PostWithAuthor } from '../types';
 
-export const getPostsWithAuthor = (
+export const getPostsWithAuthor = <K extends keyof User>(
   posts: Post[],
-  users: User[]
-): PostWithAuthor[] => {
-  return posts.map(post => ({
-    ...post,
-    author: users.find(user => user.id === post.userId),
-  }));
+  users: UserPick<K | 'id'>[]
+): PostWithAuthor<K>[] => {
+  return posts.map(post => {
+    const author = users.find(user => user.id === post.userId);
+
+    return {
+      ...post,
+      author,
+    };
+  });
 };

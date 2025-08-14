@@ -11,12 +11,19 @@ import { usePostsFilterStore } from '@/shared/index';
 import { getPostsWithAuthor } from '../lib/post.util';
 import { PostWithAuthor } from '../types';
 
+type SelectedUserProperties = 'id' | 'username' | 'image';
+
 export const useFilteredPosts = () => {
   const { selectedTag, searchQuery } = usePostsFilterStore();
 
-  const [posts, setPosts] = useState<PostWithAuthor[]>([]);
+  const [posts, setPosts] = useState<PostWithAuthor<SelectedUserProperties>[]>(
+    []
+  );
 
-  const { data: usersData } = useGetUsersQuery({ limit: 10, select: 'id' });
+  const { data: usersData } = useGetUsersQuery<SelectedUserProperties>({
+    limit: 0,
+    select: ['id', 'username', 'image'],
+  });
   const { data: postsData } = useGetPostsQuery({ limit: 10, skip: 0 });
 
   // 조건부로 쿼리 실행
@@ -28,18 +35,21 @@ export const useFilteredPosts = () => {
   );
 
   const postsWithAuthor = useMemo(() => {
-    return getPostsWithAuthor(postsData?.posts ?? [], usersData?.users ?? []);
+    return getPostsWithAuthor<SelectedUserProperties>(
+      postsData?.posts ?? [],
+      usersData?.users ?? []
+    );
   }, [postsData?.posts, usersData?.users]);
 
   const postsWithAuthorByTag = useMemo(() => {
-    return getPostsWithAuthor(
+    return getPostsWithAuthor<SelectedUserProperties>(
       postsByTagData?.posts ?? [],
       usersData?.users ?? []
     );
   }, [postsByTagData?.posts, usersData?.users]);
 
   const postsWithAuthorBySearch = useMemo(() => {
-    return getPostsWithAuthor(
+    return getPostsWithAuthor<SelectedUserProperties>(
       postsBySearchData?.posts ?? [],
       usersData?.users ?? []
     );

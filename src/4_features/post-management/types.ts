@@ -1,8 +1,6 @@
 import type { Post } from '@/entities/post';
-import type { User } from '@/entities/user';
+import type { User, UserPick } from '@/entities/user';
 
-interface PostWithAuthor extends Post {
-  author?: User;
+export interface PostWithAuthor<K extends keyof User> extends Post {
+  author?: UserPick<K>;
 }
-
-export type { PostWithAuthor };

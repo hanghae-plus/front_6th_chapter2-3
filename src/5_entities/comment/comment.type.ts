@@ -1,13 +1,13 @@
 import { PaginationResponse } from '@/shared/types';
 
-import { User } from '../user';
+import { BaseUser, User } from '../user';
 
 // ? Comment에 User도 포함되는데 Entity에 넣는게 맞나?
 export interface Comment {
   id: number;
   postId: number;
   body: string;
-  user: User;
+  user: BaseUser;
   likes: number;
 }
 

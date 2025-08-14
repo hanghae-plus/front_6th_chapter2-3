@@ -32,13 +32,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Plus, Search } from 'lucide-react';
 
-import type { User } from '@/entities/user';
 import { AddCommentDialog } from '@/features/comment-management';
 import { EditCommentFormDialog } from '@/features/comment-management/ui/EditCommentFormDialog';
 import { PostDetailDialog, PostTable } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
 import { SelectTag } from '@/features/select-tag';
+import { UserProfileDialog } from '@/features/user-profile';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { useUIStore } from '@/shared/lib/store/UIStore';
 import {
@@ -47,17 +47,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from '@/shared/ui';
 
 const PostsManager = () => {
@@ -133,149 +128,6 @@ const PostsManager = () => {
     setShowEditCommentDialog,
     setShowUserModal,
   } = useUIStore();
-
-  // ==================== 댓글 관리 함수들 ====================
-  /**
-   * 특정 게시물의 댓글 조회
-   * - 캐싱 메커니즘: 이미 로드된 댓글은 재요청하지 않음
-   * - 게시물별로 댓글을 객체 형태로 저장 {postId: comments[]}
-   */
-  const fetchComments = async postId => {
-    if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`);
-      const data = await response.json();
-      setComments(prev => ({ ...prev, [postId]: data.comments }));
-    } catch (error) {
-      console.error('댓글 가져오기 오류:', error);
-    }
-  };
-
-  /**
-   * 새 댓글 생성
-   * - 해당 게시물의 댓글 배열에 새 댓글 추가
-   * - 기존 댓글이 없는 경우 빈 배열로 초기화 후 추가
-   */
-  const addComment = async () => {
-    try {
-      const response = await fetch('/api/comments/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newComment),
-      });
-      const data = await response.json();
-      setComments(prev => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }));
-      setShowAddCommentDialog(false);
-      setNewComment({
-        body: '',
-        postId: null,
-        userId: API_CONSTANTS.DEFAULT_USER_ID,
-      });
-    } catch (error) {
-      console.error('댓글 추가 오류:', error);
-    }
-  };
-
-  /**
-   * 기존 댓글 수정
-   * - 댓글 내용만 수정 가능 (body 필드)
-   * - 해당 게시물의 댓글 배열에서 수정된 댓글 교체
-   */
-  const updateComment = async () => {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: selectedComment.body }),
-      });
-      const data = await response.json();
-      setComments(prev => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map(comment =>
-          comment.id === data.id ? data : comment
-        ),
-      }));
-      setShowEditCommentDialog(false);
-    } catch (error) {
-      console.error('댓글 업데이트 오류:', error);
-    }
-  };
-
-  /**
-   * 댓글 삭제
-   * - 해당 게시물의 댓글 배열에서 삭제된 댓글 제거
-   * - filter를 사용한 불변성 유지
-   */
-  const deleteComment = async (id, postId) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: 'DELETE',
-      });
-      setComments(prev => ({
-        ...prev,
-        [postId]: prev[postId].filter(comment => comment.id !== id),
-      }));
-    } catch (error) {
-      console.error('댓글 삭제 오류:', error);
-    }
-  };
-
-  /**
-   * 댓글 좋아요 기능
-   * - 현재 좋아요 수에서 +1 증가
-   * - 낙관적 업데이트로 즉시 UI 반영
-   */
-  const likeComment = async (id, postId) => {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          likes:
-            comments[postId].find(c => c.id === id).likes +
-            API_CONSTANTS.REACTIONS.LIKE_INCREMENT,
-        }),
-      });
-
-      const data = await response.json();
-
-      setComments(prev => ({
-        ...prev,
-        [postId]: prev[postId].map(comment =>
-          comment.id === data.id
-            ? {
-                ...data,
-                likes: comment.likes + API_CONSTANTS.REACTIONS.LIKE_INCREMENT,
-              }
-            : comment
-        ),
-      }));
-    } catch (error) {
-      console.error('댓글 좋아요 오류:', error);
-    }
-  };
-
-  // ==================== UI 인터랙션 함수들 ====================
-
-  /**
-   * 사용자 정보 모달 열기
-   * - 작성자 클릭 시 해당 사용자의 상세 정보 조회
-   * - 추가 사용자 정보 (연락처, 주소, 직장 등) 표시
-   */
-  const openUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`);
-      const userData = await response.json();
-      setSelectedUser(userData);
-      setShowUserModal(true);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 오류:', error);
-    }
-  };
 
   // ==================== 라이프사이클 및 사이드 이펙트 ====================
 
@@ -439,46 +291,7 @@ const PostsManager = () => {
       <PostDetailDialog />
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <img
-              src={selectedUser?.image}
-              alt={selectedUser?.username}
-              className='w-24 h-24 rounded-full mx-auto'
-            />
-            <h3 className='text-xl font-semibold text-center'>
-              {selectedUser?.username}
-            </h3>
-            <div className='space-y-2'>
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName}{' '}
-                {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address},{' '}
-                {selectedUser?.address?.city}, {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} -{' '}
-                {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserProfileDialog />
     </Card>
   );
 };

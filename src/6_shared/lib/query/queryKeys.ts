@@ -39,6 +39,8 @@ const userQueryKeys = {
   lists: () => [QUERY_DOMAINS.USERS, QUERY_OPERATIONS.LIST] as const,
   list: (params: GetUsersParams) =>
     [QUERY_DOMAINS.USERS, QUERY_OPERATIONS.LIST, params] as const,
+  details: () => [...userQueryKeys.lists(), 'detail'] as const,
+  detail: (userId: number) => [...userQueryKeys.details(), userId] as const,
 } as const;
 
 const tagQueryKeys = {
