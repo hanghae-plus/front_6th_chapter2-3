@@ -18,7 +18,7 @@ export const fetchComments = async (postId: number) => {
  * @returns 댓글 정보
  */
 export const addComment = async (comment: CommentRequest) => {
-  const response = await api.post(`/comments`, comment)
+  const response = await api.post(`/comments/add`, comment)
   return response
 }
 

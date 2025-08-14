@@ -1,7 +1,7 @@
 import { create } from "zustand"
 
 // 모달 타입 정의
-export type ModalKey = "addPost" | "editPost" | "detailPost" | "addCommentDialog" | "editCommentDialog" | "userModal"
+export type ModalKey = "addPost" | "editPost" | "detailPost" | "addComment" | "editComment" | "userModal"
 
 // 모달 상태 타입 정의
 export interface ModalState {
@@ -22,8 +22,8 @@ const initialModalState: Record<ModalKey, boolean> = {
   addPost: false,
   editPost: false,
   detailPost: false,
-  addCommentDialog: false,
-  editCommentDialog: false,
+  addComment: false,
+  editComment: false,
   userModal: false,
 }
 

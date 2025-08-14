@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useFetchPostsModeStore } from "../fetch-posts-by-mode/fetchMode.store"
+import { useFetchPostsModeStore } from "../fetch-posts-by-mode/store/fetchMode.store"
 import { addPost } from "../../../entities/post/api"
 import { ListResponse } from "../../../shared/types/types"
 import { PostItem } from "../../../entities/post/model"
 import { useModal } from "../../open-modal/useModal"
+import { tempIdGenerator } from "../../../shared/utils/tempIdGenerator"
 
 const initialNewPost = { title: "", body: "", userId: 1 }
 
@@ -27,7 +28,7 @@ export const useAddPost = () => {
   const addPostMutation = useMutation({
     mutationFn: addPost,
     onMutate: async (newPost) => {
-      const tempId = Math.floor(100 + Math.random() * 900) // 3자리 숫자 생성
+      const tempId = tempIdGenerator()
       const tempPost = { ...newPost, id: tempId }
       await queryClient.cancelQueries({ queryKey })
       const previousPosts = queryClient.getQueryData(queryKey)

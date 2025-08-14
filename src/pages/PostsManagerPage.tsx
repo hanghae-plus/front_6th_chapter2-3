@@ -27,16 +27,17 @@ import {
 } from "../shared/ui"
 import { HighlightText } from "../shared/ui/HighlightText"
 import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
-import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/useFetchPostsByMode.ts"
-import { useSearchMode } from "../features/posts/fetch-posts-by-mode/search-mode/useSearchMode"
-import { useTagMode } from "../features/posts/fetch-posts-by-mode/tag-mode/useTagMode.ts"
+import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hooks/useFetchPostsByMode.ts"
+import { useSearchMode } from "../features/posts/fetch-posts-by-mode/hooks/useSearchMode.ts"
+import { useTagMode } from "../features/posts/fetch-posts-by-mode/hooks/useTagMode.ts.ts"
 import { useTagsQuery } from "../entities/post/hook.ts"
-import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/page-navigate-mode/usePageNavigateMode.ts"
-import { useSortMode } from "../features/posts/fetch-posts-by-mode/sort-mode/useSortMode.ts"
-import { useAddPost } from "../features/posts/add-post/useAddPost.ts"
-import { useUpdatePost } from "../features/posts/update-post/useUpdatePost.ts"
-import { useDetailPost } from "../features/posts/detail-post/useDetailPost.ts"
-import { useDeletePost } from "../features/posts/delete-post/useDeletePost.ts"
+import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/hooks/usePageNavigateMode.ts"
+import { useSortMode } from "../features/posts/fetch-posts-by-mode/hooks/useSortMode.ts"
+import { useAddPost } from "../features/posts/hooks/useAddPost.ts"
+import { useUpdatePost } from "../features/posts/hooks/useUpdatePost.ts"
+import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
+import { useDeletePost } from "../features/posts/hooks/useDeletePost.ts"
+import { useAddComment } from "../features/comment/hooks/useAddComment.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -87,6 +88,8 @@ const PostsManager = () => {
   const detailPost = useDetailPost()
   const deletePost = useDeletePost()
 
+  const addComment = useAddComment()
+
   // 게시물 업데이트
   // const updatePost = async () => {
   //   try {
@@ -116,37 +119,37 @@ const PostsManager = () => {
   // }
 
   // 댓글 가져오기
-  const fetchComments = async (postId) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      console.log("댓글가져오기", data)
-      // setComments((prev) => ({ ...prev, [postId]: data.comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
+  // const fetchComments = async (postId) => {
+  //   if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
+  //   try {
+  //     const response = await fetch(`/api/comments/post/${postId}`)
+  //     const data = await response.json()
+  //     console.log("댓글가져오기", data)
+  //     // setComments((prev) => ({ ...prev, [postId]: data.comments }))
+  //   } catch (error) {
+  //     console.error("댓글 가져오기 오류:", error)
+  //   }
+  // }
 
   // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
-      // setComments((prev) => ({
-      //   ...prev,
-      //   [data.postId]: [...(prev[data.postId] || []), data],
-      // }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
+  // const addComment = async () => {
+  //   try {
+  //     const response = await fetch("/api/comments/add", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(newComment),
+  //     })
+  //     const data = await response.json()
+  //     // setComments((prev) => ({
+  //     //   ...prev,
+  //     //   [data.postId]: [...(prev[data.postId] || []), data],
+  //     // }))
+  //     setShowAddCommentDialog(false)
+  //     setNewComment({ body: "", postId: null, userId: 1 })
+  //   } catch (error) {
+  //     console.error("댓글 추가 오류:", error)
+  //   }
+  // }
 
   // 댓글 업데이트
   const updateComment = async () => {
@@ -245,13 +248,7 @@ const PostsManager = () => {
       <div className="mt-2">
         <div className="flex items-center justify-between mb-2 ">
           <h3 className="text-sm font-semibold">댓글</h3>
-          <Button
-            size="sm"
-            onClick={() => {
-              setNewComment((prev) => ({ ...prev, postId }))
-              setShowAddCommentDialog(true)
-            }}
-          >
+          <Button size="sm" onClick={() => addComment.action.open(postId)}>
             <Plus className="w-3 h-3 mr-1" />
             댓글 추가
           </Button>
@@ -476,7 +473,10 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
+      <Dialog
+        open={addComment.modal.isOpen}
+        onOpenChange={(open) => (open ? addComment.modal.open() : addComment.modal.close())}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>새 댓글 추가</DialogTitle>
@@ -484,10 +484,10 @@ const PostsManager = () => {
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
+              value={addComment.state.newComment.body}
+              onChange={(e) => addComment.action.change(e.target.value)}
             />
-            <Button onClick={addComment}>댓글 추가</Button>
+            <Button onClick={() => addComment.action.add(addComment.state.newComment)}>댓글 추가</Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -1,6 +1,6 @@
 import { useUpdateURL } from "../../../update-URL/useUpdateURL"
-import { useFetchPostsModeStore } from "../fetchMode.store"
-import { useFetchPostsByMode } from "../useFetchPostsByMode"
+import { useFetchPostsModeStore } from "../store/fetchMode.store"
+import { useFetchPostsByMode } from "./useFetchPostsByMode"
 
 export const usePageNavigateMode = () => {
   const { action, params } = useUpdateURL()

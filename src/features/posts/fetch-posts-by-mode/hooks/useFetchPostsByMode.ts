@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import { useFetchPostsModeStore } from "./fetchMode.store"
-import { useUsersQuery } from "../../../entities/user/hook"
-import { USER_SEARCH } from "../constants/constant"
+import { useFetchPostsModeStore } from "../store/fetchMode.store"
+import { useUsersQuery } from "../../../../entities/user/hook"
+import { USER_SEARCH } from "../../constants/constant"
 
 import { useMemo } from "react"
-import { fetchPostsByUrl } from "../../../entities/post/api"
-import { queryBuilderHelper } from "./utils/utils"
-import { joinPostsWithUsers } from "./utils/joinPostsWithUsers"
+import { fetchPostsByUrl } from "../../../../entities/post/api"
+import { queryBuilderHelper } from "../utils/utils"
+import { joinPostsWithUsers } from "../utils/joinPostsWithUsers"
 
 /**
  * 포스트 목록 조회

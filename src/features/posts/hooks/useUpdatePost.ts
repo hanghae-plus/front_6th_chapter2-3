@@ -3,7 +3,7 @@ import { PostItem } from "../../../entities/post/model"
 import { useModal } from "../../open-modal/useModal"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { updatePost } from "../../../entities/post/api"
-import { useFetchPostsModeStore } from "../fetch-posts-by-mode/fetchMode.store"
+import { useFetchPostsModeStore } from "../fetch-posts-by-mode/store/fetchMode.store"
 import { ListResponse } from "../../../shared/types/types"
 
 export const useUpdatePost = () => {

@@ -1,5 +1,5 @@
 import { useUpdateURL } from "../../../update-URL/useUpdateURL"
-import { useFetchPostsModeStore } from "../fetchMode.store"
+import { useFetchPostsModeStore } from "../store/fetchMode.store"
 
 export const useSortMode = () => {
   const { action, params } = useUpdateURL()

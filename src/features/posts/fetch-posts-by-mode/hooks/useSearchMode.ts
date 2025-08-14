@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useUpdateURL } from "../../../update-URL/useUpdateURL"
-import { useFetchPostsModeStore } from "../fetchMode.store"
+import { useFetchPostsModeStore } from "../store/fetchMode.store"
 
 export const useSearchMode = () => {
   const { action, params } = useUpdateURL()
