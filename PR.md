@@ -1,3 +1,7 @@
+## 배포링크
+
+https://angielxx.github.io/front_6th_chapter2-3
+
 ## 과제 체크포인트
 
 ### 기본과제
