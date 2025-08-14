@@ -1,3 +1,5 @@
+import { DIALOG_KEYS } from '../../../../shared/constant/dialog';
+import { useDialogStore } from '../../../../shared/store/dialog';
 import {
   Dialog,
   DialogContent,
@@ -7,24 +9,16 @@ import {
   Input,
   Textarea,
 } from '../../../../shared/ui';
+import { EditPostDialogProps } from '../model/type';
 
-interface EditPostDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedPost: any;
-  onPostChange: (post: any) => void;
-  onSubmit: () => void;
-}
+export const EditPostDialog = ({ selectedPost, onPostChange, onSubmit }: EditPostDialogProps) => {
+  const { isDialogOpen, closeDialog } = useDialogStore();
 
-export const EditPostDialog = ({
-  open,
-  onOpenChange,
-  selectedPost,
-  onPostChange,
-  onSubmit,
-}: EditPostDialogProps) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isDialogOpen(DIALOG_KEYS.EDIT_POST)}
+      onOpenChange={() => closeDialog(DIALOG_KEYS.EDIT_POST)}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>게시물 수정</DialogTitle>

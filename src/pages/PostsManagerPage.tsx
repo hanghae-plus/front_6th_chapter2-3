@@ -399,8 +399,6 @@ const PostsManager = () => {
 
       {/* 게시물 수정 대화상자 */}
       <EditPostDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
         selectedPost={selectedPost}
         onPostChange={setSelectedPost}
         onSubmit={updatePost}
