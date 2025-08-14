@@ -1,50 +1,38 @@
-import { useMemo } from 'react';
-
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/index';
 
-import { getUsers, GetUsersParams } from '../user';
-import { getPosts, GetPostsParams } from './post.api';
+import {
+  getPosts,
+  getPostsBySearch,
+  getPostsByTag,
+  GetPostsParams,
+} from './post.api';
 
-export const useGetPostsWithAuthor = ({
-  postParams,
-  userParams,
-}: {
-  postParams: GetPostsParams;
-  userParams: GetUsersParams;
-}) => {
-  const [getPostQuery, getUserQuery] = useQueries({
-    queries: [
-      {
-        queryKey: queryKeys.posts.list(postParams),
-        queryFn: () => getPosts(postParams),
-      },
-      {
-        queryKey: queryKeys.users.list(userParams),
-        queryFn: () => getUsers(userParams),
-      },
-    ],
+export const useGetPostsQuery = (params: GetPostsParams) => {
+  return useQuery({
+    queryKey: queryKeys.posts.list(params),
+    queryFn: () => getPosts(params),
   });
+};
 
-  const postsWithAuthor = useMemo(() => {
-    const posts = getPostQuery.data?.posts ?? [];
-    const users = getUserQuery.data?.users ?? [];
+export const useGetPostsByTagQuery = (tag: string) => {
+  return useQuery({
+    queryKey: queryKeys.posts.list({ tag }),
+    queryFn: () => getPostsByTag({ tag }),
+  });
+};
 
-    return posts.map(post => ({
-      ...post,
-      author: users?.find(user => user.id === post.userId),
-    }));
-  }, [getPostQuery.data?.posts, getUserQuery.data?.users]);
+export const postQueryOptions = {
+  getPosts: (params: GetPostsParams) => ({
+    queryKey: queryKeys.posts.list(params),
+    queryFn: () => getPosts(params),
+  }),
+};
 
-  const isLoading = getPostQuery.isLoading || getUserQuery.isLoading;
-  const isError = getPostQuery.isError || getUserQuery.isError;
-  const error = getPostQuery.error || getUserQuery.error;
-
-  return {
-    postsWithAuthor,
-    isLoading,
-    isError,
-    error,
-  };
+export const useGetPostsBySearchQuery = (search: string) => {
+  return useQuery({
+    queryKey: queryKeys.posts.search(search),
+    queryFn: () => getPostsBySearch({ search }),
+  });
 };

@@ -1,4 +1,3 @@
-import { GetPostsParams } from '@/entities/post';
 import { GetUsersParams } from '@/entities/user';
 
 export const QUERY_DOMAINS = {
@@ -26,16 +25,11 @@ const postQueryKeys = {
   all: [QUERY_DOMAINS.POSTS] as const,
 
   lists: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.LIST] as const,
-  list: (params: GetPostsParams) =>
-    [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.LIST, params] as const,
-
-  details: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.DETAIL] as const,
-  detail: (id: number) =>
-    [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.DETAIL, id] as const,
+  list: (params: { limit?: number; skip?: number; tag?: string }) =>
+    [...postQueryKeys.lists(), params] as const,
 
   searches: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.SEARCH] as const,
-  search: (query: string, filters?: Record<string, unknown>) =>
-    [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.SEARCH, { query, filters }] as const,
+  search: (query: string) => [...postQueryKeys.searches(), { query }] as const,
 
   infinite: (params: { limit?: number; tag?: string }) =>
     [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.INFINITE, params] as const,
@@ -52,7 +46,14 @@ const userQueryKeys = {
     [QUERY_DOMAINS.USERS, QUERY_OPERATIONS.LIST, params] as const,
 } as const;
 
+const tagQueryKeys = {
+  all: [QUERY_DOMAINS.TAGS] as const,
+
+  lists: () => [QUERY_DOMAINS.TAGS, QUERY_OPERATIONS.LIST] as const,
+} as const;
+
 export const queryKeys = {
   posts: postQueryKeys,
   users: userQueryKeys,
+  tags: tagQueryKeys,
 } as const;

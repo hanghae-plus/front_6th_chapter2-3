@@ -40,10 +40,11 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { getPosts } from '@/entities/post/post.api';
-import type { PostWithAuthor } from '@/entities/post/post.type';
-import { getUsers } from '@/entities/user/user.api';
+import { useGetTagsQuery } from '@/entities/tag';
+import type { User } from '@/entities/user';
+import { useFilteredPosts } from '@/features/posts-list';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
+import { highlightText } from '@/shared/lib';
 import {
   Button,
   Card,
@@ -76,8 +77,9 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // ==================== 게시물 관련 상태 ====================
-  const [posts, setPosts] = useState<PostWithAuthor[]>([]); // 게시물 목록 데이터
-  const [total, setTotal] = useState(API_CONSTANTS.REACTIONS.DEFAULT_LIKES); // 전체 게시물 수 (페이지네이션용)
+  const [total, setTotal] = useState<number>(
+    API_CONSTANTS.REACTIONS.DEFAULT_LIKES
+  ); // 전체 게시물 수 (페이지네이션용)
   const [selectedPost, setSelectedPost] = useState(null); // 현재 선택된 게시물
   const [newPost, setNewPost] = useState({
     title: '',
@@ -147,110 +149,14 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // ==================== 게시물 데이터 관리 함수들 ====================
-  /**
-   * 게시물 목록 조회 (작성자 정보 포함)
-   * 로직:
-   * 1. 페이지네이션 파라미터로 게시물 API 호출
-   * 2. 별도로 사용자 목록 API 호출 (작성자 정보용)
-   * 3. 게시물과 사용자 데이터를 매핑하여 author 필드 추가
-   * 4. 상태 업데이트 및 로딩 상태 관리
-   */
-  const fetchPosts = () => {
-    setLoading(true);
-    let postsData;
-    let usersData;
+  // ======== 개선 ====
 
-    getPosts({ limit, skip })
-      .then(data => {
-        postsData = data.posts;
-        return getUsers({ limit: 0, select: 'username,image' });
-      })
-      .then(users => {
-        usersData = users.users;
-        const postsWithUsers = postsData.posts.map(post => ({
-          ...post,
-          author: usersData.find(user => user.id === post.userId),
-        }));
-        setPosts(postsWithUsers);
-        setTotal(postsData.total);
-      })
-      .catch(error => {
-        console.error('게시물 가져오기 오류:', error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const { posts, setPosts } = useFilteredPosts({
+    tag: selectedTag,
+    search: searchQuery,
+  });
 
-  /**
-   * 사용 가능한 태그 목록 조회
-   * - 필터링 옵션으로 사용될 태그들을 미리 로드
-   */
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/posts/tags');
-      const data = await response.json();
-      setTags(data);
-    } catch (error) {
-      console.error('태그 가져오기 오류:', error);
-    }
-  };
-
-  /**
-   * 게시물 텍스트 검색
-   * - 검색어가 있으면 검색 API 호출, 없으면 일반 목록 조회
-   * - 검색 결과도 게시물 목록과 동일한 형태로 처리
-   */
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`);
-      const data = await response.json();
-      setPosts(data.posts);
-      setTotal(data.total);
-    } catch (error) {
-      console.error('게시물 검색 오류:', error);
-    }
-    setLoading(false);
-  };
-
-  /**
-   * 태그별 게시물 필터링
-   * - 특정 태그에 속한 게시물들만 조회
-   * - Promise.all을 사용한 병렬 API 호출로 성능 최적화
-   * - 작성자 정보 매핑 로직 공통 적용
-   */
-  const fetchPostsByTag = async tag => {
-    if (!tag || tag === 'all') {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch(`/api/users?limit=0&select=username,image`),
-      ]);
-      const postsData = await postsResponse.json();
-      const usersData = await usersResponse.json();
-
-      const postsWithUsers = postsData.posts.map(post => ({
-        ...post,
-        author: usersData.users.find(user => user.id === post.userId),
-      }));
-
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error('태그별 게시물 가져오기 오류:', error);
-    }
-    setLoading(false);
-  };
+  const { data: tagsData } = useGetTagsQuery();
 
   // ==================== 게시물 CRUD 함수들 ====================
   /**
@@ -454,7 +360,7 @@ const PostsManager = () => {
    * - 작성자 클릭 시 해당 사용자의 상세 정보 조회
    * - 추가 사용자 정보 (연락처, 주소, 직장 등) 표시
    */
-  const openUserModal = async user => {
+  const openUserModal = async (user: User) => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
       const userData = await response.json();
@@ -466,12 +372,6 @@ const PostsManager = () => {
   };
 
   // ==================== 라이프사이클 및 사이드 이펙트 ====================
-  /**
-   * 컴포넌트 마운트 시 태그 목록 초기화
-   */
-  useEffect(() => {
-    fetchTags();
-  }, []);
 
   /**
    * 페이지네이션, 정렬, 태그 변경 시 데이터 재조회
@@ -480,11 +380,6 @@ const PostsManager = () => {
    * - URL 상태 동기화
    */
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
     updateURL();
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
@@ -510,33 +405,6 @@ const PostsManager = () => {
     setSortOrder(params.get('sortOrder') || 'asc');
     setSelectedTag(params.get('tag') || '');
   }, [location.search]);
-
-  // ==================== 유틸리티 함수들 ====================
-  /**
-   * 검색어 하이라이트 기능
-   * - 검색어가 포함된 텍스트를 시각적으로 강조 표시
-   * - 정규표현식을 사용한 대소문자 무시 검색
-   * - 검색어가 없거나 텍스트가 없는 경우 예외 처리
-   */
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null;
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <mark key={i}>{part}</mark>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </span>
-    );
-  };
 
   // ==================== 렌더링 함수들 ====================
   /**
@@ -740,7 +608,11 @@ const PostsManager = () => {
                   className='pl-8'
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && searchPosts()}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      setSearchQuery(e.currentTarget.value);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -748,7 +620,6 @@ const PostsManager = () => {
               value={selectedTag}
               onValueChange={value => {
                 setSelectedTag(value);
-                fetchPostsByTag(value);
                 updateURL();
               }}
             >
@@ -757,7 +628,7 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>모든 태그</SelectItem>
-                {tags.map(tag => (
+                {tagsData?.tags?.map(tag => (
                   <SelectItem key={tag.url} value={tag.slug}>
                     {tag.slug}
                   </SelectItem>

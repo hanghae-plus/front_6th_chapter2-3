@@ -1,2 +1,1 @@
-// Features layer public API
-// Export feature components and hooks here
+export * from './posts-list';

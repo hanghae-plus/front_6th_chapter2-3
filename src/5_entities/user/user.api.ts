@@ -1,6 +1,5 @@
+import { User } from '@/entities/user';
 import { PaginationResponse } from '@/shared/types';
-
-import { User } from './user.type';
 
 export interface GetUsersResponse extends PaginationResponse {
   users: User[];

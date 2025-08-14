@@ -1,9 +1,3 @@
-import importPlugin from 'eslint-plugin-import';
-import reactA11y from 'eslint-plugin-jsx-a11y';
-import prettier from 'eslint-plugin-prettier';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -12,7 +6,13 @@ import js from '@eslint/js';
 export default tseslint.config(
   { ignores: ['dist'] },
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      'airbnb',
+      'airbnb-typescript',
+      'airbnb/hooks',
+    ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
@@ -24,15 +24,8 @@ export default tseslint.config(
         ecmaFeatures: {
           jsx: true,
         },
+        project: './tsconfig.json',
       },
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      react: react,
-      'jsx-a11y': reactA11y,
-      import: importPlugin,
-      prettier: prettier,
     },
     settings: {
       react: {
@@ -62,17 +55,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      // Import - Prettier가 처리하므로 비활성화
-      'import/order': 'off',
-
-      // React Hooks
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-
-      // React
+      // Airbnb 기본 규칙 유지하면서 프로젝트에 맞게 조정
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
@@ -89,28 +72,63 @@ export default tseslint.config(
           unnamedComponents: 'arrow-function',
         },
       ],
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        {
+          js: 'never',
+          jsx: 'never',
+          ts: 'never',
+          tsx: 'never',
+        },
+      ],
+      'import/prefer-default-export': 'off',
       'import/no-unresolved': 'error',
       'import/no-duplicates': 'error',
-      'import/no-unused-modules': 'warn',
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
 
-      // General
-      'no-console': 'warn',
-      'no-debugger': 'error',
-      'no-unused-vars': 'off',
+      // TypeScript 관련 규칙
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' },
       ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+
+      // General
+      'no-console': 'warn',
+      'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-template': 'error',
-      'template-curly-spacing': 'error',
       'arrow-spacing': 'error',
       'no-duplicate-imports': 'error',
-
-      // Prettier
-      'prettier/prettier': 'error',
+      'max-len': [
+        'error',
+        {
+          code: 100,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+        },
+      ],
     },
   }
 );
