@@ -1,2 +1,2 @@
-export { useUsersQuery } from "./useUsersQuery"
 export { useUserQuery } from "./useUserQuery"
+export { useUsersQuery } from "./useUsersQuery"
