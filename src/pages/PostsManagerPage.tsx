@@ -4,7 +4,16 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { IPost, ITag } from '@entities/post'
 import { IUserDetail } from '@entities/user'
-import { IComment } from '@entities/comment'
+import {
+  deleteComment,
+  fetchComments,
+  IComment,
+  ICommentRequest,
+  addComment,
+  updateComment,
+  likeComment,
+} from '@entities/comment'
+import { addPost, deletePost, updatePost, INewPost } from '@entities/post'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared/ui/Table'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/Card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/ui/Dialog'
@@ -33,11 +42,7 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState<{ title: string; body: string; userId: number }>({
-    title: '',
-    body: '',
-    userId: 1,
-  })
+  const [newPost, setNewPost] = useState<INewPost>({ title: '', body: '', userId: 1 })
   const [selectedComment, setSelectedComment] = useState<IComment | null>(null)
   const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({
     body: '',
@@ -96,28 +101,17 @@ const PostsManager = () => {
     return useQuery({
       queryKey: ['comments', postId],
       queryFn: async (): Promise<IComment[]> => {
-        const data = await http.get<{ comments: IComment[] }>(`/comments/post/${postId}`)
-        return data.comments
+        const { comments } = await fetchComments(postId)
+        return comments
       },
       enabled: !!postId,
     })
   }
 
-  // 사용자 정보 쿼리
-  const useUserQuery = (userId: number) => {
-    return useQuery({
-      queryKey: ['user', userId],
-      queryFn: async (): Promise<IUserDetail> => {
-        return await http.get<IUserDetail>(`/users/${userId}`)
-      },
-      enabled: !!userId,
-    })
-  }
-
   // 게시물 추가 뮤테이션
   const addPostMutation = useMutation({
-    mutationFn: async (newPost: { title: string; body: string; userId: number }) => {
-      return await http.post('/posts/add', newPost)
+    mutationFn: async (newPost: INewPost) => {
+      return await addPost(newPost)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
@@ -129,7 +123,7 @@ const PostsManager = () => {
   // 게시물 수정 뮤테이션
   const updatePostMutation = useMutation({
     mutationFn: async (post: IPost) => {
-      return await http.put(`/posts/${post.id}`, post)
+      return await updatePost(post)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
@@ -140,7 +134,7 @@ const PostsManager = () => {
   // 게시물 삭제 뮤테이션
   const deletePostMutation = useMutation({
     mutationFn: async (id: number) => {
-      await http.delete(`/posts/${id}`)
+      await deletePost({ id })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
@@ -149,8 +143,8 @@ const PostsManager = () => {
 
   // 댓글 추가 뮤테이션
   const addCommentMutation = useMutation({
-    mutationFn: async (comment: { body: string; postId: number; userId: number }) => {
-      return await http.post('/comments/add', comment)
+    mutationFn: async (comment: ICommentRequest) => {
+      return await addComment(comment)
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['comments', data.postId] })
@@ -162,7 +156,7 @@ const PostsManager = () => {
   // 댓글 수정 뮤테이션
   const updateCommentMutation = useMutation({
     mutationFn: async (comment: IComment) => {
-      return await http.put(`/comments/${comment.id}`, { body: comment.body })
+      return await updateComment(comment)
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['comments', data.postId] })
@@ -173,7 +167,7 @@ const PostsManager = () => {
   // 댓글 삭제 뮤테이션
   const deleteCommentMutation = useMutation({
     mutationFn: async ({ id, postId }: { id: number; postId: number }) => {
-      await http.delete(`/comments/${id}`)
+      await deleteComment(id)
       return postId
     },
     onSuccess: (postId) => {
@@ -184,10 +178,10 @@ const PostsManager = () => {
   // 댓글 좋아요 뮤테이션
   const likeCommentMutation = useMutation({
     mutationFn: async ({ id, likes, postId }: { id: number; likes: number; postId: number }) => {
-      const data = await http.patch(`/comments/${id}`, { likes: likes + 1 })
-      return { data, postId }
+      await likeComment(id, likes)
+      return postId
     },
-    onSuccess: ({ postId }) => {
+    onSuccess: (postId) => {
       queryClient.invalidateQueries({ queryKey: ['comments', postId] })
     },
   })
