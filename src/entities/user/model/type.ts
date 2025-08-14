@@ -1,3 +1,5 @@
+import { IUserSummary } from "../../../shared/lib/api/user";
+
 // 유저 타입
 export type ICoordinates = {
   lat: number;
@@ -81,21 +83,9 @@ export type IUserDetail = {
   hair: IHair;
 };
 
-export type IUserSummary = {
-  id: number;
-  username: string;
-  image: string;
-};
-
 export type IUsers = {
   limit: number;
   skip: number;
   total: number;
   users: IUserSummary[];
-};
-
-export type IUserName = {
-  id: number;
-  username: string;
-  fullName: string;
 };

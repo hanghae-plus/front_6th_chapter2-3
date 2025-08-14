@@ -12,7 +12,6 @@ interface QueryParams {
 export const useQueryParameter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 프론트에서 사용할 변수명
   const params = {
     skip: Number(searchParams.get('skip')) || 0,
     limit: Number(searchParams.get('limit')) || 10,
@@ -25,7 +24,7 @@ export const useQueryParameter = () => {
   const setParam = (
     key: keyof QueryParams,
     value: string | number,
-    clearOther?: keyof QueryParams
+    clearKey?: keyof QueryParams
   ) => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -35,22 +34,22 @@ export const useQueryParameter = () => {
       newParams.set(key, String(value));
     }
 
-    if (clearOther) newParams.delete(clearOther);
+    if (clearKey) newParams.delete(clearKey);
 
     setSearchParams(newParams, { replace: true });
   };
 
   const setters = {
-    setSkip: (v: number) => setParam('skip', v),
-    setLimit: (v: number) => setParam('limit', v),
-    setSortBy: (v: string) => setParam('sortBy', v),
-    setSortOrder: (v: 'asc' | 'desc') => setParam('sortOrder', v),
-    setSearchQuery: (v: string) => setParam('search', v, 'tag'),
-    setSelectedTag: (v: string) => {
-      if (v === 'all') {
+    setSkip: (skip: number) => setParam('skip', skip),
+    setLimit: (limit: number) => setParam('limit', limit),
+    setSortBy: (sortBy: string) => setParam('sortBy', sortBy),
+    setSortOrder: (sortOrder: 'asc' | 'desc') => setParam('sortOrder', sortOrder),
+    setSearchQuery: (search: string) => setParam('search', search, 'tag'),
+    setSelectedTag: (tag: string) => {
+      if (tag === 'all') {
         setParam('tag', '', 'search');
       } else {
-        setParam('tag', v, 'search');
+        setParam('tag', tag, 'search');
       }
     },
   };

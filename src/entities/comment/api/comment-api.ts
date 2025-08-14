@@ -5,7 +5,7 @@ import {
   IComment,
   IComments,
 } from '../model/type';
-import { createRequest } from '../../../shared/lib/api';
+import { createRequest } from '../../../shared/lib/api/createRequest';
 
 /**
  * 특정 게시물 댓글 목록 조회

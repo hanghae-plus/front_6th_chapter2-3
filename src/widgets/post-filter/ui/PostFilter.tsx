@@ -17,7 +17,6 @@ const PostFilter = () => {
   const { data: tags } = usePostTagListQuery();
   const [inputValue, setInputValue] = useState(params.searchQuery);
 
-  // 추후 기능별로 분리?
   return (
     <div className="flex gap-4">
       {/* 검색 서치바 */}

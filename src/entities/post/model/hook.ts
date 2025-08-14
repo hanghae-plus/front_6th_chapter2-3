@@ -1,20 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { IPosts, IPostTag } from './type';
 import { getPostListApi, getPostTagListApi } from '../api/post-api';
-
-interface UsePostsQueryParams {
-  searchQuery: string;
-  selectedTag: string;
-  limit: number;
-  skip: number;
-  sortBy: string;
-  sortOrder: string;
-}
+import { PostsParams } from '../api/post-api';
 
 /**
  * 게시글 목록 조회
  */
-export const usePostListQuery = (params: UsePostsQueryParams) => {
+export const usePostListQuery = (params: PostsParams) => {
   return useQuery<IPosts>({
     queryKey: ['posts', params],
     queryFn: () => getPostListApi(params),

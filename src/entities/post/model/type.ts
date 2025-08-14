@@ -1,4 +1,4 @@
-import { IUserSummary } from '../../user/model/type';
+import { IUserSummary } from '../../../shared/lib/api/user';
 
 // 게시글 타입
 export type IPost = {

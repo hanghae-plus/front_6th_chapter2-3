@@ -7,10 +7,10 @@ import {
   IAddPostResponse,
   IEditPostResponse,
 } from '../model/type';
-import { createRequest } from '../../../shared/lib/api';
-import { getQueryString } from '../../../shared/lib/getQueryString';
+import { createRequest } from '../../../shared/lib/api/createRequest';
+import { getQueryString } from '../../../shared/lib/api/getQueryString';
 
-interface PostsParams {
+export interface PostsParams {
   limit: number;
   skip: number;
   sortBy: string;
