@@ -9,8 +9,8 @@ import {
   SelectValue,
   Button,
 } from '../../../shared/ui';
-import { useFilterStore } from '../../../features/posts/filter-posts/model/store';
-import { usePostsFilter } from '../../../features/posts/filter-posts/model/hooks';
+import { useFilterStore } from '../../../features/posts/posts-filter/model/store';
+import { usePostsFilter } from '../../../features/posts/posts-filter/model/hooks';
 import { useTagsStore } from '../../../entities/tags/model/store';
 
 export const PostsFilter = () => {

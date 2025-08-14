@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { usePostsUrlParams } from '../../list-posts/model/hooks';
-import { usePostsFilter } from '../../filter-posts/model/hooks';
+import { usePostsUrlParams } from '../../posts-list/model/hooks';
+import { usePostsFilter } from '../../posts-filter/model/hooks';
 
 export const usePagination = () => {
   const { skip, limit, setSkip, setLimit } = usePostsUrlParams();

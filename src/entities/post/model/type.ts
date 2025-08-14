@@ -27,4 +27,6 @@ export interface PostsState {
   selectedPost: Posts | null;
   setSelectedPost: (post: Posts | null) => void;
   removePost: (id: number) => void;
+  addPost: (newPost: Posts) => void;
+  updatePost: (updatedPost: Posts) => void;
 }

@@ -9,8 +9,8 @@ import {
 } from '../../../shared/ui';
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { PostsTableProps } from '../model/type';
-import { useFilterStore } from '../../../features/posts/filter-posts/model/store';
-import { usePostsFilter } from '../../../features/posts/filter-posts/model/hooks';
+import { useFilterStore } from '../../../features/posts/posts-filter/model/store';
+import { usePostsFilter } from '../../../features/posts/posts-filter/model/hooks';
 
 export const PostsTable = ({
   posts,

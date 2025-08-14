@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { usePostsStore } from '../../../../entities/post/model/store';
-import { usePostsUrlParams } from '../../list-posts/model/hooks';
+import { usePostsUrlParams } from '../../posts-list/model/hooks';
 import { fetchFilteredPosts } from '../api/api';
 import { useFilterStore } from './store';
 

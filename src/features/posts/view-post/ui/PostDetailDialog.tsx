@@ -7,7 +7,7 @@ import { useCommentStore } from '../../../../entities/comment/model/store';
 import { useDeleteComment } from '../../../comment/delete-comment/model/hooks';
 import { useLikeComment } from '../../../comment/like-comment/model/hooks';
 import { highlightText } from '../../../../shared/utils/text';
-import { useFilterStore } from '../../filter-posts/model/store';
+import { useFilterStore } from '../../posts-filter/model/store';
 
 export const PostDetailDialog = () => {
   const { searchQuery } = useFilterStore();

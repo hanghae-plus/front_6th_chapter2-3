@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { PostsState } from './type';
-import { fetchPostsWithAuthors } from '../../../features/posts/list-posts/api';
+import { fetchPostsWithAuthors } from '../../../features/posts/posts-list/api/api';
 
 export const usePostsStore = create<PostsState>((set) => ({
   posts: [],
@@ -26,5 +26,14 @@ export const usePostsStore = create<PostsState>((set) => ({
     set((state) => ({
       posts: state.posts.filter((post) => post.id !== id),
       total: state.total - 1,
+    })),
+  addPost: (newPost) =>
+    set((state) => ({
+      posts: [newPost, ...state.posts],
+      total: state.total + 1,
+    })),
+  updatePost: (updatedPost) =>
+    set((state) => ({
+      posts: state.posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)),
     })),
 }));

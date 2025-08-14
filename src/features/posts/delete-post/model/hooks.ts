@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { deletePost as deletePostAPI } from '../api/api';
-import { usePostsFilter } from '../../filter-posts/model/hooks';
+import { usePostsFilter } from '../../posts-filter/model/hooks';
 import { usePostsStore } from '../../../../entities/post/model/store';
 
 export const useDeletePost = () => {
