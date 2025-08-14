@@ -1,18 +1,12 @@
-export interface ApiResponse<T> {
-  data: T
-  status: number
-  message?: string
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
+export type PaginatedResponse<T, K extends string = "data"> = {
+  [key in K]: T[]
+} & {
   total: number
   skip: number
   limit: number
 }
 
-export interface ApiError {
-  message: string
-  code: number
-  details?: unknown
+export type DeleteResponse<T> = T & {
+  isDeleted: number
+  deletedOn: string
 }
