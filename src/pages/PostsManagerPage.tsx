@@ -39,6 +39,7 @@ import { useDetailPost } from "../features/posts/hooks/useDetailPost.ts"
 import { useDeletePost } from "../features/posts/hooks/useDeletePost.ts"
 import { useAddComment } from "../features/comment/hooks/useAddComment.ts"
 import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
+import { useDeleteComment } from "../features/comment/hooks/useDeleteComment.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -91,6 +92,7 @@ const PostsManager = () => {
 
   const addComment = useAddComment()
   const updateComment = useUpdateComment()
+  const deleteComment = useDeleteComment()
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -173,19 +175,19 @@ const PostsManager = () => {
   // }
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      // setComments((prev) => ({
-      //   ...prev,
-      //   [postId]: prev[postId].filter((comment) => comment.id !== id),
-      // }))
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
+  // const deleteComment = async (id, postId) => {
+  //   try {
+  //     await fetch(`/api/comments/${id}`, {
+  //       method: "DELETE",
+  //     })
+  //     // setComments((prev) => ({
+  //     //   ...prev,
+  //     //   [postId]: prev[postId].filter((comment) => comment.id !== id),
+  //     // }))
+  //   } catch (error) {
+  //     console.error("댓글 삭제 오류:", error)
+  //   }
+  // }
 
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
@@ -279,7 +281,11 @@ const PostsManager = () => {
                 >
                   <Edit2 className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteComment.action.delete({ id: comment.id, postId })}
+                >
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
