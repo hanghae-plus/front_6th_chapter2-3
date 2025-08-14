@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosRequestConfig, AxiosResponse } from "axios"
 import { axiosInstance } from "@/shared/api/axios-client"
-import { ApiResponse, PaginatedResponse } from "@/shared/api/type"
+import { PaginatedResponse } from "@/shared/api/type"
 
 export class HttpClient {
   private static async request<T>(
@@ -11,16 +11,14 @@ export class HttpClient {
     config?: AxiosRequestConfig,
   ): Promise<T> {
     try {
-      const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.request({
+      const response: AxiosResponse<T> = await axiosInstance.request({
         method,
         url,
         data,
         ...config,
       })
 
-      // data 필드가 없는 경우 (예: DELETE 요청의 성공 응답)
-      // 이 경우 T가 void일 수 있습니다.
-      return response.data as T
+      return response.data
     } catch (error) {
       // 에러 처리를 위한 로직을 여기에 추가
       console.error(`HTTP request failed for ${url}:`, error)
@@ -48,13 +46,14 @@ export class HttpClient {
     return this.request<T>("patch", url, data, config)
   }
 
-  // DELETE 요청 (반환 타입을 void로 가정)
-  static async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("delete", url, undefined, config)
+  // DELETE 요청
+  static async delete(url: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.request<void>("delete", url, undefined, config)
   }
 
   // 페이지네이션 GET 요청
   static async getPaginated<T>(url: string, config?: AxiosRequestConfig): Promise<PaginatedResponse & { data: T[] }> {
-    return this.request<PaginatedResponse & { data: T[] }>("get", url, undefined, config)
+    const response = await this.request<PaginatedResponse & { data: T[] }>("get", url, undefined, config)
+    return response
   }
 }

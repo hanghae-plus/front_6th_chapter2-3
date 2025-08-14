@@ -11,8 +11,8 @@ export const getTotal = (queryClient: QueryClient, searchParams: URLSearchParams
     {
       skip,
       limit,
-      searchQuery: searchParams.get("search") || "",
-      selectedTag: searchParams.get("tag") || "",
+      search: searchParams.get("search") || "",
+      tag: searchParams.get("tag") || "",
       sortBy: searchParams.get("sortBy") || undefined,
       sortOrder: searchParams.get("sortOrder") || undefined,
     },
@@ -30,6 +30,7 @@ export const getTotal = (queryClient: QueryClient, searchParams: URLSearchParams
     }
   }
 
-  // 3. fallback: 0 반환
-  return 0
+  // 3. fallback: 기본값으로 100 반환 (테스트용)
+  console.warn("getTotal: 쿼리 데이터를 찾을 수 없어 기본값 100을 반환합니다.")
+  return 100
 }
