@@ -103,7 +103,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => addPost()}>
+          <Button onClick={addPost}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -111,7 +111,7 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <PostsFilterBar tags={tags} onAddPost={() => addPost()} params={params} onChange={setParams} />
+          <PostsFilterBar tags={tags} onAddPost={addPost} params={params} onChange={setParams} />
 
           <PostsTable
             posts={posts}
