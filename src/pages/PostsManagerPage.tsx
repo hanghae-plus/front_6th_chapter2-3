@@ -16,7 +16,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from "../shared/ui"
 import { useQueryStates, parseAsString } from "nuqs"
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
@@ -24,7 +23,6 @@ import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
 import { postMutations } from "../entities/post/api/mutations"
 import { commentMutations } from "../entities/comment/api/mutations"
-import type { CreatePostRequest } from "../entities/post/api/api"
 import { Post, Tag } from "../entities/post/model"
 import { User } from "../entities/user/model"
 import { commentQueries } from "../entities/comment/api/queries"
@@ -34,6 +32,9 @@ import { useUserProfileDialog } from "../features/user/view-profile/lib/useUserP
 import { useEditComment } from "../features/comment/edit-comment/lib/useEditComment"
 import { PostsTable } from "../widgets/posts-table/ui"
 import { highlightText } from "../shared/lib"
+import { useAddPost } from "../features/post/add-post"
+import { useEditPost } from "../features/post/edit-post"
+import { useAddComment } from "../features/comment/add-comment"
 
 const PostsManager = () => {
   const [queryParams, setQueryParams] = useQueryStates({
@@ -48,16 +49,6 @@ const PostsManager = () => {
   const { skip, limit, search: searchQuery, sortBy, order, tag: selectedTag } = queryParams
 
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState<CreatePostRequest>({ title: "", body: "", userId: 1 })
-
-  const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({
-    body: "",
-    postId: null,
-    userId: 1,
-  })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
 
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const { openProfile, overlay: profileOverlay } = useUserProfileDialog()
@@ -112,30 +103,6 @@ const PostsManager = () => {
     })) ?? []
   const total = active.data?.total ?? 0
 
-  const addPostMutation = useMutation(postMutations.addMutation())
-  const addPost = () => {
-    addPostMutation.mutate(newPost, {
-      onSuccess: () => {
-        setShowAddDialog(false)
-        setNewPost({ title: "", body: "", userId: 1 })
-      },
-    })
-  }
-
-  const updatePostMutation = useMutation(postMutations.updateMutation())
-  const updatePost = () => {
-    if (!selectedPost) return
-    updatePostMutation.mutate(
-      { id: selectedPost.id, post: selectedPost },
-      {
-        onSuccess: () => {
-          setShowEditDialog(false)
-          setSelectedPost(null)
-        },
-      },
-    )
-  }
-
   const deletePostMutation = useMutation(postMutations.deleteMutation())
   const deletePost = (id: number) => {
     deletePostMutation.mutate(id)
@@ -145,20 +112,6 @@ const PostsManager = () => {
     ...commentQueries.byPostQuery(selectedPost?.id ?? 0),
     select: (res) => res.comments,
   })
-
-  const addCommentMutation = useMutation(commentMutations.addMutation())
-  const addComment = () => {
-    if (!newComment.postId) return
-    addCommentMutation.mutate(
-      { body: newComment.body, postId: newComment.postId, userId: newComment.userId },
-      {
-        onSuccess: () => {
-          setShowAddCommentDialog(false)
-          setNewComment({ body: "", postId: null, userId: 1 })
-        },
-      },
-    )
-  }
 
   const { updateComment, overlay: editOverlay } = useEditComment()
 
@@ -184,6 +137,10 @@ const PostsManager = () => {
     openProfile(user.id)
   }
 
+  const { addPost, overlay: addPostOverlay } = useAddPost()
+  const { editPost, overlay: editPostOverlay } = useEditPost()
+  const { addComment, overlay: addCommentOverlay } = useAddComment()
+
   const renderPostTable = () => (
     <PostsTable
       posts={posts}
@@ -193,8 +150,7 @@ const PostsManager = () => {
       onOpenUser={(user) => user && openUserModal(user)}
       onOpenDetail={openPostDetail}
       onEdit={(post) => {
-        setSelectedPost(post)
-        setShowEditDialog(true)
+        editPost(post)
       }}
       onDelete={deletePost}
     />
@@ -205,7 +161,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => addPost()}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -304,79 +260,6 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost((prev) => (prev ? { ...prev, title: e.target.value } : prev))}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost((prev) => (prev ? { ...prev, body: e.target.value } : prev))}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 댓글 수정 대화상자 */}
-      {/* 댓글 수정 오버레이 */}
-      {editOverlay}
-
       {/* 게시물 상세 보기 대화상자 */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className="max-w-3xl">
@@ -389,8 +272,8 @@ const PostsManager = () => {
               comments={comments}
               searchQuery={searchQuery}
               onAddComment={() => {
-                setNewComment((prev) => ({ ...prev, postId: selectedPost?.id ?? 0 }))
-                setShowAddCommentDialog(true)
+                if (!selectedPost) return
+                addComment(selectedPost.id, 1)
               }}
               onEditComment={async (comment) => {
                 await updateComment(comment)
@@ -402,7 +285,11 @@ const PostsManager = () => {
         </DialogContent>
       </Dialog>
 
+      {editOverlay}
       {profileOverlay}
+      {addPostOverlay}
+      {editPostOverlay}
+      {addCommentOverlay}
     </Card>
   )
 }
