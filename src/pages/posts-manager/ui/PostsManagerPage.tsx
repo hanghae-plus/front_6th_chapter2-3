@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
 import { Post } from "@/entities/post/model"
+import { useDeletePostMutation } from "@/features/delete-post/api"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
@@ -101,12 +102,12 @@ export function PostsManagerPage() {
     setLoading(false)
   }
 
-  // 게시물 삭제
-  const deletePost = async (id: any) => {
+  const deletePostMutation = useDeletePostMutation()
+
+  const deletePost = async (id: number) => {
     try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
+      await deletePostMutation.mutateAsync({ id })
+      // 상태 직접 업데이트 (캐시 무효화는 mutation에서 처리)
       setPosts(posts.filter((post: any) => post.id !== id))
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
