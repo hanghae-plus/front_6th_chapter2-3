@@ -12,19 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
 } from "../shared/ui"
-import {highlightText} from "../shared/lib/text-utils.tsx"
-import PostsTable from "../widgets/posts-table/ui/PostsTable.tsx"
+import {highlightText} from "../shared/lib/text-utils"
 import { getPosts } from "../entities/post/api/api.ts"
 import { Post } from "../entities/post/model/types.ts"
-import { Pagination } from "../widgets/posts-pagination/ui/Pagination.tsx"
-import { PostsFilter } from "../widgets/posts-filter/ui/PostsFilter.tsx"
+import { PostsTable, Pagination, PostsFilter, PostForm } from "../widgets/"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -417,7 +410,8 @@ const PostsManager = () => {
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
               setShowEditDialog={setShowEditDialog}
-              deletePost={deletePost} />}
+              deletePost={deletePost}
+            />}
 
           {/* 페이지네이션 */}
           <Pagination
