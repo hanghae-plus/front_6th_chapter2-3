@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
-import { fetchTags, IPost, ITag } from '@entities/post'
+import { fetchPosts, fetchPostsBySearch, fetchTags, IPost, ITag } from '@entities/post'
+import { fetchUsers } from '@entities/user'
 import { IUserDetail } from '@entities/user'
 import {
   deleteComment,
@@ -63,38 +64,55 @@ const PostsManager = () => {
     },
   })
 
-  // 게시물 목록 쿼리 (통합)
-  const { data: postsData, isLoading } = useQuery({
-    queryKey: ['posts', { limit, skip, searchQuery, selectedTag }],
-    queryFn: async (): Promise<{ posts: IPost[]; total: number }> => {
-      let url: string
-
-      // 검색 쿼리가 있는 경우
-      if (searchQuery) {
-        url = `/posts/search?q=${searchQuery}`
-      }
-      // 태그가 선택된 경우 (전체 제외)
-      else if (selectedTag && selectedTag !== 'all') {
-        url = `/posts/tag/${selectedTag}`
-      }
-      // 기본 목록
-      else {
-        url = `/posts?limit=${limit}&skip=${skip}`
-      }
-
-      const [rawPosts, users] = await Promise.all([
-        http.get<{ posts: Omit<IPost, 'author'>[]; total: number }>(url),
-        http.get<{ users: Pick<IUser, 'id' | 'username' | 'image'>[] }>('/users?limit=0&select=username,image'),
-      ])
-
-      const withAuthors: IPost[] = rawPosts.posts.map((post) => ({
-        ...post,
-        author: users.users.find((u) => u.id === post.userId),
-      }))
-
-      return { posts: withAuthors, total: rawPosts.total }
-    },
+  // 사용자 목록 쿼리 (독립적 캐싱)
+  const { data: usersData } = useQuery({
+    queryKey: ['users', 'basic'],
+    queryFn: () => fetchUsers({ limit: 0 }),
   })
+
+  // 기본 게시물 목록 쿼리
+  const { data: basicPostsData, isLoading: isBasicLoading } = useQuery({
+    queryKey: ['posts', 'basic', { limit, skip }],
+    queryFn: () => fetchPosts({ limit, skip }),
+    enabled: !searchQuery && (!selectedTag || selectedTag === 'all'),
+  })
+
+  // 검색 게시물 쿼리
+  const { data: searchPostsData, isLoading: isSearchLoading } = useQuery({
+    queryKey: ['posts', 'search', { query: searchQuery }],
+    queryFn: () => fetchPostsBySearch({ query: searchQuery }),
+    enabled: !!searchQuery,
+  })
+
+  // 태그별 게시물 쿼리
+  const { data: tagPostsData, isLoading: isTagLoading } = useQuery({
+    queryKey: ['posts', 'tag', { tag: selectedTag }],
+    queryFn: () => fetchPostsByTag(selectedTag),
+    enabled: !!selectedTag && selectedTag !== 'all' && !searchQuery,
+  })
+
+  // 현재 활성화된 데이터 선택
+  const rawPostsData = searchQuery
+    ? searchPostsData
+    : selectedTag && selectedTag !== 'all'
+      ? tagPostsData
+      : basicPostsData
+
+  const isLoading = isBasicLoading || isSearchLoading || isTagLoading
+
+  // 최종 데이터 조합 (useMemo로 최적화)
+  const postsData = useMemo(() => {
+    if (!rawPostsData || !usersData) return null
+    console.log('rawPostsData', rawPostsData)
+    console.log('usersData', usersData)
+
+    const withAuthors: IPost[] = rawPostsData.posts.map((post: IPost) => ({
+      ...post,
+      author: usersData.users.find((u: IUser) => u.id === post.userId),
+    }))
+
+    return { posts: withAuthors, total: rawPostsData.total }
+  }, [rawPostsData, usersData])
 
   // 댓글 목록 쿼리
   const useCommentsQuery = (postId: number) => {
