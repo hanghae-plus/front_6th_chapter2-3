@@ -54,6 +54,8 @@ export default tseslint.config(
             ['@/features/*', './src/4_features/*'],
             ['@/entities', './src/5_entities/index.ts'],
             ['@/shared', './src/6_shared/index.ts'],
+            ['@final_src', './src/final_src'],
+            ['@final_src/*', './src/final_src/*'],
           ],
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
         },
@@ -105,7 +107,7 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
 
       // General
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',

@@ -35,8 +35,10 @@
       "@/entities": ["src/5_entities/index.ts"],
       "@/shared/*": ["src/6_shared/*"],
       "@/shared": ["src/6_shared/index.ts"],
+      "@final_src/*": ["src/final_src/*"],
+      "@final_src": ["src/final_src/index.ts"],
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "final_src"]
 }

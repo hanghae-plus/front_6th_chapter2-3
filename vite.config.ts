@@ -38,6 +38,7 @@ export default defineConfig({
       '@/entities/*': path.resolve(__dirname, './src/5_entities/*'),
       '@/shared': path.resolve(__dirname, './src/6_shared'),
       '@/shared/*': path.resolve(__dirname, './src/6_shared/*'),
+      '@final_src': path.resolve(__dirname, './src/final_src'),
       '@': path.resolve(__dirname, './src'),
     },
   },
