@@ -1,4 +1,5 @@
 import { fetchUserBasic } from '../../../../entities/user/api/api';
+import { API_BASE_URL } from '../../../../shared/config/api';
 import { FilterApiParams } from '../model/type';
 
 export const fetchFilteredPosts = async (params: FilterApiParams) => {
@@ -20,9 +21,9 @@ export const fetchFilteredPosts = async (params: FilterApiParams) => {
   let apiUrl = '/api/posts';
 
   if (tag && tag !== 'all') {
-    apiUrl = `/api/posts/tag/${tag}`;
+    apiUrl = `${API_BASE_URL}/posts/tag/${tag}`;
   } else if (search && search.trim()) {
-    apiUrl = `/api/posts/search`;
+    apiUrl = `${API_BASE_URL}/posts/search`;
     searchParams.append('q', search.trim());
   }
 
@@ -56,7 +57,7 @@ export const searchPosts = async (query: string, limit: number, skip: number) =>
     skip: skip.toString(),
   });
 
-  const response = await fetch(`/api/posts/search?${searchParams.toString()}`);
+  const response = await fetch(`${API_BASE_URL}/posts/search?${searchParams.toString()}`);
   if (!response.ok) {
     throw new Error('게시물 검색 실패');
   }
@@ -83,7 +84,7 @@ export const fetchPostsByTag = async (
   }
 
   const [postsResponse, usersResponse] = await Promise.all([
-    fetch(`/api/posts/tag/${tag}?${searchParams.toString()}`),
+    fetch(`${API_BASE_URL}/posts/tag/${tag}?${searchParams.toString()}`),
     fetch('/api/users?limit=0&select=username,image'),
   ]);
 

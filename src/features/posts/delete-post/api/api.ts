@@ -1,6 +1,8 @@
+import { API_BASE_URL } from '../../../../shared/config/api';
+
 export const deletePost = async (id: number) => {
   try {
-    const response = await fetch(`/api/posts/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
       method: 'DELETE',
     });
 

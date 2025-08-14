@@ -1,5 +1,7 @@
+import { API_BASE_URL } from '../../../../shared/config/api';
+
 export const updateCommentAPI = async (commentId: number, updateData: { body: string }) => {
-  const response = await fetch(`/api/comments/${commentId}`, {
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updateData),

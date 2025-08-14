@@ -1,9 +1,11 @@
+import { API_BASE_URL } from '../../../../shared/config/api';
+
 /**
  * 게시글 수정 API
  */
 export const updatePostAPI = async (post: { id: number; title: string; body: string }) => {
   try {
-    const response = await fetch(`/api/posts/${post.id}`, {
+    const response = await fetch(`${API_BASE_URL}/posts/${post.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(post),
