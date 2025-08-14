@@ -1,4 +1,11 @@
-import { GetPostsResponse, Post, POST_CONSTANTS } from '@/entities/post';
+import {
+  GetPostsByTagParams,
+  GetPostsResponse,
+  GetPostsWithFiltersParams,
+  Post,
+  POST_CONSTANTS,
+} from '@/entities/post';
+import { getSearchParams } from '@/shared/lib';
 
 export interface GetPostsParams {
   limit: number;
@@ -9,27 +16,66 @@ export const getPosts = async ({
   limit = POST_CONSTANTS.DEFAULT_LIMIT,
   skip = POST_CONSTANTS.DEFAULT_SKIP,
 }: GetPostsParams): Promise<GetPostsResponse> => {
-  const response = await fetch(`/api/posts?limit=${limit}&skip=${skip}`);
+  const params = getSearchParams({
+    limit: limit.toString(),
+    skip: skip.toString(),
+  });
+
+  const response = await fetch(`/api/posts?${params.toString()}`);
   return response.json();
 };
 
 export const getPostsByTag = async ({
   tag,
-}: {
-  tag: string;
-}): Promise<GetPostsResponse> => {
-  const response = await fetch(`/api/posts/tag/${tag}`);
+  limit,
+  skip,
+}: GetPostsByTagParams): Promise<GetPostsResponse> => {
+  const params = getSearchParams({
+    limit: limit?.toString() || '0',
+    skip: skip?.toString() || '0',
+  });
+
+  const response = await fetch(`/api/posts/tag/${tag}?${params.toString()}`);
   return response.json();
 };
 
-export interface GetPostsBySearchParams {
+export interface GetPostsBySearchParams extends GetPostsParams {
   search: string;
 }
 
 export const getPostsBySearch = async ({
   search,
+  limit,
+  skip,
 }: GetPostsBySearchParams): Promise<GetPostsResponse> => {
-  const response = await fetch(`/api/posts/search?q=${search}`);
+  const params = getSearchParams({
+    limit: limit?.toString() || '0',
+    skip: skip?.toString() || '0',
+    searchQuery: search,
+  });
+
+  const response = await fetch(`/api/posts/search?${params.toString()}`);
+  return response.json();
+};
+
+export const getPostsWithFilters = async ({
+  limit,
+  skip,
+  searchQuery,
+  selectedTag,
+  sortBy,
+  sortOrder,
+}: GetPostsWithFiltersParams): Promise<GetPostsResponse> => {
+  const params = getSearchParams({
+    limit: limit?.toString() || '0',
+    skip: skip?.toString() || '0',
+    searchQuery: searchQuery || '',
+    selectedTag: selectedTag || '',
+    sortBy: sortBy || '',
+    sortOrder: sortOrder || '',
+  });
+
+  const response = await fetch(`/api/posts?${params.toString()}`);
   return response.json();
 };
 

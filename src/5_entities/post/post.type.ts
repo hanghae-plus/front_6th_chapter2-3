@@ -17,3 +17,12 @@ export interface PostReactions {
 export interface GetPostsResponse extends PaginationResponse {
   posts: Post[];
 }
+
+export interface GetPostsWithFiltersParams {
+  limit?: number;
+  skip?: number;
+  searchQuery?: string;
+  selectedTag?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}

@@ -1,3 +1,4 @@
+import { GetPostsWithFiltersParams } from '@/entities/post';
 import { GetUsersParams, User } from '@/entities/user';
 
 export const QUERY_DOMAINS = {
@@ -25,12 +26,8 @@ const postQueryKeys = {
   all: [QUERY_DOMAINS.POSTS] as const,
 
   lists: () => [QUERY_DOMAINS.POSTS, QUERY_OPERATIONS.LIST] as const,
-  list: (filters: {
-    limit?: number;
-    skip?: number;
-    tag?: string;
-    search?: string;
-  }) => [...postQueryKeys.lists(), filters] as const,
+  list: (params: GetPostsWithFiltersParams) =>
+    [...postQueryKeys.lists(), params] as const,
 } as const;
 
 const userQueryKeys = {

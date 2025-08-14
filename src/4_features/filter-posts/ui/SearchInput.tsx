@@ -8,10 +8,9 @@ import { Input } from '@/shared/ui';
 
 export const SearchInput = () => {
   const { searchQuery, setSearchQuery } = usePostsFilterStore();
-  const debouncedSetSearchQuery = useDebounce(
-    (searchQuery: string) => setSearchQuery(searchQuery),
-    500
-  );
+  const debouncedSetSearchQuery = useDebounce((searchQuery: string) => {
+    setSearchQuery(searchQuery);
+  }, 500);
 
   const [originalSearchQuery, setOriginalSearchQuery] = useState(searchQuery);
 

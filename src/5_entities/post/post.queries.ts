@@ -8,6 +8,7 @@ import {
   deletePost,
   getPosts,
   getPostsBySearch,
+  GetPostsBySearchParams,
   getPostsByTag,
   GetPostsParams,
   putPost,
@@ -16,23 +17,33 @@ import { GetPostsResponse, Post } from './post.type';
 
 export const useGetPostsQuery = (params: GetPostsParams) => {
   return useQuery({
-    queryKey: queryKeys.posts.lists(),
+    queryKey: queryKeys.posts.list(params),
     queryFn: () => getPosts(params),
   });
 };
 
-export const useGetPostsByTagQuery = (tag: string) => {
+export interface GetPostsByTagParams extends GetPostsParams {
+  tag: string;
+}
+
+export const useGetPostsByTagQuery = (params: GetPostsByTagParams) => {
   return useQuery({
-    queryKey: queryKeys.posts.lists(),
-    queryFn: () => getPostsByTag({ tag }),
-    enabled: !!tag && tag !== 'all',
+    queryKey: queryKeys.posts.list(params),
+    queryFn: () => getPostsByTag(params),
+    enabled: !!params.tag && params.tag !== 'all',
   });
 };
 
-export const useGetPostsBySearchQuery = (search: string) => {
+export const useGetPostsBySearchQuery = ({
+  search,
+  limit,
+  skip,
+}: GetPostsBySearchParams) => {
   return useQuery({
-    queryKey: queryKeys.posts.lists(),
-    queryFn: () => getPostsBySearch({ search }),
+    queryKey: queryKeys.posts.list({
+      searchQuery: search,
+    }),
+    queryFn: () => getPostsBySearch({ search, limit, skip }),
     enabled: !!search && search.trim() !== '',
   });
 };

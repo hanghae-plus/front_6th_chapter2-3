@@ -14,7 +14,7 @@ import { PostWithAuthor } from '../../post-management/types';
 export type SelectedUserProperties = 'id' | 'username' | 'image';
 
 export const useFilteredPosts = () => {
-  const { selectedTag, searchQuery } = usePostsFilterStore();
+  const { selectedTag, searchQuery, limit, skip } = usePostsFilterStore();
 
   const [posts, setPosts] = useState<PostWithAuthor<SelectedUserProperties>[]>(
     []
@@ -26,17 +26,23 @@ export const useFilteredPosts = () => {
       select: ['id', 'username', 'image'],
     });
   const { data: postsData, isLoading: isLoadingPosts } = useGetPostsQuery({
-    limit: 10,
-    skip: 0,
+    limit,
+    skip,
   });
 
   // 조건부로 쿼리 실행
   const { data: postsByTagData, isLoading: isLoadingPostsByTag } =
-    useGetPostsByTagQuery(
-      selectedTag && selectedTag !== 'all' ? selectedTag : ''
-    );
+    useGetPostsByTagQuery({
+      tag: selectedTag ?? '',
+      limit,
+      skip,
+    });
   const { data: postsBySearchData, isLoading: isLoadingPostsBySearch } =
-    useGetPostsBySearchQuery(searchQuery ? searchQuery : '');
+    useGetPostsBySearchQuery({
+      search: searchQuery,
+      limit,
+      skip,
+    });
 
   const postsWithAuthor = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
@@ -50,14 +56,14 @@ export const useFilteredPosts = () => {
       postsByTagData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsByTagData?.posts, usersData?.users]);
+  }, [postsByTagData?.posts, usersData?.users, selectedTag]);
 
   const postsWithAuthorBySearch = useMemo(() => {
     return getPostsWithAuthor<SelectedUserProperties>(
       postsBySearchData?.posts ?? [],
       usersData?.users ?? []
     );
-  }, [postsBySearchData?.posts, usersData?.users]);
+  }, [postsBySearchData?.posts, usersData?.users, searchQuery]);
 
   const isLoading =
     isLoadingUsers ||
