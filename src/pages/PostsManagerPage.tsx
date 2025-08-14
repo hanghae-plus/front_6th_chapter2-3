@@ -25,21 +25,24 @@ import PostFilter from "../widgets/post-filter/ui/PostFilter.tsx"
 import PostManagerHeader from "../widgets/post-manager-header/ui/PostManagerHeader.tsx"
 
 const PostsManager = () => {
+  // 게시물 조회 관련 훅들
   const posts = useFetchPostsByMode()
   const searchMode = useSearchMode()
   const tagMode = useTagMode()
-  // 페이지네이션 훅은 PaginationControls 내부로 이동
 
+  // 게시물 CUD 관련 훅들
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
   const detailPost = useDetailPost()
   const deletePost = useDeletePost()
 
+  // 댓글 관련 훅들
   const addComment = useAddComment()
   const updateComment = useUpdateComment()
   const deleteComment = useDeleteComment()
   const likeComment = useLikeComment()
 
+  // 사용자 관련 훅
   const openUser = useOpenUser()
 
   return (
