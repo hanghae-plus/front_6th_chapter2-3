@@ -1,11 +1,9 @@
-
 import * as React from 'react';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement>{
-  className?: string
-  ref?: React.Ref<HTMLDivElement>
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+  ref?: React.Ref<HTMLDivElement>;
 }
-
 
 const CardRoot = ({ className, ...props }: CardProps) => (
   <div
@@ -29,10 +27,7 @@ const CardTitle = ({ className, ...props }: CardProps) => (
 );
 
 const CardContent = ({ className, ...props }: CardProps) => (
-  <div
-    className={`p-6 pt-0 ${className || ''}`}
-    {...props}
-  />
+  <div className={`p-6 pt-0 ${className || ''}`} {...props} />
 );
 
 // ============================================

@@ -1,9 +1,9 @@
+import { Dialog } from '@/shared/ui/dialog';
 
 import { UserResponse } from '../model/types.ts';
-import { Dialog } from '@/components/Dialog.tsx'
 
 interface UserModalProps {
-  user: UserResponse | null;
+  user?: UserResponse;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -26,8 +26,7 @@ const UserModal = ({ user, isOpen, onClose }: UserModalProps) => {
           </h3>
           <div className="space-y-2">
             <p>
-              <strong>이름:</strong> {user?.firstName}{' '}
-              {user?.lastName}
+              <strong>이름:</strong> {user?.firstName} {user?.lastName}
             </p>
             <p>
               <strong>나이:</strong> {user?.age}
@@ -52,5 +51,4 @@ const UserModal = ({ user, isOpen, onClose }: UserModalProps) => {
     </Dialog>
   );
 };
-
 export default UserModal;

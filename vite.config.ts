@@ -11,7 +11,7 @@ export default defineConfig({
         // target: 'https://jsonplaceholder.typicode.com',
         target: 'https://dummyjson.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/apiInstance/, ''),
       },
     },
   },

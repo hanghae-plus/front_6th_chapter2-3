@@ -1,27 +1,31 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-
-import { X } from 'lucide-react';
 import { HTMLAttributes } from 'react';
 
-interface DialogContentProps extends React.ComponentProps<typeof DialogPrimitive.Content>{
-  ref?:React.Ref<HTMLDivElement>
-}
-interface DialogTitleProps extends React.ComponentProps<typeof DialogPrimitive.Title>{
-  ref?:React.Ref<HTMLDivElement>
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
 
+interface DialogContentProps
+  extends React.ComponentProps<typeof DialogPrimitive.Content> {
+  ref?: React.Ref<HTMLDivElement>;
+}
+interface DialogTitleProps
+  extends React.ComponentProps<typeof DialogPrimitive.Title> {
+  ref?: React.Ref<HTMLDivElement>;
 }
 interface DialogHeaderProps extends HTMLAttributes<HTMLDivElement> {
-  className?: string
+  className?: string;
 }
 
-export const DialogRoot = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
-export const DialogPortal = DialogPrimitive.Portal
-export const DialogOverlay = DialogPrimitive.Overlay
+export const DialogRoot = DialogPrimitive.Root;
+export const DialogTrigger = DialogPrimitive.Trigger;
+export const DialogPortal = DialogPrimitive.Portal;
+export const DialogOverlay = DialogPrimitive.Overlay;
 
-
-
-export const DialogContent = ({ className, children, ref,...props}:DialogContentProps) => (
+export const DialogContent = ({
+  className,
+  children,
+  ref,
+  ...props
+}: DialogContentProps) => (
   <DialogPortal>
     <DialogOverlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
     <DialogPrimitive.Content
@@ -36,26 +40,26 @@ export const DialogContent = ({ className, children, ref,...props}:DialogContent
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-)
+);
 
-export const DialogHeader = ({ className, ...props }:DialogHeaderProps) => (
-  <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
-)
+export const DialogHeader = ({ className, ...props }: DialogHeaderProps) => (
+  <div
+    className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`}
+    {...props}
+  />
+);
 
-
-export const DialogTitle = ({ className,ref, ...props }:DialogTitleProps ) => (
+export const DialogTitle = ({ className, ref, ...props }: DialogTitleProps) => (
   <DialogPrimitive.Title
     ref={ref}
     className={`text-lg font-semibold leading-none tracking-tight ${className}`}
     {...props}
   />
-)
+);
 
-export const Dialog = Object.assign(DialogRoot,{
+export const Dialog = Object.assign(DialogRoot, {
   Content: DialogContent,
   Header: DialogHeader,
   Title: DialogTitle,
   Trigger: DialogTrigger,
-})
-
-
+});

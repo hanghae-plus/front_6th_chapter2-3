@@ -5,7 +5,6 @@ export interface PostsResponse {
   skip: number;
   limit: number;
 }
-
 // http://localhost:5173/api/posts/search?q=all
 export interface PostsSearchResponse {
   posts: Post[];
@@ -36,7 +35,11 @@ export type PutPostsDetailRequest<
   T extends Pick<Post, RequiredPutPostsDetailRequestKey> &
     Partial<Omit<Post, RequiredPutPostsDetailRequestKey>>,
 > = T;
-
+export interface PostAuthor {
+  id: number;
+  image: string;
+  username: string;
+}
 // DELETE http://localhost:5173/api/posts/252
 export type DeletePostsDetailResponse = Pick<Post, 'id'>;
 
@@ -64,7 +67,7 @@ export interface Post {
     likes: number;
     dislikes: number;
   };
-
+  author: PostAuthor;
   // 조회수
   views: number;
 

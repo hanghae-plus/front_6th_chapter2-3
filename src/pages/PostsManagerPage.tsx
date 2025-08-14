@@ -1,35 +1,31 @@
 import { useEffect, useState } from 'react';
 
-
-
 import { useLocation, useNavigate } from 'react-router-dom';
 
-
 import {
+  Edit2,
+  MessageSquare,
+  Plus,
+  Search,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+} from 'lucide-react';
 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components';
-import { useGetUser } from "@/entities/users/model/query.ts";
-import { UserResponse } from "@/entities/users/model/types.ts";
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
-import { Input } from '@/components/Input.tsx';
-import { Button } from '@/components/Button.tsx';
-import { Card } from '@/components/Card.tsx';
-import { Textarea } from '@/components/TextArea.tsx';
-import { Select } from '@/components/Select.tsx'
+import { highlightText } from '@/shared/lib/highlightText.tsx';
+import { Button } from '@/shared/ui/button';
+import { Card } from '@/shared/ui/card';
+import { Dialog } from '@/shared/ui/dialog/index.tsx';
+import { Input } from '@/shared/ui/input/index.tsx';
+import { Select } from '@/shared/ui/select';
+import { Table } from '@/shared/ui/table';
+import { TextArea } from '@/shared/ui/textarea';
 
+import UserModal from '@/entities/users/ui/UserModal.tsx';
 
-
-
+import { Post, PostsResponse } from '../entities/posts/model/types.ts';
+import { useGetUser } from '../entities/users/hooks';
+import { UserResponse } from '../entities/users/model/types.ts';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -68,7 +64,7 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<number|null>(null);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -82,7 +78,6 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
-  // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true);
     let postsData;
@@ -185,7 +180,6 @@ const PostsManager = () => {
       console.error('게시물 추가 오류:', error);
     }
   };
-
   // 게시물 업데이트
   const updatePost = async () => {
     try {
@@ -314,11 +308,11 @@ const PostsManager = () => {
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user:UserResponse) => {
-      setSelectedUser(user.id)
-      setShowUserModal(true);
+  const openUserModal = async (user: UserResponse) => {
+    setSelectedUser(user.id);
+    setShowUserModal(true);
   };
-  const { data:userInfo } = useGetUser(selectedUser as number)
+  const { data: userInfo } = useGetUser(selectedUser as number);
 
   useEffect(() => {
     fetchTags();
@@ -343,120 +337,101 @@ const PostsManager = () => {
     setSelectedTag(params.get('tag') || '');
   }, [location.search]);
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null;
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <mark key={i}>{part}</mark>
-          ) : (
-            <span key={i}>{part}</span>
-          ),
-        )}
-      </span>
-    );
-  };
-
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className="w-[150px]">작성자</TableHead>
-          <TableHead className="w-[150px]">반응</TableHead>
-          <TableHead className="w-[150px]">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
+    <Table.Root>
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head className="w-[50px]">ID</Table.Head>
+            <Table.Head>제목</Table.Head>
+            <Table.Head className="w-[150px]">작성자</Table.Head>
+            <Table.Head className="w-[150px]">반응</Table.Head>
+            <Table.Head className="w-[150px]">작업</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {posts.map((post) => (
+            <Table.Row key={post.id}>
+              <Table.Cell>{post.id}</Table.Cell>
+              <Table.Cell>
+                <div className="space-y-1">
+                  <div>{highlightText(post.title, searchQuery)}</div>
 
-                <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? 'text-white bg-blue-500 hover:bg-blue-600'
-                          : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag);
-                        updateURL();
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <div className="flex flex-wrap gap-1">
+                    {post.tags?.map((tag) => (
+                      <span
+                        key={tag}
+                        className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
+                          selectedTag === tag
+                            ? 'text-white bg-blue-500 hover:bg-blue-600'
+                            : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
+                        }`}
+                        onClick={() => {
+                          setSelectedTag(tag);
+                          updateURL();
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => openUserModal(post.author)}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openPostDetail(post)}
+              </Table.Cell>
+              <Table.Cell>
+                <div
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() => openUserModal(post.author)}
                 >
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditDialog(true);
-                  }}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deletePost(post.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                  <img
+                    src={post.author?.image}
+                    alt={post.author?.username}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span>{post.author?.username}</span>
+                </div>
+              </Table.Cell>
+              <Table.Cell>
+                <div className="flex items-center gap-2">
+                  <ThumbsUp className="w-4 h-4" />
+                  <span>{post.reactions?.likes || 0}</span>
+                  <ThumbsDown className="w-4 h-4" />
+                  <span>{post.reactions?.dislikes || 0}</span>
+                </div>
+              </Table.Cell>
+              <Table.Cell>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openPostDetail(post)}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setShowEditDialog(true);
+                    }}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deletePost(post.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+    </Table.Root>
   );
 
   // 댓글 렌더링
@@ -595,6 +570,7 @@ const PostsManager = () => {
           {loading ? (
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
+            // <PostTable posts={posts} />
             renderPostTable()
           )}
 
@@ -637,10 +613,10 @@ const PostsManager = () => {
 
       {/* 게시물 추가 대화상자 */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>새 게시물 추가</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -649,11 +625,13 @@ const PostsManager = () => {
                 setNewPost({ ...newPost, title: e.target.value })
               }
             />
-            <Textarea
+            <TextArea
               rows={30}
               placeholder="내용"
               value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })} ref={null}            />
+              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+              ref={null}
+            />
             <Input
               type="number"
               placeholder="사용자 ID"
@@ -664,15 +642,15 @@ const PostsManager = () => {
             />
             <Button onClick={addPost}>게시물 추가</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>게시물 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -681,7 +659,7 @@ const PostsManager = () => {
                 setSelectedPost({ ...selectedPost, title: e.target.value })
               }
             />
-            <Textarea
+            <TextArea
               rows={15}
               placeholder="내용"
               value={selectedPost?.body || ''}
@@ -691,7 +669,7 @@ const PostsManager = () => {
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
@@ -699,12 +677,12 @@ const PostsManager = () => {
         open={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>새 댓글 추가</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
-            <Textarea
+            <Input
               placeholder="댓글 내용"
               value={newComment.body}
               onChange={(e) =>
@@ -713,7 +691,7 @@ const PostsManager = () => {
             />
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
@@ -721,12 +699,12 @@ const PostsManager = () => {
         open={showEditCommentDialog}
         onOpenChange={setShowEditCommentDialog}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>댓글 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
-            <Textarea
+            <Input
               placeholder="댓글 내용"
               value={selectedComment?.body || ''}
               onChange={(e) =>
@@ -735,7 +713,7 @@ const PostsManager = () => {
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
@@ -743,60 +721,25 @@ const PostsManager = () => {
         open={showPostDetailDialog}
         onOpenChange={setShowPostDetailDialog}
       >
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>
+        <Dialog.Content className="max-w-3xl">
+          <Dialog.Header>
+            <Dialog.Title>
               {highlightText(selectedPost?.title, searchQuery)}
-            </DialogTitle>
-          </DialogHeader>
+            </Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <p>{highlightText(selectedPost?.body, searchQuery)}</p>
             {renderComments(selectedPost?.id)}
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <img
-              src={userInfo?.image}
-              alt={userInfo?.username}
-              className="w-24 h-24 rounded-full mx-auto"
-            />
-            <h3 className="text-xl font-semibold text-center">
-              {userInfo?.username}
-            </h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {userInfo?.firstName}{' '}
-                {userInfo?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {userInfo?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {userInfo?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {userInfo?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {userInfo?.address?.address},{' '}
-                {userInfo?.address?.city}, {userInfo?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {userInfo?.company?.name} -{' '}
-                {userInfo?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserModal
+        user={userInfo}
+        isOpen={showUserModal}
+        onClose={() => setShowUserModal(false)}
+      />
     </Card>
   );
 };
