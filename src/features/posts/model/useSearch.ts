@@ -20,8 +20,8 @@ export const useSearch = () => {
     setSearch(searchQuery);
   }, [searchQuery, setSearch]);
 
-  const commitSearch = () => {
-    setSearchQuery(search);
+  const commitSearch = (value?: string) => {
+    setSearchQuery(value ?? search);
   };
 
   return { search, setSearch, commitSearch };

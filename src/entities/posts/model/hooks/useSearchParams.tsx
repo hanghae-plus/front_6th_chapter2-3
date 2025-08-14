@@ -1,13 +1,40 @@
+import { useSearchParams as useReactRouterSearchParams } from 'react-router-dom';
 import { useSearchParams } from '@/shared/lib';
 
 export const useSkip = () => useSearchParams<number>('skip', '0', parseInt);
 
 export const useLimit = () => useSearchParams<number>('limit', '10', parseInt);
 
-export const useSearchQuery = () => useSearchParams<string>('search', '');
+export const useSearchQuery = (): ReturnType<
+  typeof useSearchParams<string>
+> => {
+  const [searchParams, setSearchParams] = useReactRouterSearchParams();
+
+  const setSearch = (value: string) => {
+    setSearchParams((searchParams) => {
+      searchParams.set('tag', value);
+      searchParams.set('search', '');
+      return searchParams;
+    });
+  };
+
+  return [searchParams.get('search') ?? '', setSearch];
+};
 
 export const useSortBy = () => useSearchParams<string>('sortBy', '');
 
 export const useSortOrder = () => useSearchParams<string>('sortOrder', 'asc');
 
-export const useTag = () => useSearchParams<string>('tag', '');
+export const useTag = (): ReturnType<typeof useSearchParams<string>> => {
+  const [searchParams, setSearchParams] = useReactRouterSearchParams();
+
+  const setTag = (value: string) => {
+    setSearchParams((searchParams) => {
+      searchParams.set('tag', value);
+      searchParams.set('search', '');
+      return searchParams;
+    });
+  };
+
+  return [searchParams.get('tag') ?? '', setTag];
+};
