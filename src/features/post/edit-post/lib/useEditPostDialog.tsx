@@ -1,4 +1,4 @@
-import { useOverlay } from "../../../../shared/lib/use-overlay"
+import { useOverlay } from "../../../../shared/hooks/useOverlay"
 import { EditPostDialog } from "../ui/EditPostDialog"
 import type { Post } from "../../../../entities/post/model"
 

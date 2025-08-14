@@ -1,4 +1,4 @@
-import { http } from "../../../shared/lib/http-client"
+import { http } from "../../../shared/lib/httpClient"
 import type { CommentItem } from "../model"
 
 export interface CommentsResponse {

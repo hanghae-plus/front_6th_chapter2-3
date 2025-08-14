@@ -1,4 +1,4 @@
-import { useOverlay } from "../../../../shared/lib/use-overlay"
+import { useOverlay } from "../../../../shared/hooks/useOverlay"
 import { AddPostDialog } from "../ui/AddPostDialog"
 import type { CreatePostRequest } from "../../../../entities/post/api/api"
 

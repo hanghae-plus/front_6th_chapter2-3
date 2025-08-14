@@ -1,4 +1,4 @@
-import { http } from "../../../shared/lib/http-client"
+import { http } from "../../../shared/lib/httpClient"
 import type { Tag, Post } from "../model"
 
 export type SortOrder = "asc" | "desc"

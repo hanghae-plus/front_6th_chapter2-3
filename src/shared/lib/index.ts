@@ -1,2 +1,2 @@
-export { highlightText } from "./highlight-text"
-export * from "./http-client"
+export * from "./highlightText"
+export * from "./httpClient"

@@ -1,6 +1,6 @@
-import { useOverlay } from "../../../shared/hooks/useOverlay"
-import type { Post } from "../../../entities/post/model"
-import { PostDetailDialog } from "../ui/PostDetailDialog"
+import { useOverlay } from "../../../../shared/hooks"
+import type { Post } from "../../../../entities/post/model"
+import { PostDetailDialog } from "../../../../widgets/post-detail/ui/PostDetailDialog"
 
 export const usePostDetailDialog = () => {
   const { open, overlay } = useOverlay()
