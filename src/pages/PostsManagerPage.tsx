@@ -1,12 +1,12 @@
-import { Plus, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 import {
   AddCommentDialog,
+  AddPostButton,
   AddPostDialog,
   EditCommentDialog,
   PostDialog,
   PostsTable,
-  useAddPostDialog,
 } from '@/features/posts';
 import { EditPostDialog } from '@/features/posts';
 import {
@@ -58,8 +58,6 @@ const PostsManager = () => {
   const { data: postsData } = usePosts();
   const total = postsData?.total ?? 0;
 
-  const { open: openAddPostDialog } = useAddPostDialog();
-
   // 사용자 모달 열기
   const openUserModal = async (user: { id: number }) => {
     try {
@@ -74,15 +72,15 @@ const PostsManager = () => {
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
+      {/*  */}
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => openAddPostDialog()}>
-            <Plus className="w-4 h-4 mr-2" />
-            게시물 추가
-          </Button>
+          <AddPostButton />
         </CardTitle>
       </CardHeader>
+
+      {/*  */}
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
