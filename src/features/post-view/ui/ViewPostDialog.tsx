@@ -1,9 +1,15 @@
 import { useViewPost } from '../model/useViewPost';
 
+import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, HighlightText } from '@/shared/ui';
 
-export const ViewPostDialog = ({ searchQuery, children }) => {
+interface ViewPostDialogProps {
+  children: React.ReactNode;
+}
+
+export const ViewPostDialog = ({ children }: ViewPostDialogProps) => {
   const { isDialogOpen, postToView, closeDialog } = useViewPost();
+  const { searchQuery } = usePostSearch();
 
   if (!postToView) return null;
 

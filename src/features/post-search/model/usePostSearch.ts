@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+
+import { usePostSearchStore } from './postSearchStore';
 
 import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
 
 export const usePostSearch = () => {
   const { searchParams, updateQuery } = useUrlQuery();
+  const { searchQuery, inputValue, setSearchQuery, setInputValue } = usePostSearchStore();
 
-  const searchQuery = searchParams.get('search') || '';
+  useEffect(() => {
+    const initialSearchQuery = searchParams.get('search') || '';
+    setSearchQuery(initialSearchQuery);
+    setInputValue(initialSearchQuery);
+  }, []);
 
-  const [inputValue, setInputValue] = useState(searchQuery);
-
-  const setSearchQuery = (search: string) => updateQuery({ search });
-
-  const handleSearch = () => {
+  const confirmSearch = () => {
     setSearchQuery(inputValue);
-    updateQuery({ search: inputValue });
+    updateQuery({ search: inputValue || null });
   };
 
   return {
     inputValue,
     setInputValue,
-    handleSearch,
+    confirmSearch,
     searchQuery,
   };
 };

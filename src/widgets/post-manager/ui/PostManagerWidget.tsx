@@ -49,7 +49,7 @@ export const PostManagerWidget = () => {
   const { skip, limit, setSkip, setLimit } = usePagination();
   const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
     usePostFilter();
-  const { inputValue, setInputValue, searchQuery, handleSearch } = usePostSearch();
+  const { searchQuery } = usePostSearch();
 
   const { data: tagsData } = useFetchTags();
   const { data: searchData } = useSearchPosts(searchQuery);
@@ -105,11 +105,7 @@ export const PostManagerWidget = () => {
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
           <div className='flex gap-4'>
-            <PostSearch
-              inputValue={inputValue}
-              setInputValue={setInputValue}
-              handleSearch={handleSearch}
-            />
+            <PostSearch />
             <PostFilter
               tags={tags}
               sortBy={sortBy}
@@ -183,7 +179,7 @@ export const PostManagerWidget = () => {
       />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <ViewPostDialog searchQuery={searchQuery}>
+      <ViewPostDialog>
         <CommentList
           postId={selectedPostId}
           setNewComment={setNewComment}

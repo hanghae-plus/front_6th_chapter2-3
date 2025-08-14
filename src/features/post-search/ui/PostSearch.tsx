@@ -1,8 +1,12 @@
 import { Search } from 'lucide-react';
 
+import { usePostSearch } from '../model/usePostSearch';
+
 import { Input } from '@/shared/ui';
 
-export const PostSearch = ({ inputValue, setInputValue, handleSearch }) => {
+export const PostSearch = () => {
+  const { inputValue, setInputValue, confirmSearch } = usePostSearch();
+
   return (
     <div className='flex-1'>
       <div className='relative'>
@@ -12,7 +16,7 @@ export const PostSearch = ({ inputValue, setInputValue, handleSearch }) => {
           className='pl-8'
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyUp={(e) => e.key === 'Enter' && confirmSearch()}
         />
       </div>
     </div>
