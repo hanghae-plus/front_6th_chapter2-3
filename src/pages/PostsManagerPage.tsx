@@ -27,7 +27,7 @@ import {
 } from "../shared/ui"
 import { HighlightText } from "../shared/ui/HighlightText"
 import { PostsTable } from "../widgets/posts-table/ui/PostsTable"
-import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/hook"
+import { useFetchPostsByMode } from "../features/posts/fetch-posts-by-mode/useFetchPostsByMode.ts"
 import { useSearchMode } from "../features/posts/fetch-posts-by-mode/search-mode/useSearchMode"
 import { useTagMode } from "../features/posts/fetch-posts-by-mode/tag-mode/useTagMode.ts"
 import { useTagsQuery } from "../entities/post/hook.ts"
@@ -77,7 +77,7 @@ const PostsManager = () => {
   const { data: tags } = useTagsQuery()
   const pageNavigateMode = usePageNavigateMode()
   const sortMode = useSortMode()
-  console.log("sortMode", sortMode)
+
   // 게시물 추가
   const addPost = async () => {
     try {

@@ -3,10 +3,10 @@ import { useFetchPostsModeStore } from "./fetchMode.store"
 import { useUsersQuery } from "../../../entities/user/hook"
 import { USER_SEARCH } from "../constants/constant"
 
-import { joinPostsWithUsers } from "../utils/joinPostsWithUsers"
 import { useMemo } from "react"
-import { queryBuilderHelper } from "../utils/utils"
 import { fetchPostsByUrl } from "../../../entities/post/api"
+import { queryBuilderHelper } from "./utils/utils"
+import { joinPostsWithUsers } from "./utils/joinPostsWithUsers"
 
 /**
  * 포스트 목록 조회
