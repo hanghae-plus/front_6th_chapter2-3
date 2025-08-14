@@ -1,30 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from '../components'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared/ui/Table'
+import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/Card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/ui/Dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/ui/Select'
+import { Button } from '@shared/ui/Button'
+import Input from '@shared/ui/Input'
+import Textarea from '@shared/ui/Textarea'
 
 const PostsManager = () => {
   const navigate = useNavigate()
