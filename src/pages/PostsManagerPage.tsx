@@ -83,7 +83,7 @@ const PostsManager = () => {
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState<CommentForm>({ body: "", postId: null, userId: 1 })
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -261,15 +261,10 @@ const PostsManager = () => {
   }
 
   // 사용자 모달 열기
-  const handleOpenUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      openUserModal()
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+  const handleOpenUserModal = (user: User) => {
+    // 사용자 ID를 직접 전달
+    setSelectedUserId(user.id)
+    openUserModal()
   }
 
   // 페이지네이션 핸들러
@@ -474,7 +469,7 @@ const PostsManager = () => {
             closeUserModal()
           }
         }}
-        user={selectedUser}
+        userId={selectedUserId}
       />
     </Card>
   )
