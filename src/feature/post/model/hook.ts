@@ -10,11 +10,11 @@ export const userPostInfo = () => {
   const [loading, setLoading] = useState(false)
 
   // 게시물 가져오기
-  const fetchPosts = async (limit: number, skip: number) => {
+  const fetchPosts = async (limit: number, skip: number, sortBy: string) => {
     setLoading(true)
 
     try {
-      const { result, data: posts } = await getPosts(limit, skip)
+      const { result, data: posts } = await getPosts(limit, skip, sortBy)
       if (result && posts) {
         const { result, data: users } = await getUsers()
         if (result && users) {
@@ -35,9 +35,9 @@ export const userPostInfo = () => {
   }
 
   // 게시물 검색
-  const searchPosts = async (limit: number, skip: number, searchQuery?: string) => {
+  const searchPosts = async (limit: number, skip: number, sortBy: string, searchQuery?: string) => {
     if (!searchQuery) {
-      fetchPosts(limit, skip)
+      fetchPosts(limit, skip, sortBy)
       return
     }
     setLoading(true)
@@ -55,9 +55,9 @@ export const userPostInfo = () => {
   }
 
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (limit: number, skip: number, tag: string | null) => {
+  const fetchPostsByTag = async (limit: number, skip: number, sortBy: string, tag: string | null) => {
     if (!tag || tag === "all") {
-      fetchPosts(limit, skip)
+      fetchPosts(limit, skip, sortBy)
       return
     }
     setLoading(true)

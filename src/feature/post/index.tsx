@@ -3,19 +3,15 @@ import { CardContent } from "../../shared/ui"
 import PostSearchFilter from "./ui/PostSearchFilter"
 import { Pagination } from "../../widgets"
 import { PostTable } from "./ui/PostTable"
-import { Post } from "./type"
 import { getTags, Tags } from "../../entities"
 import { getUser } from "../../entities"
 import { Author } from "../../shared/types"
-import { useSearchQueryStore, useSelectedPostStore, useSelectedUserStore } from "./model/store"
+import { useSearchQueryStore, useSelectedUserStore } from "./model/store"
 import { useURL } from "../../shared/hook/useURL"
 import { userPostInfo } from "./model/hook"
-import { useComment } from "../comment/model/hook"
 
 export const PostList = () => {
   const [tags, setTags] = useState<Tags>([])
-  const { fetchComments } = useComment()
-  const { setSelectedPost, setShowPostDetailDialog } = useSelectedPostStore()
   const { setSelectedUser, setShowUserModal } = useSelectedUserStore()
   const { searchQuery, setSearchQuery } = useSearchQueryStore()
   const { loading, total, fetchPosts, searchPosts, fetchPostsByTag } = userPostInfo()
@@ -39,9 +35,9 @@ export const PostList = () => {
 
   useEffect(() => {
     if (selectedTag) {
-      fetchPostsByTag(limit, skip, selectedTag)
+      fetchPostsByTag(limit, skip, sortBy, selectedTag)
     } else {
-      fetchPosts(limit, skip)
+      fetchPosts(limit, skip, sortBy)
     }
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
@@ -60,13 +56,13 @@ export const PostList = () => {
 
   const handleSearchPost = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      searchPosts(limit, skip, searchQuery)
+      searchPosts(limit, skip, sortBy, searchQuery)
     }
   }
 
   const handleChangeTag = (value: string) => {
     setSelectedTag(value)
-    fetchPostsByTag(limit, skip, value)
+    fetchPostsByTag(limit, skip, sortBy, value)
     updateURL()
   }
 
@@ -83,20 +79,12 @@ export const PostList = () => {
     }
   }
 
-  // 게시물 상세 보기
-  const openPostDetail = (post: Post) => {
-    setSelectedPost(post)
-    fetchComments(post.id)
-    setShowPostDetailDialog(true)
-  }
-
   const postTableProps = {
     searchQuery,
     selectedTag,
     setSelectedTag,
     updateURL,
     openUserModal,
-    openPostDetail,
   }
 
   const paginationProps = {

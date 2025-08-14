@@ -1,8 +1,8 @@
 import { requestApi } from "../../shared/lib"
 import { Posts } from "./type"
 
-export const getPosts = async (limit: number, skip: number) => {
-  return await requestApi<Posts>(`/api/posts?limit=${limit}&skip=${skip}`)
+export const getPosts = async (limit: number, skip: number, sortBy: string) => {
+  return await requestApi<Posts>(`/api/posts?limit=${limit}&skip=${skip}&sortBy=${sortBy}`)
 }
 
 export const getSeachPosts = async (searchQuery: string) => {
