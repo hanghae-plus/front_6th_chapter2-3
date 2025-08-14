@@ -8,7 +8,6 @@ import {
   updatePost as updatePostData,
   deletePost as deletePostData,
   useLimit,
-  usePostsQueryKey,
   useSearchQuery,
   useSkip,
   useSortBy,
@@ -33,6 +32,7 @@ import {
   updatePostComment,
 } from './remote';
 import { POST_QUERY_KEYS } from './query-keys';
+import { usePostsQueryKey } from './usePostsQuerykey';
 
 // 게시글 목록 가져오기
 export const usePosts = () => {

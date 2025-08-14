@@ -5,8 +5,8 @@ import {
   useSortBy,
   useSortOrder,
   useTag,
-} from '../hooks';
-import { QUERY_KEYS } from '@/shared/config';
+} from '../model';
+import { POST_QUERY_KEYS } from './query-keys';
 
 export const usePostsQueryKey = () => {
   const [limit] = useLimit();
@@ -16,7 +16,7 @@ export const usePostsQueryKey = () => {
   const [sortBy] = useSortBy();
   const [sortOrder] = useSortOrder();
 
-  return QUERY_KEYS.posts(
+  return POST_QUERY_KEYS.posts(
     limit,
     skip,
     searchQuery,
