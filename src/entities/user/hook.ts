@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchUser, fetchUsers } from "./api"
+import { fetchUsers } from "./api"
 
 const USER_QUERY_KEY = {
   LIST: "users",
@@ -15,17 +15,5 @@ export const useUsersQuery = (limit: number, select: string) => {
   return useQuery({
     queryKey: [USER_QUERY_KEY.LIST, limit, select],
     queryFn: () => fetchUsers(limit, select),
-  })
-}
-
-/**
- * 사용자 조회
- * @param id - 사용자 ID
- * @returns 사용자 정보
- */
-export const useUserQuery = (id: number) => {
-  return useQuery({
-    queryKey: [USER_QUERY_KEY.LIST, id],
-    queryFn: () => fetchUser(id),
   })
 }
