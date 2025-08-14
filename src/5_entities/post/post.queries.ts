@@ -12,7 +12,7 @@ import {
   GetPostsParams,
   putPost,
 } from './post.api';
-import { Post } from './post.type';
+import { GetPostsResponse, Post } from './post.type';
 
 export const useGetPostsQuery = (params: GetPostsParams) => {
   return useQuery({
@@ -50,8 +50,11 @@ export const useCreatePostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
+      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
+        queryKeys.posts.lists()
+      );
 
+      // ! 이전 데이터 캐시에 새 게시물 추가하여 UI 낙관적 업데이트 선행
       queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
         if (!old) {
           return {
@@ -74,8 +77,14 @@ export const useCreatePostMutation = ({
       queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+    onSuccess: (data, _, { previousPosts }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터 추가
+      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        return {
+          ...old,
+          posts: [data, ...(previousPosts?.posts || [])],
+        };
+      });
       onSuccess?.(data);
     },
   });
@@ -94,8 +103,11 @@ export const usePutPostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
+      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
+        queryKeys.posts.lists()
+      );
 
+      // ! 이전 데이터 캐시에 수정된 게시물 업데이트하여 UI 낙관적 업데이트 선행
       queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
         if (!old || !old.posts) {
           return old;
@@ -114,8 +126,14 @@ export const usePutPostMutation = ({
       queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+    onSuccess: (data, _, { previousPosts }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터 추가
+      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        return {
+          ...old,
+          posts: [data, ...(previousPosts?.posts || [])],
+        };
+      });
       onSuccess?.(data);
     },
   });
@@ -134,8 +152,11 @@ export const useDeletePostMutation = ({
         queryKey: queryKeys.posts.all,
       });
 
-      const previousPosts = queryClient.getQueryData(queryKeys.posts.lists());
+      const previousPosts = queryClient.getQueryData<GetPostsResponse>(
+        queryKeys.posts.lists()
+      );
 
+      // ! 이전 데이터 캐시에 삭제된 게시물 제외하여 UI 낙관적 업데이트 선행
       queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
         if (!old || !old.posts) {
           return old;
@@ -153,8 +174,14 @@ export const useDeletePostMutation = ({
       queryClient.setQueryData(queryKeys.posts.lists(), context?.previousPosts);
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+    onSuccess: (data, _, { previousPosts }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터 추가
+      queryClient.setQueryData(queryKeys.posts.lists(), (old: any) => {
+        return {
+          ...old,
+          posts: [data, ...(previousPosts?.posts || [])],
+        };
+      });
       onSuccess?.(data);
     },
   });

@@ -1,3 +1,5 @@
+import { PaginationResponse } from '@/shared/types';
+
 import { User } from '../user';
 
 // ? Comment에 User도 포함되는데 Entity에 넣는게 맞나?
@@ -21,3 +23,7 @@ export interface DeletedComment extends Comment {
 }
 
 export type CreatedComment = CommentToCreate;
+
+export interface GetCommentsResponse extends PaginationResponse {
+  comments: Comment[];
+}

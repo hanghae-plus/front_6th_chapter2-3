@@ -1,4 +1,6 @@
-interface Post {
+import { PaginationResponse } from '@/shared/types';
+
+export interface Post {
   id: number;
   title: string;
   body: string;
@@ -7,9 +9,11 @@ interface Post {
   reactions?: PostReactions;
 }
 
-interface PostReactions {
+export interface PostReactions {
   likes: number;
   dislikes: number;
 }
 
-export type { Post, PostReactions };
+export interface GetPostsResponse extends PaginationResponse {
+  posts: Post[];
+}

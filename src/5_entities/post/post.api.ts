@@ -1,13 +1,8 @@
-import { Post, POST_CONSTANTS } from '@/entities/post';
-import { PaginationResponse } from '@/shared/types';
+import { GetPostsResponse, Post, POST_CONSTANTS } from '@/entities/post';
 
 export interface GetPostsParams {
   limit: number;
   skip: number;
-}
-
-export interface GetPostsResponse extends PaginationResponse {
-  posts: Post[];
 }
 
 export const getPosts = async ({

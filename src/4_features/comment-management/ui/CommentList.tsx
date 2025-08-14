@@ -9,7 +9,7 @@ export const CommentList = () => {
   const { data: commentsData, isLoading } = useGetCommentsQuery(
     selectedPost?.id ?? null
   );
-  console.log(commentsData?.comments);
+
   return (
     <div className='space-y-1 w-full'>
       {isLoading ? (

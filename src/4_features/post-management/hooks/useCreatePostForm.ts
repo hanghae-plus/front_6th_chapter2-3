@@ -9,10 +9,11 @@ export const useCreatePostForm = () => {
   const { mutate: createPost } = useCreatePostMutation({
     onSuccess: () => {
       resetForm();
-      setShowAddDialog(false);
     },
     onError: (error: Error) => {
       console.error('게시물 추가 오류:', error);
+      // ! 모달 다시 열어서 사용자가 수정하기
+      setShowAddDialog(true);
     },
   });
 
@@ -25,6 +26,8 @@ export const useCreatePostForm = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // ! 다이얼로그 먼저 닫고 UI 낙관적 업데이트 보여주기
+    setShowAddDialog(false);
     createPost({
       title: postTitle,
       body: postBody,

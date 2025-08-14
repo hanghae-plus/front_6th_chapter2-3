@@ -34,6 +34,7 @@ import { Plus, Search } from 'lucide-react';
 
 import type { User } from '@/entities/user';
 import { AddCommentDialog } from '@/features/comment-management';
+import { EditCommentFormDialog } from '@/features/comment-management/ui/EditCommentFormDialog';
 import { PostDetailDialog, PostTable } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
 import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
@@ -126,13 +127,10 @@ const PostsManager = () => {
 
   // ======== 개선 =======
   const {
-    showAddCommentDialog,
-    showEditCommentDialog,
     showUserModal,
     setShowAddDialog,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
-    setShowPostDetailDialog,
     setShowUserModal,
   } = useUIStore();
 
@@ -435,26 +433,7 @@ const PostsManager = () => {
       <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog
-        open={showEditCommentDialog}
-        onOpenChange={setShowEditCommentDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={selectedComment?.body || ''}
-              onChange={e =>
-                setSelectedComment({ ...selectedComment, body: e.target.value })
-              }
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCommentFormDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog />

@@ -15,6 +15,7 @@ import {
   CommentToCreate,
   CreatedComment,
   DeletedComment,
+  GetCommentsResponse,
 } from './comment.type';
 
 export const useGetCommentsQuery = (postId: Nullable<number>) => {
@@ -38,26 +39,49 @@ export const useCreateCommentMutation = ({
         queryKey: queryKeys.comments.list(newComment.postId),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousCommentData = queryClient.getQueryData<GetCommentsResponse>(
         queryKeys.comments.list(newComment.postId)
       );
 
-      return { previousComments };
+      const commentToAdd: Comment = {
+        ...newComment,
+        id: Math.floor(Math.random() * 1000000),
+        likes: 0,
+        user: {
+          id: 1,
+          username: 'John Doe',
+          image: 'john.doe@example.com',
+        },
+      };
+
+      // ! 이전 데이터 캐시에 새 댓글 추가하여 UI 낙관적 업데이트 선행
+      queryClient.setQueryData(
+        queryKeys.comments.list(newComment.postId),
+        (old: GetCommentsResponse) => {
+          return {
+            ...old,
+            comments: [commentToAdd, ...(old.comments || [])],
+          };
+        }
+      );
+
+      return { previousCommentData };
     },
     onError: (error, { postId }, context) => {
       queryClient.setQueryData(
         queryKeys.comments.list(postId),
-        context?.previousComments
+        context?.previousCommentData
       );
       onError?.(error);
     },
-    onSuccess: data => {
+    onSuccess: (data, _, { previousCommentData }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터 추가
       queryClient.setQueryData(
         queryKeys.comments.list(data.postId),
         (old: any) => {
           return {
             ...old,
-            comments: [data, ...(old.comments || [])],
+            comments: [data, ...(previousCommentData?.comments || [])],
           };
         }
       );
@@ -69,49 +93,66 @@ export const useCreateCommentMutation = ({
 export const useUpdateCommentMutation = ({
   onError,
   onSuccess,
-}: MutationProps<Comment>) => {
+}: MutationProps<{ body: string }>) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (updatedComment: Comment) => updateComment(updatedComment),
     onMutate: async updatedComment => {
       await queryClient.cancelQueries({
-        queryKey: queryKeys.comments.lists(),
+        queryKey: queryKeys.comments.list(updatedComment.postId),
       });
 
-      const previousComments = queryClient.getQueryData(
-        queryKeys.comments.lists()
+      const previousComments = queryClient.getQueryData<GetCommentsResponse>(
+        queryKeys.comments.list(updatedComment.postId)
       );
 
-      queryClient.setQueryData(queryKeys.comments.lists(), (old: any) => {
-        if (!old) {
+      // ! 이전 데이터 캐시에 수정된 댓글 업데이트하여 UI 낙관적 업데이트 선행
+      queryClient.setQueryData(
+        queryKeys.comments.list(updatedComment.postId),
+        (old: GetCommentsResponse) => {
+          if (!old) {
+            return {
+              comments: [updatedComment],
+              total: 1,
+              skip: 0,
+              limit: 10,
+            };
+          }
+
           return {
-            comments: [updatedComment],
-            total: 1,
-            skip: 0,
-            limit: 10,
+            ...old,
+            comments: old.comments.map((comment: Comment) =>
+              comment.id === updatedComment.id ? updatedComment : comment
+            ),
           };
         }
-
-        return {
-          ...old,
-          comments: old.comments.map((comment: Comment) =>
-            comment.id === updatedComment.id ? updatedComment : comment
-          ),
-        };
-      });
+      );
 
       return { previousComments };
     },
-    onError: (error, __, context) => {
+    onError: (error, updatedComment, context) => {
       queryClient.setQueryData(
-        queryKeys.comments.lists(),
+        queryKeys.comments.list(updatedComment.postId),
         context?.previousComments
       );
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.comments.lists() });
+    onSuccess: (data, updatedComment, { previousComments }) => {
+      // ! 성공 시 이전 데이터에 성공 데이터 추가
+      queryClient.setQueryData(
+        queryKeys.comments.list(updatedComment.postId),
+        (old: any) => {
+          return {
+            ...old,
+            comments: previousComments?.comments.map((comment: Comment) =>
+              comment.id === updatedComment.id
+                ? { ...comment, body: data.body }
+                : comment
+            ),
+          };
+        }
+      );
       onSuccess?.(data);
     },
   });
@@ -130,10 +171,11 @@ export const useDeleteCommentMutation = ({
         queryKey: queryKeys.comments.lists(),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousComments = queryClient.getQueryData<GetCommentsResponse>(
         queryKeys.comments.lists()
       );
 
+      // ! 이전 데이터 캐시에 삭제된 댓글 제외하여 UI 낙관적 업데이트 선행
       queryClient.setQueryData(queryKeys.comments.lists(), (old: any) => {
         if (!old) {
           return {
@@ -161,8 +203,16 @@ export const useDeleteCommentMutation = ({
       );
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.comments.lists() });
+    onSuccess: (data, _, { previousComments }) => {
+      // ! 성공 시 이전 데이터에서 삭제된 댓글 제외
+      queryClient.setQueryData(queryKeys.comments.lists(), (old: any) => {
+        return {
+          ...old,
+          comments: previousComments?.comments.filter(
+            (comment: Comment) => comment.id !== data.id
+          ),
+        };
+      });
       onSuccess?.(data);
     },
   });
@@ -208,10 +258,11 @@ export const useLikeCommentMutation = ({
         queryKey: queryKeys.comments.list(postId),
       });
 
-      const previousComments = queryClient.getQueryData(
+      const previousComments = queryClient.getQueryData<Comment[]>(
         queryKeys.comments.list(postId)
       );
 
+      // ! 이전 데이터 캐시에 좋아요 누른 댓글 업데이트하여 UI 낙관적 업데이트 선행
       queryClient.setQueryData(queryKeys.comments.list(postId), (old: any) => {
         return old.map((comment: Comment) =>
           comment.id === commentId
@@ -229,10 +280,15 @@ export const useLikeCommentMutation = ({
       );
       onError?.(error);
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.comments.list(data.postId),
-      });
+    onSuccess: (data, _, { previousComments }) => {
+      // // ! 성공 시 이전 데이터에 좋아요 누른 댓글 업데이트
+      // queryClient.setQueryData(queryKeys.comments.list(data.postId), () => {
+      //   return previousComments?.map((comment: Comment) =>
+      //     comment.id === data.id
+      //       ? { ...comment, likes: comment.likes + 1 }
+      //       : comment
+      //   );
+      // });
       onSuccess?.(data);
     },
   });

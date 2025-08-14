@@ -1,15 +1,10 @@
-import { PaginationResponse } from '@/shared/types';
-
 import {
   Comment,
   CommentToCreate,
   CreatedComment,
   DeletedComment,
+  GetCommentsResponse,
 } from './comment.type';
-
-interface GetCommentsResponse extends PaginationResponse {
-  comments: Comment[];
-}
 
 export const getComments = async (
   postId: number
@@ -31,11 +26,11 @@ export const createComment = async (
 
 export const updateComment = async (
   updatedComment: Comment
-): Promise<Comment> => {
+): Promise<{ body: string }> => {
   const response = await fetch(`/api/comments/${updatedComment.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedComment),
+    body: JSON.stringify({ body: updatedComment.body }),
   });
   return response.json();
 };
