@@ -13,10 +13,5 @@ const getViteEnv = (): EnvRecord => {
 const viteEnv = getViteEnv()
 export const ENV_USE_SERVER_TRUTH = String(viteEnv.VITE_USE_SERVER_TRUTH || "false") === "true"
 
-// API 베이스 URL 설정 - 프로덕션에서는 직접 dummyjson.com 호출
-// GitHub Pages 배포 시 항상 dummyjson.com 사용
-export const API_BASE_URL =
-  viteEnv.VITE_API_BASE_URL ||
-  (viteEnv.MODE === "production" || viteEnv.PROD === "true" || viteEnv.NODE_ENV === "production"
-    ? "https://dummyjson.com"
-    : "/api")
+// API 베이스 URL 설정 - GitHub Pages에서는 항상 dummyjson.com 사용
+export const API_BASE_URL = viteEnv.VITE_API_BASE_URL || "https://dummyjson.com"
