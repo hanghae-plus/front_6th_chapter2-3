@@ -11,12 +11,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Textarea,
 } from "../shared/ui"
 import {highlightText} from "../shared/lib/text-utils"
 import { getPosts } from "../entities/post/api/api.ts"
 import { Post } from "../entities/post/model/types.ts"
-import { PostsTable, Pagination, PostsFilter, PostForm, UserModal } from "../widgets/"
+import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm } from "../widgets/"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -456,38 +455,26 @@ const PostsManager = () => {
       />
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CommentForm
+        open={showAddCommentDialog}
+        onChangeOpen={setShowAddCommentDialog}
+        formTitle="새 댓글 추가"
+        bodyValue={newComment.body}
+        onChangeBody={(value) => setNewComment({ ...newComment, body: value })}
+        submitActionLabel="댓글 추가"
+        onSubmit={addComment}
+      />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CommentForm
+        open={showEditCommentDialog}
+        onChangeOpen={setShowEditCommentDialog}
+        formTitle="댓글 수정"
+        bodyValue={selectedComment?.body || ""}
+        onChangeBody={(value) => setSelectedComment({ ...selectedComment, body: value })}
+        submitActionLabel="댓글 업데이트"
+        onSubmit={updateComment}
+      />
 
       {/* 게시물 상세 보기 대화상자 */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
