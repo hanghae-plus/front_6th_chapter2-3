@@ -7,6 +7,7 @@ import { PostTable } from "@/widgets/post-table"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
 import { EditPostDialog } from "@/features/post/update-post/ui"
 import { DetailPostDialog } from "@/features/post/read-post/ui"
+import { UserProfileDialog } from "@/features/user/view-user-info/ui"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 
 const PostsManager = () => {
@@ -41,7 +42,7 @@ const PostsManager = () => {
       <AddPostDialog />
       <EditPostDialog postId={selectedPostId} />
       <DetailPostDialog postId={selectedPostId} />
-      {/* <UserProfileDialog userId={selectedUserId} /> */}
+      <UserProfileDialog />
     </Card>
   )
 }

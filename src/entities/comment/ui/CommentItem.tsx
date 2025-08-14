@@ -33,20 +33,16 @@ export const CommentItem = ({ comment, onLike, onEdit, onDelete, searchQuery }: 
         <span className="truncate">{highlightText(comment.body, searchQuery || "")}</span>
       </div>
 
-      {/* 댓글 작업 버튼들 */}
       <div className="flex items-center space-x-1">
-        {/* 좋아요 버튼 */}
         <Button variant="ghost" size="sm" onClick={() => onLike(comment.id)}>
           <ThumbsUp className="w-3 h-3" />
           <span className="ml-1 text-xs">{comment.likes}</span>
         </Button>
 
-        {/* 수정 버튼 */}
         <Button variant="ghost" size="sm" onClick={() => onEdit(comment)}>
           <Edit2 className="w-3 h-3" />
         </Button>
 
-        {/* 삭제 버튼 */}
         <Button variant="ghost" size="sm" onClick={() => onDelete(comment.id)}>
           <Trash2 className="w-3 h-3" />
         </Button>

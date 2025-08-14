@@ -11,11 +11,9 @@ export const useCreateComment = () => {
       return createComment(comment)
     },
     onSuccess: (newComment: Comment, variables: CreateComment) => {
-      // 댓글 목록 쿼리를 수동으로 업데이트
       queryClient.setQueriesData(
         { queryKey: commentKeys.listByPost(variables.postId) },
-        (old: CommentPaginatedResponse | undefined) => {
-          if (!old) return old
+        (old: CommentPaginatedResponse) => {
           return {
             ...old,
             comments: [...old.comments, newComment],

@@ -2,8 +2,10 @@ import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui"
 import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
+import { useSelectedUserStore } from "@/features/user/view-user-info/model"
 import { PostWithAuthor } from "@/entities/post/model/types"
 import { TableCell, TableRow } from "@/shared/ui"
+import { useDialogActions } from "@/shared/model"
 
 interface PostTableRowProps {
   post: PostWithAuthor
@@ -30,6 +32,14 @@ const highlightText = (text: string, highlight: string) => {
 }
 
 export const PostTableRow = ({ post, searchQuery, selectedTag, onTagSelect, onPostSelect }: PostTableRowProps) => {
+  const { setSelectedUserId } = useSelectedUserStore()
+  const { showDialog } = useDialogActions()
+
+  const handleUserInfoClick = () => {
+    setSelectedUserId(post.author.id)
+    showDialog("USER_INFO")
+  }
+
   return (
     <TableRow>
       <TableCell>{post.id}</TableCell>
@@ -56,7 +66,9 @@ export const PostTableRow = ({ post, searchQuery, selectedTag, onTagSelect, onPo
       <TableCell>
         <div className="flex items-center space-x-2">
           <img src={post.author.image} alt={post.author.username} className="w-8 h-8 rounded-full" />
-          <span>{post.author.username}</span>
+          <span onClick={handleUserInfoClick} className="cursor-pointer">
+            {post.author.username}
+          </span>
         </div>
       </TableCell>
       <TableCell>

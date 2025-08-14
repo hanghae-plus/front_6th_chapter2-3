@@ -20,7 +20,6 @@ export const useLikeComment = () => {
       queryClient.setQueriesData(
         { queryKey: commentKeys.listByPost(variables.postId) },
         (old: CommentPaginatedResponse) => {
-          if (!old?.comments) return old
           return {
             ...old,
             comments: old.comments.map((comment: Comment) =>

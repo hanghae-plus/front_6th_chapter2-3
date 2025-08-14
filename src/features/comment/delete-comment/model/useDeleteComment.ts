@@ -16,7 +16,6 @@ export const useDeleteComment = () => {
       return deleteComment(commentId)
     },
     onSuccess: (_, variables: DeleteCommentParams) => {
-      // 댓글 목록 쿼리를 수동으로 업데이트
       queryClient.setQueriesData(
         { queryKey: commentKeys.listByPost(variables.postId) },
         (old: CommentPaginatedResponse) => {
