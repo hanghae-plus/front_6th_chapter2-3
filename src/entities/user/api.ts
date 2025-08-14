@@ -1,6 +1,6 @@
 import { api } from "../../shared/api/api"
 import { ListResponse } from "../../shared/types/types"
-import { User } from "./model"
+import { DetailUser, User } from "./model"
 
 /**
  * 사용자 목록 조회
@@ -12,6 +12,11 @@ export const fetchUsers = async (limit: number, select: string) => {
   const response = await api.get<ListResponse<"users", Pick<User, "id" | "username" | "image">>>(
     `/users?limit=${limit}&select=${select}`,
   )
-  console.log("response", response)
+
+  return response
+}
+
+export const fetchUser = async (id: number) => {
+  const response = await api.get<DetailUser>(`/users/${id}`)
   return response
 }
