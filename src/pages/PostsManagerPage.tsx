@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../shared/ui"
-import { useQueryStates, parseAsString } from "nuqs"
+import { usePostsBrowseParams } from "../features/post/browse-posts"
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query"
 import { postQueries } from "../entities/post/api/queries"
 import { userQueries } from "../entities/user/api/queries"
@@ -26,25 +26,17 @@ import { useEditPost } from "../features/post/edit-post"
 import { usePostDetailDialog } from "../widgets/post-detail"
 
 const PostsManager = () => {
-  const [queryParams, setQueryParams] = useQueryStates({
-    skip: parseAsString.withDefault("0"),
-    limit: parseAsString.withDefault("10"),
-    search: parseAsString.withDefault(""),
-    sortBy: parseAsString.withDefault(""),
-    order: parseAsString.withDefault("asc"),
-    tag: parseAsString.withDefault(""),
-  })
-
-  const { skip, limit, search: searchQuery, sortBy, order, tag: selectedTag } = queryParams
+  const { params, setParams, stepPrev, stepNext } = usePostsBrowseParams()
+  const { skip, limit, searchQuery, sortBy, order, tag: selectedTag } = params
 
   const { openProfile, overlay: profileOverlay } = useUserProfileDialog()
 
   const postQuery = useQuery({
     ...postQueries.listQuery({
-      limit: +limit,
-      skip: +skip,
+      limit,
+      skip,
       sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
-      order: order === "desc" ? "desc" : "asc",
+      order,
     }),
     enabled: !searchQuery && (!selectedTag || selectedTag === "all"),
     placeholderData: keepPreviousData,
@@ -58,10 +50,10 @@ const PostsManager = () => {
   const searchedPostsQuery = useQuery({
     ...postQueries.searchQuery({
       search: searchQuery,
-      limit: +limit,
-      skip: +skip,
+      limit,
+      skip,
       sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
-      order: order === "desc" ? "desc" : "asc",
+      order,
     }),
     enabled: !!searchQuery,
     placeholderData: keepPreviousData,
@@ -70,10 +62,10 @@ const PostsManager = () => {
   const tagPostsQuery = useQuery({
     ...postQueries.listByTagQuery({
       tag: selectedTag,
-      limit: +limit,
-      skip: +skip,
+      limit,
+      skip,
       sortBy: sortBy && sortBy !== "none" ? sortBy : "id",
-      order: order === "desc" ? "desc" : "asc",
+      order,
     }),
     enabled: !!selectedTag && selectedTag !== "all",
     placeholderData: keepPreviousData,
@@ -112,7 +104,7 @@ const PostsManager = () => {
       posts={posts}
       selectedTag={selectedTag}
       searchQuery={searchQuery}
-      onTagClick={(tag) => setQueryParams({ tag })}
+      onTagClick={(tag) => setParams({ tag })}
       onOpenUser={(user) => user && openUserModal(user)}
       onOpenDetail={openPostDetail}
       onEdit={(post) => {
@@ -144,7 +136,7 @@ const PostsManager = () => {
                   placeholder="게시물 검색..."
                   className="pl-8"
                   value={searchQuery}
-                  onChange={(e) => setQueryParams({ search: e.target.value })}
+                  onChange={(e) => setParams({ searchQuery: e.target.value })}
                   onKeyPress={(e) => e.key === "Enter"}
                 />
               </div>
@@ -152,7 +144,7 @@ const PostsManager = () => {
             <Select
               value={selectedTag}
               onValueChange={(value) => {
-                setQueryParams({ tag: value })
+                setParams({ tag: value })
               }}
             >
               <SelectTrigger className="w-[180px]">
@@ -167,7 +159,7 @@ const PostsManager = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={(value) => setQueryParams({ sortBy: value })}>
+            <Select value={sortBy} onValueChange={(value) => setParams({ sortBy: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -178,7 +170,7 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={order} onValueChange={(value) => setQueryParams({ order: value })}>
+            <Select value={order} onValueChange={(value) => setParams({ order: value as "asc" | "desc" })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -196,7 +188,7 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit} onValueChange={(value) => setQueryParams({ limit: value })}>
+              <Select value={String(limit)} onValueChange={(value) => setParams({ limit: Number(value) })}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="10" />
                 </SelectTrigger>
@@ -209,16 +201,10 @@ const PostsManager = () => {
               <span>항목</span>
             </div>
             <div className="flex gap-2">
-              <Button
-                disabled={parseInt(skip) === 0}
-                onClick={() => setQueryParams({ skip: Math.max(0, parseInt(skip) - parseInt(limit)).toString() })}
-              >
+              <Button disabled={skip === 0} onClick={() => stepPrev()}>
                 이전
               </Button>
-              <Button
-                disabled={parseInt(skip) + parseInt(limit) >= total}
-                onClick={() => setQueryParams({ skip: (parseInt(skip) + parseInt(limit)).toString() })}
-              >
+              <Button disabled={skip + limit >= total} onClick={() => stepNext()}>
                 다음
               </Button>
             </div>
