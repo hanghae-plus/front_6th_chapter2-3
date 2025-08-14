@@ -1,17 +1,22 @@
-import { useState, useCallback, FormEvent } from "react"
 import { Plus } from "lucide-react"
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../components"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
 import { usePosts } from "../hooks/usePosts"
 import { useTags } from "../hooks/useTags"
-import { usePostMutations } from "../hooks/usePostMutations"
-import { fetchUserDetails } from "../api/users"
-import type { Post, UserDetails, UserSummary, Comment } from "../types"
-
-import { PostFilters } from "../components/posts/PostFilters"
-import { PostsTable } from "../components/posts/PostsTable"
-import { PaginationControls } from "../components/posts/PaginationControls"
-import { PostFormDialog, PostDetailDialog, CommentFormDialog, UserDialog } from "../components/posts/PostDialogs"
-import { useComments } from "../hooks/useComments"
+import { usePostCreate } from "../features/post-create/model/actions"
+import { usePostEdit } from "../features/post-edit/model/actions"
+import { usePostDelete } from "../features/post-delete/model/actions"
+import { usePostReactions } from "../features/post-reactions/model/actions"
+import { useCommentManage } from "../features/comment-manage/model/actions"
+import { usePostDetail } from "../features/post-detail/model/actions"
+import { useUserDetail } from "../features/user-detail/model/actions"
+import { PostCreateDialog } from "../features/post-create/ui/PostCreateDialog"
+import { PostEditDialog } from "../features/post-edit/ui/PostEditDialog"
+import { CommentDialog } from "../features/comment-manage/ui/CommentDialog"
+import { PostDetailDialog } from "../features/post-detail/ui/PostDetailDialog"
+import { UserDialog } from "../features/user-detail/ui/UserDialog"
+import { PostFilters } from "../widgets/post-filters/PostFilters"
+import { PostsTable } from "../widgets/post-list/PostsTable"
+import { PaginationControls } from "../widgets/pagination/PaginationControls"
 
 const PostsManagerPage = () => {
   const {
@@ -34,116 +39,26 @@ const PostsManagerPage = () => {
     handleSearch,
   } = usePosts()
 
+  // 전역 total을 동기화(번호 계산/위치 정책 등에서 사용 가능)
+  // import 없이 내부로 유지 가능하지만, 확장을 위해 jotai atom으로도 보관할 수 있음
+
   const { data: tags = [] } = useTags()
-  const { addPost, updatePost, deletePost } = usePostMutations()
 
-  const [showAddPostDialog, setShowAddPostDialog] = useState(false)
-  const [showEditPostDialog, setShowEditPostDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [editablePost, setEditablePost] = useState<{
-    title: string
-    body: string
-    id?: number
-    userId?: number
-  } | null>(null)
-  const [editableComment, setEditableComment] = useState<Partial<Comment> | null>(null)
-  const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null)
-
-  const [newPostData, setNewPostData] = useState({ title: "", body: "", userId: 1 })
-  const [newCommentData, setNewCommentData] = useState({ body: "", postId: 0, userId: 1 })
-
-  const { comments, addComment, updateComment, deleteComment, likeComment } = useComments(selectedPost?.id || null)
-
-  const handleAddPost = async (e: FormEvent) => {
-    e.preventDefault()
-    try {
-      await addPost(newPostData)
-      setShowAddPostDialog(false)
-      setNewPostData({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("Failed to add post:", error)
-    }
-  }
-
-  const handleUpdatePost = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!editablePost?.id) return
-    try {
-      await updatePost({ postId: editablePost.id, postData: { title: editablePost.title, body: editablePost.body } })
-      setShowEditPostDialog(false)
-    } catch (error) {
-      console.error("Failed to update post:", error)
-    }
-  }
-
-  const handleDeletePost = async (postId: number) => {
-    if (window.confirm("정말로 이 게시물을 삭제하시겠습니까?")) {
-      try {
-        await deletePost(postId)
-      } catch (error) {
-        console.error("Failed to delete post:", error)
-      }
-    }
-  }
-
-  const handleAddComment = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!newCommentData.postId) return
-    try {
-      await addComment(newCommentData)
-      setShowAddCommentDialog(false)
-      setNewCommentData({ body: "", postId: 0, userId: 1 })
-    } catch (error) {
-      console.error("Failed to add comment:", error)
-    }
-  }
-
-  const handleUpdateComment = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!editableComment?.id || !editableComment.body) return
-    try {
-      await updateComment({ commentId: editableComment.id, body: editableComment.body })
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("Failed to update comment:", error)
-    }
-  }
-
-  const openUserModal = async (user: UserSummary) => {
-    if (!user) return
-    try {
-      const userData = await fetchUserDetails(user.id)
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("Failed to fetch user details:", error)
-    }
-  }
-
-  const highlightText = useCallback(
-    (text: string) => {
-      if (!text || !searchQuery.trim()) return <span>{text}</span>
-      const regex = new RegExp(`(${searchQuery})`, "gi")
-      const parts = text.split(regex)
-      return (
-        <span>
-          {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-        </span>
-      )
-    },
-    [searchQuery],
-  )
+  // Feature hooks로 상태와 로직 분리
+  const postCreate = usePostCreate()
+  const postEdit = usePostEdit()
+  const postDelete = usePostDelete()
+  const postReactions = usePostReactions()
+  const commentManage = useCommentManage()
+  const postDetail = usePostDetail()
+  const userDetail = useUserDetail()
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddPostDialog(true)}>
+          <Button onClick={postCreate.openDialog}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -173,14 +88,23 @@ const PostsManagerPage = () => {
               posts={posts}
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
-              highlightText={highlightText}
-              openPostDetail={setSelectedPost}
-              openUserModal={openUserModal}
-              onEdit={(post) => {
-                setEditablePost(post)
-                setShowEditPostDialog(true)
+              searchQuery={searchQuery}
+              onEdit={postEdit.openEditDialog}
+              onDelete={(id, clientId) => postDelete.handleDelete({ postId: id, clientId })}
+              onLike={(id, likes, clientId) => postReactions.handleLike(id, likes, clientId)}
+              onDislike={(id, dislikes, clientId) => postReactions.handleDislike(id, dislikes, clientId)}
+              skip={skip}
+              total={total}
+              sortOrder={sortOrder}
+              onUserClick={(user) => {
+                // 사용자 상세 정보 모달 열기
+                userDetail.openUserDetail(user)
               }}
-              onDelete={handleDeletePost}
+              onPostClick={(post) => {
+                // 게시물 상세 보기 다이얼로그 열기
+                postDetail.openPostDetail(post)
+                commentManage.openPostComments(post.id)
+              }}
             />
           )}
 
@@ -188,67 +112,63 @@ const PostsManagerPage = () => {
         </div>
       </CardContent>
 
-      <PostFormDialog
-        open={showAddPostDialog}
-        onOpenChange={setShowAddPostDialog}
-        onSubmit={handleAddPost}
-        post={newPostData}
-        setPost={setNewPostData}
+      {/* Feature별 Dialog 컴포넌트들 */}
+      <PostCreateDialog
+        open={postCreate.showDialog}
+        onOpenChange={postCreate.closeDialog}
+        onSubmit={postCreate.handleSubmit}
+        post={postCreate.newPostData}
+        setPost={postCreate.setNewPostData}
+      />
+
+      <PostEditDialog
+        open={postEdit.showDialog}
+        onOpenChange={postEdit.closeDialog}
+        onSubmit={postEdit.handleSubmit}
+        post={postEdit.editablePost}
+        setPost={postEdit.setEditablePost}
+      />
+
+      {/* 댓글 관련 Dialog 컴포넌트들 */}
+      <CommentDialog
+        open={commentManage.showAddDialog}
+        onOpenChange={commentManage.closeAddDialog}
+        onSubmit={commentManage.handleAddComment}
+        commentBody={commentManage.newCommentData.body}
+        setCommentBody={(body) => commentManage.setNewCommentData({ ...commentManage.newCommentData, body })}
         isEdit={false}
       />
 
-      {editablePost && (
-        <PostFormDialog
-          open={showEditPostDialog}
-          onOpenChange={setShowEditPostDialog}
-          onSubmit={handleUpdatePost}
-          post={editablePost}
-          setPost={setEditablePost}
+      {commentManage.editableComment && (
+        <CommentDialog
+          open={commentManage.showEditDialog}
+          onOpenChange={commentManage.closeEditDialog}
+          onSubmit={commentManage.handleUpdateComment}
+          commentBody={commentManage.editableComment.body || ""}
+          setCommentBody={(body) => commentManage.setEditableComment({ ...commentManage.editableComment, body })}
           isEdit={true}
         />
       )}
 
+      {/* 게시물 상세 보기 Dialog */}
       <PostDetailDialog
-        open={!!selectedPost}
-        onOpenChange={() => setSelectedPost(null)}
-        post={selectedPost}
-        comments={comments}
-        highlightText={highlightText}
+        open={postDetail.showDialog}
+        onOpenChange={postDetail.closeDialog}
+        post={postDetail.selectedPost}
+        comments={commentManage.comments}
+        searchQuery={searchQuery}
         onCommentAdd={() => {
-          if (selectedPost) {
-            setNewCommentData({ body: "", postId: selectedPost.id, userId: 1 })
-            setShowAddCommentDialog(true)
+          if (postDetail.selectedPost) {
+            commentManage.openAddDialog(postDetail.selectedPost.id)
           }
         }}
-        onCommentEdit={(comment) => {
-          setEditableComment(comment)
-          setShowEditCommentDialog(true)
-        }}
-        onCommentDelete={(_, commentId) => deleteComment(commentId)}
-        onCommentLike={(_, commentId) => likeComment(commentId)}
+        onCommentEdit={commentManage.openEditDialog}
+        onCommentDelete={commentManage.handleDeleteComment}
+        onCommentLike={commentManage.handleLikeComment}
       />
 
-      <CommentFormDialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
-        onSubmit={handleAddComment}
-        commentBody={newCommentData.body}
-        setCommentBody={(body) => setNewCommentData({ ...newCommentData, body })}
-        isEdit={false}
-      />
-
-      {editableComment && (
-        <CommentFormDialog
-          open={showEditCommentDialog}
-          onOpenChange={setShowEditCommentDialog}
-          onSubmit={handleUpdateComment}
-          commentBody={editableComment.body || ""}
-          setCommentBody={(body) => setEditableComment({ ...editableComment, body })}
-          isEdit={true}
-        />
-      )}
-
-      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
+      {/* 사용자 상세 정보 Dialog */}
+      <UserDialog open={userDetail.showDialog} onOpenChange={userDetail.closeDialog} user={userDetail.selectedUser} />
     </Card>
   )
 }
