@@ -107,7 +107,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 좋아요 취소 오류:", error)
     },
     onSuccess: (undoLikePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticUndoLikePost(prevPostResponse, undoLikePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticUndoLikePost(prevPostResponse, undoLikePostResponse),
@@ -122,7 +129,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 싫어요 오류:", error)
     },
     onSuccess: (dislikePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticDislikePost(prevPostResponse, dislikePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticDislikePost(prevPostResponse, dislikePostResponse),
@@ -137,7 +151,14 @@ export const usePostMutations = ({ queryParams }: UsePostMutationsParams = {}) =
       console.error("게시물 싫어요 취소 오류:", error)
     },
     onSuccess: (undoDislikePostResponse) => {
-      if (queryParams) {
+      if (!queryParams) return
+
+      if (queryParams.slug) {
+        queryClient.setQueryData(
+          postEntityQueries.getPostsBySlug({ ...queryParams, slug: queryParams.slug }).queryKey,
+          (prevPostResponse) => optimisticUndoDislikePost(prevPostResponse, undoDislikePostResponse),
+        )
+      } else {
         queryClient.setQueryData(
           postEntityQueries.getPosts({ ...queryParams }).queryKey,
           (prevPostResponse) => optimisticUndoDislikePost(prevPostResponse, undoDislikePostResponse),
