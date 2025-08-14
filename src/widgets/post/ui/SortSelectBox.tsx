@@ -22,7 +22,13 @@ export const SortSelectBox = () => {
         queryKey: ["posts"],
         predicate: (query) => {
           // queryKey에 정렬 기준이 포함된 쿼리만 제거
-          return query.queryKey.some((key) => typeof key === "object" && key?.sortBy && key?.sortBy !== value)
+          return query.queryKey.some((key) => {
+            if (typeof key === "object" && key && "sortBy" in key) {
+              const sortKey = key as { sortBy?: string }
+              return sortKey.sortBy && sortKey.sortBy !== value
+            }
+            return false
+          })
         },
       })
     }

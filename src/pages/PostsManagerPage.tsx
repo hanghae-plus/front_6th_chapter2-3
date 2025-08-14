@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react"
 import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { AddPostDialog } from "@/features/post/create-post/ui/AddPostDialog"
-import { AddPostDialogOpenButton } from "@/features/post/create-post/ui/AddPostDialogOpenButton"
-import { DeletePostButton } from "@/features/post/delete-post/ui/DeletePostButton"
+import { SearchPostInput, TagSelectBox, SortSelectBox } from "@/widgets/post/ui"
+import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
+import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui/EditPostDialogOpenButton"
 import { EditPostDialog } from "@/features/post/update-post/ui/EditPostDialog"
 import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui/DetailPostDialogOpenButton"
-import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
 import { DetailPostDialog } from "@/features/post/read-post/ui/DetailPostDialog"
-import { TagSelectBox } from "@/features/post/ui/TagSelectBox"
-import { SearchPostInput } from "@/features/post/ui/SearchPostInput"
+
 import { usePosts } from "@/features/post/read-post/model/usePosts"
 import {
   Table,
