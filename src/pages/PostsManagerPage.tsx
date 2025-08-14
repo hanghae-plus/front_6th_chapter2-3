@@ -194,8 +194,9 @@ const PostsManager = () => {
     updateURL,
   })
 
+
   // 태그 가져오기
-  const fetchTags = async () => {
+  async function fetchTags() {
     try {
       const response = await fetch("/api/posts/tags")
       const data = await response.json()
@@ -205,29 +206,31 @@ const PostsManager = () => {
     }
   }
 
+
   // 게시물 추가
-  const handlePostAdd = async () => {
+  async function handlePostAdd() {
     try {
       const response = await fetch("/api/posts/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(newPost),
       })
       const data = await response.json()
       setPosts([data, ...posts])
       setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
+      setNewPost({title: "", body: "", userId: 1})
     } catch (error) {
       console.error("게시물 추가 오류:", error)
     }
   }
 
+
   // 게시물 업데이트
-  const handlePostUpdate = async () => {
+  async function handlePostUpdate() {
     try {
       const response = await fetch(`/api/posts/${selectedPost.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(selectedPost),
       })
       const data = await response.json()
@@ -238,8 +241,9 @@ const PostsManager = () => {
     }
   }
 
+
   // 게시물 삭제
-  const handlePostDelete = async (id) => {
+  async function handlePostDelete(id) {
     try {
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
@@ -250,13 +254,14 @@ const PostsManager = () => {
     }
   }
 
+
   // 댓글 가져오기
-  const handleCommentsFetch = async (postId) => {
+  async function handleCommentsFetch(postId) {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`)
       const data = await response.json()
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
+      setComments((prev) => ({...prev, [postId]: data.comments}))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
     }
