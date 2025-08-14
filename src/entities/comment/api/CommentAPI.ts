@@ -1,5 +1,5 @@
 import { ApiClient } from "../../../shared/api/api"
-import { CreateComment } from "../model/types"
+import { CreateComment, CommentList } from "../model/types"
 
 class CommentAPI extends ApiClient {
   constructor() {
@@ -11,8 +11,8 @@ class CommentAPI extends ApiClient {
    * @param postId - 게시글 ID
    * @returns 댓글 목록
    */
-  async getComments(postId: number) {
-    return await this.get(`/post/${postId}`)
+  async getComments(postId: number): Promise<CommentList> {
+    return await this.get<CommentList>(`/post/${postId}`)
   }
 
   /**

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import {
@@ -28,10 +28,19 @@ import { AddPostForm } from "../features/post/add-posts/AddPostForm"
 import { UpdatePostForm } from "../features/post/update-posts/UpdatePostForm"
 import { PostItem } from "../entities/post/model/types"
 import { User } from "../entities/user/model/types"
+import { Comment } from "../entities/comment/model/types"
+import { CommentList } from "../widget/comment-list/CommentList"
 
 // PostItem에 author 속성이 추가된 타입
 interface PostWithAuthor extends PostItem {
   author?: User
+}
+
+// 댓글 입력 폼 타입
+interface CommentForm {
+  body: string
+  postId: number | null
+  userId: number
 }
 
 const PostsManager = () => {
@@ -70,10 +79,9 @@ const PostsManager = () => {
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
+  const [newComment, setNewComment] = useState<CommentForm>({ body: "", postId: null, userId: 1 })
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -104,7 +112,7 @@ const PostsManager = () => {
   const deletePostMutation = useDeletePost()
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     try {
       await deletePostMutation.mutateAsync(id)
       // 캐시 업데이트는 useDeletePost 훅에서 자동으로 처리됨
@@ -113,35 +121,18 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 가져오기
-  const fetchComments = async (postId) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      // getComments
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
   // 댓글 추가
   const addComment = async () => {
     try {
       // createComment
-      const response = await fetch("/api/comments/add", {
+      await fetch("/api/comments/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newComment),
       })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
       closeAddCommentDialog()
       setNewComment({ body: "", postId: null, userId: 1 })
+      // 댓글 추가 후 상세 보기 새로고침 (React Query가 자동으로 처리)
     } catch (error) {
       console.error("댓글 추가 오류:", error)
     }
@@ -150,68 +141,56 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
+      if (!selectedComment) return
+
+      await fetch(`/api/comments/${selectedComment.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: selectedComment.body }),
       })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      }))
       closeEditCommentDialog()
+      // 댓글 업데이트 후 상세 보기 새로고침 (React Query가 자동으로 처리)
     } catch (error) {
       console.error("댓글 업데이트 오류:", error)
     }
   }
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
+  const deleteComment = async (id: number) => {
     try {
       // deleteComment
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
       })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }))
+      // 댓글 삭제 후 상세 보기 새로고침 (React Query가 자동으로 처리)
     } catch (error) {
       console.error("댓글 삭제 오류:", error)
     }
   }
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
+  const likeComment = async (id: number) => {
     try {
       // likeComment
-      const response = await fetch(`/api/comments/${id}`, {
+      await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
+        body: JSON.stringify({ likes: 1 }),
       })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
+      // 댓글 좋아요 후 상세 보기 새로고침 (React Query가 자동으로 처리)
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     }
   }
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: PostWithAuthor) => {
     setSelectedPost(post)
-    fetchComments(post.id)
     openPostDetailDialog()
   }
 
   // 사용자 모달 열기
-  const handleOpenUserModal = async (user) => {
+  const handleOpenUserModal = async (user: User) => {
     try {
       // getUserInfo
       const response = await fetch(`/api/users/${user.id}`)
@@ -237,53 +216,23 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "")
   }, [location.search])
 
-  // 댓글 렌더링
-  const renderComments = (postId) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            openAddCommentDialog()
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{comment.body}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  openEditCommentDialog()
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  const renderComments = (postId: number) => {
+    return (
+      <CommentList
+        postId={postId}
+        onAddComment={() => {
+          setNewComment((prev) => ({ ...prev, postId }))
+          openAddCommentDialog()
+        }}
+        onEditComment={(comment) => {
+          setSelectedComment(comment)
+          openEditCommentDialog()
+        }}
+        onDeleteComment={deleteComment}
+        onLikeComment={likeComment}
+      />
+    )
+  }
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -502,23 +451,7 @@ const PostsManager = () => {
             <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
             <div className="space-y-2">
               <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
+                <strong>사용자 ID:</strong> {selectedUser?.id}
               </p>
             </div>
           </div>
