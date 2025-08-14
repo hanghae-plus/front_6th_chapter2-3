@@ -85,21 +85,28 @@ const PostsManagerPage = () => {
             <div className="text-red-500 text-center p-4">Error: {postsError.message}</div>
           ) : (
             <PostsTable
-              rows={posts.map((p, idx): PostRowVM => ({
-                clientKey: p.clientId ?? `${p.id}`,
-                rowNo: sortOrder === "desc" ? total - (skip + idx) : skip + idx + 1,
-                title: p.title,
-                body: p.body,
-                tags: p.tags ?? [],
-                author: p.author,
-                likes: p.reactions?.likes ?? 0,
-                dislikes: p.reactions?.dislikes ?? 0,
-                origin: { id: p.id, clientId: p.clientId },
-              }))}
+              rows={posts.map(
+                (p, idx): PostRowVM => ({
+                  clientKey: p.clientId ?? `${p.id}`,
+                  rowNo: sortOrder === "desc" ? total - (skip + idx) : skip + idx + 1,
+                  title: p.title,
+                  body: p.body,
+                  tags: p.tags ?? [],
+                  author: p.author,
+                  likes: p.reactions?.likes ?? 0,
+                  dislikes: p.reactions?.dislikes ?? 0,
+                  origin: { id: p.id, clientId: p.clientId },
+                }),
+              )}
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               searchQuery={searchQuery}
-              onEdit={(origin) => postEdit.openEditDialog({ ...posts.find((pp) => (pp.clientId ?? `${pp.id}`) === (origin.clientId ?? `${origin.id}`))!, id: origin.id })}
+              onEdit={(origin) =>
+                postEdit.openEditDialog({
+                  ...posts.find((pp) => (pp.clientId ?? `${pp.id}`) === (origin.clientId ?? `${origin.id}`))!,
+                  id: origin.id,
+                })
+              }
               onDelete={(id, clientId) => postDelete.handleDelete({ postId: id, clientId })}
               onLike={(id, likes, clientId) => postReactions.handleLike(id, likes, clientId)}
               onDislike={(id, dislikes, clientId) => postReactions.handleDislike(id, dislikes, clientId)}
