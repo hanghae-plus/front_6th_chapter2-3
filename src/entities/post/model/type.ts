@@ -26,4 +26,5 @@ export interface PostsState {
   fetchPosts: (limit: number, skip: string) => Promise<void>;
   selectedPost: Posts | null;
   setSelectedPost: (post: Posts | null) => void;
+  removePost: (id: number) => void;
 }

@@ -22,4 +22,9 @@ export const usePostsStore = create<PostsState>((set) => ({
   },
   selectedPost: null,
   setSelectedPost: (post) => set({ selectedPost: post }),
+  removePost: (id) =>
+    set((state) => ({
+      posts: state.posts.filter((post) => post.id !== id),
+      total: state.total - 1,
+    })),
 }));

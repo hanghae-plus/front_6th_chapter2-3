@@ -1,6 +1,3 @@
-/**
- * 게시글 삭제 API
- */
 export const deletePost = async (id: number) => {
   try {
     const response = await fetch(`/api/posts/${id}`, {
@@ -8,7 +5,8 @@ export const deletePost = async (id: number) => {
     });
 
     if (!response.ok) {
-      throw new Error('게시글 삭제 실패');
+      const errorText = await response.text();
+      throw new Error(`게시글 삭제 실패: ${response.status} - ${errorText}`);
     }
 
     return true;

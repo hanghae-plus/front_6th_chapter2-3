@@ -38,14 +38,24 @@ export const usePostsUrlParams = () => {
     });
   };
 
+  const handleSetSkip = (newSkip: number) => {
+    setSkip(newSkip);
+    updatePostsURL({ skip: newSkip });
+  };
+
+  const handleSetLimit = (newLimit: number) => {
+    setLimit(newLimit);
+    updatePostsURL({ limit: newLimit, skip: 0 }); // limit 변경 시 첫 페이지로
+  };
+
   return {
     skip,
     limit,
     searchQuery,
     sortBy,
     sortOrder,
-    setSkip,
-    setLimit,
+    setSkip: handleSetSkip,
+    setLimit: handleSetLimit,
     setSearchQuery,
     setSortBy,
     setSortOrder,
