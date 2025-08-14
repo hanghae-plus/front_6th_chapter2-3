@@ -108,10 +108,6 @@ export const CommentList = ({ postId, userId = 1, onEditComment }: CommentListPr
             </div>
           </div>
         ))}
-
-        {comments.length === 0 && !showAddForm && (
-          <div className="text-center text-gray-500 py-8">아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</div>
-        )}
       </div>
     </div>
   )

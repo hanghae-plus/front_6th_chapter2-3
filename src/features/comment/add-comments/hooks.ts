@@ -1,13 +1,13 @@
 import { useCreateComment } from "../../../entities/comment/model/hooks"
-import { CreateComment } from "../../../entities/comment/model/types"
+import { CreateComment, Comment } from "../../../entities/comment/model/types"
 
 export const useAddComment = () => {
   const createCommentMutation = useCreateComment()
 
   const addComment = async (comment: CreateComment) => {
     try {
-      await createCommentMutation.mutateAsync(comment)
-      return { success: true }
+      const result = await createCommentMutation.mutateAsync(comment)
+      return { success: true, data: result }
     } catch (error) {
       console.error("댓글 추가 오류:", error)
       return { success: false, error }
