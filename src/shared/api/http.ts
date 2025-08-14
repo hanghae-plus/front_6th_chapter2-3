@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosRequestConfig, AxiosResponse } from "axios"
 import { axiosInstance } from "@/shared/api/axios-client"
 
 export class HttpClient {
-  private static async request<T>(
+  private static async request<T, D = unknown>(
     method: "get" | "post" | "put" | "patch" | "delete",
     url: string,
-    data?: any,
+    data?: D,
     config?: AxiosRequestConfig,
   ): Promise<T> {
     try {
@@ -29,26 +28,26 @@ export class HttpClient {
 
   // GET 요청
   static async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("get", url, undefined, config)
+    return this.request<T, never>("get", url, undefined, config)
   }
 
   // POST 요청
-  static async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("post", url, data, config)
+  static async post<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T, D>("post", url, data, config)
   }
 
   // PUT 요청
-  static async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("put", url, data, config)
+  static async put<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T, D>("put", url, data, config)
   }
 
   // PATCH 요청
-  static async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("patch", url, data, config)
+  static async patch<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
+    return this.request<T, D>("patch", url, data, config)
   }
 
   // DELETE 요청
   static async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return this.request<T>("delete", url, undefined, config)
+    return this.request<T, never>("delete", url, undefined, config)
   }
 }

@@ -4,6 +4,7 @@ import { DeletePostButton } from "@/features/post/delete-post/ui"
 import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
 import { useSelectedUserStore } from "@/features/user/view-user-info/model"
 import { PostWithAuthor } from "@/entities/post/model/types"
+import { TagItem } from "@/entities/tag/ui"
 import { TableCell, TableRow } from "@/shared/ui"
 import { useDialogActions } from "@/shared/model"
 
@@ -48,17 +49,14 @@ export const PostTableRow = ({ post, searchQuery, selectedTag, onTagSelect, onPo
           <div>{highlightText(post.title, searchQuery)}</div>
           <div className="flex flex-wrap gap-1">
             {post.tags?.map((tag: string) => (
-              <span
+              <TagItem
                 key={tag}
-                className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                  selectedTag === tag
-                    ? "text-white bg-blue-500 hover:bg-blue-600"
-                    : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                }`}
-                onClick={() => onTagSelect(tag)}
-              >
-                {tag}
-              </span>
+                tag={tag}
+                isSelected={selectedTag === tag}
+                onClick={onTagSelect}
+                size="sm"
+                variant="clickable"
+              />
             ))}
           </div>
         </div>
