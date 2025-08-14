@@ -2,8 +2,8 @@ import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import type { PostType } from '../entities';
-import { CreatePostModal, DeletePostButton, UpdatePostButton } from '../features';
+import type { PostType, UserType } from '../entities';
+import { CreatePostModal, DeletePostButton, UpdatePostButton, DetailUserModal } from '../features';
 import {
   Button,
   Card,
@@ -46,8 +46,6 @@ const PostsManager = () => {
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
   const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', body: '', userId: 1 });
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
@@ -58,7 +56,7 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -565,7 +563,8 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
+      <DetailUserModal isOpen={showUserModal} onOpenChange={setShowUserModal} selectedUser={selectedUser} />
+      {/* <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>사용자 정보</DialogTitle>
@@ -602,7 +601,7 @@ const PostsManager = () => {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </Card>
   );
 };
