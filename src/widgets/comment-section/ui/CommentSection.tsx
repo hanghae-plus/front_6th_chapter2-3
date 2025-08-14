@@ -1,7 +1,7 @@
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { Button } from "../../../../shared/ui"
-import { HighlightText } from "../../../../shared/ui/HighlightText"
-import { Comment } from "../../../../entities/comment/model"
+import { Button } from "../../../shared/ui"
+import { HighlightText } from "../../../shared/ui/HighlightText"
+import { Comment } from "../../../entities/comment/model"
 
 interface CommentSectionProps {
   postId: number

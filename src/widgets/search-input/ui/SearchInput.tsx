@@ -1,4 +1,4 @@
-import { Input } from "../../../../shared/ui"
+import { Input } from "../../../shared/ui"
 import { Search } from "lucide-react"
 
 interface SearchInputProps {
@@ -8,6 +8,7 @@ interface SearchInputProps {
     update: (value: string) => void
   }
 }
+
 export default function SearchInput({ searchMode }: SearchInputProps) {
   const { value, change, update } = searchMode
   return (

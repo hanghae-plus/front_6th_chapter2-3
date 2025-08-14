@@ -1,4 +1,4 @@
-import { useSortMode } from "../../fetch-posts-by-mode/hooks/useSortMode"
+import { useSortMode } from "../../../features/posts/fetch-posts-by-mode/hooks/useSortMode"
 import SortBySelect from "./SortBySelect"
 import OrderSelect from "./OrderSelect"
 
