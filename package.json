@@ -14,11 +14,13 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gh-pages": "pnpm run build && mv dist/index.html && gh-pages -d dist"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.85.0",
     "@tanstack/react-query-devtools": "^5.85.0",
+    "gh-pages": "^6.3.0",
     "jotai": "^2.13.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

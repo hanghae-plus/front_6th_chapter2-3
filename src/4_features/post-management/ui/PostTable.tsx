@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 import { Post, useDeletePostMutation } from '@/entities/post';
-import { UserPick } from '@/entities/user';
+import { User, UserPick } from '@/entities/user';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
 import { highlightText, usePostsFilterStore, useUIStore } from '@/shared/lib';
 import {
@@ -63,7 +63,7 @@ export const PostTable = () => {
 
   const handleClickUser = (user: UserPick<SelectedUserProperties>) => {
     setShowUserModal(true);
-    setSelectedUser(user);
+    setSelectedUser(user as User);
   };
 
   return (

@@ -14,7 +14,7 @@ export interface UIState {
   showUserModifyDialog: boolean;
   selectedPost: Nullable<Post>;
   selectedComment: Nullable<Comment>;
-  selectedUser: Nullable<User>;
+  selectedUser: Nullable<Partial<User>>;
 }
 
 const initialUIState: UIState = {
