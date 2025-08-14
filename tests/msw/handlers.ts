@@ -1,9 +1,11 @@
 import { http, HttpResponse } from "msw"
 
-import type { Comment, CommentDetail, Post, PostDetail, PostTag, User } from "../../src/types"
+import type { Comment } from "../../src/entities/comment/model"
+import type { Post, PostTag } from "../../src/entities/post/model"
+import type { User } from "../../src/entities/user/model"
 import { mockComments, mockPosts, mockTags, mockUsers } from "./mockData"
 
-let posts: PostDetail[] = [...mockPosts]
+let posts: Post[] = [...mockPosts]
 let comments: Comment[] = [...mockComments]
 let users: User[] = [...mockUsers]
 let tags: PostTag[] = [...mockTags]
@@ -85,7 +87,7 @@ export const handlers = [
   // 게시물 생성 - 타입 안전성 강화
   http.post("http://localhost:3000/api/posts/add", async ({ request }) => {
     const newPostData = (await request.json()) as { title: string; body: string; userId: number }
-    const newPost: PostDetail = {
+    const newPost: Post = {
       id: postIdCounter++,
       title: newPostData.title,
       body: newPostData.body,
@@ -185,7 +187,7 @@ export const handlers = [
   http.post("http://localhost:3000/api/comments/add", async ({ request }) => {
     const newCommentData = (await request.json()) as { body: string; postId: number; userId: number }
     const foundUser = users.find((u) => u.id === newCommentData.userId) || users[0]
-    const newComment: CommentDetail = {
+    const newComment: Comment = {
       id: commentIdCounter++,
       body: newCommentData.body,
       postId: newCommentData.postId,

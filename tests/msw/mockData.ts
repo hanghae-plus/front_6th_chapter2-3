@@ -1,4 +1,6 @@
-import type { CommentDetail, PostDetail, PostTag, User } from "../../src/types"
+import type { Comment } from "../../src/entities/comment/model"
+import type { Post, PostTag } from "../../src/entities/post/model"
+import type { User } from "../../src/entities/user/model"
 
 export const mockUsers: User[] = [
   {
@@ -53,7 +55,7 @@ export const mockUsers: User[] = [
   },
 ]
 
-export const mockPosts: PostDetail[] = [
+export const mockPosts: Post[] = [
   {
     id: 1,
     title: "His mother had always taught him",
@@ -229,7 +231,7 @@ export const mockTags: PostTag[] = [
   },
 ]
 
-export const mockComments: CommentDetail[] = [
+export const mockComments: Comment[] = [
   {
     id: 93,
     body: "These are fabulous ideas!",

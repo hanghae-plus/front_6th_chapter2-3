@@ -1,16 +1,25 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { PropsWithChildren } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { queryClient } from "../src/app/config"
 import { PostsManagerPage } from "../src/pages/posts-manager/ui"
+import { resetMockData } from "./msw/handlers"
 
-const TestWrapper = ({ children }: PropsWithChildren) => <BrowserRouter>{children}</BrowserRouter>
+const TestWrapper = ({ children }: PropsWithChildren) => (
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  </BrowserRouter>
+)
 
 describe("PostsManager - 완전한 기능 테스트", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    queryClient.clear()
+    resetMockData()
   })
 
   describe("🎨 기본 렌더링 및 초기 로딩", () => {
@@ -661,7 +670,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       // URL 파라미터가 있는 상태로 렌더링
       Object.defineProperty(window, "location", {
         value: {
-          search: "?skip=10&limit=20&search=React",
+          search: "?skip=10&limit=20&search=love",
         },
         writable: true,
       })
@@ -675,7 +684,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
       // URL 파라미터에 따른 상태가 반영되었는지 확인
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText("게시물 검색...")
-        expect(searchInput).toHaveValue("React")
+        expect(searchInput).toHaveValue("love")
       })
     })
   })
