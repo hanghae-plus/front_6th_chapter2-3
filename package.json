@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "deploy": "gh-pages -d dist",
+    "predeploy": "npm run build",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
