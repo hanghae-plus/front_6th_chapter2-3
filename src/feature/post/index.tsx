@@ -9,39 +9,33 @@ import { getComments, getPosts, getPostsByTag, getSeachPosts, getUser, getUsers 
 import { Author } from "../../shared/types"
 import { useSearchQueryStore, useSelectedPostStore, useSelectedUserStore } from "./model/store"
 import { useCommentStore } from "../comment/model/store"
-import { useNavigate } from "react-router-dom"
 import { requestApi } from "../../shared/lib"
+import { useURL } from "../../shared/hook/useURL"
 
-export const PostList = ({ queryParams }: { queryParams: URLSearchParams }) => {
-  const navigate = useNavigate()
+export const PostList = () => {
   const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tags>([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const { comments, setComments } = useCommentStore()
   const { setSelectedPost, setShowEditDialog, setShowPostDetailDialog, posts, setPosts } = useSelectedPostStore()
   const { setSelectedUser, setShowUserModal } = useSelectedUserStore()
   const { searchQuery, setSearchQuery } = useSearchQueryStore()
-
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
-  }
+  const {
+    skip,
+    limit,
+    sortBy,
+    sortOrder,
+    selectedTag,
+    setSkip,
+    setLimit,
+    setSortBy,
+    setSortOrder,
+    setSelectedTag,
+    updateURL,
+  } = useURL()
 
   useEffect(() => {
     fetchTags()
-    setSearchQuery(queryParams.get("search") || "")
   }, [])
 
   useEffect(() => {

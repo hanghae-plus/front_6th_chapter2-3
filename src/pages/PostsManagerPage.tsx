@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom"
 import { Card } from "../shared/ui"
 import { CommentAddDialog } from "../feature"
 import { CommentEditDialog } from "../feature/comment/ui/CommentEditDialog"
@@ -11,13 +10,10 @@ import { PostHeader } from "../feature/post/ui/PostHeader"
 import { PostList } from "../feature/post"
 
 const PostsManager = () => {
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <PostHeader />
-      <PostList queryParams={queryParams} />
+      <PostList />
       {/* 게시물 추가 대화상자 */}
       <PostAddDialog />
 
