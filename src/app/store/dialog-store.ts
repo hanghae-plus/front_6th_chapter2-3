@@ -16,7 +16,7 @@ interface PostDialogSlice {
   closeEditPost: () => void
 }
 
-type DialogState = PostDialogSlice & CommentDialogSlice
+type DialogState = PostDialogSlice & CommentDialogSlice & UserDialogSlice
 
 const createPostSlice: StateCreator<DialogState, [], [], PostDialogSlice> = (set) => {
   return {
@@ -44,6 +44,14 @@ interface CommentDialogSlice {
   closeEditComment: () => void
 }
 
+/* ---------- User slice ---------- */
+interface UserDialogSlice {
+  isUserDialogOpen: boolean
+  userIdForDialog: number | null
+  openUserDialog: (userId: number) => void
+  closeUserDialog: () => void
+}
+
 const createCommentSlice: StateCreator<DialogState, [], [], CommentDialogSlice> = (set) => {
   return {
     isAddCommentOpen: false,
@@ -58,8 +66,18 @@ const createCommentSlice: StateCreator<DialogState, [], [], CommentDialogSlice> 
   }
 }
 
+const createUserSlice: StateCreator<DialogState, [], [], UserDialogSlice> = (set) => {
+  return {
+    isUserDialogOpen: false,
+    userIdForDialog: null,
+    openUserDialog: (userId) => set({ isUserDialogOpen: true, userIdForDialog: userId }),
+    closeUserDialog: () => set({ isUserDialogOpen: false, userIdForDialog: null }),
+  }
+}
+
 /* ---------- Store ---------- */
 export const useDialogStore = create<DialogState>()((set, get, store) => ({
   ...createPostSlice(set, get, store),
   ...createCommentSlice(set, get, store),
+  ...createUserSlice(set, get, store),
 }))

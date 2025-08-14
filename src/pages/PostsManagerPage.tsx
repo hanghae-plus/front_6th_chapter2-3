@@ -23,9 +23,13 @@ export const PostsManagerPage = () => {
 
   const openAddCommentDialog = useDialogStore((s) => s.openAddComment)
   const openEditCommentDialog = useDialogStore((s) => s.openEditComment)
+  
+  const isUserDialogOpen = useDialogStore((s) => s.isUserDialogOpen)
+  const userIdForDialog = useDialogStore((s) => s.userIdForDialog)
+  const openUserDialog = useDialogStore((s) => s.openUserDialog)
+  const closeUserDialog = useDialogStore((s) => s.closeUserDialog)
+  
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [userIdForDialog, setUserIdForDialog] = useState<number | null>(null)
 
   // updateURL 은 usePostQueryParams 훅에서 가져온 update 함수를 그대로 사용합니다.
 
@@ -35,11 +39,6 @@ export const PostsManagerPage = () => {
     setShowPostDetailDialog(true)
   }
 
-  // 사용자 모달 열기 (React Query 사용)
-  const openUserModal = (userId: number) => {
-    setUserIdForDialog(userId)
-    setShowUserModal(true)
-  }
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -69,7 +68,7 @@ export const PostsManagerPage = () => {
             searchQuery={searchQuery}
             onTagSelect={(tag) => updateUrl({ tag, skip: 0 })}
             onOpenDetail={openPostDetail}
-            onOpenUser={openUserModal}
+            onOpenUser={openUserDialog}
             onEdit={(post) => {
               setSelectedPost(post)
               openEditDialog(post)
@@ -99,7 +98,7 @@ export const PostsManagerPage = () => {
       />
 
       {/* 사용자 다이얼로그 */}
-      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} userId={userIdForDialog} />
+      <UserDialog open={isUserDialogOpen} onOpenChange={closeUserDialog} userId={userIdForDialog} />
     </Card>
   )
 }
