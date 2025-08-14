@@ -1,20 +1,19 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../shared/ui";
 import { Comment } from "../../../entities/comment/types";
 import { Dispatch, SetStateAction } from "react";
+import { showAddCommentDialogAtom } from "../models/dialog.atoms";
+import { useAtom } from "jotai";
 
 export const CommentAddDialog = ({
-  showAddCommentDialog,
-  setShowAddCommentDialog,
   newComment,
   setNewComment,
   handleAddComment,
 }: {
-  showAddCommentDialog: boolean;
-  setShowAddCommentDialog: (show: boolean) => void;
   newComment: Partial<Comment>;
   setNewComment: Dispatch<SetStateAction<Partial<Comment>>>;
   handleAddComment: () => void;
 }) => {
+  const [showAddCommentDialog, setShowAddCommentDialog] = useAtom(showAddCommentDialogAtom);
   return (
     <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
       <DialogContent>

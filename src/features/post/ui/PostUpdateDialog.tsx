@@ -1,20 +1,19 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../shared/ui";
 import { Post } from "../../../entities/post/types";
 import { Dispatch, SetStateAction } from "react";
+import { showEditPostDialogAtom } from "../models/dialog.atoms";
+import { useAtom } from "jotai";
 
 export const PostUpdateDialog = ({
-  showEditDialog,
-  setShowEditDialog,
   selectedPost,
   setSelectedPost,
   handleUpdatePost,
 }: {
-  showEditDialog: boolean;
-  setShowEditDialog: (show: boolean) => void;
   selectedPost: Post | null;
   setSelectedPost: Dispatch<SetStateAction<Post | null>>;
   handleUpdatePost: () => void;
 }) => {
+  const [showEditDialog, setShowEditDialog] = useAtom(showEditPostDialogAtom);
   return (
     <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
       <DialogContent>

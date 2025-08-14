@@ -1,20 +1,19 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui";
 import { Post } from "../../../entities/post/types";
 import { HighlightText } from "../../../shared/ui/HighlightText";
+import { showPostDetailDialogAtom } from "../models/dialog.atoms";
+import { useAtom } from "jotai";
 
 export const PostDetailDialog = ({
-  showPostDetailDialog,
-  setShowPostDetailDialog,
   selectedPost,
   searchQuery,
   bottom,
 }: {
-  showPostDetailDialog: boolean;
-  setShowPostDetailDialog: (show: boolean) => void;
   selectedPost: Post | null;
   searchQuery: string;
   bottom: React.ReactNode;
 }) => {
+  const [showPostDetailDialog, setShowPostDetailDialog] = useAtom(showPostDetailDialogAtom);
   return (
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
       <DialogContent className="max-w-3xl">

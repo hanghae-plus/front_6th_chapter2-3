@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
 import { getUser } from "../entities/user/api";
-import { UserModal } from "../entities/user/ui/UserModal";
+import { UserModal } from "../widgets/user-modal/ui/UserModal";
 import { Pagination } from "../shared/ui/Pagination";
 import { PostAddDialog } from "../features/post/ui/PostAddDialog";
 import { PostUpdateDialog } from "../features/post/ui/PostUpdateDialog";
@@ -19,6 +19,14 @@ import { useTags } from "../entities/tag/models";
 import { PostFiltersBar } from "../widgets/post-filters/ui/PostFiltersBar";
 import { usePostQuery } from "../features/post/models/usePostQuery";
 import { User, UserResponse } from "../entities/user/types";
+import { showUserModalAtom } from "../widgets/user-modal/model/atoms";
+import { useAtom } from "jotai";
+import { showAddCommentDialogAtom, showEditCommentDialogAtom } from "../features/comment/models/dialog.atoms";
+import {
+  showAddPostDialogAtom,
+  showEditPostDialogAtom,
+  showPostDetailDialogAtom,
+} from "../features/post/models/dialog.atoms";
 
 const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -28,12 +36,12 @@ const PostsManager = () => {
   const [newPost, setNewPost] = useState<Partial<Post>>({ title: "", body: "", userId: 1 });
   const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
 
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
+  const [, setShowUserModal] = useAtom(showUserModalAtom);
+  const [, setShowEditCommentDialog] = useAtom(showEditCommentDialogAtom);
+  const [, setShowAddCommentDialog] = useAtom(showAddCommentDialogAtom);
+  const [, setShowAddDialog] = useAtom(showAddPostDialogAtom);
+  const [, setShowEditDialog] = useAtom(showEditPostDialogAtom);
+  const [, setShowPostDetailDialog] = useAtom(showPostDetailDialogAtom);
 
   const { postQuery, setSkip, setLimit, setSearchQuery, setSortBy, setSortOrder, setSelectedTag, updateURL } =
     usePostQuery();
@@ -127,36 +135,20 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <PostAddDialog
-        showAddDialog={showAddDialog}
-        setShowAddDialog={setShowAddDialog}
-        newPost={newPost}
-        setNewPost={setNewPost}
-        handleAddPost={handleAddPost}
-      />
+      <PostAddDialog newPost={newPost} setNewPost={setNewPost} handleAddPost={handleAddPost} />
 
       {/* 게시물 수정 대화상자 */}
       <PostUpdateDialog
-        showEditDialog={showEditDialog}
-        setShowEditDialog={setShowEditDialog}
         selectedPost={selectedPost}
         setSelectedPost={setSelectedPost}
         handleUpdatePost={handleUpdatePost}
       />
 
       {/* 댓글 추가 대화상자 */}
-      <CommentAddDialog
-        showAddCommentDialog={showAddCommentDialog}
-        setShowAddCommentDialog={setShowAddCommentDialog}
-        newComment={newComment}
-        setNewComment={setNewComment}
-        handleAddComment={handleAddComment}
-      />
+      <CommentAddDialog newComment={newComment} setNewComment={setNewComment} handleAddComment={handleAddComment} />
 
       {/* 댓글 수정 대화상자 */}
       <CommentUpdateDialog
-        showEditCommentDialog={showEditCommentDialog}
-        setShowEditCommentDialog={setShowEditCommentDialog}
         selectedComment={selectedComment}
         setSelectedComment={setSelectedComment}
         handleUpdateComment={handleUpdateComment}
@@ -164,8 +156,6 @@ const PostsManager = () => {
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
-        showPostDetailDialog={showPostDetailDialog}
-        setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
         bottom={
@@ -187,7 +177,7 @@ const PostsManager = () => {
       />
 
       {/* 사용자 모달 */}
-      <UserModal showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
+      <UserModal selectedUser={selectedUser} />
     </Card>
   );
 };

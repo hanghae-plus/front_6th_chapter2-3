@@ -1,19 +1,18 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../../../shared/ui";
 import { Post } from "../../../entities/post/types";
+import { showAddPostDialogAtom } from "../models/dialog.atoms";
+import { useAtom } from "jotai";
 
 export const PostAddDialog = ({
-  showAddDialog,
-  setShowAddDialog,
   newPost,
   setNewPost,
   handleAddPost,
 }: {
-  showAddDialog: boolean;
-  setShowAddDialog: (show: boolean) => void;
   newPost: Partial<Post>;
   setNewPost: (post: Partial<Post>) => void;
   handleAddPost: () => void;
 }) => {
+  const [showAddDialog, setShowAddDialog] = useAtom(showAddPostDialogAtom);
   return (
     <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
       <DialogContent>
