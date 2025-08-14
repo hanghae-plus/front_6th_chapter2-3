@@ -1,5 +1,56 @@
 # Chapter 2-3. 관심사 분리와 폴더구조
 
+## 프록시 문제 해결 방법
+
+### HTTP 클라이언트를 통한 자동 프리픽스 제거
+
+프로덕션 환경에서 프록시가 없을 때 발생하는 `/api` 프리픽스 문제를 해결하기 위해 HTTP 클라이언트를 구현했습니다.
+
+#### 핵심 아이디어
+
+```typescript
+// 프로덕션에서는 dev 프록시가 없으므로 "/api" 프리픽스를 제거한다
+if (!import.meta.env.DEV) {
+  httpClient.addRequestInterceptor((config) => {
+    try {
+      const url = new URL(config.url);
+      url.pathname = url.pathname.replace(/^\/api/, '');
+      return { ...config, url: url.toString() };
+    } catch {
+      // 절대 URL이 아닐 경우(이 경우는 거의 없음) 안전하게 치환
+      return { ...config, url: config.url.replace(/^\/api/, '') };
+    }
+  });
+}
+```
+
+#### 사용 방법
+
+```typescript
+import { httpClient } from '../../../shared/config/httpClient';
+
+// GET 요청
+const response = await httpClient.get('/api/posts');
+
+// POST 요청
+const response = await httpClient.post('/api/posts/add', postData, {
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// PATCH 요청
+const response = await httpClient.patch(`/api/posts/${id}`, updateData);
+
+// DELETE 요청
+const response = await httpClient.delete(`/api/posts/${id}`);
+```
+
+#### 장점
+
+1. **자동 환경 감지**: 개발/프로덕션 환경을 자동으로 구분
+2. **프리픽스 자동 제거**: 프로덕션에서 `/api` 프리픽스를 자동으로 제거
+3. **일관된 API**: 모든 API 호출에서 동일한 인터페이스 사용
+4. **에러 처리**: URL 파싱 실패 시 안전한 fallback 처리
+
 ## [6주차] 기본과제
 
 여러분은 게시판을 관리할 수 있는 Admin 코드를 인수인계 받았습니다. 다행히 못 알아볼 정도의 더티코드는 아니고 적당히 잘 만든 것 같지만 정리가 된 것 같지 않은 아주 현실감 있는 익숙한 느낌의 코드였습니다.
@@ -35,12 +86,12 @@
 - FSD(Feature-Sliced Design)에 대한 이해
 
 - FSD를 통한 관심사의 분리에 대한 이해
- - 단일책임과 역할이란 무엇인가?
- - 관심사를 하나만 가지고 있는가?
- - 어디에 무엇을 넣어야 하는가?
-
+- 단일책임과 역할이란 무엇인가?
+- 관심사를 하나만 가지고 있는가?
+- 어디에 무엇을 넣어야 하는가?
 
 체크포인트
+
 - [ ] 전역상태관리를 사용해서 상태를 분리하고 관리했나요?
 - [ ] Props Drilling을 최소화했나요?
 - [ ] shared 공통 컴포넌트를 분리했나요?
@@ -53,8 +104,6 @@
 - [ ] feature를 중심으로 api를 분리했나요?
 - [ ] widget을 중심으로 데이터를 재사용가능한 형태로 분리했나요?
 ```
-
-
 
 ## [6주차] 심화과제
 
@@ -72,13 +121,14 @@ TanstackQuery를 이용하여 코드를 개선하기
 
 ```markdown
 목표:
-서버상태관리 도구인 TanstackQuery를 이용하여 비동기코드를 선언적인 함수형 프로그래밍으로 작성하기 
+서버상태관리 도구인 TanstackQuery를 이용하여 비동기코드를 선언적인 함수형 프로그래밍으로 작성하기
 
 - TanstackQuery의 사용법에 대한 이해
 - TanstackQuery를 이용한 비동기 코드 작성에 대한 이해
 - 비동기 코드를 선언적인 함수형 프로그래밍으로 작성하는 방법에 대한 이해
 
 체크포인트
+
 - [ ] 모든 API 호출이 TanStack Query의 useQuery와 useMutation으로 대체되었는가?
 - [ ] 쿼리 키가 적절히 설정되었는가?
 - [ ] fetch와 useState가 아닌 선언적인 함수형 프로그래밍이 적절히 적용되었는가?
@@ -90,10 +140,9 @@ TanstackQuery를 이용하여 코드를 개선하기
 - [ ] TanStack Query의 Devtools가 정상적으로 작동하는가?
 ```
 
-
 ## [6주차] 최종 과제
 
-FSD는 하나의 제안이지만, 여러분들은 FSD를 적용해보고 나면 조금 더 나은 구조를 만들 수 있다는 것을 알게 되었습니다. 
+FSD는 하나의 제안이지만, 여러분들은 FSD를 적용해보고 나면 조금 더 나은 구조를 만들 수 있다는 것을 알게 되었습니다.
 그래서 여러분들은 FSD를 적용해보고 나서 다음과 같은 추가적인 목표를 세웠습니다.
 
 **조금 더 현대적이면서도 기능 중심의 폴더 구조를 만들 수 있지 않을까?**
@@ -102,5 +151,6 @@ FSD는 하나의 제안이지만, 여러분들은 FSD를 적용해보고 나면 
 FSD가 아닌 자신만의 기능 중심의 폴더 구조를 만들어보세요.
 
 꼭 기억할 점
-1. 자신만의 기능 중심의 폴더라고 했지만, 그 모습이 상당히 유니크하고 독창적이지는 않을 거에요. 아마 적절한 모법사례의 조합으로 수렴될 거에요. 
+
+1. 자신만의 기능 중심의 폴더라고 했지만, 그 모습이 상당히 유니크하고 독창적이지는 않을 거에요. 아마 적절한 모법사례의 조합으로 수렴될 거에요.
 2. 그리고 그게 잘하는 거에요. 좋은 코드는? 자신보돠 남들에게 모두에게 이해하기 쉬운 코드니까요.

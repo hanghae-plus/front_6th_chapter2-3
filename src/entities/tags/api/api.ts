@@ -1,3 +1,4 @@
+import { httpClient } from '../../../shared/config/httpClient';
 import { Tag } from '../model/type';
 
 /**
@@ -5,7 +6,7 @@ import { Tag } from '../model/type';
  */
 export async function fetchTags(): Promise<Tag[]> {
   try {
-    const response = await fetch('/api/posts/tags');
+    const response = await httpClient.get('/api/posts/tags');
 
     if (!response.ok) {
       throw new Error(`태그 가져오기 실패: ${response.status}`);

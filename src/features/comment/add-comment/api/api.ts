@@ -1,12 +1,12 @@
+import { httpClient } from '../../../../shared/config/httpClient';
+
 export const addCommentAPI = async (commentData: {
   body: string;
   postId: number | null;
   userId: number;
 }) => {
-  const response = await fetch('/api/comments/add', {
-    method: 'POST',
+  const response = await httpClient.post('/api/comments/add', commentData, {
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(commentData),
   });
 
   if (!response.ok) throw new Error('댓글 추가 실패');

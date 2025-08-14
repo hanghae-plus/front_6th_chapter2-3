@@ -2,16 +2,14 @@
  * 댓글 삭제 관련 API
  */
 
-import { API_BASE_URL } from '../../../../shared/config/api';
+import { httpClient } from '../../../../shared/config/httpClient';
 
 /**
  * 댓글 삭제
  */
 export const deleteCommentAPI = async (commentId: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
-      method: 'DELETE',
-    });
+    const response = await httpClient.delete(`/api/comments/${commentId}`);
 
     if (!response.ok) {
       throw new Error('댓글 삭제 실패');

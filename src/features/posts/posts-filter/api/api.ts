@@ -1,5 +1,5 @@
+import { httpClient } from '../../../../shared/config/httpClient';
 import { fetchUserBasic } from '../../../../entities/user/api/api';
-import { API_BASE_URL } from '../../../../shared/config/api';
 import { FilterApiParams } from '../model/type';
 
 export const fetchFilteredPosts = async (params: FilterApiParams) => {
@@ -21,16 +21,19 @@ export const fetchFilteredPosts = async (params: FilterApiParams) => {
   let apiUrl = '/api/posts';
 
   if (tag && tag !== 'all') {
-    apiUrl = `${API_BASE_URL}/posts/tag/${tag}`;
+    apiUrl = `/api/posts/tag/${tag}`;
   } else if (search && search.trim()) {
-    apiUrl = `${API_BASE_URL}/posts/search`;
+    apiUrl = `/api/posts/search`;
     searchParams.append('q', search.trim());
   }
 
   const finalUrl = `${apiUrl}?${searchParams.toString()}`;
 
   try {
-    const [postsResponse, usersResponse] = await Promise.all([fetch(finalUrl), fetchUserBasic()]);
+    const [postsResponse, usersResponse] = await Promise.all([
+      httpClient.get(finalUrl),
+      fetchUserBasic(),
+    ]);
 
     if (!postsResponse.ok) {
       throw new Error(`게시물 조회 실패: ${postsResponse.status}`);
@@ -50,6 +53,7 @@ export const fetchFilteredPosts = async (params: FilterApiParams) => {
     throw error;
   }
 };
+
 export const searchPosts = async (query: string, limit: number, skip: number) => {
   const searchParams = new URLSearchParams({
     q: query,
@@ -57,11 +61,9 @@ export const searchPosts = async (query: string, limit: number, skip: number) =>
     skip: skip.toString(),
   });
 
-  const response = await fetch(`${API_BASE_URL}/posts/search?${searchParams.toString()}`);
-  if (!response.ok) {
-    throw new Error('게시물 검색 실패');
-  }
-  return await response.json();
+  const response = await httpClient.get(`/api/posts/search?${searchParams.toString()}`);
+  if (!response.ok) throw new Error('게시물 검색 실패');
+  return response.json();
 };
 export const fetchPostsByTag = async (
   tag: string,
@@ -84,8 +86,8 @@ export const fetchPostsByTag = async (
   }
 
   const [postsResponse, usersResponse] = await Promise.all([
-    fetch(`${API_BASE_URL}/posts/tag/${tag}?${searchParams.toString()}`),
-    fetch('/api/users?limit=0&select=username,image'),
+    httpClient.get(`/api/posts/tag/${tag}?${searchParams.toString()}`),
+    httpClient.get('/api/users?limit=0&select=username,image'),
   ]);
 
   if (!postsResponse.ok || !usersResponse.ok) {

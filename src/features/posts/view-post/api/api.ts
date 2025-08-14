@@ -2,14 +2,14 @@
  * 게시글 상세보기 관련 API
  */
 
-import { API_BASE_URL } from '../../../../shared/config/api';
+import { httpClient } from '../../../../shared/config/httpClient';
 
 /**
  * 특정 게시글의 댓글 가져오기
  */
 export const fetchPostComments = async (postId: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/comments/post/${postId}`);
+    const response = await httpClient.get(`/api/comments/post/${postId}`);
 
     if (!response.ok) {
       throw new Error('댓글 가져오기 실패');

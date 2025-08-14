@@ -2,18 +2,20 @@
  * 댓글 좋아요 관련 API
  */
 
-import { API_BASE_URL } from '../../../../shared/config/api';
+import { httpClient } from '../../../../shared/config/httpClient';
 
 /**
  * 댓글 좋아요 수 증가
  */
 export const likeCommentAPI = async (commentId: number, likes: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ likes: likes + 1 }),
-    });
+    const response = await httpClient.patch(
+      `/api/comments/${commentId}`,
+      { likes: likes + 1 },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
 
     if (!response.ok) {
       throw new Error('댓글 좋아요 실패');

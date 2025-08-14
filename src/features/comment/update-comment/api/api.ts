@@ -1,10 +1,8 @@
-import { API_BASE_URL } from '../../../../shared/config/api';
+import { httpClient } from '../../../../shared/config/httpClient';
 
 export const updateCommentAPI = async (commentId: number, updateData: { body: string }) => {
-  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
-    method: 'PUT',
+  const response = await httpClient.patch(`/api/comments/${commentId}`, updateData, {
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updateData),
   });
 
   if (!response.ok) throw new Error('댓글 업데이트 실패');

@@ -1,10 +1,8 @@
-import { API_BASE_URL } from '../../../../shared/config/api';
+import { httpClient } from '../../../../shared/config/httpClient';
 
 export const deletePost = async (id: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await httpClient.delete(`/api/posts/${id}`);
 
     if (!response.ok) {
       const errorText = await response.text();

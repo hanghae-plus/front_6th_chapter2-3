@@ -1,9 +1,9 @@
+import { httpClient } from '../../../../shared/config/httpClient';
+
 export const addPostAPI = async (newPost: { title: string; body: string; userId: number }) => {
   try {
-    const response = await fetch('/api/posts/add', {
-      method: 'POST',
+    const response = await httpClient.post('/api/posts/add', newPost, {
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newPost),
     });
 
     if (!response.ok) {
