@@ -40,6 +40,7 @@ import { useDeletePost } from "../features/posts/hooks/useDeletePost.ts"
 import { useAddComment } from "../features/comment/hooks/useAddComment.ts"
 import { useUpdateComment } from "../features/comment/hooks/useUpdateComment.ts"
 import { useDeleteComment } from "../features/comment/hooks/useDeleteComment.ts"
+import { useLikeComment } from "../features/comment/hooks/useLikeComment.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -93,6 +94,7 @@ const PostsManager = () => {
   const addComment = useAddComment()
   const updateComment = useUpdateComment()
   const deleteComment = useDeleteComment()
+  const likeComment = useLikeComment()
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -190,24 +192,24 @@ const PostsManager = () => {
   // }
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      })
-      const data = await response.json()
-      // setComments((prev) => ({
-      //   ...prev,
-      //   [postId]: prev[postId].map((comment) =>
-      //     comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-      //   ),
-      // }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
+  // const likeComment = async (id, postId) => {
+  //   try {
+  //     const response = await fetch(`/api/comments/${id}`, {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
+  //     })
+  //     const data = await response.json()
+  //     // setComments((prev) => ({
+  //     //   ...prev,
+  //     //   [postId]: prev[postId].map((comment) =>
+  //     //     comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+  //     //   ),
+  //     // }))
+  //   } catch (error) {
+  //     console.error("댓글 좋아요 오류:", error)
+  //   }
+  // }
 
   // 게시물 상세 보기
   const openPostDetail = (post) => {
@@ -268,7 +270,11 @@ const PostsManager = () => {
                 </span>
               </div>
               <div className="flex items-center space-x-1">
-                <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => likeComment.action.like({ id: comment.id, postId: postId })}
+                >
                   <ThumbsUp className="w-3 h-3" />
                   <span className="ml-1 text-xs">{comment.likes}</span>
                 </Button>
