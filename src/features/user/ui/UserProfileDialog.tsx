@@ -1,13 +1,13 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
 import type { User } from "@/shared/types"
 
-interface UserProfileModalProps {
+interface UserProfileDialogProps {
   user: User | null
   isOpen: boolean
   onClose: () => void
 }
 
-export const UserProfileModal = ({ user, isOpen, onClose }: UserProfileModalProps) => {
+export const UserProfileDialog = ({ user, isOpen, onClose }: UserProfileDialogProps) => {
   if (!user) return null
 
   return (

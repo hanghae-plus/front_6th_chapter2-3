@@ -43,9 +43,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     }
   }
 
-  /**
-   * 댓글을 수정하는 함수
-   */
+  // TODO : 댓글 추가 으로 분리
   const updateComment = async () => {
     if (!selectedComment || !postId) return
 
@@ -64,10 +62,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     }
   }
 
-  /**
-   * 댓글을 삭제하는 함수
-   * @param id - 삭제할 댓글 ID
-   */
+  // TODO : 댓글 삭제 훅으로 분리
   const deleteComment = async (id: number) => {
     if (!postId) return
 
@@ -81,10 +76,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     }
   }
 
-  /**
-   * 댓글에 좋아요를 추가하는 함수
-   * @param id - 댓글 ID
-   */
+  // TODO: 댓글 좋아요 훅으로 분리
   const likeComment = async (id: number) => {
     if (!postId || !data) return
 
@@ -103,14 +95,11 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
     }
   }
 
-  // ===== 댓글 렌더링 함수 =====
-  /**
-   * 댓글 목록을 렌더링하는 함수
-   */
+  // TODO: 댓글 위젯으로 분리
   const renderComments = () => (
     <div className="mt-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">댓글 ({data?.comments.length || 0}개)</h3>
+        <h3 className="text-lg font-semibold">댓글</h3>
         {/* 댓글 추가 버튼 */}
         <Button
           size="sm"
@@ -125,7 +114,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
       </div>
 
       {/* 댓글 목록 */}
-      <div className="space-y-3">
+      {/* <div className="space-y-3">
         {data?.comments.map((comment) => (
           <div key={comment.id} className="border-b pb-3">
             <div className="flex items-center justify-between">
@@ -134,15 +123,12 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
                 <span className="text-sm">{comment.body}</span>
               </div>
 
-              {/* 댓글 작업 버튼들 */}
               <div className="flex items-center space-x-1 ml-4">
-                {/* 좋아요 버튼 */}
                 <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id)}>
                   <ThumbsUp className="w-3 h-3" />
                   <span className="ml-1 text-xs">{comment.likes}</span>
                 </Button>
 
-                {/* 수정 버튼 */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -161,7 +147,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   )
 

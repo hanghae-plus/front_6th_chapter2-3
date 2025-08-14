@@ -1,6 +1,5 @@
 import { PaginatedResponse } from "../api/type"
 
-// Comment 인터페이스
 export interface Comment {
   id: number
   body: string
@@ -36,7 +35,6 @@ export interface CommentFilter {
   [key: string]: unknown
 }
 
-// 페이지네이션 응답 인터페이스
 export interface CommentPaginatedResponse extends PaginatedResponse {
   comments: Comment[]
 }

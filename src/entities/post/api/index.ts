@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import type { Post, PostFilter, PostPaginatedResponse, Tag } from "@/shared/types"
+import type { CreatePost, Post, PostFilter, PostPaginatedResponse, Tag, UpdatePost } from "@/shared/types"
 
 export const getPosts = (filters: PostFilter = {}) => {
   const params = new URLSearchParams()
@@ -37,3 +37,17 @@ export const getPostByTag = (tag: string) => {
 export const getPost = (id: number) => HttpClient.get<Post>(`/posts/${id}`)
 
 export const getTags = () => HttpClient.get<Tag[]>(`/posts/tags`)
+
+// 게시물 생성
+export const createPost = async (data: CreatePost): Promise<Post> => {
+  return HttpClient.post<Post>("/posts/add", data)
+}
+
+// 게시물 삭제
+export const deletePost = async (id: number): Promise<Post> => {
+  return HttpClient.delete<Post>(`/posts/${id}`)
+}
+
+export const updatePost = async (id: number, data: UpdatePost): Promise<Post> => {
+  return HttpClient.patch<Post>(`/posts/${id}`, data)
+}

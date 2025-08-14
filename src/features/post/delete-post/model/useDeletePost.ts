@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { deletePost as deletePostApi } from "@/features/post/delete-post/api"
+import { deletePost as deletePostApi } from "@/entities/post/api"
 import { POST_QK } from "@/entities/post/model/query-key"
 import { Post, PostPaginatedResponse } from "@/shared/types"
 

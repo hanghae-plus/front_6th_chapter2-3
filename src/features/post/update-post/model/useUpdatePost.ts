@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { updatePost as updatePostApi } from "@/features/post/update-post/api"
+import { updatePost as updatePostApi } from "@/entities/post/api"
 import { POST_QK } from "@/entities/post/model/query-key"
 import { Post, PostPaginatedResponse, UpdatePost } from "@/shared/types"
 
