@@ -21,8 +21,6 @@ export const usePostDetail = (id: number | null) => {
         author: userMap.get(postResponse.userId) as Author,
       }
 
-      // 댓글은 이미 user 정보가 포함되어 있으므로 그대로 사용
-
       return {
         post: postWithAuthor,
       }

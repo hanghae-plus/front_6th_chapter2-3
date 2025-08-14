@@ -1,6 +1,7 @@
 import { HttpClient } from "@/shared/api/http"
-import type { CreatePost, Post, PostFilter, PostPaginatedResponse, Tag, UpdatePost } from "@/shared/types"
+import type { CreatePost, Post, PostFilter, PostPaginatedResponse, UpdatePost } from "@/shared/types"
 
+// 전체 게시글 조회
 export const getPosts = (filters: PostFilter = {}) => {
   const params = new URLSearchParams()
 
@@ -21,22 +22,24 @@ export const getPosts = (filters: PostFilter = {}) => {
   }
 
   const url = `/posts${params.toString() ? `?${params.toString()}` : ""}`
+  console.log("[DEBUG] url", url)
   return HttpClient.get<PostPaginatedResponse>(url)
 }
 
+// 게시물 검색어 조회
 export const getPostBySearch = (searchQuery: string) => {
   const url = `/posts/search?q=${searchQuery}`
   return HttpClient.get<PostPaginatedResponse>(url)
 }
 
+// 게시물 태그별 조회
 export const getPostByTag = (tag: string) => {
   const url = `/posts/tag/${tag}`
   return HttpClient.get<PostPaginatedResponse>(url)
 }
 
+// 게시물 상세 조회
 export const getPost = (id: number) => HttpClient.get<Post>(`/posts/${id}`)
-
-export const getTags = () => HttpClient.get<Tag[]>(`/posts/tags`)
 
 // 게시물 생성
 export const createPost = async (data: CreatePost): Promise<Post> => {

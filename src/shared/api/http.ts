@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosRequestConfig, AxiosResponse } from "axios"
-import { axiosClient } from "@/shared/api/axios-client"
+import { axiosInstance } from "@/shared/api/axios-client"
 import { ApiResponse, PaginatedResponse } from "@/shared/api/type"
 
 export class HttpClient {
@@ -11,7 +11,7 @@ export class HttpClient {
     config?: AxiosRequestConfig,
   ): Promise<T> {
     try {
-      const response: AxiosResponse<ApiResponse<T>> = await axiosClient.request({
+      const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.request({
         method,
         url,
         data,

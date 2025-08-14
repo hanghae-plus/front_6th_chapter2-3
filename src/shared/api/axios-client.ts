@@ -1,7 +1,7 @@
 // src/shared/api/client.ts
 import axios from "axios"
 
-export const axiosClient = axios.create({
+export const axiosInstance = axios.create({
   baseURL: "/api",
   timeout: 10000,
   headers: {

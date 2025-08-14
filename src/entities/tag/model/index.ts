@@ -1,3 +1,1 @@
-export * from "./queries"
-export * from "./types"
-export * from "./query-key"
+export { useTags } from "./useTags"
