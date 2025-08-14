@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:myfolder": "vite --port 5174 --open index_myfolder.html",
+    "dev:original": "vite --port 5173 --open index.html",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
