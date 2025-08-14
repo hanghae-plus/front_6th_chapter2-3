@@ -41,7 +41,6 @@ export const TagSelectBox = ({ selectedTag, onTagChange }: TagSelectBoxProps) =>
       queryClient.removeQueries({
         queryKey: ["posts"],
         predicate: (query) => {
-          // queryKey에 태그 정보가 포함된 쿼리만 제거
           return query.queryKey.some((key) => typeof key === "object" && key.tag && key.tag !== value)
         },
       })

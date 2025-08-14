@@ -17,6 +17,11 @@ export const getPosts = (filters: PostFilter = {}) => {
   return HttpClient.get<PostPaginatedResponse>(url)
 }
 
+export const getPostBySearch = (searchQuery: string) => {
+  const url = `/posts/search?q=${searchQuery}`
+  return HttpClient.get<PostPaginatedResponse>(url)
+}
+
 export const getPost = (id: number) => HttpClient.get<Post>(`/posts/${id}`)
 
 export const getTags = () => HttpClient.get<Tag[]>(`/posts/tags`)

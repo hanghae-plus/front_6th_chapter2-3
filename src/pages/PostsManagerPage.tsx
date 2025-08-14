@@ -1,22 +1,20 @@
-import { useEffect, useState, useMemo } from "react"
-import { Edit2, Plus, Search, ThumbsDown, ThumbsUp } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ThumbsDown, ThumbsUp } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { AddPostDialog } from "@/features/post/ui/AddPostDialog"
 import { AddPostDialogOpenButton } from "@/features/post/ui/AddPostDialogOpenButton"
 import { DeletePostButton } from "@/features/post/ui/DeletePostButton"
-import { postWithAuthorQueries } from "@/features/post/model/queries"
-import { postQueries } from "@/entities/post/model/queries"
-import { Author, Comment, Tag, PostWithAuthor } from "@/shared/types"
+import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenButton"
+import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
+import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
+import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
+import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
+import { TagSelectBox } from "@/features/post/ui/TagSelectBox"
+import { SearchPostInput } from "@/features/post/ui/SearchPostInput"
+import { usePostWithAuthor } from "@/features/post/model/usePostWithAuthor"
+import { Comment, PostWithAuthor } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
 import {
-  Button,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -28,13 +26,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui"
-import { postMutations } from "@/features/post/model/mutations"
-import { EditPostDialogOpenButton } from "@/features/post/ui/EditPostDialogOpenButton"
-import { EditPostDialog } from "@/features/post/ui/EditPostDialog"
-import { DetailPostDialogOpenButton } from "@/features/post/ui/DetailPostDialogOpenButton"
-import { DetailPostDialog } from "@/features/post/ui/DetailPostDialog"
-import { SortSelectBox } from "@/features/post/ui/SortSelectBox"
-import { TagSelectBox } from "@/features/post/ui/TagSelectBox"
 
 /**
  * 게시물 관리자 컴포넌트
@@ -47,7 +38,6 @@ const PostsManager = () => {
 
   // ===== 상태 관리 =====
   // 게시물 관련 상태
-  const [posts, setPosts] = useState<PostWithAuthor[]>([]) // 게시물 목록
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0")) // 페이지네이션 시작 인덱스
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10")) // 페이지당 게시물 수
 
@@ -58,25 +48,30 @@ const PostsManager = () => {
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
 
   // 선택된 항목 상태
-  const [selectedPost, setSelectedPost] = useState<PostWithAuthor | null>(null) // 선택된 게시물
+  const [selectedPost, setSelectedPost] = useState<PostWithAuthor>({
+    author: {
+      id: 0,
+      username: "",
+      image: "",
+    },
+    id: 0,
+    title: "",
+    body: "",
+    userId: 0,
+    tags: [],
+    reactions: { likes: 0, dislikes: 0 },
+    views: 0,
+  }) // 선택된 게시물
 
   // 데이터 상태
-  const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
   const [comments, setComments] = useState<Record<number, Comment[]>>({}) // 댓글 목록 (게시물 ID별로 그룹화)
-  const [input, setInput] = useState("")
 
   // 게시물 목록 조회 (with author) - 태그별 필터링
-  const postsQuery = useQuery(
-    postWithAuthorQueries.listByTag(selectedTag || "all", {
-      skip,
-      limit,
-      sortBy: (sortBy as "id" | "title" | "reactions" | "none") || undefined,
-      sortOrder: sortOrder as "asc" | "desc",
-    }),
-  )
+  const postsQuery = usePostWithAuthor()
 
-  // 태그 목록 조회
-  const tagsQuery = useQuery(postQueries.tags())
+  const posts = postsQuery.posts || []
+
+  // 태그 목록은 TagSelectBox에서 자동으로 처리됨
 
   // ===== URL 업데이트 함수 =====
   /**
@@ -116,34 +111,7 @@ const PostsManager = () => {
     }
   }
 
-  /**
-   * 댓글에 좋아요를 추가하는 함수
-   * @param id - 댓글 ID
-   * @param postId - 댓글이 속한 게시물 ID
-   */
-  const likeComment = async (id: number, postId: number) => {
-    try {
-      // 현재 댓글의 좋아요 수를 가져와서 1 증가
-      const currentComment = comments[postId]?.find((c) => c.id === id)
-      if (!currentComment) {
-        console.error("댓글을 찾을 수 없습니다.")
-        return
-      }
-
-      const updatedLikes = currentComment.likes + 1
-
-      // HttpClient를 사용하여 PATCH 요청
-      const data = await HttpClient.patch<Comment>(`/comments/${id}`, { likes: updatedLikes })
-
-      // 좋아요 수를 증가시켜 댓글 목록 업데이트
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) => (comment.id === data.id ? { ...data, likes: updatedLikes } : comment)),
-      }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
+  // 댓글 좋아요 기능은 현재 사용되지 않음
 
   // ===== UI 관련 함수들 =====
   /**
@@ -156,24 +124,17 @@ const PostsManager = () => {
   }
 
   // ===== useEffect 훅들 =====
-  // 컴포넌트 마운트 시 태그 목록 가져오기
-  useEffect(() => {
-    // tagsQuery.data는 태그 목록 배열
-    if (tagsQuery.data) {
-      setTags(tagsQuery.data)
-    }
-  }, [tagsQuery.data])
+  // 태그 목록은 TagSelectBox에서 자동으로 처리됨
 
   // 페이지네이션, 정렬, 태그 변경 시 게시물 다시 가져오기
-  useEffect(() => {
-    // postsQuery.data는 게시물 목록과 전체 개수를 포함한 객체
-    if (postsQuery.data) {
-      // author가 undefined인 경우를 필터링하여 PostWithAuthor[] 타입 보장
-      const validPosts = postsQuery.data.posts.filter((post) => post.author) as PostWithAuthor[]
-      setPosts(validPosts)
-    }
-    updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag, postsQuery.data])
+  // useEffect(() => {
+  //   // postsQuery.posts는 게시물 목록 배열
+  //   if (postsQuery.posts) {
+  //     // author가 undefined인 경우를 필터링하여 PostWithAuthor[] 타입 보장
+  //     const validPosts = postsQuery.posts.filter((post) => post.author) as PostWithAuthor[]
+  //     setPosts(validPosts)
+  //   }
+  // }, [postsQuery.posts])
 
   // URL 쿼리 파라미터 변경 시 상태 동기화
   useEffect(() => {
@@ -299,15 +260,7 @@ const PostsManager = () => {
           <div className="flex gap-4">
             {/* 검색 입력창 */}
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                />
-              </div>
+              <SearchPostInput />
             </div>
             {/* 태그 선택 드롭다운 */}
             <TagSelectBox
@@ -320,7 +273,6 @@ const PostsManager = () => {
             <SortSelectBox />
           </div>
 
-          {/* 게시물 테이블 */}
           {renderPostTable()}
         </div>
       </CardContent>

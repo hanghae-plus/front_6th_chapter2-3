@@ -7,7 +7,5 @@ export const useTags = () => {
   return useQuery({
     queryKey: TAG_QUERY_KEYS.lists(),
     queryFn: () => getTags(),
-    staleTime: 30 * 60 * 1000, // 30분
-    gcTime: 60 * 60 * 1000, // 1시간
   })
 }
