@@ -3,12 +3,13 @@ import { Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useComments } from "@/features/comment/read-comment/model/useComments"
 import { useCreateComment } from "@/features/comment/create-comment/model"
+import { AddCommentDialog } from "@/features/comment/create-comment/ui"
 import { CommentItem } from "@/entities/comment/ui"
 import { commentKeys } from "@/entities/comment/model/query-key"
 import { Comment, CreateComment } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
 import { useDialogActions, useDialogStore } from "@/shared/model"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea, EditCommentDialog } from "@/shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, EditCommentDialog } from "@/shared/ui"
 import { usePostDetail } from "../model"
 
 interface DetailPostDialogProps {
@@ -18,19 +19,16 @@ interface DetailPostDialogProps {
 export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const isOpen = useDialogStore((state) => state.dialogs.POST_DETAIL)
   const isEditCommentOpen = useDialogStore((state) => state.dialogs.EDIT_COMMENT)
+  const isAddCommentOpen = useDialogStore((state) => state.dialogs.ADD_COMMENT)
   const { hideDialog, showDialog } = useDialogActions()
   const queryClient = useQueryClient()
 
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
-  const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
   // postId가 변경될 때 상태 초기화
   useEffect(() => {
     if (postId) {
-      setNewComment((prev) => ({ ...prev, postId }))
       setSelectedComment(null)
-      setShowAddCommentDialog(false)
     }
   }, [postId])
 
@@ -72,18 +70,15 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
 
   const { post } = data
 
-  const addComment = async () => {
+  const handleAddComment = async (comment: CreateComment) => {
     if (!postId) return
 
     try {
       await createCommentMutation.mutateAsync({
-        body: newComment.body,
+        body: comment.body,
         postId: postId,
-        userId: newComment.userId,
+        userId: comment.userId,
       })
-
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: 0, userId: 1 })
     } catch (error) {
       console.error("댓글 추가 오류:", error)
     }
@@ -147,13 +142,7 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">댓글</h3>
           {/* 댓글 추가 버튼 */}
-          <Button
-            size="sm"
-            onClick={() => {
-              setNewComment((prev) => ({ ...prev, postId: postId || 0 }))
-              setShowAddCommentDialog(true)
-            }}
-          >
+          <Button size="sm" onClick={() => showDialog("ADD_COMMENT")}>
             <Plus className="w-3 h-3 mr-1" />
             댓글 추가
           </Button>
@@ -197,21 +186,16 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddCommentDialog
+        open={isAddCommentOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            hideDialog("ADD_COMMENT")
+          }
+        }}
+        postId={postId}
+        onSubmit={handleAddComment}
+      />
 
       <EditCommentDialog
         open={isEditCommentOpen}

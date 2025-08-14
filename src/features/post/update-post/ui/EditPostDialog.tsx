@@ -42,8 +42,6 @@ export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
 
   const handleClose = () => {
     hideDialog("EDIT")
-    // 다이얼로그 닫을 때 로컬 상태 초기화
-    setEditingPost(null)
   }
 
   if (!postId || !isOpen) return null
