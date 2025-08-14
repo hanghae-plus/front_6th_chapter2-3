@@ -5,10 +5,10 @@ import { Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
+import { PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
 import { Button } from "@/shared/ui/Button"
 import { Card } from "@/shared/ui/Card"
 import { Input } from "@/shared/ui/Input"
-import { Select } from "@/shared/ui/Select"
 import { CommentAddDialog, CommentUpdateDialog } from "@/widgets/comment-dialog/ui"
 import { PostAddDialog, PostDetailDialog, PostUpdateDialog } from "@/widgets/post-dialog/ui"
 import { PostPagination } from "@/widgets/post-pagination/ui"
@@ -358,46 +358,18 @@ export function PostsManagerPage() {
                 />
               </div>
             </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
+
+            <PostTagFilterSelect
+              selectedTag={selectedTag}
+              tags={tags}
+              onTagChange={(value) => {
                 setSelectedTag(value)
                 fetchPostsByTag(value)
                 updateURL()
               }}
-            >
-              <Select.Trigger className="w-[180px]">
-                <Select.Value placeholder="태그 선택" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="all">모든 태그</Select.Item>
-                {tags.map((tag: any) => (
-                  <Select.Item key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <Select.Trigger className="w-[180px]">
-                <Select.Value placeholder="정렬 기준" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="none">없음</Select.Item>
-                <Select.Item value="id">ID</Select.Item>
-                <Select.Item value="title">제목</Select.Item>
-                <Select.Item value="reactions">반응</Select.Item>
-              </Select.Content>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <Select.Trigger className="w-[180px]">
-                <Select.Value placeholder="정렬 순서" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="asc">오름차순</Select.Item>
-                <Select.Item value="desc">내림차순</Select.Item>
-              </Select.Content>
-            </Select>
+            />
+            <PostSortBySelect sortBy={sortBy} onSortByChange={setSortBy} />
+            <PostSortOrderSelect sortOrder={sortOrder} onSortOrderChange={setSortOrder} />
           </div>
 
           {/* 게시물 테이블 */}
@@ -421,7 +393,6 @@ export function PostsManagerPage() {
             />
           )}
 
-          {/* 페이지네이션 */}
           <PostPagination limit={limit} skip={skip} total={total} onLimitChange={setLimit} onSkipChange={setSkip} />
         </div>
       </Card.Content>
