@@ -4,12 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { SearchPostInput, TagSelectBox, SortSelectBox } from "@/widgets/post/ui"
 import { AddPostDialog, AddPostDialogOpenButton } from "@/features/post/create-post/ui"
 import { DeletePostButton } from "@/features/post/delete-post/ui"
-import { EditPostDialogOpenButton } from "@/features/post/update-post/ui/EditPostDialogOpenButton"
-import { EditPostDialog } from "@/features/post/update-post/ui/EditPostDialog"
-import { DetailPostDialogOpenButton } from "@/features/post/read-post/ui/DetailPostDialogOpenButton"
-import { DetailPostDialog } from "@/features/post/read-post/ui/DetailPostDialog"
-
-import { usePosts } from "@/features/post/read-post/model/usePosts"
+import { EditPostDialogOpenButton } from "@/features/post/update-post/ui"
+import { EditPostDialog } from "@/features/post/update-post/ui"
+import { DetailPostDialogOpenButton, DetailPostDialog } from "@/features/post/read-post/ui"
+import { usePosts } from "@/features/post/read-post/model"
 import {
   Table,
   TableBody,

@@ -1,6 +1,6 @@
 import { MessageSquare } from "lucide-react"
 import { Button } from "@/shared/ui"
-import { useDialogActions } from "@/shared/model/useDialogStore"
+import { useDialogActions } from "@/shared/model"
 
 interface DetailPostDialogOpenButtonProps {
   onClick: () => void

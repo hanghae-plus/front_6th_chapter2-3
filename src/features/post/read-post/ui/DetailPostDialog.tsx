@@ -3,9 +3,9 @@ import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Comment, CreateComment } from "@/shared/types"
 import { HttpClient } from "@/shared/api/http"
-import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
+import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
-import { usePostDetail } from "../model/usePostDetail"
+import { usePostDetail } from "../model"
 
 interface DetailPostDialogProps {
   postId: number | null
