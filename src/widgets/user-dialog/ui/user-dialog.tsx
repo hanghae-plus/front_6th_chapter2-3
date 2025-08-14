@@ -1,12 +1,12 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
 import { useGetUser } from "@entities/user"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { useUserDialogStore } from "@/features/user-dialog"
 
 export const UserDialog: React.FC = () => {
-  const open = useDialogStore((s) => s.isUserDialogOpen)
-  const userId = useDialogStore((s) => s.userIdForDialog)
-  const close = useDialogStore((s) => s.closeUserDialog)
+  const open = useUserDialogStore((s) => s.isUserDialogOpen)
+  const userId = useUserDialogStore((s) => s.userIdForDialog)
+  const close = useUserDialogStore((s) => s.closeUserDialog)
 
   const { data: user } = useGetUser(userId ?? 0)
   return (

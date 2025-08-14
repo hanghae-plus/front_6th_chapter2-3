@@ -3,17 +3,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "@share
 import { highlightText } from "@shared/lib"
 import type { Comment } from "@entities/comment"
 import { useGetComments } from "@entities/comment"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { usePostDialogStore } from "@/features/post-dialog"
+import { useCommentDialogStore } from "@/features/comment-dialog"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import { CommentItem } from "./comment-item"
 
 export const PostDetailDialog: React.FC = () => {
   const { param } = usePostQueryParams()
-  const open = useDialogStore((s) => s.isPostDetailOpen)
-  const post = useDialogStore((s) => s.selectedPost)
-  const close = useDialogStore((s) => s.closePostDetail)
-  const openAddComment = useDialogStore((s) => s.openAddComment)
-  const openEditComment = useDialogStore((s) => s.openEditComment)
+  const open = usePostDialogStore((s) => s.isPostDetailOpen)
+  const post = usePostDialogStore((s) => s.selectedPost)
+  const close = usePostDialogStore((s) => s.closePostDetail)
+  const openAddComment = useCommentDialogStore((s) => s.openAddComment)
+  const openEditComment = useCommentDialogStore((s) => s.openEditComment)
   const postId = post?.id
 
   const { data: commentsData } = useGetComments(postId ?? null)

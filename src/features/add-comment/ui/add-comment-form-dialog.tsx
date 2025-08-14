@@ -1,12 +1,12 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 import { useAddCommentForm } from "../model"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { useCommentDialogStore } from "@/features/comment-dialog"
 
 export const AddCommentFormDialog: React.FC = () => {
-  const open = useDialogStore((s) => s.isAddCommentOpen)
-  const postId = useDialogStore((s) => s.postIdForAdd)
-  const close = useDialogStore((s) => s.closeAddComment)
+  const open = useCommentDialogStore((s) => s.isAddCommentOpen)
+  const postId = useCommentDialogStore((s) => s.postIdForAdd)
+  const close = useCommentDialogStore((s) => s.closeAddComment)
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>

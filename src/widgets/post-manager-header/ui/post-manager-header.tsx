@@ -1,10 +1,10 @@
 import React from "react"
 import { Plus } from "lucide-react"
 import { Button, CardHeader, CardTitle } from "@shared/ui"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { usePostDialogStore } from "@/features/post-dialog"
 
 export const PostManagerHeader: React.FC = () => {
-  const openAddDialog = useDialogStore((s) => s.openAddPost)
+  const openAddDialog = usePostDialogStore((s) => s.openAddPost)
 
   return (
     <CardHeader>

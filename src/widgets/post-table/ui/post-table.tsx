@@ -9,15 +9,16 @@ import { RemovePostButton } from "@features/remove-post"
 import { Pagination } from "@widgets"
 import { useGetUsers } from "@entities/user"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { usePostDialogStore } from "@/features/post-dialog"
+import { useUserDialogStore } from "@/features/user-dialog"
 
 export const PostTable: React.FC = () => {
   const { param, updateUrl } = usePostQueryParams()
 
   // Dialog actions from store
-  const openPostDetail = useDialogStore((s) => s.openPostDetail)
-  const openUserDialog = useDialogStore((s) => s.openUserDialog)
-  const openEditDialog = useDialogStore((s) => s.openEditPost)
+  const openPostDetail = usePostDialogStore((s) => s.openPostDetail)
+  const openUserDialog = useUserDialogStore((s) => s.openUserDialog)
+  const openEditDialog = usePostDialogStore((s) => s.openEditPost)
 
   // TanStack Query로 모든 데이터 조회
   const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(

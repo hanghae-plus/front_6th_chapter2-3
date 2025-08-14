@@ -1,12 +1,12 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 import { useEditCommentForm } from "../model"
-import { useDialogStore } from "@/app/store/dialog-store"
+import { useCommentDialogStore } from "@/features/comment-dialog"
 
 export const EditCommentFormDialog: React.FC = () => {
-  const open = useDialogStore((s) => s.isEditCommentOpen)
-  const initialComment = useDialogStore((s) => s.editingComment)
-  const close = useDialogStore((s) => s.closeEditComment)
+  const open = useCommentDialogStore((s) => s.isEditCommentOpen)
+  const initialComment = useCommentDialogStore((s) => s.editingComment)
+  const close = useCommentDialogStore((s) => s.closeEditComment)
   const { formData, formActions, handleSubmit, isLoading, hasInitialComment, canSubmit } = useEditCommentForm(
     initialComment,
     open,
