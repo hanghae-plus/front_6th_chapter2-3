@@ -1,3 +1,1 @@
-export const DetailPostModal = () => {
-  
-}
+export const DetailPostModal = () => {};

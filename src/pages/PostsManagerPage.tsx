@@ -163,6 +163,7 @@ const PostsManager = () => {
     try {
       const response = await fetch(`/api/comments/post/${postId}`);
       const data = await response.json();
+      console.log('댓글> ', data);
       setComments((prev) => ({ ...prev, [postId]: data.comments }));
     } catch (error) {
       console.error('댓글 가져오기 오류:', error);
@@ -563,7 +564,11 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 사용자 모달 */}
-      <DetailUserModal isOpen={showUserModal} onOpenChange={setShowUserModal} selectedUser={selectedUser} />
+      <DetailUserModal
+        isOpen={showUserModal}
+        onOpenChange={setShowUserModal}
+        selectedUser={selectedUser}
+      />
     </Card>
   );
 };
