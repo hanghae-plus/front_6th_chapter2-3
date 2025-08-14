@@ -9,18 +9,19 @@ import {
 } from '../../../shared/ui';
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { PostsTableProps } from '../model/type';
+import { useFilterStore } from '../../../features/posts/filter-posts/model/store';
+import { usePostsFilter } from '../../../features/posts/filter-posts/model/hooks';
 
 export const PostsTable = ({
   posts,
-  searchQuery,
-  selectedTag,
   highlightText,
-  onTagClick,
   onUserClick,
   onPostDetail,
   onEditPost,
   onDeletePost,
 }: PostsTableProps) => {
+  const { searchQuery, selectedTag } = useFilterStore();
+  const { handleTagChange } = usePostsFilter();
   return (
     <Table>
       <TableHeader>
@@ -48,7 +49,7 @@ export const PostsTable = ({
                           ? 'text-white bg-blue-500 hover:bg-blue-600'
                           : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
                       }`}
-                      onClick={() => onTagClick(tag)}
+                      onClick={() => handleTagChange(tag)}
                     >
                       {tag}
                     </span>

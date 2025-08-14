@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, RotateCcw } from 'lucide-react';
 import {
   Input,
   Select,
@@ -7,36 +7,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Button,
 } from '../../../shared/ui';
+import { useFilterStore } from '../../../features/posts/filter-posts/model/store';
+import { usePostsFilter } from '../../../features/posts/filter-posts/model/hooks';
+import { useTagsStore } from '../../../entities/tags/model/store';
 
-interface PostsFilterProps {
-  searchQuery: string;
-  selectedTag: string;
-  sortBy: string;
-  sortOrder: string;
-  tags: any[];
-  onSearchChange: (value: string) => void;
-  onSearchSubmit: () => void;
-  onTagChange: (value: string) => void;
-  onSortByChange: (value: string) => void;
-  onSortOrderChange: (value: string) => void;
-}
+export const PostsFilter = () => {
+  const { searchQuery, selectedTag, sortBy, sortOrder, setSearchQuery } = useFilterStore();
+  const { handleSearch, handleTagChange, handleSortByChange, handleSortOrderChange, clearFilters } =
+    usePostsFilter();
+  const { tags } = useTagsStore();
 
-export const PostsFilter = ({
-  searchQuery,
-  selectedTag,
-  sortBy,
-  sortOrder,
-  tags,
-  onSearchChange,
-  onSearchSubmit,
-  onTagChange,
-  onSortByChange,
-  onSortOrderChange,
-}: PostsFilterProps) => {
   return (
     <div className='flex gap-4'>
-      {/* 검색 */}
       <div className='flex-1'>
         <div className='relative'>
           <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
@@ -44,14 +28,13 @@ export const PostsFilter = ({
             placeholder='게시물 검색...'
             className='pl-8'
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && onSearchSubmit()}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
       </div>
 
-      {/* 태그 필터 */}
-      <Select value={selectedTag} onValueChange={onTagChange}>
+      <Select value={selectedTag || 'all'} onValueChange={handleTagChange}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='태그 선택' />
         </SelectTrigger>
@@ -65,8 +48,7 @@ export const PostsFilter = ({
         </SelectContent>
       </Select>
 
-      {/* 정렬 기준 */}
-      <Select value={sortBy} onValueChange={onSortByChange}>
+      <Select value={sortBy || 'none'} onValueChange={handleSortByChange}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='정렬 기준' />
         </SelectTrigger>
@@ -78,8 +60,7 @@ export const PostsFilter = ({
         </SelectContent>
       </Select>
 
-      {/* 정렬 순서 */}
-      <Select value={sortOrder} onValueChange={onSortOrderChange}>
+      <Select value={sortOrder} onValueChange={handleSortOrderChange}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='정렬 순서' />
         </SelectTrigger>
@@ -88,6 +69,10 @@ export const PostsFilter = ({
           <SelectItem value='desc'>내림차순</SelectItem>
         </SelectContent>
       </Select>
+
+      <Button variant='outline' size='icon' onClick={clearFilters} title='필터 초기화'>
+        <RotateCcw className='h-4 w-4' />
+      </Button>
     </div>
   );
 };

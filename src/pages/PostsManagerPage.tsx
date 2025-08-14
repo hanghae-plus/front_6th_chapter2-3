@@ -21,90 +21,26 @@ import { DIALOG_KEYS } from '../shared/constant/dialog';
 import { useViewUser } from '../features/user/view-user/model/hooks';
 import { usePostsUrlParams } from '../features/posts/list-posts/model/hooks';
 import { useViewPost } from '../features/posts/view-post/model/hooks';
+import { usePostsFilter } from '../features/posts/filter-posts/model/hooks';
 
 const PostsManager = () => {
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
 
-  const {
-    posts,
-    total,
-    loading,
-    setPosts,
-    setTotal,
-    fetchPosts: fetchPostsFromStore,
-    setSelectedPost,
-  } = usePostsStore();
-  const { tags, selectedTag, setSelectedTag, fetchTags: fetchTagsFromStore } = useTagsStore();
+  const { posts, total, loading, setSelectedPost } = usePostsStore();
+  const { fetchTags: fetchTagsFromStore } = useTagsStore();
 
-  const {
-    skip,
-    limit,
-    searchQuery,
-    sortBy,
-    sortOrder,
-    setSkip,
-    setLimit,
-    setSearchQuery,
-    setSortBy,
-    setSortOrder,
-    updatePostsURL,
-  } = usePostsUrlParams();
+  const { skip, limit, setSkip, setLimit } = usePostsUrlParams();
+
+  const { applyFilters } = usePostsFilter();
 
   const { openUserModal } = useViewUser();
   const { openPostDetail } = useViewPost();
   const { openDialog } = useDialogStore();
 
-  const fetchPosts = () => {
-    fetchPostsFromStore(limit, skip.toString());
-  };
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`);
-      const data = await response.json();
-      setPosts(data.posts);
-      setTotal(data.total);
-    } catch (error) {
-      console.error('게시물 검색 오류:', error);
-    }
-  };
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === 'all') {
-      fetchPosts();
-      return;
-    }
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch('/api/users?limit=0&select=username,image'),
-      ]);
-      const postsData = await postsResponse.json();
-      const usersData = await usersResponse.json();
-
-      const postsWithUsers = postsData.posts.map((post: any) => ({
-        ...post,
-        author: usersData.users.find((user: any) => user.id === post.userId),
-      }));
-
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error('태그별 게시물 가져오기 오류:', error);
-    }
-  };
-
-  // 게시물 삭제
   const deletePost = async (id: number) => {
     try {
       await deletePostAPI(id);
-      setPosts(posts.filter((post) => post.id !== id));
+      applyFilters();
     } catch (error) {
       console.error('게시물 삭제 오류:', error);
     }
@@ -112,31 +48,16 @@ const PostsManager = () => {
 
   useEffect(() => {
     fetchTagsFromStore();
-    // URL에서 selectedTag 초기화
-    const tagFromURL = queryParams.get('tag') || '';
-    if (tagFromURL !== selectedTag) {
-      setSelectedTag(tagFromURL);
-    }
   }, []);
 
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
-    updatePostsURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
+    applyFilters();
+  }, [skip, limit, applyFilters]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSkip(parseInt(params.get('skip') || '0'));
     setLimit(parseInt(params.get('limit') || '10'));
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
-    const tagFromURL = params.get('tag') || '';
-    setSelectedTag(tagFromURL);
   }, [location.search]);
 
   return (
@@ -144,37 +65,14 @@ const PostsManager = () => {
       <PostsHeader />
       <CardContent>
         <div className='flex flex-col gap-4'>
-          {/* 검색 및 필터 컨트롤 */}
-          <PostsFilter
-            searchQuery={searchQuery}
-            selectedTag={selectedTag}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            tags={tags}
-            onSearchChange={setSearchQuery}
-            onSearchSubmit={searchPosts}
-            onTagChange={(value) => {
-              setSelectedTag(value);
-              fetchPostsByTag(value);
-              updatePostsURL({ tag: value });
-            }}
-            onSortByChange={setSortBy}
-            onSortOrderChange={setSortOrder}
-          />
+          <PostsFilter />
 
-          {/* 게시물 테이블 */}
           {loading ? (
             <div className='flex justify-center p-4'>로딩 중...</div>
           ) : (
             <PostsTable
               posts={posts}
-              searchQuery={searchQuery}
-              selectedTag={selectedTag}
               highlightText={highlightText}
-              onTagClick={(tag) => {
-                setSelectedTag(tag);
-                updatePostsURL({ tag });
-              }}
               onUserClick={openUserModal}
               onPostDetail={openPostDetail}
               onEditPost={(post) => {
@@ -184,8 +82,6 @@ const PostsManager = () => {
               onDeletePost={deletePost}
             />
           )}
-
-          {/* 페이지네이션 */}
           <PostsPagination
             skip={skip}
             limit={limit}
@@ -196,22 +92,11 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
       <AddPostDialog />
-
-      {/* 게시물 수정 대화상자 */}
       <EditPostDialog />
-
-      {/* 댓글 추가 대화상자 */}
       <AddCommentDialog />
-
-      {/* 댓글 수정 대화상자 */}
       <EditCommentDialog />
-
-      {/* 게시물 상세 보기 대화상자 */}
-      <PostDetailDialog searchQuery={searchQuery} />
-
-      {/* 사용자 모달 */}
+      <PostDetailDialog />
       <UserModal />
     </Card>
   );

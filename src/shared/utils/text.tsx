@@ -1,7 +1,6 @@
-// 하이라이트 함수 추가
 export const highlightText = (text: string, highlight: string) => {
   if (!text) return null;
-  if (!highlight.trim()) {
+  if (!highlight || !highlight.trim()) {
     return <span>{text}</span>;
   }
   const regex = new RegExp(`(${highlight})`, 'gi');
