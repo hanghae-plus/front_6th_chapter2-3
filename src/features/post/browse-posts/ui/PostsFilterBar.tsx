@@ -1,5 +1,5 @@
-import { Plus, Search } from "lucide-react"
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from "../../../../shared/ui"
+import { Search } from "lucide-react"
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../shared/ui"
 import type { PostsBrowseParams } from ".."
 import type { Tag } from "../../../../entities/post/model"
 import type { ChangeEvent } from "react"
@@ -7,12 +7,11 @@ import { SortOrder } from "../../../../shared/types/sort"
 
 interface PostsFilterBarProps {
   tags?: Tag[]
-  onAddPost?: () => void
   params: PostsBrowseParams
   onChange: (next: Partial<PostsBrowseParams>) => void
 }
 
-export const PostsFilterBar = ({ tags, onAddPost, params, onChange }: PostsFilterBarProps) => {
+export const PostsFilterBar = ({ tags, params, onChange }: PostsFilterBarProps) => {
   const { searchQuery, tag: selectedTag, sortBy, order } = params
 
   return (
@@ -67,12 +66,6 @@ export const PostsFilterBar = ({ tags, onAddPost, params, onChange }: PostsFilte
           <SelectItem value={SortOrder.DESC}>내림차순</SelectItem>
         </SelectContent>
       </Select>
-      {onAddPost && (
-        <Button onClick={onAddPost}>
-          <Plus className="w-4 h-4 mr-2" />
-          게시물 추가
-        </Button>
-      )}
     </div>
   )
 }

@@ -112,7 +112,7 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <PostsFilterBar tags={tags} onAddPost={addPost} params={params} onChange={setParams} />
+          <PostsFilterBar tags={tags} params={params} onChange={setParams} />
 
           <PostsTable
             posts={posts}
