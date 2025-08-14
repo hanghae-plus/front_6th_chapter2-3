@@ -1,7 +1,6 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
-import { useDialogStore, useDialogActions } from "@/shared/model/useDialogStore"
-import { useUserProfile } from "../model/useUserProfile"
-import { useSelectedUserStore } from "../model"
+import { useDialogStore, useDialogActions } from "@/shared/model"
+import { useSelectedUserStore, useUserProfile } from "../model"
 
 export const UserProfileDialog = () => {
   const { selectedUserId } = useSelectedUserStore()

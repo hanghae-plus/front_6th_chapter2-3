@@ -1,7 +1,7 @@
 import { useMemo, useState, startTransition } from "react"
 import { useSearchParams } from "react-router-dom"
-import { useTags } from "@/entities/tag/model"
-import { Tag } from "@/entities/tag/model/types"
+import { useTags } from "@/entities/tag/model/useTags"
+import { Tag } from "@/entities/tag/model"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
 
 export const TagSelectBox = () => {
