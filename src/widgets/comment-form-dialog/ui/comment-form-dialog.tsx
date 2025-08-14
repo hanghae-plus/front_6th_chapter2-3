@@ -1,7 +1,6 @@
 import React from "react"
-import { Dialog } from "@shared/ui"
 import type { Comment } from "@entities/comment"
-import { AddCommentForm, EditCommentForm } from "@features"
+import { AddCommentFormDialog, EditCommentFormDialog } from "@features"
 
 interface CommentFormDialogProps {
   open: boolean
@@ -13,20 +12,15 @@ interface CommentFormDialogProps {
 }
 
 export const CommentFormDialog: React.FC<CommentFormDialogProps> = ({
-  open,
-  onOpenChange,
   mode,
-  postId,
-  initialComment,
-  onSuccess,
 }) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
       {mode === "create" ? (
-        <AddCommentForm open={open} onOpenChange={onOpenChange} postId={postId} onSuccess={onSuccess} />
+        <AddCommentFormDialog />
       ) : (
-        <EditCommentForm open={open} onOpenChange={onOpenChange} initialComment={initialComment} onSuccess={onSuccess} />
+        <EditCommentFormDialog />
       )}
-    </Dialog>
+    </>
   )
 }

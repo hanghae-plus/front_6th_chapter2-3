@@ -3,11 +3,12 @@ import { Plus } from "lucide-react"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import type { Post } from "@entities/post"
-import type { Comment, NewComment } from "@entities/comment"
-import { PostTable, PostFilters, PostDetailDialog, UserDialog, CommentFormDialog } from "@widgets"
+import { PostTable, PostFilters, PostDetailDialog, UserDialog } from "@widgets"
+import { AddCommentFormDialog } from "@features/add-comment"
+import { EditCommentFormDialog } from "@features/edit-comment"
 import { AddPostFormDialog } from "@features/add-post"
 import { EditPostFormDialog } from "@features/edit-post"
-import { usePostDialogStore } from "@/app/store/post-dialog-store"
+import { useDialogStore } from "@/app/store/dialog-store"
 
 export const PostsManagerPage = () => {
   // URL 파라미터 – 단일 출처
@@ -17,13 +18,11 @@ export const PostsManagerPage = () => {
 
   // UI 전용 상태
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const openAddDialog = usePostDialogStore((s) => s.openAdd)
-  const openEditDialog = usePostDialogStore((s) => s.openEdit)
+  const openAddDialog = useDialogStore((s) => s.openAddPost)
+  const openEditDialog = useDialogStore((s) => s.openEditPost)
 
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
+  const openAddCommentDialog = useDialogStore((s) => s.openAddComment)
+  const openEditCommentDialog = useDialogStore((s) => s.openEditComment)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [userIdForDialog, setUserIdForDialog] = useState<number | null>(null)
@@ -85,20 +84,9 @@ export const PostsManagerPage = () => {
       <AddPostFormDialog />
       <EditPostFormDialog />
 
-      <CommentFormDialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
-        mode="create"
-        postId={newComment.postId ?? undefined}
-        onSuccess={() => setNewComment({ body: "", postId: null, userId: 1 })}
-      />
-
-      <CommentFormDialog
-        open={showEditCommentDialog}
-        onOpenChange={setShowEditCommentDialog}
-        mode="edit"
-        initialComment={selectedComment}
-      />
+      {/* 댓글 작성 / 수정 다이얼로그 */}
+      <AddCommentFormDialog />
+      <EditCommentFormDialog />
 
       {/* 게시물 상세 보기 다이얼로그 위젯 */}
       <PostDetailDialog
@@ -106,14 +94,8 @@ export const PostsManagerPage = () => {
         onOpenChange={setShowPostDetailDialog}
         post={selectedPost}
         searchQuery={searchQuery}
-        onOpenAddComment={(postId) => {
-          setNewComment((prev) => ({ ...prev, postId }))
-          setShowAddCommentDialog(true)
-        }}
-        onOpenEditComment={(comment) => {
-          setSelectedComment(comment)
-          setShowEditCommentDialog(true)
-        }}
+        onOpenAddComment={openAddCommentDialog}
+        onOpenEditComment={openEditCommentDialog}
       />
 
       {/* 사용자 다이얼로그 */}

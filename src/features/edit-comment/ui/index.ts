@@ -1,1 +1,1 @@
-export { EditCommentForm } from "./edit-comment-form"
+export { EditCommentFormDialog } from "./edit-comment-form-dialog"

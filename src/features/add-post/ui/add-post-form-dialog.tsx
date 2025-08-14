@@ -2,11 +2,11 @@ import React from "react"
 import { Input, Textarea, Button, Dialog, DialogContent, DialogHeader } from "@shared/ui"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { useAddPostForm } from "../model"
-import { usePostDialogStore } from "@/app/store/post-dialog-store"
+import { useDialogStore } from "@/app/store/dialog-store"
 
 export const AddPostFormDialog: React.FC = () => {
-  const open = usePostDialogStore((s) => s.isAddOpen)
-  const close = usePostDialogStore((s) => s.closeAdd)
+  const open = useDialogStore((s) => s.isAddPostOpen)
+  const close = useDialogStore((s) => s.closeAddPost)
 
   const { formData, formActions, handleSubmit, isLoading } = useAddPostForm(open)
 

@@ -1,1 +1,1 @@
-export { EditCommentForm } from "./ui"
+export { EditCommentFormDialog } from "./ui"

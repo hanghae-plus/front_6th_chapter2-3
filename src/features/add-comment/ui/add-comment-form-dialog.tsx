@@ -1,15 +1,28 @@
 import React from "react"
-import { DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "@shared/ui"
 import { useAddCommentForm } from "../model"
+import { useDialogStore } from "@/app/store/dialog-store"
 
-export interface AddCommentFormProps {
+export const AddCommentFormDialog: React.FC = () => {
+  const open = useDialogStore((s) => s.isAddCommentOpen)
+  const postId = useDialogStore((s) => s.postIdForAdd)
+  const close = useDialogStore((s) => s.closeAddComment)
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && close()}>
+      <InternalForm open={open} onOpenChange={(o) => !o && close()} postId={postId ?? undefined} />
+    </Dialog>
+  )
+}
+
+interface InternalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   postId?: number
   onSuccess?: () => void
 }
 
-export const AddCommentForm: React.FC<AddCommentFormProps> = ({ open, onOpenChange, postId, onSuccess }) => {
+const InternalForm: React.FC<InternalProps> = ({ open, onOpenChange, postId, onSuccess }) => {
   const { formData, formActions, handleSubmit, isLoading, canSubmit } = useAddCommentForm(open, postId)
 
   const onSubmit = () => {

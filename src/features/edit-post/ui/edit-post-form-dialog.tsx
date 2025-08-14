@@ -1,12 +1,12 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "@shared/ui"
-import { usePostDialogStore } from "@/app/store/post-dialog-store"
+import { useDialogStore } from "@/app/store/dialog-store"
 import { useEditPostForm } from "../model"
 
 export const EditPostFormDialog: React.FC = () => {
-  const open = usePostDialogStore((s) => s.isEditOpen)
-  const post = usePostDialogStore((s) => s.editingPost)
-  const close = usePostDialogStore((s) => s.closeEdit)
+  const open = useDialogStore((s) => s.isEditPostOpen)
+  const post = useDialogStore((s) => s.editingPost)
+  const close = useDialogStore((s) => s.closeEditPost)
 
   const { formData, formActions, handleSubmit, isLoading } = useEditPostForm(post, open)
 

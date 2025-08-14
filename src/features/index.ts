@@ -1,5 +1,5 @@
 export { AddPostFormDialog } from "@features/add-post/ui"
 export { EditPostFormDialog } from "@features/edit-post/ui"
-export { AddCommentForm } from "@features/add-comment/ui"
-export { EditCommentForm } from "@features/edit-comment/ui"
+export { AddCommentFormDialog } from "@features/add-comment/ui"
+export { EditCommentFormDialog } from "@features/edit-comment/ui"
 export { RemovePostButton } from "@features/remove-post/ui"
