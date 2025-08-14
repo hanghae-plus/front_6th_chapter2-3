@@ -1,1 +1,1 @@
-export { EditPostForm } from './edit-post-form'
+export { EditPostFormDialog } from "./edit-post-form-dialog"

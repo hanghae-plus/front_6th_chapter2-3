@@ -4,7 +4,10 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import type { Post } from "@entities/post"
 import type { Comment, NewComment } from "@entities/comment"
-import { PostTable, PostFilters, PostDetailDialog, UserDialog, PostFormDialog, CommentFormDialog } from "@widgets"
+import { PostTable, PostFilters, PostDetailDialog, UserDialog, CommentFormDialog } from "@widgets"
+import { AddPostFormDialog } from "@features/add-post"
+import { EditPostFormDialog } from "@features/edit-post"
+import { usePostDialogStore } from "@/app/store/post-dialog-store"
 
 export const PostsManagerPage = () => {
   // URL 파라미터 – 단일 출처
@@ -14,8 +17,8 @@ export const PostsManagerPage = () => {
 
   // UI 전용 상태
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
+  const openAddDialog = usePostDialogStore((s) => s.openAdd)
+  const openEditDialog = usePostDialogStore((s) => s.openEdit)
 
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState<NewComment>({ body: "", postId: null, userId: 1 })
@@ -44,7 +47,7 @@ export const PostsManagerPage = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={openAddDialog}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -70,7 +73,7 @@ export const PostsManagerPage = () => {
             onOpenUser={openUserModal}
             onEdit={(post) => {
               setSelectedPost(post)
-              setShowEditDialog(true)
+              openEditDialog(post)
             }}
             onPrev={() => updateUrl({ skip: Math.max(0, param.skip - param.limit) })}
             onNext={() => updateUrl({ skip: param.skip + param.limit })}
@@ -79,9 +82,8 @@ export const PostsManagerPage = () => {
         </div>
       </CardContent>
 
-      <PostFormDialog open={showAddDialog} onOpenChange={setShowAddDialog} mode="create" />
-
-      <PostFormDialog open={showEditDialog} onOpenChange={setShowEditDialog} mode="edit" initialPost={selectedPost} />
+      <AddPostFormDialog />
+      <EditPostFormDialog />
 
       <CommentFormDialog
         open={showAddCommentDialog}
@@ -119,4 +121,3 @@ export const PostsManagerPage = () => {
     </Card>
   )
 }
-
