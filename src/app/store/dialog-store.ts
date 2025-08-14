@@ -1,38 +1,19 @@
 import { create } from "zustand"
 import type { Post } from "@entities/post"
 import type { Comment } from "@entities/comment"
-import type { StateCreator } from "zustand"
 
-/* ---------- Post slice ---------- */
-interface PostDialogSlice {
-  /* add */
+interface DialogState {
+  // Post dialogs
   isAddPostOpen: boolean
   openAddPost: () => void
   closeAddPost: () => void
-  /* edit */
+  
   isEditPostOpen: boolean
   editingPost: Post | null
   openEditPost: (post: Post) => void
   closeEditPost: () => void
-}
 
-type DialogState = PostDialogSlice & CommentDialogSlice & UserDialogSlice & PostDetailDialogSlice
-
-const createPostSlice: StateCreator<DialogState, [], [], PostDialogSlice> = (set) => {
-  return {
-    isAddPostOpen: false,
-    openAddPost: () => set({ isAddPostOpen: true }),
-    closeAddPost: () => set({ isAddPostOpen: false }),
-
-    isEditPostOpen: false,
-    editingPost: null,
-    openEditPost: (post) => set({ isEditPostOpen: true, editingPost: post }),
-    closeEditPost: () => set({ isEditPostOpen: false, editingPost: null }),
-  }
-}
-
-/* ---------- Comment slice ---------- */
-interface CommentDialogSlice {
+  // Comment dialogs
   isAddCommentOpen: boolean
   postIdForAdd: number | null
   openAddComment: (postId: number) => void
@@ -42,60 +23,51 @@ interface CommentDialogSlice {
   editingComment: Comment | null
   openEditComment: (comment: Comment) => void
   closeEditComment: () => void
-}
 
-/* ---------- User slice ---------- */
-interface UserDialogSlice {
+  // User dialog
   isUserDialogOpen: boolean
   userIdForDialog: number | null
   openUserDialog: (userId: number) => void
   closeUserDialog: () => void
-}
 
-/* ---------- PostDetail slice ---------- */
-interface PostDetailDialogSlice {
+  // PostDetail dialog
   isPostDetailOpen: boolean
   selectedPost: Post | null
   openPostDetail: (post: Post) => void
   closePostDetail: () => void
 }
 
-const createCommentSlice: StateCreator<DialogState, [], [], CommentDialogSlice> = (set) => {
-  return {
-    isAddCommentOpen: false,
-    postIdForAdd: null,
-    openAddComment: (postId) => set({ isAddCommentOpen: true, postIdForAdd: postId }),
-    closeAddComment: () => set({ isAddCommentOpen: false, postIdForAdd: null }),
+export const useDialogStore = create<DialogState>((set) => ({
+  // Post dialogs
+  isAddPostOpen: false,
+  openAddPost: () => set({ isAddPostOpen: true }),
+  closeAddPost: () => set({ isAddPostOpen: false }),
 
-    isEditCommentOpen: false,
-    editingComment: null,
-    openEditComment: (comment) => set({ isEditCommentOpen: true, editingComment: comment }),
-    closeEditComment: () => set({ isEditCommentOpen: false, editingComment: null }),
-  }
-}
+  isEditPostOpen: false,
+  editingPost: null,
+  openEditPost: (post) => set({ isEditPostOpen: true, editingPost: post }),
+  closeEditPost: () => set({ isEditPostOpen: false, editingPost: null }),
 
-const createUserSlice: StateCreator<DialogState, [], [], UserDialogSlice> = (set) => {
-  return {
-    isUserDialogOpen: false,
-    userIdForDialog: null,
-    openUserDialog: (userId) => set({ isUserDialogOpen: true, userIdForDialog: userId }),
-    closeUserDialog: () => set({ isUserDialogOpen: false, userIdForDialog: null }),
-  }
-}
+  // Comment dialogs
+  isAddCommentOpen: false,
+  postIdForAdd: null,
+  openAddComment: (postId) => set({ isAddCommentOpen: true, postIdForAdd: postId }),
+  closeAddComment: () => set({ isAddCommentOpen: false, postIdForAdd: null }),
 
-const createPostDetailSlice: StateCreator<DialogState, [], [], PostDetailDialogSlice> = (set) => {
-  return {
-    isPostDetailOpen: false,
-    selectedPost: null,
-    openPostDetail: (post) => set({ isPostDetailOpen: true, selectedPost: post }),
-    closePostDetail: () => set({ isPostDetailOpen: false, selectedPost: null }),
-  }
-}
+  isEditCommentOpen: false,
+  editingComment: null,
+  openEditComment: (comment) => set({ isEditCommentOpen: true, editingComment: comment }),
+  closeEditComment: () => set({ isEditCommentOpen: false, editingComment: null }),
 
-/* ---------- Store ---------- */
-export const useDialogStore = create<DialogState>()((set, get, store) => ({
-  ...createPostSlice(set, get, store),
-  ...createCommentSlice(set, get, store),
-  ...createUserSlice(set, get, store),
-  ...createPostDetailSlice(set, get, store),
+  // User dialog
+  isUserDialogOpen: false,
+  userIdForDialog: null,
+  openUserDialog: (userId) => set({ isUserDialogOpen: true, userIdForDialog: userId }),
+  closeUserDialog: () => set({ isUserDialogOpen: false, userIdForDialog: null }),
+
+  // PostDetail dialog
+  isPostDetailOpen: false,
+  selectedPost: null,
+  openPostDetail: (post) => set({ isPostDetailOpen: true, selectedPost: post }),
+  closePostDetail: () => set({ isPostDetailOpen: false, selectedPost: null }),
 }))

@@ -6,34 +6,18 @@ import { useGetPosts, useGetPostsByTag, useGetPostSearch } from "@entities/post"
 import { mergePostsWithAuthors } from "@entities/post"
 import { LIMIT_OPTIONS } from "@shared/constants"
 import { RemovePostButton } from "@features/remove-post"
-import type { Post } from "@entities/post"
 import { Pagination } from "@widgets"
 import { useGetUsers } from "@entities/user"
 import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
+import { useDialogStore } from "@/app/store/dialog-store"
 
-interface PostTableProps {
-  searchQuery: string
-  onTagSelect: (tag: string) => void
-  onOpenDetail: (post: Post) => void
-  onOpenUser: (userId: number) => void
-  onEdit: (post: Post) => void
-  onPrev: () => void
-  onNext: () => void
-  onLimitChange: (value: number) => void
-  limitOptions?: number[]
-}
+export const PostTable: React.FC = () => {
+  const { param, updateUrl } = usePostQueryParams()
 
-export const PostTable: React.FC<PostTableProps> = ({
-  searchQuery,
-  onTagSelect,
-  onOpenDetail,
-  onOpenUser,
-  onEdit,
-  onPrev,
-  onNext,
-  onLimitChange,
-}) => {
-  const { param } = usePostQueryParams()
+  // Dialog actions from store
+  const openPostDetail = useDialogStore((s) => s.openPostDetail)
+  const openUserDialog = useDialogStore((s) => s.openUserDialog)
+  const openEditDialog = useDialogStore((s) => s.openEditPost)
 
   // TanStack Query로 모든 데이터 조회
   const { data: postsData, isLoading: isLoadingPosts } = useGetPosts(
@@ -43,7 +27,7 @@ export const PostTable: React.FC<PostTableProps> = ({
     param.sortOrder,
   )
   const { data: searchData, isLoading: isLoadingSearch } = useGetPostSearch(
-    searchQuery,
+    param.search || "",
     param.limit,
     param.skip,
     param.sortBy,
@@ -60,7 +44,7 @@ export const PostTable: React.FC<PostTableProps> = ({
   const { data: usersData, isLoading: isLoadingUsers } = useGetUsers("limit=0&select=username,image")
 
   const getPostDataByFilter = () => {
-    if (searchQuery) return searchData
+    if (param.search) return searchData
     if (param.tag && param.tag !== "all") return tagData
     return postsData
   }
@@ -94,7 +78,7 @@ export const PostTable: React.FC<PostTableProps> = ({
                   <TableCell>{post.id}</TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <div>{highlightText(post.title, searchQuery)}</div>
+                      <div>{highlightText(post.title, param.search || "")}</div>
                       <div className="flex flex-wrap gap-1">
                         {post.tags?.map((tag) => (
                           <span
@@ -104,7 +88,7 @@ export const PostTable: React.FC<PostTableProps> = ({
                                 ? "text-white bg-blue-500 hover:bg-blue-600"
                                 : "text-blue-800 bg-blue-100 hover:bg-blue-200"
                             }`}
-                            onClick={() => onTagSelect(tag)}
+                            onClick={() => updateUrl({ tag, skip: 0 })}
                           >
                             {tag}
                           </span>
@@ -115,7 +99,7 @@ export const PostTable: React.FC<PostTableProps> = ({
                   <TableCell>
                     <div
                       className="flex items-center space-x-2 cursor-pointer"
-                      onClick={() => post.author && onOpenUser(post.author.id)}
+                      onClick={() => post.author && openUserDialog(post.author.id)}
                     >
                       <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                       <span>{post.author?.username}</span>
@@ -131,10 +115,10 @@ export const PostTable: React.FC<PostTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => onOpenDetail(post)}>
+                      <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
                         <MessageSquare className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(post)}>
+                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(post)}>
                         <Edit2 className="w-4 h-4" />
                       </Button>
                       <RemovePostButton postId={post.id} />
@@ -147,9 +131,9 @@ export const PostTable: React.FC<PostTableProps> = ({
           <Pagination
             total={activePostsData?.total || 0}
             limitOptions={LIMIT_OPTIONS}
-            onPrev={onPrev}
-            onNext={onNext}
-            onLimitChange={onLimitChange}
+            onPrev={() => updateUrl({ skip: Math.max(0, param.skip - param.limit) })}
+            onNext={() => updateUrl({ skip: param.skip + param.limit })}
+            onLimitChange={(value) => updateUrl({ limit: value, skip: 0 })}
           />
         </div>
       )}

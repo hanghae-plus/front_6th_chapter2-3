@@ -2,29 +2,12 @@ import React from "react"
 import { Search } from "lucide-react"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui"
 import { Tag, useGetTags } from "@entities/post"
+import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 
-interface PostFiltersProps {
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  selectedTag: string
-  onTagChange: (value: string) => void
-  sortBy: string
-  onSortByChange: (value: string) => void
-  sortOrder: string
-  onSortOrderChange: (value: string) => void
-}
-
-export const PostFilters: React.FC<PostFiltersProps> = ({
-  searchQuery,
-  onSearchChange,
-  selectedTag,
-  onTagChange,
-  sortBy,
-  onSortByChange,
-  sortOrder,
-  onSortOrderChange,
-}) => {
+export const PostFilters: React.FC = () => {
+  const { param, updateUrl } = usePostQueryParams()
   const { data: tags = [] } = useGetTags()
+
   return (
     <div className="flex gap-4">
       <div className="flex-1">
@@ -33,13 +16,13 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
           <Input
             placeholder="게시물 검색..."
             className="pl-8"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            value={param.search || ""}
+            onChange={(e) => updateUrl({ search: e.target.value, skip: 0 })}
           />
         </div>
       </div>
 
-      <Select value={selectedTag} onValueChange={onTagChange}>
+      <Select value={param.tag || "all"} onValueChange={(value) => updateUrl({ tag: value, skip: 0 })}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="태그 선택" />
         </SelectTrigger>
@@ -53,7 +36,7 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
         </SelectContent>
       </Select>
 
-      <Select value={sortBy} onValueChange={onSortByChange}>
+      <Select value={param.sortBy || "none"} onValueChange={(value) => updateUrl({ sortBy: value, skip: 0 })}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 기준" />
         </SelectTrigger>
@@ -65,7 +48,10 @@ export const PostFilters: React.FC<PostFiltersProps> = ({
         </SelectContent>
       </Select>
 
-      <Select value={sortOrder} onValueChange={onSortOrderChange}>
+      <Select
+        value={param.sortOrder || "asc"}
+        onValueChange={(value) => updateUrl({ sortOrder: value as "asc" | "desc", skip: 0 })}
+      >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />
         </SelectTrigger>

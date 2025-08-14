@@ -1,7 +1,5 @@
-import { useState } from "react"
 import { Plus } from "lucide-react"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@shared/ui"
-import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import { PostTable, PostFilters, PostDetailDialog, UserDialog } from "@widgets"
 import { AddCommentFormDialog } from "@features/add-comment"
 import { EditCommentFormDialog } from "@features/edit-comment"
@@ -10,31 +8,8 @@ import { EditPostFormDialog } from "@features/edit-post"
 import { useDialogStore } from "@/app/store/dialog-store"
 
 export const PostsManagerPage = () => {
-  // URL 파라미터 – 단일 출처
-  const { param, updateUrl } = usePostQueryParams()
-
-  const [searchQuery, setSearchQuery] = useState<string>("")
-
-  // UI 전용 상태
+  // Page 레벨에서만 필요한 dialog 액션
   const openAddDialog = useDialogStore((s) => s.openAddPost)
-  const openEditDialog = useDialogStore((s) => s.openEditPost)
-
-  const openAddCommentDialog = useDialogStore((s) => s.openAddComment)
-  const openEditCommentDialog = useDialogStore((s) => s.openEditComment)
-  
-  const isUserDialogOpen = useDialogStore((s) => s.isUserDialogOpen)
-  const userIdForDialog = useDialogStore((s) => s.userIdForDialog)
-  const openUserDialog = useDialogStore((s) => s.openUserDialog)
-  const closeUserDialog = useDialogStore((s) => s.closeUserDialog)
-  
-  const isPostDetailOpen = useDialogStore((s) => s.isPostDetailOpen)
-  const selectedPost = useDialogStore((s) => s.selectedPost)
-  const openPostDetail = useDialogStore((s) => s.openPostDetail)
-  const closePostDetail = useDialogStore((s) => s.closePostDetail)
-
-  // updateURL 은 usePostQueryParams 훅에서 가져온 update 함수를 그대로 사용합니다.
-
-
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -49,29 +24,8 @@ export const PostsManagerPage = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <PostFilters
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            selectedTag={param.tag}
-            onTagChange={(value) => updateUrl({ tag: value, skip: 0 })}
-            sortBy={param.sortBy}
-            onSortByChange={(value) => updateUrl({ sortBy: value, skip: 0 })}
-            sortOrder={param.sortOrder}
-            onSortOrderChange={(value) => updateUrl({ sortOrder: value as "asc" | "desc", skip: 0 })}
-          />
-
-          <PostTable
-            searchQuery={searchQuery}
-            onTagSelect={(tag) => updateUrl({ tag, skip: 0 })}
-            onOpenDetail={openPostDetail}
-            onOpenUser={openUserDialog}
-            onEdit={(post) => {
-              openEditDialog(post)
-            }}
-            onPrev={() => updateUrl({ skip: Math.max(0, param.skip - param.limit) })}
-            onNext={() => updateUrl({ skip: param.skip + param.limit })}
-            onLimitChange={(value) => updateUrl({ limit: value, skip: 0 })}
-          />
+          <PostFilters />
+          <PostTable />
         </div>
       </CardContent>
 
@@ -83,17 +37,10 @@ export const PostsManagerPage = () => {
       <EditCommentFormDialog />
 
       {/* 게시물 상세 보기 다이얼로그 위젯 */}
-      <PostDetailDialog
-        open={isPostDetailOpen}
-        onOpenChange={closePostDetail}
-        post={selectedPost}
-        searchQuery={searchQuery}
-        onOpenAddComment={openAddCommentDialog}
-        onOpenEditComment={openEditCommentDialog}
-      />
+      <PostDetailDialog />
 
       {/* 사용자 다이얼로그 */}
-      <UserDialog open={isUserDialogOpen} onOpenChange={closeUserDialog} userId={userIdForDialog} />
+      <UserDialog />
     </Card>
   )
 }

@@ -1,17 +1,16 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
 import { useGetUser } from "@entities/user"
+import { useDialogStore } from "@/app/store/dialog-store"
 
-interface UserDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  userId: number | null
-}
+export const UserDialog: React.FC = () => {
+  const open = useDialogStore((s) => s.isUserDialogOpen)
+  const userId = useDialogStore((s) => s.userIdForDialog)
+  const close = useDialogStore((s) => s.closeUserDialog)
 
-export const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, userId }) => {
   const { data: user } = useGetUser(userId ?? 0)
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => !o && close()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>사용자 정보</DialogTitle>

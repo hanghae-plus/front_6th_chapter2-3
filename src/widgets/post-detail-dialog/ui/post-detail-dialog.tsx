@@ -1,47 +1,38 @@
 import React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from "@shared/ui"
 import { highlightText } from "@shared/lib"
-import type { Post } from "@entities/post"
 import type { Comment } from "@entities/comment"
 import { useGetComments } from "@entities/comment"
+import { useDialogStore } from "@/app/store/dialog-store"
+import { usePostQueryParams } from "@shared/hooks/use-post-query-params"
 import { CommentItem } from "./comment-item"
 
-interface PostDetailDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  post: Post | null
-  searchQuery: string
-  onOpenAddComment: (postId: number) => void
-  onOpenEditComment: (comment: Comment) => void
-}
-
-export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
-  open,
-  onOpenChange,
-  post,
-  searchQuery,
-  onOpenAddComment,
-  onOpenEditComment,
-}) => {
+export const PostDetailDialog: React.FC = () => {
+  const { param } = usePostQueryParams()
+  const open = useDialogStore((s) => s.isPostDetailOpen)
+  const post = useDialogStore((s) => s.selectedPost)
+  const close = useDialogStore((s) => s.closePostDetail)
+  const openAddComment = useDialogStore((s) => s.openAddComment)
+  const openEditComment = useDialogStore((s) => s.openEditComment)
   const postId = post?.id
 
   const { data: commentsData } = useGetComments(postId ?? 0)
   const comments = commentsData?.comments || []
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => !o && close()}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{highlightText(post?.title || "", searchQuery)}</DialogTitle>
+          <DialogTitle>{highlightText(post?.title || "", param.search || "")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p>{highlightText(post?.body || "", searchQuery)}</p>
+          <p>{highlightText(post?.body || "", param.search || "")}</p>
 
           {postId && (
             <div className="mt-2">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold">댓글</h3>
-                <Button size="sm" onClick={() => onOpenAddComment(postId)}>
+                <Button size="sm" onClick={() => openAddComment(postId)}>
                   댓글 추가
                 </Button>
               </div>
@@ -51,8 +42,8 @@ export const PostDetailDialog: React.FC<PostDetailDialogProps> = ({
                     key={comment.id}
                     comment={comment}
                     postId={postId}
-                    searchQuery={searchQuery}
-                    onOpenEditComment={onOpenEditComment}
+                    searchQuery={param.search || ""}
+                    onOpenEditComment={openEditComment}
                   />
                 ))}
               </div>
