@@ -1,5 +1,3 @@
-import { useState } from "react"
-
 import { SearchPostInput } from "@/widgets/search-post/SearchPostInput"
 import { TagSelectBox, SortSelectBox, SortOrderSelectBox } from "@/widgets/select-box"
 import { PaginationControl } from "@/widgets/pagination/ui"
@@ -11,12 +9,6 @@ import { UserProfileDialog } from "@/features/user/view-user-info/ui"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui"
 
 const PostsManager = () => {
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-
-  const openPostDetail = (postId: number) => {
-    setSelectedPostId(postId)
-  }
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -35,13 +27,13 @@ const PostsManager = () => {
             <SortSelectBox />
             <SortOrderSelectBox />
           </div>
-          <PostTable onPostSelect={openPostDetail} />
+          <PostTable />
           <PaginationControl />
         </div>
       </CardContent>
       <AddPostDialog />
-      <EditPostDialog postId={selectedPostId} />
-      <DetailPostDialog postId={selectedPostId} />
+      <EditPostDialog />
+      <DetailPostDialog />
       <UserProfileDialog />
     </Card>
   )

@@ -1,4 +1,4 @@
-import { useMemo, useState, startTransition } from "react"
+import { useMemo, useState, startTransition, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useTags } from "@/entities/tag/model/useTags"
 import { Tag } from "@/entities/tag/model"
@@ -33,6 +33,10 @@ export const TagSelectBox = () => {
       )
     })
   }
+
+  useEffect(() => {
+    setSelectedTag(searchParams.get("tag") || "")
+  }, [searchParams])
 
   return (
     <Select value={selectedTag} onValueChange={handleTagChange}>

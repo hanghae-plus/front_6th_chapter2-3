@@ -10,13 +10,10 @@ import { CommentItem } from "@/entities/comment/ui"
 import { Comment, CreateComment } from "@/entities/comment/model"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, EditCommentDialog } from "@/shared/ui"
-import { usePostDetail } from "../model"
+import { usePostDetail, useSelectedPostStore } from "../model"
 
-interface DetailPostDialogProps {
-  postId: number | null
-}
-
-export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
+export const DetailPostDialog = () => {
+  const { selectedPostId: postId } = useSelectedPostStore()
   const isOpen = useDialogStore((state) => state.dialogs.POST_DETAIL)
   const isEditCommentOpen = useDialogStore((state) => state.dialogs.EDIT_COMMENT)
   const isAddCommentOpen = useDialogStore((state) => state.dialogs.ADD_COMMENT)

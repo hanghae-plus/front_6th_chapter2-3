@@ -4,12 +4,11 @@ import { useDialogActions, useDialogStore } from "@/shared/model/useDialogStore"
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "@/shared/ui"
 import { useUpdatePost } from "../model/useUpdatePost"
 import { usePostDetail } from "../../read-post/model/usePostDetail"
+import { useSelectedPostStore } from "../../read-post/model"
 
-interface EditPostDialogProps {
-  postId: number | null
-}
+export const EditPostDialog = () => {
+  const { selectedPostId: postId } = useSelectedPostStore()
 
-export const EditPostDialog = ({ postId }: EditPostDialogProps) => {
   const { data, isLoading, error } = usePostDetail(postId!)
 
   // 로컬 상태로 수정 중인 데이터 관리
