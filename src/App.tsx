@@ -4,7 +4,7 @@ import PostsManagerPage from '@/pages/PostsManagerPage';
 
 const App = () => {
   return (
-    <QueryProvider>
+    <QueryProvider devtools>
       <RouterProvider>
         <Layout>
           <PostsManagerPage />

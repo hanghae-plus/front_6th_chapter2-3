@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.84.2",
+    "@tanstack/react-query-devtools": "^5.85.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "zustand": "^5.0.7"
