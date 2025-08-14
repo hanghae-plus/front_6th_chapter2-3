@@ -3,28 +3,29 @@ import { useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { getPosts, getPostBySearch, getPostByTag } from "@/entities/post/api"
 import { getUsers } from "@/entities/user/api"
-import { Post, Author } from "@/entities/post/model"
+import { Post, Author, POST_QK } from "@/entities/post/model"
 import { User } from "@/entities/user/model"
+import { BaseQueryParams } from "@/shared/lib"
 
 export function usePosts() {
   const [searchParams] = useSearchParams()
 
-  const filters = useMemo(
+  const filters: BaseQueryParams = useMemo(
     () => ({
       skip: Number(searchParams.get("skip")) || 0,
       limit: Number(searchParams.get("limit")) || 10,
-      searchQuery: searchParams.get("search") || "",
-      selectedTag: searchParams.get("tag") || "",
-      sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || undefined,
-      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || undefined,
+      search: searchParams.get("search") || "",
+      tag: searchParams.get("tag") || "",
+      sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || "none",
+      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
     }),
     [searchParams],
   )
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["posts", "list", filters],
+    queryKey: POST_QK.list({ ...filters }),
     queryFn: async () => {
-      const { searchQuery, selectedTag, ...otherFilters } = filters
+      const { search: searchQuery, tag: selectedTag, ...otherFilters } = filters
 
       let postsResponse
 
@@ -49,7 +50,7 @@ export function usePosts() {
     select: (data) => {
       if (!data) return data
 
-      const { searchQuery, selectedTag, skip, limit, sortBy, sortOrder } = filters
+      const { search: searchQuery, tag: selectedTag, skip, limit, sortBy, sortOrder } = filters
 
       const sortedPosts = [...data.posts]
 
@@ -66,9 +67,9 @@ export function usePosts() {
         })
       }
 
-      if ((searchQuery || (selectedTag && selectedTag !== "all")) && sortedPosts.length > limit) {
-        const startIndex = skip
-        const endIndex = startIndex + limit
+      if ((searchQuery || (selectedTag && selectedTag !== "all")) && sortedPosts.length > (limit || 0)) {
+        const startIndex = skip || 0
+        const endIndex = startIndex + (limit || 0)
         const paginatedPosts = sortedPosts.slice(startIndex, endIndex)
 
         return {

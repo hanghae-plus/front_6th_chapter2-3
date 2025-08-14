@@ -1,10 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useSearchParams } from "react-router-dom"
 import { createPost as createPostApi } from "@/entities/post/api"
 import { getUserById } from "@/entities/user/api"
-import { PostWithAuthor, CreatePost } from "@/entities/post/model"
+import { POST_QK } from "@/entities/post/model"
+import { PostPaginatedResponse, PostWithAuthor, CreatePost } from "@/entities/post/model"
 
 export const useCreatePost = () => {
   const queryClient = useQueryClient()
+  const [searchParams] = useSearchParams()
   const {
     mutate: createPost,
     isPending,
@@ -27,12 +30,30 @@ export const useCreatePost = () => {
 
       return { ...newPost, author: data.author } as PostWithAuthor
     },
-    onSuccess: () => {
-      // 새 게시글 추가 후 모든 posts 리스트 쿼리를 무효화
-      // 이렇게 하면 백엔드에서 최신 데이터를 가져와서 페이지네이션과 필터링이 올바르게 작동
-      queryClient.invalidateQueries({ queryKey: ["posts", "list"] })
+    onSuccess: (newPost: PostWithAuthor) => {
+      queryClient.setQueriesData(
+        {
+          queryKey: POST_QK.list({
+            limit: Number(searchParams.get("limit")) || 10,
+            skip: Number(searchParams.get("skip")) || 0,
+            search: searchParams.get("search") || "",
+            tag: searchParams.get("tag") || "",
+            sortBy: (searchParams.get("sortBy") as "id" | "title" | "reactions" | "none") || "none",
+            sortOrder: (searchParams.get("sortOrder") as "desc" | "asc") || "desc",
+          }),
+        },
+        (old: PostPaginatedResponse | undefined) => {
+          console.log("createPost", old)
+          if (!old) return old
 
-      console.log("createPost: 모든 posts 리스트 쿼리 무효화됨")
+          // 새 게시글을 첫 번째 페이지에 추가
+          return {
+            ...old,
+            posts: [newPost, ...old.posts],
+            total: old.total + 1,
+          }
+        },
+      )
     },
   })
   return { createPost, isPending, error }

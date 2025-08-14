@@ -28,16 +28,6 @@ export interface UpdatePost {
   userId?: number
 }
 
-// Post 필터 타입
-export interface PostOptions {
-  search?: string
-  tag?: string
-  sortBy?: "id" | "title" | "reactions" | "none"
-  sortOrder?: "asc" | "desc"
-  skip?: number
-  limit?: number
-}
-
 // 간단한 User 인터페이스 (Post 목록에서 사용)
 export interface Author {
   id: number
