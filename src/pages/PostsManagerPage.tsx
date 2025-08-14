@@ -21,6 +21,7 @@ import { highlightText } from '../shared/utils/text';
 import PostsHeader from '../widgets/postsHeader/ui/PostsHeader';
 import { useDialogStore } from '../shared/store/dialog';
 import { DIALOG_KEYS } from '../shared/constant/dialog';
+import { useViewUser } from '../features/user/view-user/model/hooks';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -60,8 +61,7 @@ const PostsManager = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const { openUserModal } = useViewUser();
 
   const { openDialog, closeDialog } = useDialogStore();
 
@@ -183,17 +183,6 @@ const PostsManager = () => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
-  };
-
-  // 사용자 모달 열기
-  const openUserModal = async (user: any) => {
-    try {
-      const userData = await fetchUserDetail(user.id);
-      setSelectedUser(userData);
-      setShowUserModal(true);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 오류:', error);
-    }
   };
 
   useEffect(() => {
@@ -318,7 +307,7 @@ const PostsManager = () => {
       <PostDetailDialog searchQuery={searchQuery} />
 
       {/* 사용자 모달 */}
-      <UserModal open={showUserModal} onOpenChange={setShowUserModal} selectedUser={selectedUser} />
+      <UserModal />
     </Card>
   );
 };

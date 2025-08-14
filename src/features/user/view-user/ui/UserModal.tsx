@@ -1,9 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../../shared/ui';
-import { UserModalProps } from '../model/type';
+import { useViewUser } from '../model/hooks';
 
-export const UserModal = ({ open, onOpenChange, selectedUser }: UserModalProps) => {
+export const UserModal = () => {
+  const { selectedUser, isDialogOpen, closeDialog } = useViewUser();
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>사용자 정보</DialogTitle>
