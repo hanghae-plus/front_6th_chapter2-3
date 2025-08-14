@@ -1,12 +1,5 @@
 import { useMemo, useState } from 'react';
 
-import {
-  useAddComment,
-  useDeleteComment,
-  useFetchComments,
-  useLikeComment,
-  useUpdateComment,
-} from '@/entities/comment/model/useComments';
 import { CommentList } from '@/entities/comment/ui/CommentList';
 import {
   useFetchPosts,
@@ -42,13 +35,6 @@ export const PostManagerWidget = () => {
   const { searchQuery } = usePostSearch();
   const { selectedTag, setSelectedTag } = usePostFilter();
 
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-
-  const [selectedComment, setSelectedComment] = useState(null);
-
-  const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
-
   const { skip, limit, setSkip, setLimit } = usePagination();
 
   const { data: tagsData } = useFetchTags();
@@ -68,9 +54,6 @@ export const PostManagerWidget = () => {
     openDialog: openAddDialog,
     handleSubmit,
   } = useCreatePost();
-
-  const { mutate: addComment } = useAddComment();
-  const { mutate: updateComment } = useUpdateComment();
 
   const { data: usersData } = useFetchAllUsers();
   const { data: user } = useFetchUserById(selectedUserId);
@@ -150,22 +133,10 @@ export const PostManagerWidget = () => {
       <EditPostDialog />
 
       {/* 댓글 추가 대화상자 */}
-      <CreateCommentDialog
-        showAddCommentDialog={showAddCommentDialog}
-        setShowAddCommentDialog={setShowAddCommentDialog}
-        newComment={newComment}
-        setNewComment={setNewComment}
-        addComment={addComment}
-      />
+      <CreateCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <EditCommentDialog
-        showEditCommentDialog={showEditCommentDialog}
-        setShowEditCommentDialog={setShowEditCommentDialog}
-        selectedComment={selectedComment}
-        updateComment={updateComment}
-        setSelectedComment={setSelectedComment}
-      />
+      <EditCommentDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
       <ViewPostDialog>

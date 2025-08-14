@@ -2,7 +2,7 @@ import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 
 import { useDeleteComment, useFetchComments, useLikeComment } from '../model/useComments';
 
-import { useCommentDialogStore } from '@/features/comment-edit/model/commentDialogStore';
+import { useCommentDialogStore } from '@/entities/comment/model/commentDialogStore';
 import { usePostSearch } from '@/features/post-search/model/usePostSearch';
 import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
 import { Button, HighlightText } from '@/shared/ui';
