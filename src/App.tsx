@@ -1,7 +1,7 @@
 import Header from '@app/layouts/Header.tsx'
 import Footer from '@app/layouts/Footer.tsx'
 import { AppProviders } from '@app/providers'
-import PostsManagerPage from '@pages/PostsManagerPage.tsx'
+import PostsManagerPage from '@pages/PostsManagerPage'
 
 const App = () => {
   return (

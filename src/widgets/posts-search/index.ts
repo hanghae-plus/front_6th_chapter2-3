@@ -1,0 +1,1 @@
+export { PostsSearchWidget } from './ui/PostsSearchWidget'

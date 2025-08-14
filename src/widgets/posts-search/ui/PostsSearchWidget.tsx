@@ -1,83 +1,27 @@
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
 import { useTagsQuery } from '@features/post/get-post-tags'
 import { usePostsUI } from '@shared/store/posts-ui'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/ui/Select'
 import { Button } from '@shared/ui/Button'
 import { Input } from '@shared/ui/Input'
+import { useSearchState } from '../model/useSearchState'
 
 export const PostsSearchWidget = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-
   const { setShowAddDialog } = usePostsUI()
-
-  // URL에서 초기값 읽기
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '')
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '')
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '')
-  const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc')
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedTag,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    handleSearch,
+    handleSelectTag,
+  } = useSearchState()
 
   // 태그 목록 쿼리
   const { data: tags = [] } = useTagsQuery()
-
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams(location.search)
-
-    if (searchQuery) {
-      params.set('search', searchQuery)
-    } else {
-      params.delete('search')
-    }
-
-    if (selectedTag && selectedTag !== 'all') {
-      params.set('tag', selectedTag)
-    } else {
-      params.delete('tag')
-    }
-
-    if (sortBy && sortBy !== 'none') {
-      params.set('sortBy', sortBy)
-    } else {
-      params.delete('sortBy')
-    }
-
-    if (sortOrder && sortOrder !== 'asc') {
-      params.set('sortOrder', sortOrder)
-    } else {
-      params.delete('sortOrder')
-    }
-
-    navigate(`?${params.toString()}`)
-  }
-
-  // 검색 실행
-  const handleSearch = () => {
-    updateURL()
-  }
-
-  // 태그 선택 처리
-  const handleSelectTag = (tag: string) => {
-    const newTag = tag === 'all' ? '' : tag
-    setSelectedTag(newTag)
-
-    // 즉시 URL 업데이트
-    const params = new URLSearchParams(location.search)
-    if (newTag) {
-      params.set('tag', newTag)
-    } else {
-      params.delete('tag')
-    }
-    navigate(`?${params.toString()}`)
-  }
-
-  // 정렬 변경 시 즉시 URL 업데이트
-  useEffect(() => {
-    updateURL()
-  }, [sortBy, sortOrder])
 
   return (
     <div className="flex items-center justify-between mb-6">
