@@ -22,18 +22,6 @@ export const slicePosts = (
   return posts.slice(skip, skip + limit);
 };
 
-export const updatePost = (
-  posts: Post[],
-  postId: number,
-  updatedPost: Post,
-) => {
-  return posts.map((post) => (post.id === postId ? updatedPost : post));
-};
-
-export const deletePost = (posts: Post[], postId: number) => {
-  return posts.filter((post) => post.id !== postId);
-};
-
 export const addPost = (posts: Post[], newPost: Post) => {
   return [newPost, ...posts];
 };

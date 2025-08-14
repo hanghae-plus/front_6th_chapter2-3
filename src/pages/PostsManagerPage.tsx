@@ -1,15 +1,15 @@
 import { PostsTable } from '@/widgets/posts';
 import {
   AddCommentDialog,
-  AddPostButton,
   AddPostDialog,
-  EditCommentDialog,
-  EditPostDialog,
   PostDialog,
   PostsFilter,
   PostsPagination,
+  AddPostButton,
+  EditPostDialog,
+  EditCommentDialog,
 } from '@/features/posts';
-import { UserModal } from '@/features/users';
+import { UserDialog } from '@/features/users';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 const PostsManager = () => {
@@ -51,7 +51,7 @@ const PostsManager = () => {
       <PostDialog />
 
       {/* 사용자 모달 */}
-      <UserModal />
+      <UserDialog />
     </Card>
   );
 };

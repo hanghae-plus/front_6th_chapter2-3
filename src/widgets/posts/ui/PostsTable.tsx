@@ -1,17 +1,15 @@
+import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import {
-  Edit2,
-  MessageSquare,
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-} from 'lucide-react';
-import { useEditPostDialog, usePostDialog, useSearch } from '@/features/posts';
-import { useUserModal } from '@/features/users';
-import { useDeletePost, usePosts, useTag, type Post } from '@/entities/posts';
+  DeletePostButton,
+  EditPostButton,
+  OpenPostDialogButton,
+  useSearch,
+} from '@/features/posts';
+import { OpenUserDetailButton } from '@/features/users';
+import { usePosts, useTag, type Post } from '@/entities/posts';
 import { useUsers, type UsersResponse } from '@/entities/users';
 import { highlightText } from '@/shared/lib';
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -35,10 +33,6 @@ export const PostsTable = () => {
       const author = usersData?.users?.find((user) => user.id === post.userId);
       return { ...post, author };
     }) ?? [];
-  const { open: openPostDialog } = usePostDialog();
-  const { open: openEditDialog } = useEditPostDialog();
-  const { mutate: deletePost } = useDeletePost();
-  const { open: openUserModal } = useUserModal();
 
   if (loading) {
     return <div className="flex justify-center p-4">로딩 중...</div>;
@@ -81,21 +75,11 @@ export const PostsTable = () => {
               </div>
             </TableCell>
             <TableCell>
-              <div
-                className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => {
-                  if (post.author) {
-                    openUserModal(post.author.id);
-                  }
-                }}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>{post.author?.username}</span>
-              </div>
+              <OpenUserDetailButton
+                image={post.author?.image ?? ''}
+                username={post.author?.username ?? ''}
+                userId={post.author?.id ?? null}
+              />
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
@@ -107,27 +91,11 @@ export const PostsTable = () => {
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openPostDialog(post)}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openEditDialog(post)}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deletePost(post.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <OpenPostDialogButton post={post} />
+
+                <EditPostButton post={post} />
+
+                <DeletePostButton postId={post.id} />
               </div>
             </TableCell>
           </TableRow>

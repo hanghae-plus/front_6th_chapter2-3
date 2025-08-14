@@ -2,7 +2,36 @@ import { useUserModal } from '../model';
 import { useUser } from '@/entities/users';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui';
 
-export const UserModal = () => {
+interface OpenUserDetailButtonProps {
+  userId: number | null | undefined;
+  image: string;
+  username: string;
+}
+
+export const OpenUserDetailButton = ({
+  userId,
+  image,
+  username,
+}: OpenUserDetailButtonProps) => {
+  const { open: openUserModal } = useUserModal();
+
+  return (
+    <div
+      className="flex items-center space-x-2 cursor-pointer"
+      onClick={() => {
+        if (userId) {
+          openUserModal(userId);
+        }
+      }}
+    >
+      <img src={image} alt={username} className="w-8 h-8 rounded-full" />
+      <span>{username}</span>
+    </div>
+  );
+};
+
+// 사용자 상세 모달
+export const UserDialog = () => {
   const { opened, userId, close } = useUserModal();
   const { data: user } = useUser(userId || undefined);
 

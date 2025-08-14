@@ -1,1 +1,1 @@
-export { UserModal } from './UserModal';
+export { UserDialog, OpenUserDetailButton } from './UserDetail';

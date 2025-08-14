@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useAddPostDialog } from '../model';
-import { useAddPost } from '@/entities/posts';
+import { useState } from 'react';
+import { useAddPost } from '../model';
+import { Button } from '@/shared/ui';
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -11,6 +12,19 @@ import {
   Textarea,
 } from '@/shared/ui';
 
+// 게시물 추가 버튼
+export const AddPostButton = () => {
+  const { open: openAddPostDialog } = useAddPostDialog();
+
+  return (
+    <Button onClick={() => openAddPostDialog()}>
+      <Plus className="w-4 h-4 mr-2" />
+      게시물 추가
+    </Button>
+  );
+};
+
+// 게시물 추가 다이얼로그
 export const AddPostDialog = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');

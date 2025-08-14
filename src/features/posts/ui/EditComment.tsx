@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useEditCommentDialog } from '../model';
-import { useUpdatePostComment } from '@/entities/posts';
+import { Edit2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useEditComment } from '../model';
+import type { PostComment } from '@/entities/posts';
+import { Button } from '@/shared/ui';
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -10,10 +12,32 @@ import {
   Textarea,
 } from '@/shared/ui';
 
+interface EditCommentButtonProps {
+  comment: PostComment;
+}
+
+// 댓글 수정 버튼
+export const EditCommentButton = ({ comment }: EditCommentButtonProps) => {
+  const { open: openEditCommentDialog } = useEditCommentDialog();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => {
+        openEditCommentDialog(comment);
+      }}
+    >
+      <Edit2 className="w-3 h-3" />
+    </Button>
+  );
+};
+
+// 댓글 수정 다이얼로그
 export const EditCommentDialog = () => {
   const [body, setBody] = useState('');
   const { opened, data: commentData, close } = useEditCommentDialog();
-  const { mutate: updateComment } = useUpdatePostComment();
+  const { mutate: updateComment } = useEditComment();
 
   useEffect(() => {
     setBody(commentData?.body || '');

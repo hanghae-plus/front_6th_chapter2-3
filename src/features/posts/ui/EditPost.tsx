@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useEditPostDialog } from '../model';
-import { useUpdatePost } from '@/entities/posts';
+import { Edit2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useEditPost } from '../model';
+import type { Post } from '@/entities/posts';
+import { Button } from '@/shared/ui';
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -11,11 +13,27 @@ import {
   Textarea,
 } from '@/shared/ui';
 
+interface EditPostButtonProps {
+  post: Post;
+}
+
+// 게시물 수정 버튼
+export const EditPostButton = ({ post }: EditPostButtonProps) => {
+  const { open: openEditDialog } = useEditPostDialog();
+
+  return (
+    <Button variant="ghost" size="sm" onClick={() => openEditDialog(post)}>
+      <Edit2 className="w-4 h-4" />
+    </Button>
+  );
+};
+
+// 게시물 수정 다이얼로그
 export const EditPostDialog = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const { opened, data: editPostData, close } = useEditPostDialog();
-  const { mutate: updatePost } = useUpdatePost();
+  const { mutate: editPost } = useEditPost();
 
   useEffect(() => {
     setTitle(editPostData?.title || '');
@@ -56,7 +74,7 @@ export const EditPostDialog = () => {
           />
           <Button
             onClick={() => {
-              updatePost({
+              editPost({
                 post: { ...editPostData, title, body },
                 postId: editPostData.id,
               });

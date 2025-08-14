@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useAddCommentDialog } from '../model';
-import { useAddPostComment } from '@/entities/posts';
+import { useState } from 'react';
+import { useAddPostComment } from '../model';
+import { Button } from '@/shared/ui';
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -10,6 +11,29 @@ import {
   Textarea,
 } from '@/shared/ui';
 
+interface AddCommentButtonProps {
+  postId: number;
+  userId: number;
+}
+
+// 댓글 추가 버튼
+export const AddCommentButton = ({ postId, userId }: AddCommentButtonProps) => {
+  const { open: openAddCommentDialog } = useAddCommentDialog();
+
+  return (
+    <Button
+      size="sm"
+      onClick={() => {
+        openAddCommentDialog({ postId, userId });
+      }}
+    >
+      <Plus className="w-3 h-3 mr-1" />
+      댓글 추가
+    </Button>
+  );
+};
+
+// 댓글 추가 다이얼로그
 export const AddCommentDialog = () => {
   const [body, setBody] = useState('');
   const { opened, data: addCommentData, close } = useAddCommentDialog();

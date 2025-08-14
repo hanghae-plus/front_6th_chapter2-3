@@ -22,7 +22,7 @@ export const useSearchQuery = (): ReturnType<
   return [searchParams.get('search') ?? '', setSearch];
 };
 
-export const useSortBy = () => useSearchParams<PostSortBy>('sortBy', 'nonde');
+export const useSortBy = () => useSearchParams<PostSortBy>('sortBy', 'none');
 
 export const useSortOrder = () =>
   useSearchParams<SortOrder>('sortOrder', 'asc');

@@ -1,8 +1,10 @@
-export { PostDialog } from './PostDialog';
-export { AddCommentDialog } from './AddCommentDialog';
-export { EditPostDialog } from './EditPostDialog';
-export { AddPostDialog } from './AddPostDialog';
-export { EditCommentDialog } from './EditCommentDialog';
-export { AddPostButton } from './AddPostButton';
+export { PostDialog, OpenPostDialogButton } from './PostDetail';
+export { AddPostButton, AddPostDialog } from './AddPost';
+export { EditPostButton, EditPostDialog } from './EditPost';
+export { DeletePostButton } from './DeletePost';
+export { AddCommentButton, AddCommentDialog } from './AddComment';
+export { EditCommentButton, EditCommentDialog } from './EditComment';
 export { PostsFilter } from './PostsFilter';
 export { PostsPagination } from './PostsPagination';
+export { ReactionComment } from './ReactionComment';
+export { DeleteCommentButton } from './DeleteComment';

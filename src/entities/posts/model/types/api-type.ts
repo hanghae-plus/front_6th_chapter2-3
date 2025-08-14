@@ -10,22 +10,3 @@ export interface PostCommentsResponse extends Pagination {
 }
 
 export type PostsTagsResponse = PostTag[];
-
-export type AddPostCommentResponse = Pick<
-  PostComment,
-  'id' | 'body' | 'postId' | 'user'
->;
-
-export interface UpdatePostCommentRequest {
-  body: string;
-}
-
-export type UpdatePostCommentResponse = PostComment;
-
-export interface AddPostRequest {
-  title: string;
-  body: string;
-  userId: number;
-}
-
-export type AddPostResponse = Post;
