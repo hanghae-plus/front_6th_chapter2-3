@@ -6,10 +6,7 @@ import { PostForm, PostDetail } from '../features/post/ui';
 import { CommentForm, CommentList } from '../features/comment/ui';
 import { UserProfile } from '../features/user/ui';
 import { openPostDetailWithComments as openPostDetailWithCommentsUtil } from '../entities/post/model';
-import {
-  handleAddCommentWithPostId as handleAddCommentWithPostIdUtil,
-  handleAddCommentWithData as handleAddCommentWithDataUtil,
-} from '../entities/comment/model';
+import { useCommentAPI } from '../features/comment/api';
 
 const PostsManager = () => {
   // Post Feature 사용
@@ -64,36 +61,47 @@ const PostsManager = () => {
     setShowAddCommentDialog,
     setShowEditCommentDialog,
     handleFetchComments,
+
     handleUpdateComment,
     handleDeleteComment,
     handleLikeComment,
     setComments,
   } = useCommentFeature();
 
+  // commentAPI 직접 사용
+  const commentAPI = useCommentAPI();
+
   // 게시물 상세 보기 (댓글도 함께 가져오기) - entities 함수 사용
   const openPostDetailWithComments = (post: any) => {
     openPostDetailWithCommentsUtil(post, openPostDetail, handleFetchComments);
   };
 
-  // 댓글 추가 시 postId 설정 (entities 함수 사용)
+  // 댓글 추가 시 postId 설정
   const handleAddCommentWithPostId = () => {
-    handleAddCommentWithPostIdUtil(
-      selectedPost,
-      newComment,
-      setNewComment,
-      handleAddCommentWithData,
-    );
-  };
+    console.log('=== 댓글 추가 시도 ===');
+    console.log('selectedPost:', selectedPost);
+    console.log('newComment:', newComment);
 
-  // 특정 데이터로 댓글 추가하는 함수 (entities 함수 사용)
-  const handleAddCommentWithData = (commentData: any) => {
-    handleAddCommentWithDataUtil(
-      commentData,
-      setComments,
-      comments,
-      setShowAddCommentDialog,
-      setNewComment,
-    );
+    if (selectedPost && newComment.body) {
+      const commentWithPostId = {
+        ...newComment,
+        postId: selectedPost.id,
+        userId: newComment.userId || 1,
+      };
+
+      console.log('설정된 댓글 데이터:', commentWithPostId);
+
+      // 직접 댓글 추가 API 호출
+      commentAPI.addCommentWithState(
+        setComments,
+        comments,
+        setShowAddCommentDialog,
+        setNewComment,
+        commentWithPostId,
+      );
+    } else {
+      console.error('selectedPost가 없거나 댓글 내용이 없습니다!');
+    }
   };
 
   return (
