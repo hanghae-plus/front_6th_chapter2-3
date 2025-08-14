@@ -12,7 +12,7 @@ export const PostUpdateDialog = ({
   showEditDialog: boolean;
   setShowEditDialog: (show: boolean) => void;
   selectedPost: Post | null;
-  setSelectedPost: Dispatch<SetStateAction<null>> | ((post: Post) => void);
+  setSelectedPost: Dispatch<SetStateAction<Post | null>>;
   handleUpdatePost: () => void;
 }) => {
   return (
@@ -26,15 +26,15 @@ export const PostUpdateDialog = ({
             placeholder="제목"
             value={selectedPost?.title || ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSelectedPost({ ...selectedPost, title: e.target.value })
+              selectedPost && setSelectedPost({ ...selectedPost, title: e.target.value })
             }
           />
           <Textarea
             rows={15}
             placeholder="내용"
             value={selectedPost?.body || ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSelectedPost({ ...selectedPost, body: e.target.value })
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })
             }
           />
           <Button onClick={handleUpdatePost}>게시물 업데이트</Button>

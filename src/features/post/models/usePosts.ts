@@ -21,8 +21,8 @@ export function usePosts({
   skip: number;
   selectedTag: string;
   searchQuery: string;
-  newPost: Post;
-  selectedPost: Post;
+  newPost: Partial<Post>;
+  selectedPost: Post | null;
   sortBy: string;
   sortOrder: string;
   updateURL: () => void;

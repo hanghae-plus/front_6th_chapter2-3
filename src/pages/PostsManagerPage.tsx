@@ -18,14 +18,14 @@ import { PostTable } from "../entities/post/ui/PostTable";
 import { useTags } from "../entities/tag/models";
 import { PostFiltersBar } from "../widgets/post-filters/ui/PostFiltersBar";
 import { usePostQuery } from "../features/post/models/usePostQuery";
-import { User } from "../entities/user/types";
+import { User, UserResponse } from "../entities/user/types";
 
 const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
 
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
+  const [newPost, setNewPost] = useState<Partial<Post>>({ title: "", body: "", userId: 1 });
   const [newComment, setNewComment] = useState<Partial<CommentType>>({ body: "", postId: null, userId: 1 });
 
   const [showAddDialog, setShowAddDialog] = useState(false);

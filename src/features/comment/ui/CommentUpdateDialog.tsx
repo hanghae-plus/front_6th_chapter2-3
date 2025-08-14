@@ -25,7 +25,7 @@ export const CommentUpdateDialog = ({
           <Textarea
             placeholder="댓글 내용"
             value={selectedComment?.body || ""}
-            onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+            onChange={(e) => selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })}
           />
           <Button onClick={handleUpdateComment}>댓글 업데이트</Button>
         </div>
