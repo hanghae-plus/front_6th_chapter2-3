@@ -291,23 +291,6 @@ const PostsManager = () => {
     setSelectedTag(tagFromURL);
   }, [location.search]);
 
-  // 하이라이트 함수 추가
-  // const highlightText = (text: string, highlight: string) => {
-  //   if (!text) return null;
-  //   if (!highlight.trim()) {
-  //     return <span>{text}</span>;
-  //   }
-  //   const regex = new RegExp(`(${highlight})`, 'gi');
-  //   const parts = text.split(regex);
-  //   return (
-  //     <span>
-  //       {parts.map((part, i) =>
-  //         regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
-  //       )}
-  //     </span>
-  //   );
-  // };
-
   // 댓글 렌더링
   const renderComments = (postId: number) => (
     <CommentsList
@@ -331,15 +314,6 @@ const PostsManager = () => {
   return (
     <Card className='w-full max-w-6xl mx-auto'>
       <PostsHeader />
-      {/* <CardHeader>
-        <CardTitle className='flex items-center justify-between'>
-          <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className='w-4 h-4 mr-2' />
-            게시물 추가
-          </Button>
-        </CardTitle>
-      </CardHeader> */}
       <CardContent>
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
@@ -420,8 +394,6 @@ const PostsManager = () => {
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
-        open={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
         highlightText={highlightText}
