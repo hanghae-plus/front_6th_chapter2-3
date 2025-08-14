@@ -2,13 +2,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../share
 import { highlightText } from "../../../shared/lib"
 import type { Post } from "../../../entities/post/model"
 import { CommentList } from "../../../entities/comment/ui"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { commentQueries } from "../../../entities/comment/api/queries"
-import { commentMutations } from "../../../entities/comment/api/mutations"
 import type { CommentItem } from "../../../entities/comment/model"
 import { useAddComment } from "../../../features/comment/add-comment"
 import { useEditComment } from "../../../features/comment/edit-comment/lib/useEditComment"
 import { useDeleteComment } from "../../../features/comment/delete-comment"
+import { useLikeComment } from "../../../features/comment/like-comment"
 
 interface PostDetailDialogProps {
   isOpen: boolean
@@ -26,11 +26,11 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
   const { addComment, overlay: addCommentOverlay } = useAddComment()
   const { updateComment, overlay: editOverlay } = useEditComment()
   const { deleteComment } = useDeleteComment()
+  const { likeComment } = useLikeComment()
 
-  const likeCommentMutation = useMutation({ ...commentMutations.likeMutation() })
-  const likeComment = (id: number) => {
+  const handleLike = (id: number) => {
     const currentLikes = comments.find((c: CommentItem) => c.id === id)?.likes ?? 0
-    likeCommentMutation.mutate({ id, postId: post.id, likes: currentLikes + 1 })
+    likeComment(post.id, id, currentLikes)
   }
 
   return (
@@ -49,7 +49,7 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
               await updateComment(comment)
             }}
             onDeleteComment={(id) => deleteComment(post.id, id)}
-            onLikeComment={likeComment}
+            onLikeComment={handleLike}
           />
         </div>
         {editOverlay}
