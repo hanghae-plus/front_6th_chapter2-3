@@ -6,9 +6,10 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import type { User } from '@/entities/user';
+import { Post, useDeletePostMutation } from '@/entities/post';
+import { User } from '@/entities/user';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
-import { highlightText } from '@/shared/lib';
+import { highlightText, usePostsFilterStore, useUIStore } from '@/shared/lib';
 import {
   Button,
   Table,
@@ -19,31 +20,52 @@ import {
   TableRow,
 } from '@/shared/ui';
 
-import type { PostWithAuthor } from '../types';
+import { useFilteredPosts } from '../hooks/useFilteredPosts';
 
 interface Props {
-  posts: PostWithAuthor[];
-  searchQuery: string;
-  selectedTag: string;
-  setSelectedTag: (tag: string) => void;
   updateURL: () => void;
-  onClickDeletePost: (id: number) => void;
-  onClickEditPost: (post: PostWithAuthor) => void;
-  onClickDetailPost: (post: PostWithAuthor) => void;
-  onClickUser: (user: User) => void;
 }
 
-export const PostTable = ({
-  posts,
-  searchQuery,
-  selectedTag,
-  setSelectedTag,
-  updateURL,
-  onClickDeletePost,
-  onClickEditPost,
-  onClickDetailPost,
-  onClickUser,
-}: Props) => {
+export const PostTable = ({ updateURL }: Props) => {
+  const { posts } = useFilteredPosts();
+  const { selectedTag, setSelectedTag, searchQuery } = usePostsFilterStore();
+  const {
+    setShowUserModal,
+    setSelectedUser,
+    setSelectedPost,
+    setShowPostDetailDialog,
+    setShowEditDialog,
+  } = useUIStore();
+  const { mutate: deletePost } = useDeletePostMutation({
+    onError: error => {
+      console.error('게시물 삭제 오류:', error);
+    },
+  });
+
+  const handleClickTag = (tag: string) => {
+    setSelectedTag(tag);
+    updateURL();
+  };
+
+  const handleClickDeletePost = (id: number) => {
+    deletePost(id);
+  };
+
+  const handleClickEditPost = (post: Post) => {
+    setSelectedPost(post);
+    setShowEditDialog(true);
+  };
+
+  const handleClickDetailPost = (post: Post) => {
+    setSelectedPost(post);
+    setShowPostDetailDialog(true);
+  };
+
+  const handleClickUser = (user: User) => {
+    setShowUserModal(true);
+    setSelectedUser(user);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -72,10 +94,7 @@ export const PostTable = ({
                           ? UI_CONSTANTS.STYLES.TAG_SELECTED
                           : UI_CONSTANTS.STYLES.TAG_DEFAULT
                       }`}
-                      onClick={() => {
-                        setSelectedTag(tag);
-                        updateURL();
-                      }}
+                      onClick={() => handleClickTag(tag)}
                     >
                       {tag}
                     </span>
@@ -86,7 +105,7 @@ export const PostTable = ({
             <TableCell>
               <div
                 className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => post.author && onClickUser(post.author)}
+                onClick={() => post.author && handleClickUser(post.author)}
               >
                 <img
                   src={post.author?.image}
@@ -115,21 +134,21 @@ export const PostTable = ({
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => onClickDetailPost(post)}
+                  onClick={() => handleClickDetailPost(post)}
                 >
                   <MessageSquare className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => onClickEditPost(post)}
+                  onClick={() => handleClickEditPost(post)}
                 >
                   <Edit2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => onClickDeletePost(post.id)}
+                  onClick={() => handleClickDeletePost(post.id)}
                 >
                   <Trash2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
                 </Button>

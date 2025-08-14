@@ -1,6 +1,8 @@
 import { atom, useAtom } from 'jotai';
 
+import { Comment } from '@/entities/comment';
 import { Post } from '@/entities/post';
+import { User } from '@/entities/user';
 
 import { Nullable } from '../..';
 
@@ -12,7 +14,8 @@ export interface UIState {
   showPostDetailDialog: boolean;
   showUserModifyDialog: boolean;
   selectedPost: Nullable<Post>;
-  searchQuery: string;
+  selectedComment: Nullable<Comment>;
+  selectedUser: Nullable<User>;
 }
 
 const initialUIState: UIState = {
@@ -23,7 +26,8 @@ const initialUIState: UIState = {
   showPostDetailDialog: false,
   showUserModifyDialog: false,
   selectedPost: null,
-  searchQuery: '',
+  selectedComment: null,
+  selectedUser: null,
 };
 
 export const dialogAtom = atom<UIState>(initialUIState);
@@ -77,10 +81,17 @@ const selectedPostAtom = atom(
   }
 );
 
-const searchQueryAtom = atom(
-  get => get(dialogAtom).searchQuery,
-  (get, set, newValue: string) => {
-    set(dialogAtom, { ...get(dialogAtom), searchQuery: newValue });
+const selectedCommentAtom = atom(
+  get => get(dialogAtom).selectedComment,
+  (get, set, newValue: Nullable<Comment>) => {
+    set(dialogAtom, { ...get(dialogAtom), selectedComment: newValue });
+  }
+);
+
+const selectedUserAtom = atom(
+  get => get(dialogAtom).selectedUser,
+  (get, set, newValue: Nullable<User>) => {
+    set(dialogAtom, { ...get(dialogAtom), selectedUser: newValue });
   }
 );
 
@@ -98,7 +109,8 @@ export const useUIStore = () => {
   );
   const [showUserModal, setShowUserModal] = useAtom(showUserModalAtom);
   const [selectedPost, setSelectedPost] = useAtom(selectedPostAtom);
-  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+  const [selectedComment, setSelectedComment] = useAtom(selectedCommentAtom);
+  const [selectedUser, setSelectedUser] = useAtom(selectedUserAtom);
 
   return {
     showAddDialog,
@@ -115,7 +127,9 @@ export const useUIStore = () => {
     setShowUserModal,
     selectedPost,
     setSelectedPost,
-    searchQuery,
-    setSearchQuery,
+    selectedComment,
+    setSelectedComment,
+    selectedUser,
+    setSelectedUser,
   };
 };

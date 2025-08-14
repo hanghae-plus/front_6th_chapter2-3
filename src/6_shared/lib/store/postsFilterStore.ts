@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom, useAtom } from 'jotai';
 
 import { SortOrder } from '../..';
 
@@ -109,3 +109,27 @@ export const urlSyncAtom = atom(
     set(postsFilterAtom, newState);
   }
 );
+
+export const usePostsFilterStore = () => {
+  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+  const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom);
+  const [sortBy, setSortBy] = useAtom(sortByAtom);
+  const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
+  const [skip, setSkip] = useAtom(paginationAtom);
+  const [limit, setLimit] = useAtom(paginationAtom);
+
+  return {
+    searchQuery,
+    setSearchQuery,
+    selectedTag,
+    setSelectedTag,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    skip,
+    setSkip,
+    limit,
+    setLimit,
+  };
+};

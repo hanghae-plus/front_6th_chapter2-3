@@ -42,9 +42,20 @@ interface ButtonProps
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export const Button = ({ children, onClick, ...props }: ButtonProps) => {
+export const Button = ({
+  variant,
+  size,
+  className,
+  children,
+  onClick,
+  ...props
+}: ButtonProps) => {
   return (
-    <button onClick={onClick} {...props}>
+    <button
+      className={buttonVariants({ variant, size, className })}
+      onClick={onClick}
+      {...props}
+    >
       {children}
     </button>
   );

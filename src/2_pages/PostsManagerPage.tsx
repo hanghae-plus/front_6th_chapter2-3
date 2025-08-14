@@ -30,24 +30,15 @@ import { useEffect, useState } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import {
-  Edit2,
-  MessageSquare,
-  Plus,
-  Search,
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-} from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
-import { useDeletePostMutation, usePutPostMutation } from '@/entities/post';
 import type { User } from '@/entities/user';
 import { PostDetailDialog } from '@/features/post-management';
 import { AddPostFormDialog } from '@/features/post-management/ui/AddPostFormDialog';
-import { useFilteredPosts } from '@/features/posts-list';
+import { EditPostFormDialog } from '@/features/post-management/ui/EditPostFormDialog';
+import { PostTable } from '@/features/posts-list';
 import { SelectTag } from '@/features/select-tag';
 import { API_CONSTANTS, UI_CONSTANTS } from '@/shared/constants';
-import { highlightText } from '@/shared/lib';
 import { useUIStore } from '@/shared/lib/store/UIStore';
 import {
   Button,
@@ -65,12 +56,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
 } from '@/shared/ui';
 
@@ -141,38 +126,15 @@ const PostsManager = () => {
 
   // ======== 개선 =======
   const {
-    showEditDialog,
     showAddCommentDialog,
     showEditCommentDialog,
-    showPostDetailDialog,
     showUserModal,
     setShowAddDialog,
-    setShowEditDialog,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
     setShowPostDetailDialog,
     setShowUserModal,
   } = useUIStore();
-
-  const { posts } = useFilteredPosts({
-    tag: selectedTag,
-    search: searchQuery,
-  });
-  console.log('posts', posts);
-  const { mutate: updatePost } = usePutPostMutation({
-    onError: (error: unknown) => {
-      console.error('게시물 업데이트 오류:', error);
-    },
-    onSuccess: () => {
-      setShowEditDialog(false);
-    },
-  });
-
-  const { mutate: deletePost } = useDeletePostMutation({
-    onError: (error: unknown) => {
-      console.error('게시물 삭제 오류:', error);
-    },
-  });
 
   // ==================== 댓글 관리 함수들 ====================
   /**
@@ -300,17 +262,6 @@ const PostsManager = () => {
   };
 
   // ==================== UI 인터랙션 함수들 ====================
-  /**
-   * 게시물 상세 모달 열기
-   * - 선택된 게시물 설정
-   * - 해당 게시물의 댓글 로드 (캐싱 적용)
-   * - 상세 다이얼로그 표시
-   */
-  const openPostDetail = post => {
-    setSelectedPost(post);
-    fetchComments(post.id);
-    setShowPostDetailDialog(true);
-  };
 
   /**
    * 사용자 정보 모달 열기
@@ -362,114 +313,6 @@ const PostsManager = () => {
     setSortOrder(params.get('sortOrder') || 'asc');
     setSelectedTag(params.get('tag') || '');
   }, [location.search]);
-
-  // ==================== 렌더링 함수들 ====================
-  /**
-   * 게시물 테이블 렌더링
-   * - 게시물 목록을 테이블 형태로 표시
-   * - 각 행에 게시물 정보, 작성자, 반응, 액션 버튼 포함
-   * - 검색어 하이라이트 적용
-   * - 태그 클릭으로 필터링 기능
-   */
-  const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className='w-[50px]'>ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className='w-[150px]'>작성자</TableHead>
-          <TableHead className='w-[150px]'>반응</TableHead>
-          <TableHead className='w-[150px]'>작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map(post => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className='space-y-1'>
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className='flex flex-wrap gap-1'>
-                  {post.tags?.map(tag => (
-                    <span
-                      key={tag}
-                      className={`${UI_CONSTANTS.STYLES.TAG_SIZE} ${
-                        selectedTag === tag
-                          ? UI_CONSTANTS.STYLES.TAG_SELECTED
-                          : UI_CONSTANTS.STYLES.TAG_DEFAULT
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag);
-                        updateURL();
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => openUserModal(post.author)}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className={`${UI_CONSTANTS.ICON_SIZES.LARGE} rounded-full`}
-                />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <ThumbsUp className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                <span>
-                  {post.reactions?.likes ||
-                    API_CONSTANTS.REACTIONS.DEFAULT_LIKES}
-                </span>
-                <ThumbsDown className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                <span>
-                  {post.reactions?.dislikes ||
-                    API_CONSTANTS.REACTIONS.DEFAULT_DISLIKES}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => openPostDetail(post)}
-                >
-                  <MessageSquare className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditDialog(true);
-                  }}
-                >
-                  <Edit2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => deletePost(post.id)}
-                >
-                  <Trash2 className={UI_CONSTANTS.ICON_SIZES.MEDIUM} />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -536,7 +379,7 @@ const PostsManager = () => {
           {loading ? (
             <div className='flex justify-center p-4'>로딩 중...</div>
           ) : (
-            renderPostTable()
+            <PostTable updateURL={updateURL} />
           )}
 
           {/* 페이지네이션 */}
@@ -586,33 +429,7 @@ const PostsManager = () => {
       <AddPostFormDialog />
 
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Input
-              placeholder='제목'
-              value={selectedPost?.title || ''}
-              onChange={e =>
-                setSelectedPost({ ...selectedPost, title: e.target.value })
-              }
-            />
-            <Textarea
-              rows={UI_CONSTANTS.TEXTAREA_ROWS.MEDIUM}
-              placeholder='내용'
-              value={selectedPost?.body || ''}
-              onChange={e =>
-                setSelectedPost({ ...selectedPost, body: e.target.value })
-              }
-            />
-            <Button onClick={() => updatePost(selectedPost)}>
-              게시물 업데이트
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditPostFormDialog />
 
       {/* 댓글 추가 대화상자 */}
       <Dialog

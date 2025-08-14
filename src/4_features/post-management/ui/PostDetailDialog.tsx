@@ -1,12 +1,13 @@
 import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 
 import {
+  Comment,
   useDeleteCommentMutation,
   useGetCommentsQuery,
   useLikeCommentMutation,
 } from '@/entities/comment';
 import { UI_CONSTANTS } from '@/shared/constants';
-import { highlightText, useUIStore } from '@/shared/lib';
+import { highlightText, usePostsFilterStore, useUIStore } from '@/shared/lib';
 import { Button, ContentDialog, LoadingSpinner } from '@/shared/ui';
 
 export const PostDetailDialog = () => {
@@ -14,10 +15,11 @@ export const PostDetailDialog = () => {
     showPostDetailDialog,
     setShowPostDetailDialog,
     selectedPost,
-    searchQuery,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
+    setSelectedComment,
   } = useUIStore();
+  const { searchQuery } = usePostsFilterStore();
 
   const { data: commentsData, isLoading } = useGetCommentsQuery(
     selectedPost?.id ?? null
@@ -45,9 +47,8 @@ export const PostDetailDialog = () => {
     likeComment({ commentId, postId: selectedPost.id });
   };
 
-  const handleClickEditComment = (commentId: number) => {
-    // TODO
-    // setSelectedComment(commentId);
+  const handleClickEditComment = (comment: Comment) => {
+    setSelectedComment(comment);
     setShowEditCommentDialog(true);
   };
 
@@ -100,7 +101,7 @@ export const PostDetailDialog = () => {
                     <Button
                       variant='ghost'
                       size='sm'
-                      onClick={() => handleClickEditComment(comment.id)}
+                      onClick={() => handleClickEditComment(comment)}
                     >
                       <Edit2 className={UI_CONSTANTS.ICON_SIZES.SMALL} />
                     </Button>

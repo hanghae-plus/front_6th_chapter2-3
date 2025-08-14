@@ -6,16 +6,14 @@ import {
   useGetPostsQuery,
 } from '@/entities/post';
 import { useGetUsersQuery } from '@/entities/user';
+import { usePostsFilterStore } from '@/shared/index';
 
 import { getPostsWithAuthor } from '../lib/post.util';
 import { PostWithAuthor } from '../types';
 
-interface Props {
-  tag: string;
-  search: string;
-}
+export const useFilteredPosts = () => {
+  const { selectedTag, searchQuery } = usePostsFilterStore();
 
-export const useFilteredPosts = ({ tag, search }: Props) => {
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
 
   const { data: usersData } = useGetUsersQuery({ limit: 10, select: 'id' });
@@ -23,10 +21,10 @@ export const useFilteredPosts = ({ tag, search }: Props) => {
 
   // 조건부로 쿼리 실행
   const { data: postsByTagData } = useGetPostsByTagQuery(
-    tag && tag !== 'all' ? tag : ''
+    selectedTag && selectedTag !== 'all' ? selectedTag : ''
   );
   const { data: postsBySearchData } = useGetPostsBySearchQuery(
-    search ? search : ''
+    searchQuery ? searchQuery : ''
   );
 
   const postsWithAuthor = useMemo(() => {
@@ -49,13 +47,13 @@ export const useFilteredPosts = ({ tag, search }: Props) => {
 
   useEffect(() => {
     // 검색어가 있으면 검색 결과 사용
-    if (search && search.trim()) {
+    if (searchQuery && searchQuery.trim()) {
       setPosts(postsWithAuthorBySearch);
       return;
     }
 
     // 태그가 있고 'all'이 아니면 태그 결과 사용
-    if (tag && tag !== 'all' && tag.trim()) {
+    if (selectedTag && selectedTag !== 'all' && selectedTag.trim()) {
       setPosts(postsWithAuthorByTag);
       return;
     }
@@ -66,8 +64,8 @@ export const useFilteredPosts = ({ tag, search }: Props) => {
     postsWithAuthor,
     postsWithAuthorByTag,
     postsWithAuthorBySearch,
-    search,
-    tag,
+    searchQuery,
+    selectedTag,
   ]);
 
   return {
