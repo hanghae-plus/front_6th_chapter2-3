@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useComments } from "@/features/comment/read-comment/model/useComments"
+import { useCreateComment } from "@/features/comment/create-comment/model"
 import { CommentItem } from "@/entities/comment/ui"
 import { commentKeys } from "@/entities/comment/model/query-key"
 import { Comment, CreateComment } from "@/shared/types"
@@ -24,21 +25,62 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null) // 선택된 댓글
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 }) // 새 댓글 데이터
 
+  // postId가 변경될 때 상태 초기화
+  useEffect(() => {
+    if (postId) {
+      setNewComment((prev) => ({ ...prev, postId }))
+      setSelectedComment(null)
+      setShowAddCommentDialog(false)
+    }
+  }, [postId])
+
+  // postId가 유효할 때만 쿼리 실행
   const { data, isLoading, error } = usePostDetail(postId)
-  const { data: commentsData } = useComments(postId || -1)
+  const { data: commentsData } = useComments(postId)
+  const createCommentMutation = useCreateComment()
+
+  // postId가 없거나 다이얼로그가 닫혀있으면 렌더링하지 않음
+  if (!postId || !isOpen) return null
+
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>로딩 중</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-8">로딩 중...</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  // 에러가 있거나 데이터가 없을 때
+  if (error || !data) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>오류</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-8 text-red-500">데이터를 불러오는데 실패했습니다.</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  const { post } = data
 
   const addComment = async () => {
     if (!postId) return
 
     try {
-      await HttpClient.post<Comment>("/comments/add", {
+      await createCommentMutation.mutateAsync({
         body: newComment.body,
         postId: postId,
         userId: newComment.userId,
       })
-
-      // 댓글 추가 후 쿼리 무효화하여 데이터 새로고침
-      queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] })
 
       setShowAddCommentDialog(false)
       setNewComment({ body: "", postId: 0, userId: 1 })
@@ -139,36 +181,6 @@ export const DetailPostDialog = ({ postId }: DetailPostDialogProps) => {
       </div>
     )
   }
-
-  if (!postId || !isOpen) return null
-
-  if (isLoading) {
-    return (
-      <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>로딩 중</DialogTitle>
-          </DialogHeader>
-          <div className="flex justify-center p-8">로딩 중...</div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
-  if (error || !data) {
-    return (
-      <Dialog open={isOpen} onOpenChange={() => hideDialog("POST_DETAIL")}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>오류</DialogTitle>
-          </DialogHeader>
-          <div className="flex justify-center p-8 text-red-500">데이터를 불러오는데 실패했습니다.</div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
-  const { post } = data
 
   return (
     <>

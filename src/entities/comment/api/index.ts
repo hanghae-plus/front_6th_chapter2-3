@@ -1,5 +1,5 @@
 import { HttpClient } from "@/shared/api/http"
-import type { Comment, CommentPaginatedResponse } from "@/shared/types"
+import type { Comment, CommentPaginatedResponse, CreateComment } from "@/shared/types"
 
 // 댓글 목록 조회
 export const getCommentsByPost = (postId: number) => {
@@ -11,8 +11,7 @@ export const getCommentsByPost = (postId: number) => {
 export const getComment = (id: number) => HttpClient.get<Comment>(`/comments/${id}`)
 
 // 댓글 생성
-export const createComment = (comment: { body: string; postId: number; userId: number }) =>
-  HttpClient.post<Comment>("/comments", comment)
+export const createComment = (comment: CreateComment) => HttpClient.post<Comment>("/comments/add", comment)
 
 // 댓글 수정
 export const updateComment = (id: number, updates: { body?: string }) =>
