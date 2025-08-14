@@ -194,11 +194,26 @@ export class HttpClient {
 
 // 기본 HTTP 클라이언트 인스턴스 생성
 export const httpClient = new HttpClient({
+  baseURL: import.meta.env.DEV ? "" : "https://dummyjson.com",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 })
+
+// 프로덕션에서는 dev 프록시가 없으므로 "/api" 프리픽스를 제거한다
+if (!import.meta.env.DEV) {
+  httpClient.addRequestInterceptor((config) => {
+    try {
+      const url = new URL(config.url)
+      url.pathname = url.pathname.replace(/^\/api/, "")
+      return { ...config, url: url.toString() }
+    } catch {
+      // 절대 URL이 아닐 경우(이 경우는 거의 없음) 안전하게 치환
+      return { ...config, url: config.url.replace(/^\/api/, "") }
+    }
+  })
+}
 
 // 편의 함수들
 export const api = {

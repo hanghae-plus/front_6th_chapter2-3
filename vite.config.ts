@@ -14,7 +14,6 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        // target: 'https://jsonplaceholder.typicode.com',
         target: "https://dummyjson.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),

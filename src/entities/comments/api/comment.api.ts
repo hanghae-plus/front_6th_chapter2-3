@@ -22,7 +22,7 @@ export const getCommentsByPostId = async (requestParams: z.infer<typeof getComme
   const parsedRequestParams = getCommentsByPostIdRequestParamsSchema.parse(requestParams)
 
   const response = await httpClient.get<z.infer<typeof getCommentsByPostIdResponseSchema>>(
-    `api/comments/post/${parsedRequestParams.postId}`,
+    `/api/comments/post/${parsedRequestParams.postId}`,
   )
 
   return getCommentsByPostIdResponseSchema.parse(response.data)
