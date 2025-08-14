@@ -1,13 +1,12 @@
 import { usePostFilter } from '../model/usePostFilter';
 
-import { Tag } from '@/entities/post/model/types';
+import { useFetchTags } from '@/entities/post/model/usePosts';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/shared/ui';
 
-interface PostFilterProps {
-  tags: Tag[];
-}
+export const PostFilter = () => {
+  const { data: tagsData } = useFetchTags();
+  const tags = tagsData || [];
 
-export const PostFilter = ({ tags }: PostFilterProps) => {
   const { selectedTag, sortBy, sortOrder, setSelectedTag, setSortBy, setSortOrder } =
     usePostFilter();
 
