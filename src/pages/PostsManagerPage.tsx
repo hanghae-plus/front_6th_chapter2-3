@@ -42,8 +42,6 @@ const PostsManager = () => {
     tags,
     selectedTag,
     showPostDetailDialog,
-    setPosts,
-    setTotal,
     setSkip,
     setLimit,
     setSearchQuery,
@@ -53,14 +51,10 @@ const PostsManager = () => {
     setShowAddDialog,
     setShowEditDialog,
     setNewPost,
-    setLoading,
-    setTags,
     setSelectedTag,
     setShowPostDetailDialog,
     updateURL,
-    handleFetchTags,
     openPostDetail,
-    handleFetchPosts,
     handleSearchPosts,
     handleFetchPostsByTag,
     handleAddPost,
@@ -79,7 +73,6 @@ const PostsManager = () => {
     newComment,
     showAddCommentDialog,
     showEditCommentDialog,
-    setComments,
     setSelectedComment,
     setNewComment,
     setShowAddCommentDialog,
@@ -92,8 +85,7 @@ const PostsManager = () => {
   } = useCommentFeature();
 
   // User Feature 사용
-  const { showUserModal, selectedUser, setShowUserModal, setSelectedUser, openUserModal } =
-    useUserFeature();
+  const { showUserModal, selectedUser, setShowUserModal, openUserModal } = useUserFeature();
 
   // 게시물 상세 보기 (댓글도 함께 가져오기)
   const openPostDetailWithComments = (post: any) => {
