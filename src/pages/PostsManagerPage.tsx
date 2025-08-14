@@ -35,6 +35,7 @@ import { usePageNavigateMode } from "../features/posts/fetch-posts-by-mode/page-
 import { useSortMode } from "../features/posts/fetch-posts-by-mode/sort-mode/useSortMode.ts"
 import { useAddPost } from "../features/posts/add-post/useAddPost.ts"
 import { useUpdatePost } from "../features/posts/update-post/useUpdatePost.ts"
+import { useDetailPost } from "../features/posts/detail-post/useDetailPost.ts"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -57,7 +58,7 @@ const PostsManager = () => {
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
+  // const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
@@ -82,6 +83,7 @@ const PostsManager = () => {
 
   const addPost = useAddPost()
   const updatePost = useUpdatePost()
+  const detailPost = useDetailPost()
 
   // 게시물 업데이트
   // const updatePost = async () => {
@@ -234,55 +236,59 @@ const PostsManager = () => {
   }, [location.search])
 
   // 댓글 렌더링
-  const renderComments = (postId) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2 ">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              {/* <span className="truncate">{highlightText(comment.body, searchQuery)}</span> */}
-              <span className="truncate">
-                <HighlightText text={comment.body} highlight={searchQuery} />
-              </span>
+  const renderComments = (postId) => {
+    console.log("댓글 렌더링", postId)
+    console.log(comments)
+    return (
+      <div className="mt-2">
+        <div className="flex items-center justify-between mb-2 ">
+          <h3 className="text-sm font-semibold">댓글</h3>
+          <Button
+            size="sm"
+            onClick={() => {
+              setNewComment((prev) => ({ ...prev, postId }))
+              setShowAddCommentDialog(true)
+            }}
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            댓글 추가
+          </Button>
+        </div>
+        <div className="space-y-1">
+          {comments[postId]?.map((comment) => (
+            <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
+              <div className="flex items-center space-x-2 overflow-hidden">
+                <span className="font-medium truncate">{comment.user.username}:</span>
+                {/* <span className="truncate">{highlightText(comment.body, searchQuery)}</span> */}
+                <span className="truncate">
+                  <HighlightText text={comment.body} highlight={searchQuery} />
+                </span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
+                  <ThumbsUp className="w-3 h-3" />
+                  <span className="ml-1 text-xs">{comment.likes}</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedComment(comment)
+                    setShowEditCommentDialog(true)
+                  }}
+                >
+                  <Edit2 className="w-3 h-3" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -373,7 +379,7 @@ const PostsManager = () => {
                   // fetchPostsByTag(tag)
                   updateURL()
                 },
-                onOpenDetail: (post) => openPostDetail(post),
+                onOpenDetail: (post) => detailPost.actions.detail(post),
                 onEdit: (post) => updatePost.action.edit(post),
                 onDelete: (id) => deletePost(id),
                 onAuthorClick: (author) => author && openUserModal(author),
@@ -502,21 +508,24 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
-      {/* <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+      <Dialog
+        open={detailPost.modal.isOpen}
+        onOpenChange={(open) => (open ? detailPost.modal.open() : detailPost.modal.close())}
+      >
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              <HighlightText text={selectedPost?.title} highlight={searchQuery} />
+              <HighlightText text={detailPost.state.selectedPost?.title || ""} highlight={searchQuery} />
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p>
-              <HighlightText text={selectedPost?.body} highlight={searchQuery} />
+              <HighlightText text={detailPost.state.selectedPost?.body || ""} highlight={searchQuery} />
             </p>
-            {renderComments(selectedPost?.id)}
+            {renderComments(detailPost.state.selectedPost?.id || 0)}
           </div>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
