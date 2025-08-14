@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from "node:url"
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.NODE_ENV === "production" ? "/front_6th_chapter2-3" : "/",
   plugins: [react()],
   resolve: {
     alias: {
