@@ -24,7 +24,7 @@ export function PostActions({ post, className, ...rest }: PostActionsProps) {
 
   const handleEditClick = () => {
     setSelectedPost(post)
-    openDialog(DialogType.POST_DETAIL)
+    openDialog(DialogType.EDIT_POST)
   }
 
   const handleDeleteClick = async () => {
