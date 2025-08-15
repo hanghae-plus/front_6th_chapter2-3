@@ -53,7 +53,8 @@ export const PostTable = ({ onUserClick, onPostDetailClick }: PostTableProps) =>
     });
   };
 
-  const handleUserClick = (user: UserType) => {
+  const handleUserClick = (user: UserType | undefined) => {
+    if (!user) return;
     onUserClick?.(user);
   };
 

@@ -1,10 +1,10 @@
-import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
+import { Edit2, ThumbsUp, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { PostType, UserType } from '../entities';
 import {
   CreatePostButton,
+  CreateCommentButton,
   DetailUserModal,
   TagSelectFilter,
   SortOrderSelectFilter,
@@ -153,16 +153,7 @@ const PostsManager = () => {
     <div className='mt-2'>
       <div className='flex items-center justify-between mb-2'>
         <h3 className='text-sm font-semibold'>댓글</h3>
-        <Button
-          size='sm'
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }));
-            setShowAddCommentDialog(true);
-          }}
-        >
-          <Plus className='w-3 h-3 mr-1' />
-          댓글 추가
-        </Button>
+        <CreateCommentButton postId={postId} />
       </div>
       <div className='space-y-1'>
         {comments[postId]?.map((comment) => (
@@ -218,24 +209,6 @@ const PostsManager = () => {
           <Pagination />
         </div>
       </CardContent>
-
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-            <DialogDescription>선택한 게시물에 댓글을 추가합니다.</DialogDescription>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* 댓글 수정 대화상자 */}
       <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
