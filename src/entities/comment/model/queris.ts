@@ -53,17 +53,14 @@ export const useDeleteComment = () => {
   return useMutation({
     mutationFn: ({ id }: { id: number; postId: number }) => deleteComment(id),
     onSuccess: (_res, { postId, id }) => {
-      queryClient.setQueryData<CommentsResponse>(
-        commentQueryKeys.list(postId),
-        (old) => {
-          if (!old) return old
-          return {
-            ...old,
-            comments: old.comments.filter((comment) => comment.id !== id),
-            total: Math.max(0, (old.total ?? 0) - 1),
-          }
+      queryClient.setQueryData<CommentsResponse>(commentQueryKeys.list(postId), (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          comments: old.comments.filter((comment) => comment.id !== id),
+          total: Math.max(0, (old.total ?? 0) - 1),
         }
-      )
+      })
+    },
   })
-
 }
