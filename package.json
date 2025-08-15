@@ -5,14 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "postbuild": "cp dist/index.html dist/404.html",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.85.3",
+    "@tanstack/react-query-devtools": "^5.85.3",
+    "gh-pages": "^6.3.0",
     "jotai": "^2.13.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

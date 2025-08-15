@@ -5,9 +5,9 @@ interface GetUserParams {
   id: number;
 }
 export const getUser = async ({ id }: GetUserParams): Promise<UserResponse> => {
-  return api<UserResponse>(`/api/users/${id}`);
+  return api<UserResponse>(`/users/${id}`);
 };
 
 export const getAllUsers = async (): Promise<AllUsersResponse> => {
-  return api<AllUsersResponse>(`/api/users?limit=0&select=username,image`);
+  return api<AllUsersResponse>(`/users?limit=0&select=username,image`);
 };
