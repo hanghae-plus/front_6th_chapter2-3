@@ -1,22 +1,25 @@
 import { Edit2, ThumbsUp, Trash2 } from "lucide-react"
 import { Button } from "@shared/ui"
 import { CommentItem as CommentType } from "../model"
-import { highlightText } from "@shared/lib"
+import type { ReactElement } from "react"
+
+type CommentWithHighlight = CommentType & {
+  highlightedBody?: ReactElement | null
+}
 
 interface CommentItemProps {
-  comment: CommentType
-  searchQuery: string
+  comment: CommentWithHighlight
   onEdit: (comment: CommentType) => void
   onDelete: (id: number) => void
   onLike: (id: number) => void
 }
 
-export const CommentItem = ({ comment, searchQuery, onEdit, onDelete, onLike }: CommentItemProps) => {
+export const CommentItem = ({ comment, onEdit, onDelete, onLike }: CommentItemProps) => {
   return (
     <div className="flex items-center justify-between text-sm border-b pb-1">
       <div className="flex items-center space-x-2 overflow-hidden">
         <span className="font-medium truncate">{comment.user.username}:</span>
-        <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+        <span className="truncate">{comment.highlightedBody || comment.body}</span>
       </div>
       <div className="flex items-center space-x-1">
         <Button variant="ghost" size="sm" onClick={() => onLike(comment.id)}>
