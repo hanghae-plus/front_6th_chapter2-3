@@ -9,9 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "gh-pages": "tsc -b && vite build && cp dist/index.html dist/404.html && gh-pages -d dist"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
@@ -22,12 +24,18 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-compat": "^6.0.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
@@ -40,6 +48,8 @@
     "typescript-eslint": "^8.39.0",
     "vite": "^7.1.1",
     "vitest": "^3.2.4",
-    "vitest-browser-react": "^1.0.1"
+    "vitest-browser-react": "^1.0.1",
+    "@tanstack/react-query-devtools": "^5.85.3",
+    "gh-pages": "^6.3.0"
   }
 }
