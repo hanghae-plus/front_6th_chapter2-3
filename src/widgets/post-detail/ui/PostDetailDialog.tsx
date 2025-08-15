@@ -4,12 +4,10 @@ import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post/model"
 import { CommentList, CommentListProvider } from "@features/comment/view-comment-list"
 import { commentQueries } from "@entities/comment/api/queries"
-import type { CommentItem } from "@entities/comment/model"
 import { useAddComment } from "@features/comment/add-comment"
 import { useEditComment } from "@features/comment/edit-comment"
 import { useDeleteComment } from "@features/comment/delete-comment"
 import { useLikeComment } from "@features/comment/like-comment"
-import { queryClient } from "@shared/config/query-client"
 
 interface PostDetailDialogProps {
   isOpen: boolean
@@ -26,21 +24,8 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
 
   const { addComment, overlay: addCommentOverlay } = useAddComment()
   const { updateComment, overlay: editOverlay } = useEditComment()
-  const { deleteComment } = useDeleteComment()
-  const { likeComment } = useLikeComment()
-
-  // NOTE: 낙관업데이트를 위해 해당 방식으로 처리
-  const handleLike = (id: number) => {
-    const latestCommentsQuery = queryClient.getQueryData<{ comments: CommentItem[]; total: number }>(
-      commentQueries.byPost(post.id),
-    )
-    const latestComments = latestCommentsQuery?.comments ?? []
-    const comment = latestComments.find((c: CommentItem) => c.id === id)
-
-    if (comment) {
-      likeComment(comment)
-    }
-  }
+  const { deleteComment } = useDeleteComment(post.id)
+  const { likeComment } = useLikeComment(post.id)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -55,13 +40,8 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
             editComment={async (comment) => {
               await updateComment(comment)
             }}
-            deleteComment={(id) => {
-              const comment = comments.find((c: CommentItem) => c.id === id)
-              if (comment) {
-                deleteComment(comment)
-              }
-            }}
-            likeComment={handleLike}
+            deleteComment={deleteComment}
+            likeComment={likeComment}
           >
             <CommentList comments={comments} searchQuery={searchQuery} />
           </CommentListProvider>
