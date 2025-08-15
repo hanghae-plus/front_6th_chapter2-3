@@ -1,0 +1,1 @@
+export { usePostList, type PostWithUser } from './model';

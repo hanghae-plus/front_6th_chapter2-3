@@ -1,0 +1,1 @@
+export { usePostSearch } from './usePostSearch';

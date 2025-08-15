@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+on:
+  # main 브랜치에 push될 때 실행
+  push:
+    branches: [main]
+
+  # PR이 main에 merge될 때도 실행
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+  # 수동 실행 가능
+  workflow_dispatch:
+
+# GitHub Token 권한 설정
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 동시 실행 방지 (배포 충돌 방지)
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  # 빌드 및 gh-pages 브랜치에 배포
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 전체 히스토리 가져오기
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy to GitHub Pages - ${{ github.sha }}'
+          tag_name: 'v${{ github.run_number }}'
+          tag_message: 'Release v${{ github.run_number }}'
+          enable_jekyll: false
+          disable_nojekyll: true
