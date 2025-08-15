@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { updateUrl } from '../lib/updateUrl';
 import type { HomeQueryParams, SortBy, SortOrder } from './useInitialQueryParams';
@@ -28,6 +28,7 @@ export function useUrlSync(
 ) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isInitialMount = useRef(true);
 
   const updateURL = () => {
     updateUrl(navigate, {
@@ -40,7 +41,12 @@ export function useUrlSync(
     });
   };
 
+  // 상태 변경 시 URL 업데이트 (초기 마운트 제외)
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     updateURL();
   }, [
     params.skip,
