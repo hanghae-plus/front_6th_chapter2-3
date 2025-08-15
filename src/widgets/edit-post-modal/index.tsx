@@ -1,17 +1,19 @@
+import { useAtom } from "jotai"
 import { PostDTO } from "../../entities/posts/api"
+import { editingPostAtom, isEditPostModalOpenAtom } from "../../features/edit-post/model/atoms"
 import EditPostForm from "../../features/edit-post/ui/EditPostForm"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../shared/ui"
 
 interface EditPostModalProps {
-  post: PostDTO | null
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
   onUpdatePost: (post: PostDTO | null) => void
 }
 
-const EditPostModal = ({ post, isOpen, onOpenChange, onUpdatePost }: EditPostModalProps) => {
+const EditPostModal = ({ onUpdatePost }: EditPostModalProps) => {
+  const [isOpen, setIsOpen] = useAtom(isEditPostModalOpenAtom)
+  const [post] = useAtom(editingPostAtom)
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>게시물 수정</DialogTitle>

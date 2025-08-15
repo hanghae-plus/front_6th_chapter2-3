@@ -35,10 +35,14 @@ import PostDetailModal from "../../widgets/post-detail-modal"
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
 
 import { useSetAtom } from "jotai"
-import { isAddPostModalOpenAtom } from "../../features/add-post/model/atoms"
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { isAddPostModalOpenAtom } from "../../features/add-post/model/atoms"
+import {
+  editingPostAtom,
+  isEditPostModalOpenAtom,
+} from "../../features/edit-post/model/atoms"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui"
 import {
   addPostApi,
@@ -80,19 +84,19 @@ const PostsManager = () => {
   // 검색 관련
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [selectedPost, setSelectedPost] = useState<PostDTO | null>(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
 
   // 모달 관련
-  const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
 
   const setIsAddPostModalOpen = useSetAtom(isAddPostModalOpenAtom)
+  const setEditingPost = useSetAtom(editingPostAtom)
+  const setIsEditPostModalOpen = useSetAtom(isEditPostModalOpenAtom)
 
   // 현재 선택된 태그,, 및 저장
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
@@ -178,7 +182,7 @@ const PostsManager = () => {
     mutationFn: updatePostApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] })
-      setShowEditDialog(false)
+      setIsEditPostModalOpen(false)
     },
     onError: (error) => {
       console.error("게시물 업데이트 오류:", error)
@@ -205,10 +209,10 @@ const PostsManager = () => {
   }
 
   // 댓글 가져오기
-  const { data: commentsData, isLoading: commentsLoading } = useQuery({
-    queryKey: ["comments", selectedPost?.id],
-    queryFn: () => fetchCommentsApi(selectedPost?.id),
-    enabled: !!selectedPost?.id,
+  const { data: commentsData, isLoading: commentsLoading } = useQuery<any>({
+    queryKey: ["comments", postsData?.posts.find(p => p.id === editingPostAtom)?.id],
+    queryFn: () => fetchCommentsApi(postsData?.posts.find(p => p.id === editingPostAtom)?.id),
+    enabled: !!postsData?.posts.find(p => p.id === editingPostAtom)?.id,
   })
 
   // 댓글 추가
@@ -247,7 +251,7 @@ const PostsManager = () => {
   const { mutate: deleteCommentMutate } = useMutation({
     mutationFn: deleteCommentApi,
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", variables.postId] })
+      queryClient.invalidateQueries({ queryKey: ["comments", (variables as any).postId] })
     },
     onError: (error) => {
       console.error("댓글 삭제 오류:", error)
@@ -269,13 +273,13 @@ const PostsManager = () => {
     },
   })
 
-  const likeComment = (id: number, : numbpostIder) => {
+  const likeComment = (id: number, postId: number) => {
     likeCommentMutate(id)
   }
 
   // 게시물 상세 보기
   const openPostDetail = (post: PostDTO) => {
-    setSelectedPost(post)
+    setEditingPost(post)
     setShowPostDetailDialog(true)
   }
 
@@ -324,8 +328,8 @@ const PostsManager = () => {
               break
 
             case "edit":
-              setSelectedPost(post)
-              setShowEditDialog(true)
+              setEditingPost(post)
+              setIsEditPostModalOpen(true)
               break
 
             case "delete":
@@ -380,18 +384,13 @@ const PostsManager = () => {
 
       <AddPostModal onAddPost={addPostFlow} />
 
-      <EditPostModal
-        post={selectedPost}
-        isOpen={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        onUpdatePost={updatePost}
-      />
+      <EditPostModal onUpdatePost={updatePost} />
 
       <AddCommentModal
         isOpen={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
         onAddComment={addComment}
-        postId={selectedPost?.id}
+        postId={postsData?.posts.find(p => p.id === editingPostAtom)?.id}
       />
 
       <EditCommentModal
@@ -405,7 +404,7 @@ const PostsManager = () => {
         isOpen={showPostDetailDialog}
         onOpenChange={setShowPostDetailDialog}
         comments={commentsData?.comments!}
-        post={selectedPost}
+        post={postsData?.posts.find(p => p.id === editingPostAtom)}
         onAddComment={() => {
           // setNewComment((prev) => ({ ...prev, postId }))
           setShowAddCommentDialog(true)
