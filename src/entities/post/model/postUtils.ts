@@ -60,12 +60,9 @@ export const fetchPostsByTag = async (
   setLoading(false);
 };
 
-// 게시물 상세 보기와 댓글 가져오기 결합
-export const openPostDetailWithComments = (
-  post: Post,
-  openPostDetail: (post: Post) => void,
-  handleFetchComments: (postId: number) => void,
-) => {
+// 게시물 상세 보기 (댓글은 TanStack Query가 자동으로 처리)
+export const openPostDetailWithComments = (post: Post, openPostDetail: (post: Post) => void) => {
   openPostDetail(post);
-  handleFetchComments(post.id);
+  // TanStack Query가 자동으로 댓글을 가져옴
+  // handleFetchComments 호출 불필요
 };

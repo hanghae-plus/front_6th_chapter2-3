@@ -69,7 +69,7 @@ export const CommentList = ({
         {comments.length === 0 ? (
           <div className='text-sm text-gray-500'>댓글이 없습니다.</div>
         ) : (
-          comments.map((comment) => (
+          comments.map((comment: Comment) => (
             <div
               key={comment.id}
               className='flex items-center justify-between text-sm border-b pb-1'

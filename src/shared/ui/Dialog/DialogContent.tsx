@@ -3,11 +3,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { forwardRef } from 'react';
 import { BasePropsWithChildren } from '../../types/common';
 
-interface DialogContentProps
-  extends BasePropsWithChildren,
-    React.ComponentProps<typeof DialogPrimitive.Content> {}
-
-export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
+export const DialogContent = forwardRef<HTMLDivElement, BasePropsWithChildren>(
   ({ className, children, ...props }, ref) => (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className='fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0' />

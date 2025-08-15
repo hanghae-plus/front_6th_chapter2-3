@@ -1,4 +1,4 @@
-import { Comment, NewComment } from '../types';
+import { NewComment } from '../types';
 
 // 순수한 API 호출 함수들 (상태 관리 로직 제거)
 export const fetchComments = async (postId: number) => {
@@ -28,7 +28,7 @@ export const deleteComment = async (id: number) => {
   const response = await fetch(`/api/comments/${id}`, {
     method: 'DELETE',
   });
-  return response;
+  return response.json();
 };
 
 export const likeComment = async (id: number, likes: number) => {

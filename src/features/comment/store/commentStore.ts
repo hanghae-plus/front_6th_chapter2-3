@@ -23,7 +23,7 @@ interface CommentStore {
   clearSelectedComment: () => void;
 }
 
-export const useCommentStore = create<CommentStore>((set, get) => {
+export const useCommentStore = create<CommentStore>((set, _get) => {
   return {
     // Phase 1: 기본 데이터 상태 (기존과 동일한 초기값)
     comments: {},

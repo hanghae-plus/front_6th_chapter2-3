@@ -1,6 +1,5 @@
 import { Tag } from '../types';
 
-// PostsManagerPage.tsx에서 그대로 복사한 Tag 관련 함수들
 // 태그 가져오기
 export const fetchTags = async (setTags: (tags: Tag[]) => void) => {
   try {

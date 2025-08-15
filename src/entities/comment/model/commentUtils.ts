@@ -21,8 +21,6 @@ export const handleAddCommentWithPostId = (
 // 특정 데이터로 댓글 추가하는 함수
 export const handleAddCommentWithData = (
   commentData: NewComment,
-  setComments: (comments: Record<number, Comment[]>) => void,
-  comments: Record<number, Comment[]>,
   setShowAddCommentDialog: (show: boolean) => void,
   setNewComment: (comment: NewComment) => void,
 ) => {

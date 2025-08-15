@@ -7,8 +7,6 @@ import { CommentForm, CommentList } from '../features/comment/ui';
 import { UserProfile } from '../features/user/ui';
 import { openPostDetailWithComments as openPostDetailWithCommentsUtil } from '../entities/post/model';
 import { SearchBar, FilterBar, PostTable, Pagination } from '../widgets';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '../shared/ui';
-import { Plus } from 'lucide-react';
 
 const PostsManager = () => {
   // Post Feature 사용
@@ -40,9 +38,9 @@ const PostsManager = () => {
     setSelectedTag,
     setShowPostDetailDialog,
     updateURL,
+    handleFetchTags,
     openPostDetail,
     handleSearchPosts,
-    handleFetchPostsByTag,
     handleAddPost,
     handleUpdatePost,
     handleDeletePost,
@@ -61,26 +59,19 @@ const PostsManager = () => {
     setNewComment,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
-    handleFetchComments,
     handleUpdateComment,
     handleDeleteComment,
     handleLikeComment,
-    clearNewComment,
-    clearSelectedComment,
     handleAddComment,
   } = useCommentFeature();
 
   // 게시물 상세 보기 (댓글도 함께 가져오기) - entities 함수 사용
   const openPostDetailWithComments = (post: any) => {
-    openPostDetailWithCommentsUtil(post, openPostDetail, handleFetchComments);
+    openPostDetailWithCommentsUtil(post, openPostDetail);
   };
 
   // 댓글 추가 시 postId 설정
   const handleAddCommentWithPostId = () => {
-    console.log('=== 댓글 추가 시도 ===');
-    console.log('selectedPost:', selectedPost);
-    console.log('newComment:', newComment);
-
     if (selectedPost && newComment.body) {
       const commentWithPostId = {
         ...newComment,
@@ -115,7 +106,7 @@ const PostsManager = () => {
             onTagChange={setSelectedTag}
             onSortByChange={setSortBy}
             onSortOrderChange={setSortOrder}
-            onFetchPostsByTag={handleFetchPostsByTag}
+            onFetchPostsByTag={handleFetchTags}
             updateURL={updateURL}
           />
         </div>
