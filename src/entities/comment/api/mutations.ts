@@ -19,7 +19,8 @@ export const useUpdateComment = () => {
 
   return useMutation({
     mutationFn: putComment,
-    onSuccess: () => {
+    onSuccess: (response) => {
+      console.log('useUpdateComment onSuccess> ', response);
       queryClient.invalidateQueries({ queryKey: ['comments'] });
     },
   });

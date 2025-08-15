@@ -1,14 +1,13 @@
-
 export interface CommentType {
   id: number;
-  likes:number;
+  likes: number;
   postId: number;
   body: string;
   user: {
     fullName: string;
     username: string;
     id: number;
-  }
+  };
 }
 
 export interface GetCommentsResponseType {
@@ -27,4 +26,5 @@ export interface PostCommentRequestType {
 export interface PutCommentRequestType {
   id: number;
   body: string;
+  postId: number;
 }

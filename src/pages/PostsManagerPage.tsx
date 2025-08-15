@@ -11,6 +11,7 @@ import {
   SortOrderSelectFilter,
   SortBySelectFilter,
   SearchInputFilter,
+  UpdateCommentButton,
 } from '../features';
 import {
   Button,
@@ -49,27 +50,6 @@ const PostsManager = () => {
       setComments((prev) => ({ ...prev, [postId]: data.comments }));
     } catch (error) {
       console.error('댓글 가져오기 오류:', error);
-    }
-  };
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: selectedComment.body }),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) =>
-          comment.id === data.id ? data : comment,
-        ),
-      }));
-      setShowEditCommentDialog(false);
-    } catch (error) {
-      console.error('댓글 업데이트 오류:', error);
     }
   };
 
@@ -131,16 +111,7 @@ const PostsManager = () => {
                 <ThumbsUp className='w-3 h-3' />
                 <span className='ml-1 text-xs'>{comment.likes}</span>
               </Button>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => {
-                  setSelectedComment(comment);
-                  setShowEditCommentDialog(true);
-                }}
-              >
-                <Edit2 className='w-3 h-3' />
-              </Button>
+              <UpdateCommentButton comment={comment} />
               <DeleteCommentButton commentId={comment.id} postId={postId} />
             </div>
           </div>
@@ -171,24 +142,6 @@ const PostsManager = () => {
           <Pagination />
         </div>
       </CardContent>
-
-      {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-            <DialogDescription>댓글 내용을 수정합니다.</DialogDescription>
-          </DialogHeader>
-          <div className='space-y-4'>
-            <Textarea
-              placeholder='댓글 내용'
-              value={selectedComment?.body || ''}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* 게시물 상세 보기 대화상자 */}
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
