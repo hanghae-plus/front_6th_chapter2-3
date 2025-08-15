@@ -3,12 +3,13 @@ import { FetcherResponse } from "@/shared/api/response"
 interface FetcherOptions extends Omit<RequestInit, "body" | "method"> {
   body?: object
   searchParams?: Record<string, string | number | boolean | undefined>
-  prefixUrl?: string
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 }
 
+const prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api"
+
 function createFetcherUrl(url: string, options: FetcherOptions = {}) {
-  const { searchParams, prefixUrl = "" } = options
+  const { searchParams } = options
 
   if (prefixUrl) {
     url = `${prefixUrl}${url}`
@@ -37,14 +38,8 @@ function createFetcherUrl(url: string, options: FetcherOptions = {}) {
 }
 
 export async function fetcher(url: string, options: FetcherOptions = {}) {
-  const {
-    body,
-    searchParams,
-    prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api",
-    method = "GET",
-    ...fetchOptions
-  } = options
-  const fetcherUrl = createFetcherUrl(url, { searchParams, prefixUrl })
+  const { body, searchParams, method = "GET", ...fetchOptions } = options
+  const fetcherUrl = createFetcherUrl(url, { searchParams })
 
   const requestOptions: RequestInit = {
     ...fetchOptions,
