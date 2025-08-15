@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Comment, Comments, CommentsResponse, CreateCommentRequest, UpdateCommentRequest } from "./types"
+import { Comments, CommentsResponse, CreateCommentRequest, LikeCommentRequest, UpdateCommentRequest } from "./types"
 import { commentQueryKeys } from "./queryKeys.ts"
-import { createComment, deleteComment, getComments, updateComment } from "../api/api"
+import { createComment, deleteComment, getComments, likeComment, updateComment } from "../api"
 
 // query
 export const useGetCommentsQuery = (postId: number) =>{
@@ -47,7 +47,7 @@ export const useUpdateCommentMutation = () => {
   })
 }
 
-export const useDeleteComment = () => {
+export const useDeleteCommentMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -59,6 +59,35 @@ export const useDeleteComment = () => {
           ...old,
           comments: old.comments.filter((comment) => comment.id !== id),
           total: Math.max(0, (old.total ?? 0) - 1),
+        }
+      })
+    },
+  })
+}
+
+export const useLikeCommentMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (payload: LikeCommentRequest) => {
+      const key = commentQueryKeys.list(payload.postId)
+      const snap = queryClient.getQueryData<CommentsResponse>(key)
+      const current = snap?.comments.find((comment) => comment.id === payload.id)
+      const currentLikes = current?.likes ?? 0
+
+      await likeComment(payload.id, currentLikes)
+
+      return { id: payload.id, postId: payload.postId, likes: currentLikes + 1 }
+    },
+    onSuccess: (res) => {
+      const key = commentQueryKeys.list(res.postId)
+      queryClient.setQueryData<CommentsResponse>(key, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          comments: old.comments.map((comment) =>
+            comment.id === res.id ? { ...comment, likes: res.likes } : comment
+          ),
         }
       })
     },

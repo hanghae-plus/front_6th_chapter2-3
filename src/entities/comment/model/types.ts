@@ -35,6 +35,11 @@ export interface UpdateCommentRequest {
   body: string
 }
 
+export interface LikeCommentRequest {
+  id: number
+  postId: number
+}
+
 export interface CommentsResponse {
   comments: Comment[]
   limit: number
