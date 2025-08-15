@@ -9,7 +9,7 @@ import {
 
 export const useGetComment = (id: number) => {
   return useQuery({
-    queryKey: ['comments'],
+    queryKey: ['comments', id],
     queryFn: () => commentsApi.getComments(id),
   });
 };
@@ -20,13 +20,19 @@ export const useComments = () => {
     createComments: useMutation({
       mutationFn: (comment: PostAddComment) => commentsApi.addComment(comment),
       onSuccess: (newComment) => {
-        // 댓글 목록 쿼리 무효화
-        queryClient.invalidateQueries({ queryKey: ['comments'] });
+        const postId = newComment.postId;
 
-        // 새 댓글을 캐시에 설정
+        console.log(postId, newComment);
         queryClient.setQueryData(
-          ['comments', newComment.comments.postId],
-          newComment,
+          ['comments', postId],
+          (oldData: { comments: Comments[] } | undefined) => {
+            if (!oldData) {
+              return { comments: [newComment] };
+            }
+            return {
+              comments: [...oldData.comments, newComment],
+            };
+          },
         );
       },
       onError: (error) => {
@@ -37,14 +43,9 @@ export const useComments = () => {
       mutationFn: (comment: PutCommentsDetail) =>
         commentsApi.updateComment(comment),
       onSuccess: (newComment) => {
-        // 댓글 목록 쿼리 무효화
-        queryClient.invalidateQueries({ queryKey: ['comments'] });
-
-        // 새 댓글을 캐시에 설정
-        queryClient.setQueryData(
-          ['comments', newComment.comments.postId],
-          newComment,
-        );
+        queryClient.invalidateQueries({
+          queryKey: ['comments', newComment.postId],
+        });
       },
       onError: (error) => {
         console.error('댓글 생성 실패:', error);
@@ -57,8 +58,11 @@ export const useComments = () => {
         // ✅ 방법 2: 캐시 직접 업데이트 (더 빠름)
         queryClient.setQueryData(
           ['comments', postId],
-          (oldComments: Comments[]) => {
-            return oldComments.filter((comment) => comment.id !== id);
+          (oldData: { comments: Comments[] } | undefined) => {
+            if (!oldData) return { comments: [] };
+            return {
+              comments: oldData.comments.filter((comment) => comment.id !== id),
+            };
           },
         );
       },

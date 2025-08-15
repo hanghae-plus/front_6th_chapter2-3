@@ -13,6 +13,7 @@ export interface Comments {
 }
 
 export interface CommentsResponse {
+  postId: number;
   comments: Comments;
   limit: number;
   skip: number;
