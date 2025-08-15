@@ -1,6 +1,6 @@
 import { AddCommentDialog } from "@/features/comment/create-comment/ui"
 import { Comment, CreateComment } from "@/entities/comment/model"
-import { EditCommentDialog } from "@/shared/ui"
+import { EditCommentDialog } from "@/features/comment"
 import { useDialogActions, useDialogStore } from "@/shared/model"
 
 interface CommentDialogsProps {
