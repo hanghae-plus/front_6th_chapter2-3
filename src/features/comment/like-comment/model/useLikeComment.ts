@@ -9,7 +9,7 @@ export const useLikeComment = () => {
     likeMutation.mutate({
       id: comment.id,
       postId: comment.postId,
-      likes: comment.likes + 1,
+      likes: (comment.likes || 0) + 1,
       isTemporary: comment.isTemporary,
     })
   }

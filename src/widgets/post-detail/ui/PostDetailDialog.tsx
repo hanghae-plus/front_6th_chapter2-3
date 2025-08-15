@@ -9,6 +9,7 @@ import { useAddComment } from "@features/comment/add-comment"
 import { useEditComment } from "@features/comment/edit-comment"
 import { useDeleteComment } from "@features/comment/delete-comment"
 import { useLikeComment } from "@features/comment/like-comment"
+import { queryClient } from "@shared/config/query-client"
 
 interface PostDetailDialogProps {
   isOpen: boolean
@@ -28,8 +29,14 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
   const { deleteComment } = useDeleteComment()
   const { likeComment } = useLikeComment()
 
+  // NOTE: 낙관업데이트를 위해 해당 방식으로 처리
   const handleLike = (id: number) => {
-    const comment = comments.find((c: CommentItem) => c.id === id)
+    const latestCommentsQuery = queryClient.getQueryData<{ comments: CommentItem[]; total: number }>(
+      commentQueries.byPost(post.id),
+    )
+    const latestComments = latestCommentsQuery?.comments ?? []
+    const comment = latestComments.find((c: CommentItem) => c.id === id)
+
     if (comment) {
       likeComment(comment)
     }

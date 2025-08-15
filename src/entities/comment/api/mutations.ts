@@ -42,14 +42,14 @@ export const commentMutations = {
 
           if (tempIndex === -1) {
             return {
-              comments: [created, ...comments],
+              comments: [{ ...created, likes: created.likes || 0 }, ...comments], // ✅ likes 기본값 보장
               total: old?.total ?? 1,
             }
           }
 
           const existingComment = comments.find((c) => c.id === created.id && c.id !== ctx.tempId)
           if (existingComment) {
-            const updatedComment = { ...created, id: ctx.tempId, isTemporary: true }
+            const updatedComment = { ...created, likes: created.likes || 0, id: ctx.tempId, isTemporary: true } // ✅ likes 기본값 보장
             return {
               comments: comments.map((c) => (c.id === ctx.tempId ? updatedComment : c)),
               total: old?.total ?? 0,
@@ -57,7 +57,11 @@ export const commentMutations = {
           }
 
           return {
-            comments: comments.map((c) => (c.id === ctx.tempId ? { ...created, isTemporary: true } : c)),
+            comments: comments.map((c) =>
+              c.id === ctx.tempId
+                ? { ...created, likes: created.likes || 0, isTemporary: true } // ✅ likes 기본값 보장
+                : c,
+            ),
             total: old?.total ?? 0,
           }
         })
@@ -108,7 +112,11 @@ export const commentMutations = {
         if (ctx.isTemporary) return
 
         queryClient.setQueryData(ctx.key, (old: { comments: CommentItem[]; total: number }) => ({
-          comments: (old?.comments ?? []).map((c) => (c.id === updated.id ? updated : c)),
+          comments: (old?.comments ?? []).map((c) =>
+            c.id === updated.id
+              ? { ...updated, likes: updated.likes || c.likes || 0 } // ✅ likes 보존/기본값 보장
+              : c,
+          ),
           total: old?.total ?? 0,
         }))
       },
@@ -168,6 +176,7 @@ export const commentMutations = {
             isTemporary: true,
           } as CommentItem
         }
+
         return commentApi.likeComment(id, likes)
       },
       onMutate: async ({ id, postId, likes, isTemporary }) => {
@@ -189,16 +198,6 @@ export const commentMutations = {
         if (ctx?.previous && !ctx.isTemporary) {
           queryClient.setQueryData(ctx.key, ctx.previous)
         }
-      },
-      onSuccess: (updated, _vars, ctx) => {
-        if (!ctx) return
-
-        if (ctx.isTemporary) return
-
-        queryClient.setQueryData(ctx.key, (old: { comments: CommentItem[]; total: number }) => ({
-          comments: (old?.comments ?? []).map((c) => (c.id === updated.id ? updated : c)),
-          total: old?.total ?? 0,
-        }))
       },
     }),
 }
