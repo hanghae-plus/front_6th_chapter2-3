@@ -47,8 +47,30 @@ export const useUpdatePost = () => {
 
   return useMutation({
     mutationFn: (post: PutPostRequestType) => putPost(post),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSuccess: (response, updatedPost) => {
+      // 모든 게시물 쿼리 캐시에서 해당 게시물 업데이트
+      queryClient.setQueriesData({ queryKey: ['posts'] }, (oldData: any) => {
+        if (!oldData?.posts) return oldData;
+
+        // 수정된 게시물을 목록에서 찾아서 업데이트
+        const updatedPosts = oldData.posts.map((post: any) => {
+          if (post.id === updatedPost.id) {
+            return {
+              ...post,
+              title: updatedPost.title,
+              body: updatedPost.body,
+              ...response, // 서버에서 온 추가 필드들
+            };
+          }
+          return post;
+        });
+
+        return {
+          ...oldData,
+          posts: updatedPosts,
+        };
+      });
+
       console.log('게시물 수정 성공', response);
     },
     onError: (error) => {
