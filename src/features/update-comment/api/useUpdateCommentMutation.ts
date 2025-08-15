@@ -9,11 +9,23 @@ export function useUpdateCommentMutation() {
 
   return useMutation({
     mutationFn: (payload: UpdateComment.Payload) => updateComment(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: commentKeys.all })
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(commentKeys.detail(variables.commentId), data)
+      queryClient.setQueryData(commentKeys.byPost(variables.postId), (old: unknown) => {
+        if (!old) return undefined
+        const oldData = old as { comments: Array<{ id: number }> }
+        return {
+          ...oldData,
+          comments: oldData.comments.map((comment: unknown) => {
+            const typedComment = comment as { id: number }
+            return typedComment.id === variables.commentId ? { ...typedComment, ...data } : comment
+          }),
+        }
+      })
     },
     onError: (error) => {
       console.error("Comment 수정 실패:", error)
+      queryClient.invalidateQueries({ queryKey: commentKeys.all })
     },
   })
 }

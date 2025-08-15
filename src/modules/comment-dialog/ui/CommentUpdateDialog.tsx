@@ -24,7 +24,7 @@ export function CommentUpdateDialog() {
     if (!selectedComment || !selectedComment.body.trim()) return
 
     updateCommentMutation.mutate(
-      { commentId: selectedComment.id, body: selectedComment.body },
+      { commentId: selectedComment.id, postId: selectedComment.postId, body: selectedComment.body },
       { onSuccess: () => openDialog(DialogType.POST_DETAIL) },
     )
   }

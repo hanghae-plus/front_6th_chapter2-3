@@ -22,6 +22,7 @@ export namespace AddComment {
 export namespace UpdateComment {
   export type Payload = {
     commentId: number
+    postId: number
     body: string
   }
 

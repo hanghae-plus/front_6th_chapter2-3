@@ -11,7 +11,7 @@ export async function addComment(payload: CommentModels.AddComment.Payload) {
   return response.json<CommentModels.AddComment.Response>()
 }
 
-export async function updateComment({ commentId, ...body }: CommentModels.UpdateComment.Payload) {
+export async function updateComment({ commentId, ...body }: Omit<CommentModels.UpdateComment.Payload, "postId">) {
   const response = await fetcher.put(`/comments/${commentId}`, { body })
   return response.json<CommentModels.UpdateComment.Response>()
 }
