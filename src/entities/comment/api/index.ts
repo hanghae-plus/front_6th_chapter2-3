@@ -30,9 +30,14 @@ export const deleteComment = async (data: { commentId: number; postId: number })
   return response.json();
 };
 
-// export const patchLikeComment = async (id: number) => {
-
-// }
+export const patchLikeComment = async (data: { commentId: number; postId: number }) => {
+  const response = await fetch(`/api/comments/${data.commentId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ likes: 1 }), // 서버에서 증가 처리하도록 간소화
+  });
+  return response.json();
+};
 
 export * from './mutations';
 export * from './queries';

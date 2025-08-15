@@ -1,4 +1,4 @@
-import { Edit2, ThumbsUp } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import { useState } from 'react';
 
 import type { PostType, UserType } from '../entities';
@@ -7,6 +7,7 @@ import {
   CreateCommentButton,
   DetailUserModal,
   DeleteCommentButton,
+  LikeCommentButton,
   TagSelectFilter,
   SortOrderSelectFilter,
   SortBySelectFilter,
@@ -50,26 +51,6 @@ const PostsManager = () => {
     }
   };
 
-  // 댓글 좋아요
-  const likeComment = async (id, postId) => {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }));
-    } catch (error) {
-      console.error('댓글 좋아요 오류:', error);
-    }
-  };
-
   // 게시물 상세 보기
   const openPostDetail = (post: PostType) => {
     setSelectedPost(post);
@@ -104,10 +85,7 @@ const PostsManager = () => {
               <span className='truncate'>{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className='flex items-center space-x-1'>
-              <Button variant='ghost' size='sm' onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className='w-3 h-3' />
-                <span className='ml-1 text-xs'>{comment.likes}</span>
-              </Button>
+              <LikeCommentButton commentId={comment.id} postId={postId} likes={comment.likes} />
               <UpdateCommentButton comment={comment} />
               <DeleteCommentButton commentId={comment.id} postId={postId} />
             </div>
