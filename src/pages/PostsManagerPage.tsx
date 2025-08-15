@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { UserType } from '../entities';
 import {
-  CreatePostModal,
+  CreatePostButton,
   DetailUserModal,
   TagSelectFilter,
   SortOrderSelectFilter,
@@ -35,7 +35,6 @@ const PostsManager = () => {
   // 상태 관리
   const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
   const [selectedPost, setSelectedPost] = useState(null);
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
@@ -207,11 +206,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className='flex items-center justify-between'>
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className='w-4 h-4 mr-2' />
-            게시물 추가
-          </Button>
-          <CreatePostModal isOpen={showAddDialog} onOpenChange={setShowAddDialog} />
+          <CreatePostButton />
         </CardTitle>
       </CardHeader>
       <CardContent>
