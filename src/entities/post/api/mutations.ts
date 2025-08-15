@@ -63,9 +63,22 @@ export const useDeletePost = () => {
 
   return useMutation({
     mutationFn: (id: number) => deletePost(id),
-    onSuccess: () => {
-      console.log('게시물 삭제 성공');
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSuccess: (response, deletedId) => {
+      // 모든 게시물 쿼리 캐시에서 해당 게시물 제거
+      queryClient.setQueriesData({ queryKey: ['posts'] }, (oldData: any) => {
+        if (!oldData?.posts) return oldData;
+
+        // 삭제된 게시물을 목록에서 제거
+        const filteredPosts = oldData.posts.filter((post: any) => post.id !== deletedId);
+
+        return {
+          ...oldData,
+          posts: filteredPosts,
+          total: oldData.total - 1,
+        };
+      });
+
+      console.log('게시물 삭제 성공', response);
     },
     onError: (error) => {
       console.error('게시물 삭제 오류:', error);
