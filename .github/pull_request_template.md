@@ -1,5 +1,5 @@
 ## 과제 체크포인트
-
+https://hwirin-kim.github.io/front_6th_chapter2-3/
 ### 기본과제
 
 #### 목표 : 전역상태관리를 이용한 적절한 분리와 계층에 대한 이해를 통한 FSD 폴더 구조 적용하기
