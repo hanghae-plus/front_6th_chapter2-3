@@ -1,6 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import AdminPage from './pages/AdminPage.tsx';
+import { ErrorToast } from './shared/ui/ErrorToast/ErrorToast.tsx';
 import { Header, Footer } from './widgets';
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
         </main>
         <Footer />
       </div>
+      <ErrorToast />
     </Router>
   );
 };
