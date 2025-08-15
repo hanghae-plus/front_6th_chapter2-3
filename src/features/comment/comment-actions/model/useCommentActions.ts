@@ -12,7 +12,7 @@ export const useCommentActions = (postId: number) => {
   const deleteCommentMutation = useDeleteComment()
   const likeCommentMutation = useLikeComment()
 
-  const handleAddComment = async (comment: CreateComment) => {
+  const addComment = async (comment: CreateComment) => {
     try {
       await createCommentMutation.mutateAsync({
         body: comment.body,
@@ -63,7 +63,7 @@ export const useCommentActions = (postId: number) => {
 
   return {
     commentsData,
-    handleAddComment,
+    addComment,
     updateComment,
     deleteComment,
     likeComment,

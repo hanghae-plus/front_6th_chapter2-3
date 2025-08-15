@@ -14,7 +14,7 @@ export const CommentSection = ({ postId }: CommentSectionProps) => {
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const { showDialog } = useDialogActions()
 
-  const { commentsData, handleAddComment, updateComment, deleteComment, likeComment } = useCommentActions(postId)
+  const { commentsData, addComment, updateComment, deleteComment, likeComment } = useCommentActions(postId)
 
   const handleEditComment = (comment: Comment) => {
     setSelectedComment(comment)
@@ -44,7 +44,7 @@ export const CommentSection = ({ postId }: CommentSectionProps) => {
       <CommentDialogs
         postId={postId}
         selectedComment={selectedComment}
-        onAddComment={handleAddComment}
+        onAddComment={addComment}
         onUpdateComment={updateComment}
         onCloseEdit={handleCloseEdit}
       />
