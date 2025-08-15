@@ -1,3 +1,4 @@
+import { apiClient } from '../../../shared';
 import {
   GetPostsListResponseType,
   GetPostsListRequestType,
@@ -15,9 +16,8 @@ export const getPosts = async (
   if (params.sortBy) searchParams.append('sortBy', params.sortBy);
   if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
 
-  const url = `/api/posts${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-  const response = await fetch(url);
-  return response.json();
+  const endpoint = `/posts${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  return apiClient.get(endpoint);
 };
 
 export const getPostsBySearch = async (
@@ -32,8 +32,7 @@ export const getPostsBySearch = async (
   if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
   if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
 
-  const response = await fetch(`/api/posts/search?${searchParams.toString()}`);
-  return response.json();
+  return apiClient.get(`/posts/search?${searchParams.toString()}`);
 };
 
 export const getPostsByTag = async (
@@ -47,34 +46,20 @@ export const getPostsByTag = async (
   if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
   if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
 
-  const url = `/api/posts/tag/${tag}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-  const response = await fetch(url);
-  return response.json();
+  const endpoint = `/posts/tag/${tag}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  return apiClient.get(endpoint);
 };
 
 export const postPost = async (post: PostPostRequestType) => {
-  const response = await fetch('/api/posts/add', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(post),
-  });
-  return response.json();
+  return apiClient.post('/posts/add', post);
 };
 
 export const putPost = async (post: PutPostRequestType) => {
-  const response = await fetch(`/api/posts/${post.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(post),
-  });
-  return response.json();
+  return apiClient.put(`/posts/${post.id}`, post);
 };
 
 export const deletePost = async (id: number) => {
-  const response = await fetch(`/api/posts/${id}`, {
-    method: 'DELETE',
-  });
-  return response.json();
+  return apiClient.delete(`/posts/${id}`);
 };
 
 export * from './mutations';

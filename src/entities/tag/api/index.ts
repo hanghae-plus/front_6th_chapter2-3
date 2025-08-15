@@ -1,8 +1,8 @@
+import { apiClient } from '../../../shared';
 import { TagType } from '../model';
 
 export const getTags = async (): Promise<TagType[]> => {
-  const response = await fetch('/api/posts/tags');
-  return response.json();
+  return apiClient.get('/posts/tags');
 };
 
 export * from './queries';

@@ -1,42 +1,24 @@
+import { apiClient } from '../../../shared';
 import { GetCommentsResponseType, PostCommentRequestType, PutCommentRequestType } from '../model';
 
 export const getComments = async (postId: number): Promise<GetCommentsResponseType> => {
-  const response = await fetch(`/api/comments/post/${postId}`);
-  return response.json();
+  return apiClient.get(`/comments/post/${postId}`);
 };
 
 export const postComment = async (comment: PostCommentRequestType) => {
-  const response = await fetch('/api/comments/add', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(comment),
-  });
-  return response.json();
+  return apiClient.post('/comments/add', comment);
 };
 
 export const putComment = async (comment: PutCommentRequestType) => {
-  const response = await fetch(`/api/comments/${comment.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ body: comment.body }),
-  });
-  return response.json();
+  return apiClient.put(`/comments/${comment.id}`, { body: comment.body });
 };
 
 export const deleteComment = async (data: { commentId: number; postId: number }) => {
-  const response = await fetch(`/api/comments/${data.commentId}`, {
-    method: 'DELETE',
-  });
-  return response.json();
+  return apiClient.delete(`/comments/${data.commentId}`);
 };
 
 export const patchLikeComment = async (data: { commentId: number; postId: number }) => {
-  const response = await fetch(`/api/comments/${data.commentId}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ likes: 1 }), // 서버에서 증가 처리하도록 간소화
-  });
-  return response.json();
+  return apiClient.patch(`/comments/${data.commentId}`, { likes: 1 });
 };
 
 export * from './mutations';

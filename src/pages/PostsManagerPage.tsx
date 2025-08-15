@@ -26,6 +26,7 @@ import {
   DialogTitle,
   DialogDescription,
   highlightText,
+  apiClient,
 } from '../shared';
 import { Pagination, PostTable } from '../widgets';
 
@@ -42,8 +43,7 @@ const PostsManager = () => {
   const fetchComments = async (postId) => {
     if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      const response = await fetch(`/api/comments/post/${postId}`);
-      const data = await response.json();
+      const data = await apiClient.get(`/comments/post/${postId}`);
       console.log('댓글> ', data);
       setComments((prev) => ({ ...prev, [postId]: data.comments }));
     } catch (error) {
@@ -61,8 +61,7 @@ const PostsManager = () => {
   // 사용자 모달 열기
   const openUserModal = async (user: UserType) => {
     try {
-      const response = await fetch(`/api/users/${user.id}`);
-      const userData = await response.json();
+      const userData = await apiClient.get(`/users/${user.id}`);
       setSelectedUser(userData);
       setShowUserModal(true);
     } catch (error) {
