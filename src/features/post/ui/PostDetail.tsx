@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui"
 import { highlightText } from "../../../shared/lib/text-utils.tsx"
 import { Post } from "../../../entities/post/model/types.ts"
-import { Comment } from "../../../entities/comment/model/types.ts"
+import { Comment } from "../../../entities/comment/model"
 import React from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 

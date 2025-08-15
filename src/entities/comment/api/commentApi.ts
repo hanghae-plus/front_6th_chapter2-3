@@ -1,12 +1,12 @@
-import { Comment, Comments, CommentsResponse, CreateCommentRequest, UpdateCommentRequest } from "../model/types"
+import { Comment, CommentsResponse, CreateCommentRequest, UpdateCommentRequest } from "../model/types.ts"
 import { api } from "../../../shared/api/axios"
 
 export const getComments = async (postId: number): Promise<CommentsResponse> => {
-  return api.get(`/posts/${postId}/comments`)
+  return api.get(`/comments/post/${postId}`)
 }
 
 export const createComment = async (newComment: CreateCommentRequest): Promise<Comment> => {
-  return api.post("/comments", newComment)
+  return api.post("/comments/add", newComment)
 }
 
 export const updateComment = async (id: number, body: Pick<UpdateCommentRequest, "body">): Promise<Comment> => {
@@ -18,5 +18,5 @@ export const deleteComment = async (id: number): Promise<void> => {
 }
 
 export const likeComment = async (id: number, currentLikes: number): Promise<Comment> => {
-  return api.patch(`/comments/${id}/like`, {likes: currentLikes + 1})
+  return api.patch(`/comments/${id}`, {likes: currentLikes + 1})
 }
