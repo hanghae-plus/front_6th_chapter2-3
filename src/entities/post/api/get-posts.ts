@@ -1,3 +1,4 @@
+import { client } from '@/shared/configs';
 import type { Post } from '@/entities/post/model';
 
 export type GetPostsParams = {
@@ -13,8 +14,5 @@ export type GetPostsResponse = {
 };
 
 export async function getPosts(params: GetPostsParams): Promise<GetPostsResponse> {
-  const { limit, skip } = params;
-  const res = await fetch(`/api/posts?limit=${limit}&skip=${skip}`);
-  if (!res.ok) throw new Error('Failed to fetch posts');
-  return res.json();
+  return client.get<GetPostsResponse>('/posts', params);
 }
