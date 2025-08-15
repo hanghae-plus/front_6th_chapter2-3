@@ -1,12 +1,10 @@
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import type { PostType, UserType } from '../entities';
+import type { UserType } from '../entities';
 import {
   CreatePostModal,
-  DeletePostButton,
-  UpdatePostButton,
   DetailUserModal,
   TagSelectFilter,
   SortOrderSelectFilter,
@@ -24,16 +22,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
   highlightText,
 } from '../shared';
-import { Pagination } from '../widgets';
+import { Pagination, PostTable } from '../widgets';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -41,17 +33,9 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
-  const [posts, setPosts] = useState<PostType[]>([]);
-  const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
-  const [limit, setLimit] = useState(parseInt(queryParams.get('limit') || '10'));
   const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
   const [selectedPost, setSelectedPost] = useState(null);
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || '');
-  const [sortOrder, setSortOrder] = useState(queryParams.get('sortOrder') || 'asc');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [selectedTag, setSelectedTag] = useState(queryParams.get('tag') || '');
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
@@ -61,93 +45,6 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set('skip', skip.toString());
-    if (limit) params.set('limit', limit.toString());
-    if (searchQuery) params.set('search', searchQuery);
-    if (sortBy) params.set('sortBy', sortBy);
-    if (sortOrder) params.set('sortOrder', sortOrder);
-    if (selectedTag) params.set('tag', selectedTag);
-    navigate(`?${params.toString()}`);
-  };
-
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true);
-    let postsData;
-    let usersData;
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data) => {
-        postsData = data;
-        return fetch('/api/users?limit=0&select=username,image');
-      })
-      .then((response) => response.json())
-      .then((users) => {
-        usersData = users.users;
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.find((user) => user.id === post.userId),
-        }));
-        setPosts(postsWithUsers);
-        setTotal(postsData.total);
-      })
-      .catch((error) => {
-        console.error('게시물 가져오기 오류:', error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`);
-      const data = await response.json();
-      setPosts(data.posts);
-      setTotal(data.total);
-    } catch (error) {
-      console.error('게시물 검색 오류:', error);
-    }
-    setLoading(false);
-  };
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
-    if (!tag || tag === 'all') {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch('/api/users?limit=0&select=username,image'),
-      ]);
-      const postsData = await postsResponse.json();
-      const usersData = await usersResponse.json();
-
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }));
-
-      setPosts(postsWithUsers);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error('태그별 게시물 가져오기 오류:', error);
-    }
-    setLoading(false);
-  };
 
   // 댓글 가져오기
   const fetchComments = async (postId) => {
@@ -257,101 +154,6 @@ const PostsManager = () => {
     }
   };
 
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || '0'));
-    setLimit(parseInt(params.get('limit') || '10'));
-    setSearchQuery(params.get('search') || '');
-    setSortBy(params.get('sortBy') || '');
-    setSortOrder(params.get('sortOrder') || 'asc');
-    setSelectedTag(params.get('tag') || '');
-  }, [location.search]);
-
-  // 게시물 테이블 렌더링
-  const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className='w-[50px]'>ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className='w-[150px]'>작성자</TableHead>
-          <TableHead className='w-[150px]'>반응</TableHead>
-          <TableHead className='w-[150px]'>작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className='space-y-1'>
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className='flex flex-wrap gap-1'>
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? 'text-white bg-blue-500 hover:bg-blue-600'
-                          : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag);
-                        updateURL();
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => openUserModal(post.author)}
-              >
-                <img
-                  src={post.author?.image}
-                  alt={post.author?.username}
-                  className='w-8 h-8 rounded-full'
-                />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <ThumbsUp className='w-4 h-4' />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className='w-4 h-4' />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className='flex items-center gap-2'>
-                <Button variant='ghost' size='sm' onClick={() => openPostDetail(post)}>
-                  <MessageSquare className='w-4 h-4' />
-                </Button>
-                <UpdatePostButton post={post} />
-                <DeletePostButton postId={post.id} />
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-
   // 댓글 렌더링
   const renderComments = (postId) => (
     <div className='mt-2'>
@@ -422,10 +224,7 @@ const PostsManager = () => {
             <SortOrderSelectFilter />
           </div>
 
-          {/* 게시물 테이블 */}
-          {loading ? <div className='flex justify-center p-4'>로딩 중...</div> : renderPostTable()}
-
-          {/* 페이지네이션 */}
+          <PostTable />
           <Pagination />
         </div>
       </CardContent>
