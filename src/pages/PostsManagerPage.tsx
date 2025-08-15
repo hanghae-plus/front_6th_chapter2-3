@@ -10,7 +10,7 @@ import {
 } from "../shared/ui"
 import { getPosts } from "../entities/post/api/api"
 import { Post } from "../entities/post/model/types"
-import { Comment } from "../entities/comment/model/types"
+import { Comment, NewCommentDraft } from "../entities/comment/model/types"
 import { PostsTable, Pagination, PostsFilter, PostForm, UserModal, CommentForm, PostDetail } from "../features"
 import { Tag } from "../entities/tag/model/types"
 import { UserWithInfo } from "../entities/user/model/types"
@@ -37,7 +37,7 @@ const PostsManager = () => {
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
+  const [newComment, setNewComment] = useState<NewCommentDraft>({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)

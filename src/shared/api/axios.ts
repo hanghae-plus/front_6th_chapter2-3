@@ -26,4 +26,5 @@ export const api = {
   post:   <T>(url: string, data?: unknown, config?: HttpConfig): Promise<T> => axiosInstance.post(url, data, config),
   put:    <T>(url: string, data?: unknown, config?: HttpConfig): Promise<T> => axiosInstance.put(url, data, config),
   delete: <T>(url: string, config?: HttpConfig): Promise<T> => axiosInstance.delete(url, config),
+  patch:  <T>(url: string, data?: unknown, config?: HttpConfig): Promise<T> => axiosInstance.patch(url, data, config),
 };
