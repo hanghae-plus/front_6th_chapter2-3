@@ -21,7 +21,7 @@ export async function patchComment({ commentId, ...body }: CommentModels.PatchCo
   return response.json<CommentModels.PatchComment.Response>()
 }
 
-export async function deleteComment({ commentId }: CommentModels.DeleteComment.Payload) {
+export async function deleteComment({ commentId }: Omit<CommentModels.DeleteComment.Payload, "postId">) {
   const response = await fetcher.delete(`/comments/${commentId}`)
   return response.json<CommentModels.DeleteComment.Response>()
 }

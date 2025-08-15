@@ -32,7 +32,8 @@ export function PostDetailDialog() {
   }
 
   const handleDeleteComment = (commentId: number) => {
-    deleteCommentMutation.mutate({ commentId })
+    if (!selectedPost) return
+    deleteCommentMutation.mutate({ commentId, postId: selectedPost.id })
   }
 
   const handleLikeComment = (commentId: number) => {

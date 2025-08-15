@@ -41,6 +41,7 @@ export namespace PatchComment {
 export namespace DeleteComment {
   export type Payload = {
     commentId: number
+    postId: number
   }
 
   export type Response = DeleteResponse<Comment>
