@@ -1,24 +1,27 @@
+import { useShallow } from "zustand/shallow"
+
 import { DialogType, useDialogStore } from "@/base/lib"
 import type { Post } from "@/entities/post/model"
 import type { User } from "@/entities/user/model"
+import { useDeletePostMutation } from "@/features/delete-post/api"
+import { usePostsWithAuthors } from "@/features/get-post/api"
 import { usePostDialogStore, usePostParamsStore } from "@/features/get-post/model"
 import { PostSearchInput, PostSortBySelect, PostSortOrderSelect, PostTagFilterSelect } from "@/features/get-post/ui"
 import { useUserDialogStore } from "@/features/get-user/model"
 import { PostPagination } from "@/modules/post-pagination/ui"
 import { PostTable } from "@/modules/post-table/ui"
 
-type PostsContentProps = {
-  posts: Post[]
-  total: number
-  loading: boolean
-  deletePost: (id: number) => Promise<void>
-}
-
-export function PostsContent({ posts, total, loading, deletePost }: PostsContentProps) {
+export function PostsContent() {
   const { openDialog } = useDialogStore((state) => state.actions)
   const { updateParam } = usePostParamsStore((state) => state.actions)
   const { setSelectedPost } = usePostDialogStore((state) => state.actions)
   const { setSelectedUserId } = useUserDialogStore((state) => state.actions)
+
+  const { limit, search, skip, tag } = usePostParamsStore(useShallow((state) => state))
+
+  const deletePostMutation = useDeletePostMutation()
+
+  const { posts, total, loading } = usePostsWithAuthors({ limit, skip, search, tag })
 
   const handleOpenPostDetail = (post: Post) => {
     setSelectedPost(post)
@@ -28,6 +31,10 @@ export function PostsContent({ posts, total, loading, deletePost }: PostsContent
   const handleOpenUserModal = (user: User) => {
     setSelectedUserId(user.id)
     openDialog(DialogType.USER_MODAL)
+  }
+
+  const handleDeletePost = async (id: number) => {
+    await deletePostMutation.mutateAsync({ id })
   }
 
   return (
@@ -48,7 +55,7 @@ export function PostsContent({ posts, total, loading, deletePost }: PostsContent
           onUserClick={handleOpenUserModal}
           onPostDetailClick={handleOpenPostDetail}
           onPostEditClick={handleOpenPostDetail}
-          onPostDeleteClick={deletePost}
+          onPostDeleteClick={handleDeletePost}
         />
       )}
 

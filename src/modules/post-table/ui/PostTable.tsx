@@ -6,6 +6,7 @@ import { Table } from "@/base/ui/Table"
 import type { Post } from "@/entities/post/model"
 import { PostHighlightText } from "@/entities/post/ui"
 import type { User } from "@/entities/user/model"
+import { UserAvatar } from "@/entities/user/ui"
 import { usePostParamsStore } from "@/features/get-post/model"
 
 type PostTableProps = {
@@ -85,12 +86,7 @@ export function PostTable({
                 </div>
               </div>
             </Table.Cell>
-            <Table.Cell>
-              <div className="flex cursor-pointer items-center space-x-2" onClick={() => handleUserClick(post.author!)}>
-                <img src={post.author?.image} alt={post.author?.username} className="h-8 w-8 rounded-full" />
-                <span>{post.author?.username}</span>
-              </div>
-            </Table.Cell>
+            <Table.Cell>{post.author && <UserAvatar user={post.author} onUserClick={handleUserClick} />}</Table.Cell>
             <Table.Cell>
               <div className="flex items-center gap-2">
                 <ThumbsUp className="h-4 w-4" />

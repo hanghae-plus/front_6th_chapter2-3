@@ -5,10 +5,7 @@ import { useShallow } from "zustand/shallow"
 import { DialogType, useDialogStore } from "@/base/lib"
 import { Button } from "@/base/ui/Button"
 import { Card } from "@/base/ui/Card"
-import { useDeletePostMutation } from "@/features/delete-post/api"
-import { usePostsByTagQuery, usePostsQuery, usePostsSearchQuery } from "@/features/get-post/api"
 import { usePostParamsStore } from "@/features/get-post/model"
-import { useUsersQuery } from "@/features/get-user/api"
 import { CommentAddDialog, CommentUpdateDialog } from "@/modules/comment-dialog/ui"
 import { PostAddDialog, PostDetailDialog, PostUpdateDialog } from "@/modules/post-dialog/ui"
 import { PostsContent } from "@/modules/posts-content/ui"
@@ -16,40 +13,8 @@ import { UserInfoDialog } from "@/modules/user-dialog/ui"
 
 export function PostsManagerPage() {
   const { openDialog } = useDialogStore((state) => state.actions)
-  const { actions, limit, search, skip, tag } = usePostParamsStore(useShallow((state) => state))
+  const { actions } = usePostParamsStore(useShallow((state) => state))
   const { initializeFromURL } = actions
-
-  const { data: postsData, isLoading: isPostsLoading } = usePostsQuery({ limit, skip })
-  const { data: searchData, isLoading: isSearchLoading } = usePostsSearchQuery({ query: search })
-  const { data: tagData, isLoading: isTagLoading } = usePostsByTagQuery({ tag })
-  const { data: usersData, isLoading: isUsersLoading } = useUsersQuery()
-
-  const activeData = search?.trim()
-    ? { data: searchData, loading: isSearchLoading }
-    : tag && tag !== "all"
-      ? { data: tagData, loading: isTagLoading }
-      : { data: postsData, loading: isPostsLoading }
-
-  const posts =
-    activeData.data && usersData
-      ? activeData.data.posts.map((post) => ({
-          ...post,
-          author: usersData.users.find((user) => user.id === post.userId),
-        }))
-      : []
-
-  const total = activeData.data?.total || 0
-  const loading = activeData.loading || isUsersLoading
-
-  const deletePostMutation = useDeletePostMutation()
-
-  const deletePost = async (id: number) => {
-    try {
-      await deletePostMutation.mutateAsync({ id })
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
 
   useEffect(() => {
     initializeFromURL()
@@ -69,7 +34,7 @@ export function PostsManagerPage() {
           </Card.Title>
         </Card.Header>
         <Card.Content>
-          <PostsContent posts={posts} total={total} loading={loading} deletePost={deletePost} />
+          <PostsContent />
         </Card.Content>
       </Card>
 
