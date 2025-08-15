@@ -1,0 +1,478 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Frontend Functional Programming Cursor Rules
+
+## Core Principles
+- Prioritize pure functions and immutable data structures
+- Favor function composition over inheritance/
+- Use declarative programming patterns over imperative ones
+- Minimize side effects and make them explicit when necessary
+- Follow the principle of least surprise in API design
+
+## TypeScript/JavaScript Guidelines
+
+### Function Design
+```typescript
+// ✅ Pure functions with clear input/output
+const calculateTotalPrice = (items: Item[], taxRate: number): number =>
+  items.reduce((total, item) => total + item.price, 0) * (1 + taxRate);
+
+// ✅ Higher-order functions for reusability
+const withLogging = <T extends any[], R>(
+  fn: (...args: T) => R
+) => (...args: T): R => {
+  console.log(`Calling ${fn.name} with:`, args);
+  const result = fn(...args);
+  console.log(`Result:`, result);
+  return result;
+};
+
+// ❌ Avoid functions with side effects
+const addItemToCart = (item: Item) => {
+  cart.push(item); // Mutating global state
+  updateUI(); // Side effect
+};
+```
+
+### Data Transformation
+```typescript
+// ✅ Use immutable operations
+const addItem = (items: Item[], newItem: Item): Item[] => [...items, newItem];
+const updateItem = (items: Item[], id: string, updates: Partial<Item>): Item[] =>
+  items.map(item => item.id === id ? { ...item, ...updates } : item);
+
+// ✅ Prefer map/filter/reduce over loops
+const getActiveUsers = (users: User[]): User[] =>
+  users.filter(user => user.isActive);
+
+const getUserNames = (users: User[]): string[] =>
+  users.map(user => user.name);
+```
+
+### Error Handling
+```typescript
+// ✅ Use Result/Either types for error handling
+type Result<T, E = string> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+const parseUser = (json: string): Result<User> => {
+  try {
+    const data = JSON.parse(json);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: 'Invalid JSON' };
+  }
+};
+
+// ✅ Chain operations with proper error handling
+const processUserData = (json: string): Result<ProcessedUser> =>
+  parseUser(json)
+    .flatMap(validateUser)
+    .flatMap(transformUser);
+```
+
+## React Guidelines
+
+### Component Design
+```tsx
+// ✅ Pure functional components
+interface UserCardProps {
+  user: User;
+  onEdit: (user: User) => void;
+}
+
+const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => (
+  <div className="user-card">
+    <h3>{user.name}</h3>
+    <p>{user.email}</p>
+    <button onClick={() => onEdit(user)}>Edit</button>
+  </div>
+);
+
+// ✅ Custom hooks for stateful logic
+const useUserData = (userId: string) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUser(userId)
+      .then(setUser)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  return { user, loading, error };
+};
+```
+
+### State Management
+```tsx
+// ✅ Immutable state updates
+const todoReducer = (state: TodoState, action: TodoAction): TodoState => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        ...state,
+        todos: [...state.todos, action.payload]
+      };
+    case 'TOGGLE_TODO':
+      return {
+        ...state,
+        todos: state.todos.map(todo =>
+          todo.id === action.payload.id
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        )
+      };
+    default:
+      return state;
+  }
+};
+
+// ✅ Use React.useMemo for expensive computations
+const ExpensiveComponent: React.FC<{ items: Item[] }> = ({ items }) => {
+  const expensiveValue = useMemo(
+    () => items.reduce((acc, item) => acc + item.complexCalculation(), 0),
+    [items]
+  );
+
+  return <div>{expensiveValue}</div>;
+};
+```
+
+### Event Handling
+```tsx
+// ✅ Curried event handlers for reusability
+const createHandler = (action: string) => (id: string) => (event: React.MouseEvent) => {
+  event.preventDefault();
+  dispatch({ type: action, payload: { id } });
+};
+
+const handleEdit = createHandler('EDIT_ITEM');
+const handleDelete = createHandler('DELETE_ITEM');
+
+// ✅ Compose event handlers
+const withPreventDefault = (handler: () => void) => (event: React.MouseEvent) => {
+  event.preventDefault();
+  handler();
+};
+
+const handleSubmit = withPreventDefault(() => {
+  // Submit logic
+});
+```
+
+## Utility Functions
+
+### Common Patterns
+```typescript
+// ✅ Pipe function for composition
+const pipe = <T>(...fns: Array<(arg: T) => T>) => (value: T): T =>
+  fns.reduce((acc, fn) => fn(acc), value);
+
+// ✅ Compose function (right-to-left)
+const compose = <T>(...fns: Array<(arg: T) => T>) => (value: T): T =>
+  fns.reduceRight((acc, fn) => fn(acc), value);
+
+// ✅ Curry utility
+const curry = <A, B, C>(fn: (a: A, b: B) => C) => (a: A) => (b: B) => fn(a, b);
+
+// ✅ Maybe/Option type for null handling
+class Maybe<T> {
+  constructor(private value: T | null | undefined) {}
+
+  static of<T>(value: T | null | undefined): Maybe<T> {
+    return new Maybe(value);
+  }
+
+  map<U>(fn: (value: T) => U): Maybe<U> {
+    return this.value != null ? Maybe.of(fn(this.value)) : Maybe.of(null);
+  }
+
+  flatMap<U>(fn: (value: T) => Maybe<U>): Maybe<U> {
+    return this.value != null ? fn(this.value) : Maybe.of(null);
+  }
+
+  getOrElse(defaultValue: T): T {
+    return this.value != null ? this.value : defaultValue;
+  }
+}
+```
+
+### Array Utilities
+```typescript
+// ✅ Functional array utilities
+const groupBy = <T, K extends string | number>(
+  array: T[],
+  keyFn: (item: T) => K
+): Record<K, T[]> =>
+  array.reduce((groups, item) => {
+    const key = keyFn(item);
+    return { ...groups, [key]: [...(groups[key] || []), item] };
+  }, {} as Record<K, T[]>);
+
+const unique = <T>(array: T[]): T[] => [...new Set(array)];
+
+const chunk = <T>(array: T[], size: number): T[][] =>
+  array.reduce((chunks, item, index) => {
+    const chunkIndex = Math.floor(index / size);
+    chunks[chunkIndex] = chunks[chunkIndex] || [];
+    chunks[chunkIndex].push(item);
+    return chunks;
+  }, [] as T[][]);
+```
+
+
+
+## Performance Considerations
+
+```typescript
+// ✅ Memoize expensive computations
+const expensiveCalculation = useMemo(() => {
+  return items.reduce((sum, item) => sum + item.value * item.multiplier, 0);
+}, [items]);
+
+// ✅ Use React.memo for component memoization
+const MemoizedUserCard = React.memo<UserCardProps>(({ user, onEdit }) => {
+  // Component logic
+}, (prevProps, nextProps) => {
+  return prevProps.user.id === nextProps.user.id &&
+         prevProps.user.updatedAt === nextProps.user.updatedAt;
+});
+
+// ✅ Optimize with useCallback for stable references
+const handleUserEdit = useCallback((user: User) => {
+  dispatch({ type: 'EDIT_USER', payload: user });
+}, [dispatch]);
+```
+
+## Anti-Patterns to Avoid
+
+```typescript
+// ❌ Mutating props or state directly
+const Component = ({ items }) => {
+  items.push(newItem); // Don't mutate props
+  return <div>{items.length}</div>;
+};
+
+// ❌ Side effects in render
+const Component = () => {
+  localStorage.setItem('key', 'value'); // Side effect in render
+  return <div>Component</div>;
+};
+
+// ❌ Mixing concerns in components
+const UserComponent = () => {
+  // Don't mix data fetching, state management, and UI in one place
+  const [users, setUsers] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/users') // API call
+      .then(res => res.json())
+      .then(data => {
+        const processedData = data.map(user => ({ // Data processing
+          ...user,
+          displayName: `${user.firstName} ${user.lastName}`
+        }));
+        setUsers(processedData);
+      });
+  }, []);
+
+  return (
+    <div>
+      {users.map(user => (
+        <div key={user.id}>{user.displayName}</div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Additional Rules
+
+### Documentation
+```typescript
+/**
+ * Calculates the total price including tax for a list of items
+ * @param items - Array of items with price property
+ * @param taxRate - Tax rate as decimal (e.g., 0.1 for 10%)
+ * @returns Total price including tax
+ * @example
+ * const total = calculateTotalPrice([{price: 100}, {price: 200}], 0.1);
+ * // Returns 330
+ */
+const calculateTotalPrice = (items: Item[], taxRate: number): number =>
+  items.reduce((total, item) => total + item.price, 0) * (1 + taxRate);
+
+/**
+ * Custom hook for managing user data with loading and error states
+ * @param userId - The ID of the user to fetch
+ * @returns Object containing user data, loading state, and error state
+ */
+const useUserData = (userId: string) => {
+  // Hook implementation
+};
+```
+
+### Complex Logic Decomposition
+```typescript
+// ✅ Break complex logic into small, composable pure functions
+const validateEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const validatePassword = (password: string): boolean =>
+  password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+
+const validateRequired = (value: string): boolean =>
+  value.trim().length > 0;
+
+// Compose validation functions
+const validateUserInput = (user: UserInput): ValidationResult => {
+  const errors: string[] = [];
+  
+  if (!validateRequired(user.name)) errors.push('Name is required');
+  if (!validateEmail(user.email)) errors.push('Invalid email format');
+  if (!validatePassword(user.password)) errors.push('Password must be at least 8 characters with uppercase and number');
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+```
+
+### Immutable State Updates
+```typescript
+// ✅ Always return new objects/arrays for state changes
+const updateUserProfile = (user: User, updates: Partial<User>): User => ({
+  ...user,
+  ...updates,
+  updatedAt: new Date().toISOString()
+});
+
+const addItemToList = <T>(list: T[], item: T): T[] => [...list, item];
+
+const updateItemInList = <T>(
+  list: T[], 
+  predicate: (item: T) => boolean, 
+  updates: Partial<T>
+): T[] =>
+  list.map(item => predicate(item) ? { ...item, ...updates } : item);
+
+const removeItemFromList = <T>(
+  list: T[], 
+  predicate: (item: T) => boolean
+): T[] =>
+  list.filter(item => !predicate(item));
+```
+
+### Single Responsibility Components
+```typescript
+// ✅ Each component has a single, clear responsibility
+const UserAvatar: React.FC<{ user: User; size: 'small' | 'medium' | 'large' }> = 
+  ({ user, size }) => (
+    <img 
+      src={user.avatar || '/default-avatar.png'} 
+      alt={`${user.name}'s avatar`}
+      className={`avatar avatar--${size}`}
+    />
+  );
+
+const UserName: React.FC<{ user: User; showEmail?: boolean }> = 
+  ({ user, showEmail = false }) => (
+    <div className="user-name">
+      <h3>{user.name}</h3>
+      {showEmail && <p>{user.email}</p>}
+    </div>
+  );
+
+const UserActions: React.FC<{ user: User; onEdit: (user: User) => void }> = 
+  ({ user, onEdit }) => (
+    <div className="user-actions">
+      <button onClick={() => onEdit(user)}>Edit</button>
+    </div>
+  );
+
+// Compose components together
+const UserCard: React.FC<{ user: User; onEdit: (user: User) => void }> = 
+  ({ user, onEdit }) => (
+    <div className="user-card">
+      <UserAvatar user={user} size="medium" />
+      <UserName user={user} showEmail />
+      <UserActions user={user} onEdit={onEdit} />
+    </div>
+  );
+```
+
+### Side Effects Management
+```typescript
+// ✅ Isolate side effects in useEffect or service layers
+const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Side effects in useEffect
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const userData = await userService.getUser(userId);
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
+  if (loading) return <LoadingSpinner />;
+  if (!user) return <ErrorMessage message="User not found" />;
+
+  return <UserDetails user={user} />;
+};
+
+// ✅ Service layer for API calls and external interactions
+class UserService {
+  /**
+   * Fetches user data from the API
+   * @param userId - The ID of the user to fetch
+   * @returns Promise resolving to user data
+   */
+  async getUser(userId: string): Promise<User> {
+    const response = await fetch(`/api/users/${userId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  /**
+   * Updates user data via API
+   * @param userId - The ID of the user to update
+   * @param updates - Partial user data to update
+   * @returns Promise resolving to updated user data
+   */
+  async updateUser(userId: string, updates: Partial<User>): Promise<User> {
+    const response = await fetch(`/api/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update user: ${response.statusText}`);
+    }
+    return response.json();
+  }
+}
+
+const userService = new UserService();
+export { userService };
+```

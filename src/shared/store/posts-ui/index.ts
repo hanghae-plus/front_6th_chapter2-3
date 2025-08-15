@@ -1,0 +1,1 @@
+export { usePostsUI } from './hook'

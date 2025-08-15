@@ -1,0 +1,1 @@
+export { UserProfileModalWidget } from './ui/UserProfileModalWidget'

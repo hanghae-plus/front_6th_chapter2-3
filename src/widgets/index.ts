@@ -1,0 +1,5 @@
+export { PostsSearchWidget } from './posts-search'
+export { PostsTableWidget } from './posts-table'
+export { PostFormDialogWidget } from './post-form-dialog'
+export { CommentManagementWidget } from './comment-management'
+export { UserProfileModalWidget } from './user-profile-modal'
