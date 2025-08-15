@@ -1,4 +1,5 @@
 import { Post } from '../types';
+import { httpClient } from '../../../shared/config/httpClient';
 
 // 게시물 관련 비즈니스 로직 함수들 (usePostFeature에서만 사용)
 
@@ -16,7 +17,7 @@ export const searchPosts = async (
   }
   setLoading(true);
   try {
-    const response = await fetch(`/api/posts/search?q=${searchQuery}`);
+    const response = await httpClient.get(`/api/posts/search?q=${searchQuery}`);
     const data = await response.json();
     setPosts(data.posts);
     setTotal(data.total);
@@ -41,8 +42,8 @@ export const fetchPostsByTag = async (
   setLoading(true);
   try {
     const [postsResponse, usersResponse] = await Promise.all([
-      fetch(`/api/posts/tag/${tag}`),
-      fetch('/api/users?limit=0&select=username,image'),
+      httpClient.get(`/api/posts/tag/${tag}`),
+      httpClient.get('/api/users?limit=0&select=username,image'),
     ]);
     const postsData = await postsResponse.json();
     const usersData = await usersResponse.json();
