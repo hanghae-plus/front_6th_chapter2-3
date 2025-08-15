@@ -1,4 +1,4 @@
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { DialogTitle } from "@radix-ui/react-dialog"
 
 import { Dialog, DialogContent, DialogHeader } from "../../shared/ui"
@@ -9,19 +9,21 @@ import {
   detailPostAtom,
   isPostDetailModalOpenAtom,
 } from "../../features/view-post-detail/model/atoms"
+import { isAddCommentModalOpenAtom } from "../../features/add-comment/model/atoms"
 
-interface PostDetailModalProps extends ComponentProps<typeof CommentsSection> {}
+interface PostDetailModalProps
+  extends Omit<ComponentProps<typeof CommentsSection>, "onAddComment" | "postId"> {}
 
 const PostDetailModal = ({
   comments,
   searchQuery,
-  onAddComment,
   onDeleteComment,
   onEditComment,
   onLikeComment,
 }: PostDetailModalProps) => {
   const [isOpen, setIsOpen] = useAtom(isPostDetailModalOpenAtom)
   const [post] = useAtom(detailPostAtom)
+  const setIsAddCommentModalOpen = useSetAtom(isAddCommentModalOpenAtom)
 
   const postId = post?.id
 
@@ -43,7 +45,7 @@ const PostDetailModal = ({
             postId={postId}
             comments={comments}
             searchQuery={searchQuery}
-            onAddComment={onAddComment}
+            onAddComment={() => setIsAddCommentModalOpen(true)}
             onClickLike={onLikeComment}
             onClickEdit={onEditComment}
             onClickDelete={onDeleteComment}

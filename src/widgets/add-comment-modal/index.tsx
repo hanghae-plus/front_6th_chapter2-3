@@ -1,26 +1,26 @@
+import { useAtom, useAtomValue } from "jotai"
+import { isAddCommentModalOpenAtom } from "../../features/add-comment/model/atoms"
 import AddCommentForm from "../../features/add-comment/ui/AddCommentForm"
+import { detailPostAtom } from "../../features/view-post-detail/model/atoms"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../shared/ui"
 
-interface AddCommentModalProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-}
+const AddCommentModal = () => {
+  const [isOpen, setIsOpen] = useAtom(isAddCommentModalOpenAtom)
+  const detailPost = useAtomValue(detailPostAtom)
 
-const AddCommentModal = ({ isOpen, onOpenChange }: AddCommentModalProps) => {
   const handleSubmitSuccess = () => {
-    // setComments((prev) => ({
-    //   ...prev,
-    //   [data.postId]: [...(prev[data.postId] || []), data],
-    // }))
-    onOpenChange(false)
+    setIsOpen(false)
   }
+
+  if (!detailPost) return null
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 댓글 추가</DialogTitle>
         </DialogHeader>
-        <AddCommentForm onSubmitSuccess={handleSubmitSuccess} />
+        <AddCommentForm postId={detailPost.id} onSubmitSuccess={handleSubmitSuccess} />
       </DialogContent>
     </Dialog>
   )
