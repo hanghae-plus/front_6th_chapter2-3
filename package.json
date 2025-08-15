@@ -9,9 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "test:run": "vitest run",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.0",
+    "jotai": "^2.13.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
