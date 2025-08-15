@@ -1,4 +1,3 @@
-import React from "react"
 import { Button, CardHeader, CardTitle } from "../../../shared/ui"
 import { Plus } from "lucide-react"
 import { useSelectedPostStore } from "../model/store"

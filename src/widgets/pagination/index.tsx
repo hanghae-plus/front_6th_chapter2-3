@@ -1,4 +1,3 @@
-import React from "react"
 import { Button, Select } from "../../shared/ui"
 import { PaginationProps } from "./type"
 

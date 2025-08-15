@@ -1,4 +1,3 @@
-import React from "react"
 import { Dialog } from "../../../shared/ui"
 import { useSelectedUserStore } from "../model/store"
 

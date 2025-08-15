@@ -1,4 +1,3 @@
-import React from "react"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { useSelectedPostStore } from "../model/store"
 import { usePostForm } from "../model/hook"

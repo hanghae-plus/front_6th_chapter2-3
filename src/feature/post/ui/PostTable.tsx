@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../../shared/ui"
-import { usePostForm, userPostInfo } from "../model/hook"
+import { usePostForm } from "../model/hook"
 import { useSelectedPostStore } from "../model/store"
 import { Post } from "../type"
 

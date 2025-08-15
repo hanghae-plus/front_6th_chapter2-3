@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Button, Dialog, Textarea } from "../../../shared/ui"
 import { useCommentStore } from "../model/store"
 import { useSelectedPostStore } from "../../post/model/store"
