@@ -17,19 +17,27 @@ export interface Comments {
   total: number
 }
 
+// api 호출용 타입
 export interface NewCommentDraft {
-  body: string;
-  postId: number | null;
-  userId: number;
+  body: string
+  postId: number | null
+  userId: number
 }
 
-export interface CommentsResponse {
-  comments: Comment[];
-  limit: number;
-  skip: number;
-  total: number;
+export interface CreateCommentRequest {
+  body: string
+  postId: number
+  userId: number
 }
 
 export interface UpdateCommentRequest {
-  body: string;
+  id: number
+  body: string
+}
+
+export interface CommentsResponse {
+  comments: Comment[]
+  limit: number
+  skip: number
+  total: number
 }

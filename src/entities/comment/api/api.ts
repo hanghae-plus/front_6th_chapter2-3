@@ -9,7 +9,7 @@ export const createComment = async (newComment: CreateCommentRequest): Promise<C
   return api.post("/comments", newComment)
 }
 
-export const updateComment = async (id: number, body: UpdateCommentRequest): Promise<Comment> => {
+export const updateComment = async (id: number, body: Pick<UpdateCommentRequest, "body">): Promise<Comment> => {
   return api.put(`/comments/${id}`, body)
 }
 
