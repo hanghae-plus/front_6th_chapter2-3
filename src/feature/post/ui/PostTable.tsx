@@ -1,17 +1,7 @@
 import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react"
-import {
-  Button,
-  HighlightText,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../shared/ui"
-import { usePostForm } from "../model/hook"
-import { useSelectedPostStore } from "../model/store"
+import { usePostForm, useSelectedPostStore } from "../model"
 import { Post } from "../type"
+import { Button, HighlightText, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared"
 
 export const PostTable = ({
   searchQuery,

@@ -1,5 +1,5 @@
-import { Dialog } from "../../../shared/ui"
-import { useSelectedUserStore } from "../model/store"
+import { useSelectedUserStore } from "../model"
+import { Dialog } from "../../../shared"
 
 export const PostUserDialog = () => {
   const { selectedUser, showUserModal, setShowUserModal } = useSelectedUserStore()

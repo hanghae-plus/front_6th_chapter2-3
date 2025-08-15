@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { Post as OriginPost } from "../../../entities"
-import { NewPost, Post, DeletePost } from "../../../feature/post/type"
-import { useSelectedPostStore } from "../../../feature/post/model/store"
-import { requestApi } from "../../../shared/lib"
+import { NewPost, Post, DeletePost } from "../../../feature"
+import { useSelectedPostStore } from "./store"
+import { requestApi } from "../../../shared"
 
 export const useAddPostMutation = () => {
   const queryClient = useQueryClient()
@@ -59,14 +59,14 @@ export const useAddPostMutation = () => {
 
       return { previousPosts, optimisticPost }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       // 에러 시 이전 상태로 롤백
       if (context && context.previousPosts) {
         queryClient.setQueryData(["getPosts"], context.previousPosts)
       }
-      console.error("게시물 추가 오류:", error)
+      console.error("게시물 추가 오류:", _error)
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, _variables, context) => {
       // 서버 응답으로 최종 업데이트 (임시 게시물을 실제 데이터로 교체)
       const realPost: Post = {
         ...data,
@@ -147,12 +147,12 @@ export const useUpdatePostMutation = () => {
 
       return { previousPosts, updatedPostId: updatedPost.id }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       // 에러 시 이전 상태로 롤백
       if (context && context.previousPosts) {
         queryClient.setQueryData(["getPosts"], context.previousPosts)
       }
-      console.error("게시물 수정 오류:", error)
+      console.error("게시물 수정 오류:", _error)
     },
     onSuccess: (data, variables) => {
       // 서버 응답으로 최종 업데이트
@@ -217,12 +217,12 @@ export const useDeletePostMutation = () => {
 
       return { previousPosts, postId }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       // 에러 시 이전 상태로 롤백 (삭제된 게시물 복원)
       if (context && context.previousPosts) {
         queryClient.setQueryData(["getPosts"], context.previousPosts)
       }
-      console.error("게시물 삭제 오류:", error)
+      console.error("게시물 삭제 오류:", _error)
     },
     onSuccess: (result) => {
       console.log(`게시물 ${result.deletedId} 삭제 완료`)

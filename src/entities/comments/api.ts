@@ -1,4 +1,4 @@
-import { requestApi } from "../../shared/lib"
+import { requestApi } from "../../shared"
 import { Comments } from "./type"
 
 export const getComments = async (postId: number) => {

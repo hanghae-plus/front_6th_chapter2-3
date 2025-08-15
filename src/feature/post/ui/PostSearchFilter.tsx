@@ -1,8 +1,8 @@
 import { Search } from "lucide-react"
-import { Input, Select } from "../../../shared/ui"
 import { Tags } from "../../../entities"
+import { Input, Select } from "../../../shared"
 
-const PostSearchFilter = ({
+export const PostSearchFilter = ({
   searchQuery,
   selectedTag,
   sortBy,
@@ -71,5 +71,3 @@ const PostSearchFilter = ({
     </div>
   )
 }
-
-export default PostSearchFilter

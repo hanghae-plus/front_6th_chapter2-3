@@ -1,4 +1,4 @@
-import { Author, Pagination } from "../../shared/types"
+import { Author, Pagination } from "../../shared"
 
 export interface User {
   id: number

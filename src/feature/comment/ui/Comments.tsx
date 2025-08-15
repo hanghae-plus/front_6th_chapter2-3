@@ -1,8 +1,7 @@
-import { Button, HighlightText } from "../../../shared/ui"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
-import { useCommentStore } from "../model/store"
-import { useSearchQueryStore, useSelectedPostStore } from "../../post/model/store"
-import { useComment } from "../model/hook"
+import { useSearchQueryStore, useSelectedPostStore } from "../../post"
+import { Button, HighlightText } from "../../../shared"
+import { useCommentStore, useComment } from "../model"
 
 export const Comments = () => {
   const { searchQuery } = useSearchQueryStore()

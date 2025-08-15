@@ -1,15 +1,17 @@
-import { Card } from "../shared/ui"
-import { CommentAddDialog } from "../feature"
-import { CommentEditDialog } from "../feature/comment/ui/CommentEditDialog"
-import { Comments } from "../feature/comment/ui/Comments"
-import { PostAddDialog } from "../feature/post/ui/PostAddDialog"
-import { PostEditDialog } from "../feature/post/ui/PostEditDialog"
-import { PostDetailDialog } from "../feature/post/ui/PostDetailDialog"
-import { PostUserDialog } from "../feature/post/ui/PostUserDialog"
-import { PostHeader } from "../feature/post/ui/PostHeader"
-import { PostList } from "../feature/post"
+import {
+  CommentAddDialog,
+  CommentEditDialog,
+  Comments,
+  PostAddDialog,
+  PostDetailDialog,
+  PostEditDialog,
+  PostHeader,
+  PostList,
+  PostUserDialog,
+} from "../feature"
+import { Card } from "../shared"
 
-const PostsManager = () => {
+export const PostsManager = () => {
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <PostHeader />
@@ -42,5 +44,3 @@ const PostsManager = () => {
     </Card>
   )
 }
-
-export default PostsManager

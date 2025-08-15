@@ -1,21 +1,17 @@
-import { useCommentStore } from "./store"
-import { Comment, getComments } from "../../../entities"
-import { QUERY_KEYS } from "../../../shared/constants/query"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import {
+  useCommentStore,
   useAddCommentMutation,
   useDeleteCommentMutation,
   useLikeCommentMutation,
   useUpdateCommentMutation,
-} from "./mutations"
+} from "./"
+import { Comment, getComments } from "../../../entities"
+import { QUERY_KEYS } from "../../../shared"
 
 export const useComment = (postId?: number | null) => {
   const { newComment, selectedComment, setNewComment, setShowAddCommentDialog } = useCommentStore()
-  const {
-    data: comments = [],
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: comments = [] } = useQuery({
     queryKey: QUERY_KEYS.getComments(postId!),
     queryFn: async () => {
       console.log(`Fetching comments for post ${postId}`)

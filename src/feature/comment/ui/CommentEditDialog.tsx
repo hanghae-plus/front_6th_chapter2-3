@@ -1,7 +1,6 @@
-import { Button, Dialog, Textarea } from "../../../shared/ui"
-import { useCommentStore } from "../model/store"
+import { Button, Dialog, Textarea } from "../../../shared"
+import { useCommentStore, useComment } from "../model"
 import { Comment } from "../../../entities"
-import { useComment } from "../model/hook"
 
 export const CommentEditDialog = () => {
   const { selectedComment, setSelectedComment, showEditCommentDialog, setShowEditCommentDialog } = useCommentStore()

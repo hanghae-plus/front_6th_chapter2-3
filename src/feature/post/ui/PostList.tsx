@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from "react"
-import { CardContent } from "../../shared/ui"
-import PostSearchFilter from "./ui/PostSearchFilter"
-import { Pagination } from "../../widgets"
-import { PostTable } from "./ui/PostTable"
-import { getTags, Tags } from "../../entities"
-import { getUser } from "../../entities"
-import { Author } from "../../shared/types"
-import { useSearchQueryStore, useSelectedUserStore } from "./model/store"
-import { useURL } from "../../shared/hook/useURL"
-import { userPostInfo } from "./model/hook"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { QUERY_KEYS } from "../../shared/constants/query"
+import React, { useEffect, useState } from "react"
+import { getTags, getUser, Tags } from "../../../entities"
+import { userPostInfo, useSearchQueryStore, useSelectedUserStore } from "../model"
+import { Pagination } from "../../../widgets"
+import { Author, CardContent, QUERY_KEYS, useURL } from "../../../shared"
+import { PostSearchFilter } from "./PostSearchFilter"
+import { PostTable } from "./PostTable"
 
 export const PostList = () => {
   const queryClient = useQueryClient()

@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { requestApi } from "../../../shared/lib"
-import { DeleteComment, NewComment, UpsertComment } from "../type"
-import { QUERY_KEYS } from "../../../shared/constants/query"
 import { useCommentStore } from "./store"
+import { DeleteComment, NewComment, UpsertComment } from "../type"
+import { QUERY_KEYS, requestApi } from "../../../shared"
 
 export const useLikeCommentMutation = () => {
   const queryClient = useQueryClient()
@@ -30,12 +29,12 @@ export const useLikeCommentMutation = () => {
 
       return { previousComments, id, postId }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(QUERY_KEYS.getComments(context.postId), context.previousComments)
       }
     },
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.getComments(variables.postId) })
     },
   })
@@ -78,7 +77,7 @@ export const useAddCommentMutation = () => {
 
       return { previousComments, optimisticComment, postId }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(QUERY_KEYS.getComments(context.postId), context.previousComments)
       }
@@ -87,7 +86,7 @@ export const useAddCommentMutation = () => {
       setShowAddCommentDialog(false)
       setNewComment({ body: "", postId: null, userId: 1 })
     },
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.getComments(variables.postId) })
     },
   })
@@ -120,7 +119,7 @@ export const useUpdateCommentMutation = () => {
 
       return { previousComments, id, postId }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(QUERY_KEYS.getComments(context.postId), context.previousComments)
       }
@@ -129,7 +128,7 @@ export const useUpdateCommentMutation = () => {
       setShowEditCommentDialog(false)
       setSelectedComment(null)
     },
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.getComments(variables.postId) })
     },
   })
@@ -160,12 +159,12 @@ export const useDeleteCommentMutation = () => {
 
       return { previousComments, id, postId }
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(QUERY_KEYS.getComments(context.postId), context.previousComments)
       }
     },
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.getComments(variables.postId) })
     },
   })

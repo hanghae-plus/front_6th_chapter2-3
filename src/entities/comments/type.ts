@@ -1,4 +1,4 @@
-import { Pagination } from "../../shared/types"
+import { Pagination } from "../../shared"
 
 export interface Comment {
   id: number

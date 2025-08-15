@@ -1,4 +1,4 @@
-import { Button, Select } from "../../shared/ui"
+import { Button, Select } from "../../shared"
 import { PaginationProps } from "./type"
 
 export const Pagination = ({ limit, setLimit, total, skip, setSkip }: PaginationProps) => {

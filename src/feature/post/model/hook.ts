@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useSearchQueryStore, useSelectedPostStore } from "./store"
+import { useAddPostMutation, useDeletePostMutation, useUpdatePostMutation } from "./mutations"
 import { NewPost, Post } from "../type"
 import { getPosts, getPostsByTag, getSeachPosts, getUsers } from "../../../entities"
-import { QUERY_KEYS } from "../../../shared/constants/query"
-import { useQuery } from "@tanstack/react-query"
-import { useAddPostMutation, useDeletePostMutation, useUpdatePostMutation } from "./mutations"
+import { QUERY_KEYS } from "../../../shared"
 
 export const userPostInfo = (limit: number, skip: number, sortBy: string, sortOrder: string, selectedTag: string) => {
   const { searchQuery } = useSearchQueryStore()

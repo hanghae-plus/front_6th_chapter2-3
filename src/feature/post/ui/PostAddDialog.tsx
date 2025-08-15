@@ -1,6 +1,5 @@
-import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
-import { useSelectedPostStore } from "../model/store"
-import { usePostForm } from "../model/hook"
+import { Button, Dialog, Input, Textarea } from "../../../shared"
+import { usePostForm, useSelectedPostStore } from "../model"
 
 export const PostAddDialog = () => {
   const { showAddDialog, setShowAddDialog } = useSelectedPostStore()

@@ -1,7 +1,7 @@
-import { Button, Dialog, Textarea } from "../../../shared/ui"
-import { useCommentStore } from "../model/store"
-import { useSelectedPostStore } from "../../post/model/store"
-import { useComment } from "../model/hook"
+
+import { useSelectedPostStore } from "../../post"
+import { useCommentStore, useComment } from "../model"
+import { Button, Dialog, Textarea } from "../../../shared"
 
 export const CommentAddDialog = () => {
   const { selectedPost } = useSelectedPostStore()

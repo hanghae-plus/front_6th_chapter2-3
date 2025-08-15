@@ -1,6 +1,6 @@
 import React from "react"
-import { Dialog, HighlightText } from "../../../shared/ui"
-import { useSearchQueryStore, useSelectedPostStore } from "../model/store"
+import { useSearchQueryStore, useSelectedPostStore } from "../model"
+import { Dialog, HighlightText } from "../../../shared"
 
 export const PostDetailDialog = ({ children }: { children: React.ReactNode }) => {
   const { searchQuery } = useSearchQueryStore()

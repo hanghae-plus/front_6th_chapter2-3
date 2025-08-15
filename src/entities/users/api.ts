@@ -1,4 +1,4 @@
-import { requestApi } from "../../shared/lib"
+import { requestApi } from "../../shared"
 import { User, Users } from "./type"
 
 export const getUsers = async () => {
