@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { usePostFilterStore } from './postFilterStore';
 
-import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
+import { useUrlQuery } from '@/entities/post/model/useUrlQuery';
 
 export const usePostFilter = () => {
   const { searchParams, updateQuery } = useUrlQuery();

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { usePaginationStore } from './paginationStore';
 
-import { useUrlQuery } from '@/shared/hooks/useUrlQuery';
+import { useUrlQuery } from '@/entities/post/model/useUrlQuery';
 
 export const usePagination = () => {
   const { searchParams, updateQuery } = useUrlQuery();
