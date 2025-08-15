@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { postApi, type Post } from '@/entities/post';
+import { queryKeys } from '@/shared/api';
 
 export type UsePostsOptions = {
   limit: number;
@@ -49,51 +51,48 @@ function sortPosts(
 
 export function usePosts(options: UsePostsOptions): UsePostsResult {
   const { limit, skip, searchQuery, tag, sortBy = 'none', sortOrder = 'asc' } = options;
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetcher = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (searchQuery && searchQuery.trim().length > 0) {
-        const data = await postApi.searchPosts(searchQuery);
-        setPosts(data.posts);
-        setTotal(data.total ?? data.posts.length);
-        return;
-      }
-      if (tag && tag !== 'all') {
-        const data = await postApi.getPostsByTag(tag);
-        setPosts(data.posts);
-        setTotal(data.total ?? data.posts.length);
-        return;
-      }
-      const data = await postApi.getPosts({ limit, skip });
-      setPosts(data.posts);
-      setTotal(data.total ?? data.posts.length);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '알 수 없는 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
+  const queryKey = useMemo(() => {
+    if (searchQuery && searchQuery.trim().length > 0) {
+      return queryKeys.posts.search(searchQuery);
     }
+    if (tag && tag !== 'all') {
+      return queryKeys.posts.byTag(tag);
+    }
+    return queryKeys.posts.list({ limit, skip, searchQuery, tag });
   }, [limit, skip, searchQuery, tag]);
 
-  useEffect(() => {
-    void fetcher();
-  }, [fetcher]);
+  const queryFn = useMemo(() => {
+    return async () => {
+      if (searchQuery && searchQuery.trim().length > 0) {
+        return await postApi.searchPosts(searchQuery);
+      }
+      if (tag && tag !== 'all') {
+        return await postApi.getPostsByTag(tag);
+      }
+      return await postApi.getPosts({ limit, skip });
+    };
+  }, [limit, skip, searchQuery, tag]);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey,
+    queryFn,
+    select: (data) => ({
+      posts: data.posts || [],
+      total: data.total ?? data.posts?.length ?? 0,
+    }),
+  });
 
   const sortedPosts = useMemo(
-    () => sortPosts(posts, sortBy, sortOrder),
-    [posts, sortBy, sortOrder],
+    () => sortPosts(data?.posts || [], sortBy, sortOrder),
+    [data?.posts, sortBy, sortOrder],
   );
 
   return {
     posts: sortedPosts,
-    total,
-    loading,
-    error,
-    refetch: fetcher,
+    total: data?.total || 0,
+    loading: isLoading,
+    error: error?.message || null,
+    refetch: () => void refetch(),
   };
 }

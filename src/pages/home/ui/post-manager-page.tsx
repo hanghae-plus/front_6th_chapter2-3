@@ -18,6 +18,7 @@ import { PostDetailDialog } from '@/features/(post)/view-post-detail';
 
 import { AddPostDialog } from '@/features/(post)/add-post';
 import { EditPostDialog } from '@/features/(post)/edit-post';
+import { useDeletePost } from '@/features/(post)/delete-post';
 
 import { AddCommentDialog } from '@/features/(comment)/add-comment';
 import { EditCommentDialog } from '@/features/(comment)/edit-comment';
@@ -38,6 +39,10 @@ export function PostsManagerPage() {
   const initial = useInitialQueryParams();
 
   const { open, close } = useDialog();
+
+  // 뮤테이션 훅들
+  const deletePostMutation = useDeletePost();
+
   const { limit, skip, next, prev, setPageSize, setSkip } = usePagination(
     initial.limit,
     initial.skip,
@@ -60,7 +65,7 @@ export function PostsManagerPage() {
     open(AddPostDialog, {
       open: true,
       onOpenChange: () => close(AddPostDialog),
-      onSuccess: () => void refetch(),
+      onSuccess: () => close(AddPostDialog),
     });
 
   const openEditPostDialog = (post: Post) =>
@@ -68,7 +73,7 @@ export function PostsManagerPage() {
       open: true,
       onOpenChange: () => close(EditPostDialog),
       post,
-      onSuccess: refetch,
+      onSuccess: () => close(EditPostDialog),
     });
 
   const openAddCommentDialog = () =>
@@ -87,7 +92,7 @@ export function PostsManagerPage() {
       onSuccess: () => void commentsFeature.refetch(),
     });
 
-  const { posts, total, loading, refetch } = usePosts({
+  const { posts, total, loading } = usePosts({
     limit,
     skip,
     searchQuery,
@@ -100,7 +105,9 @@ export function PostsManagerPage() {
     updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
   };
 
-  const onPostDeleted = async (_id: number) => refetch();
+  const onPostDeleted = async (id: number) => {
+    await deletePostMutation.mutateAsync(id);
+  };
 
   const commentsFeature = useComments(selectedPost?.id ?? null);
 
@@ -196,7 +203,7 @@ export function PostsManagerPage() {
         <div className='flex flex-col gap-4'>
           <div className='flex gap-4'>
             <div className='flex-1'>
-              <SearchInput value={searchQuery} onChange={setQuery} onEnter={() => void refetch()} />
+              <SearchInput value={searchQuery} onChange={setQuery} />
             </div>
             <TagFilterSelect
               value={selectedTag}

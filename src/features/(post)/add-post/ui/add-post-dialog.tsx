@@ -8,7 +8,7 @@ import {
   Input,
   Textarea,
 } from '@/shared/ui';
-import { postApi } from '@/entities/post';
+import { useAddPost } from '../model';
 
 type AddPostDialogProps = {
   open: boolean;
@@ -20,19 +20,19 @@ export function AddPostDialog({ open, onOpenChange, onSuccess }: AddPostDialogPr
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [userId, setUserId] = useState<number>(1);
-  const [submitting, setSubmitting] = useState(false);
+
+  const addPostMutation = useAddPost();
 
   const handleSubmit = async () => {
     try {
-      setSubmitting(true);
-      await postApi.addPost({ title, body, userId });
+      await addPostMutation.mutateAsync({ title, body, userId });
       onSuccess?.();
       onOpenChange(false);
       setTitle('');
       setBody('');
       setUserId(1);
-    } finally {
-      setSubmitting(false);
+    } catch (error) {
+      console.error('포스트 추가 오류:', error);
     }
   };
 
@@ -56,7 +56,7 @@ export function AddPostDialog({ open, onOpenChange, onSuccess }: AddPostDialogPr
             value={userId}
             onChange={(e) => setUserId(Number(e.target.value))}
           />
-          <Button disabled={submitting} onClick={handleSubmit}>
+          <Button disabled={addPostMutation.isPending} onClick={handleSubmit}>
             게시물 추가
           </Button>
         </div>

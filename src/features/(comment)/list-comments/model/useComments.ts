@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { commentApi, type Comment } from '@/entities/comment';
 import type { AddCommentPayload } from '@/entities/comment/api/add-comment';
+import { queryKeys } from '@/shared/api';
 
 export type UseCommentsResult = {
   comments: Comment[];
@@ -14,52 +16,91 @@ export type UseCommentsResult = {
 };
 
 export function useComments(postId: number | null): UseCommentsResult {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetcher = useCallback(async () => {
-    if (!postId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await commentApi.getCommentsByPost(postId);
-      setComments(data.comments);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '알 수 없는 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, [postId]);
+  const {
+    data: comments = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.comments.byPost(postId!),
+    queryFn: async () => {
+      const data = await commentApi.getCommentsByPost(postId!);
+      return data.comments;
+    },
+    enabled: postId !== null,
+  });
 
-  useEffect(() => {
-    void fetcher();
-  }, [fetcher]);
+  const addMutation = useMutation({
+    mutationFn: (payload: AddCommentPayload) => commentApi.addComment(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments.byPost(postId!) });
+    },
+  });
 
-  const add = useCallback(async (payload: AddCommentPayload) => {
-    const created = await commentApi.addComment(payload);
-    setComments((prev) => [...prev, created]);
-  }, []);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, patch }: { id: number; patch: Partial<Comment> }) =>
+      commentApi.updateComment(id, patch),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments.byPost(postId!) });
+    },
+  });
 
-  const update = useCallback(async (id: number, patch: Partial<Comment>) => {
-    const updated = await commentApi.updateComment(id, patch);
-    setComments((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-  }, []);
+  const removeMutation = useMutation({
+    mutationFn: (id: number) => commentApi.deleteComment(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments.byPost(postId!) });
+    },
+  });
 
-  const remove = useCallback(async (id: number) => {
-    await commentApi.deleteComment(id);
-    setComments((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+  const likeMutation = useMutation({
+    mutationFn: (id: number) => {
+      const current = comments.find((c) => c.id === id);
+      const currentLikes = current?.likes ?? 0;
+      return commentApi.likeComment(id, currentLikes);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments.byPost(postId!) });
+    },
+  });
+
+  const add = useCallback(
+    async (payload: AddCommentPayload) => {
+      await addMutation.mutateAsync(payload);
+    },
+    [addMutation],
+  );
+
+  const update = useCallback(
+    async (id: number, patch: Partial<Comment>) => {
+      await updateMutation.mutateAsync({ id, patch });
+    },
+    [updateMutation],
+  );
+
+  const remove = useCallback(
+    async (id: number) => {
+      await removeMutation.mutateAsync(id);
+    },
+    [removeMutation],
+  );
 
   const like = useCallback(
     async (id: number) => {
-      const current = comments.find((c) => c.id === id);
-      const currentLikes = current?.likes ?? 0;
-      const updated = await commentApi.likeComment(id, currentLikes);
-      setComments((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+      await likeMutation.mutateAsync(id);
     },
-    [comments],
+    [likeMutation, comments],
   );
 
-  return { comments, loading, error, refetch: fetcher, add, update, remove, like } as const;
+  return {
+    comments,
+    loading: isLoading,
+    error: error?.message || null,
+    refetch: () => void refetch(),
+    add,
+    update,
+    remove,
+    like,
+  } as const;
 }

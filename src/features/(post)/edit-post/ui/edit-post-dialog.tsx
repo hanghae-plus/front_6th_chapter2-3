@@ -8,7 +8,8 @@ import {
   Input,
   Textarea,
 } from '@/shared/ui';
-import { postApi, type Post } from '@/entities/post';
+import type { Post } from '@/entities/post';
+import { useEditPost } from '../model';
 
 type EditPostDialogProps = {
   open: boolean;
@@ -20,7 +21,8 @@ type EditPostDialogProps = {
 export function EditPostDialog({ open, onOpenChange, post, onSuccess }: EditPostDialogProps) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+
+  const editPostMutation = useEditPost();
 
   useEffect(() => {
     setTitle(post?.title ?? '');
@@ -30,12 +32,11 @@ export function EditPostDialog({ open, onOpenChange, post, onSuccess }: EditPost
   const handleSubmit = async () => {
     if (!post) return;
     try {
-      setSubmitting(true);
-      await postApi.updatePost(post.id, { title, body });
+      await editPostMutation.mutateAsync({ id: post.id, payload: { title, body } });
       onSuccess?.();
       onOpenChange(false);
-    } finally {
-      setSubmitting(false);
+    } catch (error) {
+      console.error('포스트 수정 오류:', error);
     }
   };
 
@@ -53,7 +54,7 @@ export function EditPostDialog({ open, onOpenChange, post, onSuccess }: EditPost
             value={body}
             onChange={(e) => setBody(e.target.value)}
           />
-          <Button disabled={submitting} onClick={handleSubmit}>
+          <Button disabled={editPostMutation.isPending} onClick={handleSubmit}>
             게시물 업데이트
           </Button>
         </div>
