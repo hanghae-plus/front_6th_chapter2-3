@@ -8,6 +8,10 @@ import {
   isEditPostModalOpenAtom,
 } from "../../features/edit-post/model/atoms"
 import {
+  isUserInfoModalOpenAtom,
+  viewingUserIdAtom,
+} from "../../features/user-management/model/atoms"
+import {
   detailPostAtom,
   isPostDetailModalOpenAtom,
 } from "../../features/view-post-detail/model/atoms"
@@ -21,7 +25,7 @@ import {
   updatePostApi,
 } from "../../entities/posts/api"
 import { fetchTagsApi } from "../../entities/tags/api"
-import { fetchUserApi, fetchUsersApi } from "../../entities/users/api"
+import { fetchUsersApi } from "../../entities/users/api"
 import {
   deleteCommentApi,
   fetchCommentsApi,
@@ -51,15 +55,14 @@ const PostsManager = () => {
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
 
-  // 모달 관련 (useState)
-  const [showUserModal, setShowUserModal] = useState(false)
-
   // 모달 관련 (Jotai)
   const setIsAddPostModalOpen = useSetAtom(isAddPostModalOpenAtom)
   const setEditingPost = useSetAtom(editingPostAtom)
   const setIsEditPostModalOpen = useSetAtom(isEditPostModalOpenAtom)
   const setDetailPost = useSetAtom(detailPostAtom)
   const setIsPostDetailModalOpen = useSetAtom(isPostDetailModalOpenAtom)
+  const setViewingUserId = useSetAtom(viewingUserIdAtom)
+  const setIsUserInfoModalOpen = useSetAtom(isUserInfoModalOpenAtom)
 
   const detailPost = useAtomValue(detailPostAtom)
 
@@ -217,19 +220,9 @@ const PostsManager = () => {
 
   // 사용자 모달 열기
   const openUserModal = (userId: number) => {
-    setSelectedUserModalId(userId)
-    setShowUserModal(true)
+    setViewingUserId(userId)
+    setIsUserInfoModalOpen(true)
   }
-
-  const [selectedUserModalId, setSelectedUserModalId] = useState<number | null>(
-    null,
-  )
-
-  const { data: userData } = useQuery({
-    queryKey: ["user", selectedUserModalId],
-    queryFn: () => fetchUserApi(selectedUserModalId!),
-    enabled: !!selectedUserModalId,
-  })
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -329,7 +322,7 @@ const PostsManager = () => {
         onClickDelete={(id, postId) => deleteComment(id, postId)}
       />
 
-      <UserInfoModal isOpen={showUserModal} onOpenChange={setShowUserModal} user={userData} />
+      <UserInfoModal />
     </Card>
   )
 }
