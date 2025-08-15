@@ -199,6 +199,11 @@ const PostsManager = () => {
     }
   }
 
+
+
+
+  
+
   // 댓글 가져오기
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음

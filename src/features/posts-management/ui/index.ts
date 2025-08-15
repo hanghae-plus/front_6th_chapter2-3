@@ -1,0 +1,5 @@
+export { PostsTable } from './PostsTable'
+export { SearchAndFilter } from './SearchAndFilter'
+export { Pagination } from './Pagination'
+export { AddPostModal } from './AddPostModal'
+export { EditPostModal } from './EditPostModal'

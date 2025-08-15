@@ -3,17 +3,27 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://jun17183.github.io/front_6th_chapter2-3",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "start": "vite serve --open ./index.html",
+    "start:origin": "vite --port 5174 --open ./index-origin.html",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist --repo https://github.com/jun17183/front_6th_chapter2-3.git"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.84.2",
+    "clsx": "^2.1.1",
+    "gh-pages": "^6.3.0",
+    "jotai": "^2.13.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
