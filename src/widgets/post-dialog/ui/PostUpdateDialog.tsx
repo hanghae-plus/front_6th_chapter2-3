@@ -1,17 +1,17 @@
-import { type ChangeEvent, useState } from "react"
+import { type ChangeEvent } from "react"
 
 import { usePostDialogStore } from "@/features/get-post/model"
+import { useUpdatePostMutation } from "@/features/update-post/api"
 import { DialogType, useDialogStore } from "@/shared/lib"
 import { Button, Dialog, Input, Textarea } from "@/shared/ui"
 
 export function PostUpdateDialog() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
   const currentDialog = useDialogStore((state) => state.currentDialog)
   const { closeDialog } = useDialogStore((state) => state.actions)
   const { selectedPost } = usePostDialogStore((state) => state)
   const { setSelectedPost } = usePostDialogStore((state) => state.actions)
 
+  const updatePostMutation = useUpdatePostMutation()
   const isOpen = currentDialog === DialogType.EDIT_POST
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -27,23 +27,16 @@ export function PostUpdateDialog() {
   const handleUpdatePost = async () => {
     if (!selectedPost || !selectedPost.title.trim() || !selectedPost.body.trim()) return
 
-    const prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api"
-    setIsSubmitting(true)
     try {
-      const response = await fetch(`${prefixUrl}/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
+      await updatePostMutation.mutateAsync({
+        id: selectedPost.id,
+        title: selectedPost.title,
+        body: selectedPost.body,
+        userId: selectedPost.userId
       })
-
-      if (response.ok) {
-        closeDialog()
-        window.dispatchEvent(new CustomEvent("refreshPosts"))
-      }
+      closeDialog()
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -63,9 +56,9 @@ export function PostUpdateDialog() {
           <Textarea rows={15} placeholder="내용" value={selectedPost.body} onChange={handleBodyChange} />
           <Button
             onClick={handleUpdatePost}
-            disabled={!selectedPost.title.trim() || !selectedPost.body.trim() || isSubmitting}
+            disabled={!selectedPost.title.trim() || !selectedPost.body.trim() || updatePostMutation.isPending}
           >
-            {isSubmitting ? "업데이트 중..." : "게시물 업데이트"}
+            {updatePostMutation.isPending ? "업데이트 중..." : "게시물 업데이트"}
           </Button>
         </div>
       </Dialog.Content>
