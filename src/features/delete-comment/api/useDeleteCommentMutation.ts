@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { deleteComment } from "@/entities/comment/api/comments"
+import { commentKeys } from "@/entities/comment/lib"
 import type { DeleteComment } from "@/entities/comment/model"
 
 export function useDeleteCommentMutation() {
@@ -8,9 +9,9 @@ export function useDeleteCommentMutation() {
 
   return useMutation({
     mutationFn: (payload: DeleteComment.Payload) => deleteComment(payload),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", "post", variables.commentId],
+        queryKey: commentKeys.all,
       })
     },
     onError: (error) => {

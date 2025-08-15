@@ -1,10 +1,9 @@
 import type { ComponentPropsWithoutRef } from "react"
 
 import { mergeClasses } from "@/base/lib"
+import { PostHighlightText } from "@/entities/post/ui"
+import { PostTagList } from "@/entities/post/ui/PostTagList"
 import { usePostParamsStore } from "@/features/get-post/model"
-
-import { PostHighlightText } from "./PostHighlightText"
-import { PostTagList } from "./PostTagList"
 
 type PostTitleSectionProps = ComponentPropsWithoutRef<"div"> & {
   title: string

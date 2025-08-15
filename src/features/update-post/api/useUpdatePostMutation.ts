@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { updatePost } from "@/entities/post/api/posts"
+import { postKeys } from "@/entities/post/lib"
 import type { UpdatePost } from "@/entities/post/model"
 
 export function useUpdatePostMutation() {
@@ -9,11 +10,8 @@ export function useUpdatePostMutation() {
   return useMutation({
     mutationFn: (payload: UpdatePost.Payload) => updatePost(payload),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      queryClient.setQueryData(["posts", variables.id], data)
-
-      // 즉시 UI 업데이트를 위한 이벤트 발생
-      window.dispatchEvent(new CustomEvent("refreshPosts"))
+      queryClient.invalidateQueries({ queryKey: postKeys.all })
+      queryClient.setQueryData(postKeys.detail(variables.id), data)
     },
     onError: (error) => {
       console.error("Post 수정 실패:", error)

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { patchComment } from "@/entities/comment/api/comments"
+import { commentKeys } from "@/entities/comment/lib"
 import type { PatchComment } from "@/entities/comment/model"
 
 export function useLikeCommentMutation() {
@@ -8,10 +9,8 @@ export function useLikeCommentMutation() {
 
   return useMutation({
     mutationFn: (payload: PatchComment.Payload) => patchComment(payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", "post", variables.commentId],
-      })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: commentKeys.all })
     },
     onError: (error) => {
       console.error("Comment 좋아요 실패:", error)
