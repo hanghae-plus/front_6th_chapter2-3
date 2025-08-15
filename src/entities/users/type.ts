@@ -1,4 +1,4 @@
-import { Author, Pagination } from "../../shared"
+import { Author, PaginationInfo } from "../../shared"
 
 export interface User {
   id: number
@@ -71,4 +71,4 @@ export interface User {
   role: string
 }
 
-export type Users = Pagination & { users: Array<Author> }
+export type Users = PaginationInfo & { users: Array<Author> }

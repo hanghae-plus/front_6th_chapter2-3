@@ -1,4 +1,4 @@
-import { Pagination } from "../../shared"
+import { PaginationInfo } from "../../shared"
 
 export interface Post {
   body: string
@@ -15,4 +15,4 @@ export interface Reactions {
   dislikes: number
 }
 
-export type Posts = Pagination & { posts: Array<Post> }
+export type Posts = PaginationInfo & { posts: Array<Post> }

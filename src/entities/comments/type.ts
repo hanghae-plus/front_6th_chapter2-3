@@ -1,4 +1,4 @@
-import { Pagination } from "../../shared"
+import { PaginationInfo } from "../../shared"
 
 export interface Comment {
   id: number
@@ -12,4 +12,4 @@ export interface Comment {
   }
 }
 
-export type Comments = Pagination & { comments: Array<Comment> }
+export type Comments = PaginationInfo & { comments: Array<Comment> }

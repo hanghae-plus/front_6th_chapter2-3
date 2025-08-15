@@ -4,7 +4,7 @@ export interface Author {
   image: string
 }
 
-export interface Pagination {
+export interface PaginationInfo {
   limit: number
   skip: number
   total: number
