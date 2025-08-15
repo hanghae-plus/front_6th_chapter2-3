@@ -1,6 +1,6 @@
 import { NewPostPayload, Post, Tag } from '../model/types';
 
-const API_BASE_URL = '/api/posts';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/posts`;
 
 interface FetchPostsParams {
   limit?: number;
