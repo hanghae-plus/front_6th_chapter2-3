@@ -6,10 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "hooks:install": "lefthook install",
+    "hooks:test": "lefthook run pre-commit && lefthook run pre-push",
+    "pre-commit": "lefthook run pre-commit",
+    "prepare": "lefthook install"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.85.0",
