@@ -24,7 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  Textarea,
   highlightText,
 } from '../shared';
 import { Pagination, PostTable } from '../widgets';
@@ -34,8 +33,6 @@ const PostsManager = () => {
   const [searchQuery] = useState('');
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [comments, setComments] = useState({});
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
