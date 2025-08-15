@@ -19,7 +19,20 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    /* Path Mapping */
+    "baseUrl": "src",
+    "paths": {
+      "@app/*": ["app/*"],
+      "@pages/*": ["pages/*"],
+      "@features/*": ["features/*"],
+      "@widgets": ["widgets/index.ts"],
+      "@widgets/*": ["widgets/*"],
+      "@entities/*": ["entities/*"],
+      "@shared/*": ["shared/*"],
+      "@shared/ui": ["shared/ui/index.ts"],
+      "@shared/ui/*": ["shared/ui/*"]
+    }
   },
   "include": ["src"]
 }
