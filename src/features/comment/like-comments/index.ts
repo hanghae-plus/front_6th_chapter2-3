@@ -1,0 +1,1 @@
+export { useLikeCommentFeature } from "./hooks"
