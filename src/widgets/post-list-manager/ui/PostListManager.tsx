@@ -1,9 +1,6 @@
 import { usePosts } from '@/entities/post/model/usePosts';
 import { PostTable } from '@/entities/post/ui/PostTable';
-import { CreatePostButton } from '@/features/post-create/ui/CreatePostButton';
-import { PostFilter } from '@/features/post-filter/ui/PostFilter';
-import { Pagination } from '@/features/post-pagination/ui/Pagination';
-import { PostSearch } from '@/features/post-search/ui/PostSearch';
+import { CreatePostButton, PostSearch, PostFilter, Pagination } from '@/features';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 export const PostListManager = () => {

@@ -1,10 +1,11 @@
-import { CreateCommentDialog } from '@/features/comment-create/ui/CreateCommentDialog';
-import { EditCommentDialog } from '@/features/comment-edit/ui/EditCommentDialog';
-import { CreatePostDialog } from '@/features/post-create/ui/CreatePostDialog';
-import { EditPostDialog } from '@/features/post-edit/ui/EditPostDialog';
-import { ViewPostDialog } from '@/features/post-view/ui/ViewPostDialog';
-import { PostCommentsWidget } from '@/widgets/post-comments/ui/PostCommentsWidget';
-import { UserProfileDialog } from '@/widgets/user-profile-dialog/ui/UserProfileDialog';
+import {
+  CreateCommentDialog,
+  EditCommentDialog,
+  CreatePostDialog,
+  EditPostDialog,
+  ViewPostDialog,
+} from '@/features';
+import { PostCommentsWidget, UserProfileDialog } from '@/widgets';
 
 export const PostDialogs = () => {
   return (
