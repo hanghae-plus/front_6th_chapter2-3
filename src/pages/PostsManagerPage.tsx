@@ -1,4 +1,4 @@
-import { Edit2, ThumbsUp, Trash2 } from 'lucide-react';
+import { Edit2, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 
 import type { PostType, UserType } from '../entities';
@@ -6,6 +6,7 @@ import {
   CreatePostButton,
   CreateCommentButton,
   DetailUserModal,
+  DeleteCommentButton,
   TagSelectFilter,
   SortOrderSelectFilter,
   SortBySelectFilter,
@@ -33,8 +34,6 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
-  const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -50,26 +49,6 @@ const PostsManager = () => {
       setComments((prev) => ({ ...prev, [postId]: data.comments }));
     } catch (error) {
       console.error('댓글 가져오기 오류:', error);
-    }
-  };
-
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const response = await fetch('/api/comments/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newComment),
-      });
-      const data = await response.json();
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }));
-      setShowAddCommentDialog(false);
-      setNewComment({ body: '', postId: null, userId: 1 });
-    } catch (error) {
-      console.error('댓글 추가 오류:', error);
     }
   };
 
@@ -91,21 +70,6 @@ const PostsManager = () => {
       setShowEditCommentDialog(false);
     } catch (error) {
       console.error('댓글 업데이트 오류:', error);
-    }
-  };
-
-  // 댓글 삭제
-  const deleteComment = async (id, postId) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: 'DELETE',
-      });
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }));
-    } catch (error) {
-      console.error('댓글 삭제 오류:', error);
     }
   };
 
@@ -177,9 +141,7 @@ const PostsManager = () => {
               >
                 <Edit2 className='w-3 h-3' />
               </Button>
-              <Button variant='ghost' size='sm' onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className='w-3 h-3' />
-              </Button>
+              <DeleteCommentButton commentId={comment.id} postId={postId} />
             </div>
           </div>
         ))}

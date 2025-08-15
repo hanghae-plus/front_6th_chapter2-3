@@ -30,8 +30,13 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: deleteComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (response, { postId }) => {
+      // 특정 게시물의 댓글만 무효화
+      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+      console.log('댓글 삭제 성공', response);
+    },
+    onError: (error) => {
+      console.error('댓글 삭제 오류:', error);
     },
   });
 };

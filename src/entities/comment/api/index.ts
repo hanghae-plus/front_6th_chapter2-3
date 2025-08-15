@@ -23,8 +23,8 @@ export const putComment = async (comment: PutCommentRequestType) => {
   return response.json();
 };
 
-export const deleteComment = async (id: number) => {
-  const response = await fetch(`/api/comments/${id}`, {
+export const deleteComment = async (data: { commentId: number; postId: number }) => {
+  const response = await fetch(`/api/comments/${data.commentId}`, {
     method: 'DELETE',
   });
   return response.json();
