@@ -1,8 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import AdminPage from './pages/AdminPage.tsx';
-import Footer from './widgets/footer/ui/Footer.tsx';
-import Header from './widgets/header/ui/Header.tsx';
+import { Header, Footer } from './widgets';
 
 const App = () => {
   return (

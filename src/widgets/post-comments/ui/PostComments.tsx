@@ -6,7 +6,7 @@ import { EditCommentButton } from '@/features/comment-edit/ui/EditCommentButton'
 import { LikeCommentButton } from '@/features/comment-like/ui/LikeCommentButton';
 import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
 
-export const PostCommentsWidget = () => {
+export const PostComments = () => {
   const { postToView } = useViewPostStore();
 
   const { data: comments, isLoading } = useFetchComments(postToView?.id || null);

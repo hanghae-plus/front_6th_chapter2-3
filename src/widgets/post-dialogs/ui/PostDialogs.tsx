@@ -5,7 +5,7 @@ import {
   EditPostDialog,
   ViewPostDialog,
 } from '@/features';
-import { PostCommentsWidget, UserProfileDialog } from '@/widgets';
+import { PostComments, UserProfileDialog } from '@/widgets';
 
 export const PostDialogs = () => {
   return (
@@ -24,7 +24,7 @@ export const PostDialogs = () => {
 
       {/* 게시물 상세 보기 대화상자 */}
       <ViewPostDialog>
-        <PostCommentsWidget />
+        <PostComments />
       </ViewPostDialog>
 
       {/* 사용자 모달 */}
