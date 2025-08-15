@@ -2,7 +2,7 @@ import { Edit2, Plus, ThumbsUp, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import type { UserType } from '../entities';
+import type { PostType, UserType } from '../entities';
 import {
   CreatePostButton,
   DetailUserModal,
@@ -28,13 +28,9 @@ import {
 import { Pagination, PostTable } from '../widgets';
 
 const PostsManager = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
   // 상태 관리
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [searchQuery] = useState('');
+  const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [comments, setComments] = useState({});
   const [selectedComment, setSelectedComment] = useState(null);
   const [newComment, setNewComment] = useState({ body: '', postId: null, userId: 1 });
@@ -43,7 +39,6 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-
 
   // 댓글 가져오기
   const fetchComments = async (postId) => {
@@ -135,14 +130,14 @@ const PostsManager = () => {
   };
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: PostType) => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: UserType) => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
       const userData = await response.json();
@@ -219,7 +214,7 @@ const PostsManager = () => {
             <SortOrderSelectFilter />
           </div>
 
-          <PostTable />
+          <PostTable onUserClick={openUserModal} onPostDetailClick={openPostDetail} />
           <Pagination />
         </div>
       </CardContent>

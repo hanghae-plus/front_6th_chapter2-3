@@ -1,6 +1,7 @@
 import { ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 
+import type { PostType, UserType } from '../../../entities';
 import { usePosts, UpdatePostButton, DeletePostButton } from '../../../features';
 import {
   Table,
@@ -13,7 +14,12 @@ import {
   highlightText,
 } from '../../../shared';
 
-export const PostTable = () => {
+interface PostTableProps {
+  onUserClick?: (user: UserType) => void;
+  onPostDetailClick?: (post: PostType) => void;
+}
+
+export const PostTable = ({ onUserClick, onPostDetailClick }: PostTableProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const tag = searchParams.get('tag') || '';
@@ -47,14 +53,12 @@ export const PostTable = () => {
     });
   };
 
-  // TODO: 제거할 임시 로직
-  const openUserModal = async (user) => {
-    const { data: userData } = await getUser(user.id);
-    console.log(user);
+  const handleUserClick = (user: UserType) => {
+    onUserClick?.(user);
   };
 
-  const openPostDetail = (post) => {
-    console.log(post);
+  const handlePostDetailClick = (post: PostType) => {
+    onPostDetailClick?.(post);
   };
 
   return (
@@ -98,7 +102,7 @@ export const PostTable = () => {
             <TableCell>
               <div
                 className='flex items-center space-x-2 cursor-pointer'
-                onClick={() => openUserModal(post.author)}
+                onClick={() => handleUserClick(post.author)}
               >
                 <img
                   src={post.author?.image}
@@ -118,7 +122,7 @@ export const PostTable = () => {
             </TableCell>
             <TableCell>
               <div className='flex items-center gap-2'>
-                <Button variant='ghost' size='sm' onClick={() => openPostDetail(post)}>
+                <Button variant='ghost' size='sm' onClick={() => handlePostDetailClick(post)}>
                   <MessageSquare className='w-4 h-4' />
                 </Button>
                 <UpdatePostButton post={post} />
