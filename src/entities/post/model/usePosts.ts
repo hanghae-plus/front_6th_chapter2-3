@@ -1,7 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
 
-import { Post } from './types';
 import {
   fetchPosts,
   searchPosts,
@@ -11,11 +9,6 @@ import {
   updatePost,
   deletePost,
 } from '../api/postApi';
-
-import { useFetchAllUsers } from '@/entities/user/model/useUsers';
-import { usePostFilterStore } from '@/features/post-filter/model/postFilterStore';
-import { usePaginationStore } from '@/features/post-pagination/model/paginationStore';
-import { usePostSearchStore } from '@/features/post-search/model/postSearchStore';
 
 /**
  * @description 게시물 목록을 가져오는 useQuery 훅
@@ -98,34 +91,4 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
-};
-
-/**
- * @description 게시물 목록과 관련된 모든 데이터를 가져오고 조합하는 훅
- */
-export const usePosts = () => {
-  const { searchQuery } = usePostSearchStore();
-  const { selectedTag, sortBy, sortOrder } = usePostFilterStore();
-  const { limit, skip } = usePaginationStore();
-
-  const { data: searchData } = useSearchPosts(searchQuery);
-  const { data: tagData } = useFetchPostsByTag(selectedTag);
-  const { data: postsData, isLoading } = useFetchPosts(limit, skip, sortBy, sortOrder);
-
-  const finalData = searchData || tagData || postsData;
-  const { data: usersData } = useFetchAllUsers();
-
-  const postsWithAuthors = useMemo(() => {
-    if (!finalData?.posts || !usersData) return [];
-    return finalData.posts.map((post: Post) => ({
-      ...post,
-      author: usersData.find((user) => user.id === post.userId),
-    }));
-  }, [finalData, usersData]);
-
-  return {
-    posts: postsWithAuthors,
-    total: finalData?.total || 0,
-    isLoading,
-  };
 };

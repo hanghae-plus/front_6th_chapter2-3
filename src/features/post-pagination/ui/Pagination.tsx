@@ -1,11 +1,9 @@
 import { usePagination } from '../model/usePagination';
 
-import { usePosts } from '@/entities/post/model/usePosts';
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui';
 
-export const Pagination = () => {
+export const Pagination = ({ total }: { total: number }) => {
   const { limit, setLimit, skip, setSkip } = usePagination();
-  const { total } = usePosts();
 
   return (
     <div className='flex justify-between items-center'>

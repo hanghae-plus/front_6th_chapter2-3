@@ -1,10 +1,11 @@
-import { usePosts } from '@/entities/post/model/usePosts';
+import { useManagedPosts } from '../model/useManagedPosts';
+
 import { PostTable } from '@/entities/post/ui/PostTable';
 import { CreatePostButton, PostSearch, PostFilter, Pagination } from '@/features';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui';
 
 export const PostListManager = () => {
-  const { posts, isLoading } = usePosts();
+  const { posts, total, isLoading } = useManagedPosts();
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -28,7 +29,7 @@ export const PostListManager = () => {
             <PostTable posts={posts} />
           )}
           {/* 페이지네이션 */}
-          <Pagination />
+          <Pagination total={total} />
         </div>
       </CardContent>
     </Card>

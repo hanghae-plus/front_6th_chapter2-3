@@ -21,6 +21,8 @@ export * from '@/features/post-edit/model/editPostStore';
 export * from '@/features/post-edit/model/useEditPost';
 export * from '@/features/post-filter/model/postFilterStore';
 export * from '@/features/post-filter/model/usePostFilter';
+export * from '@/features/post-pagination/model/paginationStore';
+export * from '@/features/post-pagination/model/usePagination';
 export * from '@/features/post-search/model/postSearchStore';
 export * from '@/features/post-search/model/usePostSearch';
 export * from '@/features/post-view/model/viewPostStore';
