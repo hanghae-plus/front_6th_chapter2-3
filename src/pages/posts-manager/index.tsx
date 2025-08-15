@@ -1,19 +1,7 @@
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import {
-  Button,
-  Input,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Textarea,
-} from "../../shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui"
 import {
   addPostApi,
   deletePostApi,
@@ -25,7 +13,6 @@ import {
 import { fetchTagsApi, Tag } from "../../entities/tags/api"
 import { fetchUserApi, fetchUsersApi } from "../../entities/users/api"
 import {
-  addCommentApi,
   Comment,
   deleteCommentApi,
   fetchCommentsApi,
@@ -33,14 +20,17 @@ import {
   updateCommentApi,
 } from "../../entities/comments/api"
 import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
-import HighlightText from "../../shared/ui/HighlightText"
 import PostsTable from "../../features/posts-management/ui/posts-table"
 
 import UserInfoModal from "../../widgets/user-modal"
 
-import { CommentsSection } from "../../features/comments-management/ui/CommentSection"
 import PostSearchFilter from "../../features/posts-search-filter/ui/PostSearchFilter"
 import PostPagination from "../../features/posts-pagination/ui/PostPagination"
+import AddPostModal from "../../widgets/add-post-modal"
+import EditPostModal from "../../widgets/edit-post-modal"
+import AddCommentModal from "../../widgets/add-comment-modal"
+import EditCommentModal from "../../widgets/edit-comment-modal"
+import PostDetailModal from "../../widgets/post-detail-modal"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -48,8 +38,8 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState<PostDTO[]>([])
-  const [comments, setComments] = useState<Comment | {}>({})
+  const [posts, setPosts] = useState<PostDTO[]>([]) //
+  const [comments, setComments] = useState<Comment | {}>({}) // commentlist
   const [tags, setTags] = useState<Tag[]>([])
 
   const [total, setTotal] = useState(0)
@@ -70,10 +60,6 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-
-  // form 내용 관련
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
 
   // 현재 선택된 태그,, 및 저장
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
@@ -211,26 +197,10 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      const data = await addCommentApi(newComment)
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
-
   // 댓글 업데이트
-  const updateComment = async () => {
+  const updateComment = async (newComment: Comment) => {
     try {
-      if (!selectedComment) return
-      const data = updateCommentApi({ id: selectedComment.id, body: selectedComment.body })
+      const data = await updateCommentApi({ id: newComment.id, body: newComment.body })
       setComments((prev) => ({
         ...prev,
         [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
@@ -342,25 +312,6 @@ const PostsManager = () => {
     )
   }
 
-  // 댓글 렌더링
-  const renderComments = (postId) => (
-    <CommentsSection
-      postId={postId}
-      comments={comments[postId]}
-      searchQuery={searchQuery}
-      onAddComment={() => {
-        setNewComment((prev) => ({ ...prev, postId }))
-        setShowAddCommentDialog(true)
-      }}
-      onClickLike={(id, postId) => likeComment(id, postId)}
-      onClickEdit={(comment) => {
-        setSelectedComment(comment)
-        setShowEditCommentDialog(true)
-      }}
-      onClickDelete={(id, postId) => deleteComment(id, postId)}
-    />
-  )
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -396,108 +347,40 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 > Dialog로 감싼게 Widget, 그 내부내용은 Feature**/}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPostFlow}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddPostModal isOpen={showAddDialog} onOpenChange={setShowAddDialog} onAddPost={addPostFlow} />
 
-      {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditPostModal
+        post={selectedPost}
+        isOpen={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onUpdatePost={updatePost}
+      />
 
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddCommentModal isOpen={showAddCommentDialog} onOpenChange={setShowAddCommentDialog} />
 
-      {/* 댓글 수정 대화상자(widget)  => Dialog로 감싼게 Widget, 그 내부내용은 Feature*/}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCommentModal
+        comment={selectedComment}
+        isOpen={showEditCommentDialog}
+        onOpenChange={setShowEditCommentDialog}
+        onUpdateComment={updateComment}
+      />
 
-      {/* 게시물 상세 보기 대화상자(widget), > Dialog로 감싼게 Widget, 그 내부내용은 Feature* */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>
-              <HighlightText text={selectedPost?.title} highlight={searchQuery} />
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>
-              <HighlightText text={selectedPost?.body} highlight={searchQuery} />
-            </p>
-            {renderComments(selectedPost?.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDetailModal
+        isOpen={showPostDetailDialog}
+        onOpenChange={setShowPostDetailDialog}
+        comments={comments[selectedPost?.id]}
+        post={selectedPost}
+        onAddComment={() => {
+          // setNewComment((prev) => ({ ...prev, postId }))
+          setShowAddCommentDialog(true)
+        }}
+        onClickLike={(id, postId) => likeComment(id, postId)}
+        onClickEdit={(comment) => {
+          setSelectedComment(comment)
+          setShowEditCommentDialog(true)
+        }}
+        onClickDelete={(id, postId) => deleteComment(id, postId)}
+      />
 
       <UserInfoModal isOpen={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
     </Card>
