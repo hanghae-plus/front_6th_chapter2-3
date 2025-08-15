@@ -4,11 +4,7 @@ import type { ChangeEvent, KeyboardEvent } from "react"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { Input } from "@/shared/ui/Input"
 
-type PostSearchInputProps = {
-  onSearch: () => void
-}
-
-export function PostSearchInput({ onSearch }: PostSearchInputProps) {
+export function PostSearchInput() {
   const search = usePostParamsStore((state) => state.search)
   const { updateParam } = usePostParamsStore((state) => state.actions)
 
@@ -18,7 +14,7 @@ export function PostSearchInput({ onSearch }: PostSearchInputProps) {
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Enter") return
-    onSearch()
+    // onSearch()
   }
 
   return (

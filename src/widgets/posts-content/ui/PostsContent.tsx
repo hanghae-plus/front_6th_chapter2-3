@@ -11,12 +11,10 @@ type PostsContentProps = {
   posts: Post[]
   total: number
   loading: boolean
-  searchPosts: () => Promise<void>
-  fetchPostsByTag: (tag: string) => Promise<void>
   deletePost: (id: number) => Promise<void>
 }
 
-export function PostsContent({ posts, total, loading, searchPosts, fetchPostsByTag, deletePost }: PostsContentProps) {
+export function PostsContent({ posts, total, loading, deletePost }: PostsContentProps) {
   const { openDialog } = useDialogStore((state) => state.actions)
   const { updateParam } = usePostParamsStore((state) => state.actions)
   const { setSelectedPost } = usePostDialogStore((state) => state.actions)
@@ -36,8 +34,8 @@ export function PostsContent({ posts, total, loading, searchPosts, fetchPostsByT
     <div className="flex flex-col gap-4">
       {/* 검색 및 필터 컨트롤 */}
       <div className="flex gap-4">
-        <PostSearchInput onSearch={searchPosts} />
-        <PostTagFilterSelect onTagChange={fetchPostsByTag} />
+        <PostSearchInput />
+        <PostTagFilterSelect />
         <PostSortBySelect />
         <PostSortOrderSelect />
       </div>

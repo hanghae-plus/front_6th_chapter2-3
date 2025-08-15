@@ -2,18 +2,13 @@ import { usePostParamsStore } from "@/features/get-post/model"
 import { usePostTagsQuery } from "@/features/get-post-tags/api"
 import { Select } from "@/shared/ui/Select"
 
-type PostTagFilterSelectProps = {
-  onTagChange: (tag: string) => void
-}
-
-export function PostTagFilterSelect({ onTagChange }: PostTagFilterSelectProps) {
+export function PostTagFilterSelect() {
   const selectedTag = usePostParamsStore((state) => state.tag)
   const { updateParam } = usePostParamsStore((state) => state.actions)
   const { data: tags } = usePostTagsQuery()
 
   function handleValueChange(value: string) {
     updateParam("tag", value)
-    onTagChange(value)
   }
 
   return (
