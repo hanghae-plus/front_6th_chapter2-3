@@ -4,7 +4,7 @@ import { Comment } from '@/entities/comment/model/types';
 import { useLikeComment } from '@/entities/comment/model/useComments';
 import { Button } from '@/shared/ui';
 
-export const LikeButton = ({ comment }: { comment: Comment }) => {
+export const LikeCommentButton = ({ comment }: { comment: Comment }) => {
   const { mutate: likeComment } = useLikeComment();
 
   return (

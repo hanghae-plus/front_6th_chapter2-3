@@ -3,7 +3,7 @@ import { CommentList } from '@/entities/comment/ui/CommentList';
 import { CreateCommentButton } from '@/features/comment-create/ui/CreateCommentButton';
 import { DeleteCommentButton } from '@/features/comment-delete/ui/DeleteCommentButton';
 import { EditCommentButton } from '@/features/comment-edit/ui/EditCommentButton';
-import { LikeButton } from '@/features/comment-like/ui/LikeButton';
+import { LikeCommentButton } from '@/features/comment-like/ui/LikeCommentButton';
 import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
 
 export const PostCommentsWidget = () => {
@@ -25,7 +25,7 @@ export const PostCommentsWidget = () => {
         comments={comments}
         renderActions={(comment) => (
           <>
-            <LikeButton comment={comment} />
+            <LikeCommentButton comment={comment} />
             <EditCommentButton comment={comment} />
             <DeleteCommentButton commentId={comment.id} />
           </>
