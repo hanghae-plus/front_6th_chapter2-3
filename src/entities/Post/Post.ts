@@ -15,6 +15,8 @@ export interface Post {
   userId: number
 }
 
+export type PostId = Post["id"]
+
 export interface Reactions {
   likes: number
   dislikes: number

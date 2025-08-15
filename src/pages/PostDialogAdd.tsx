@@ -1,16 +1,11 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../components"
-import type { Post } from "../entities/Post/Post"
+import { useApp } from "../hooks/useApp"
+import { usePosts } from "../hooks/usePosts"
 
-export function PostDialogAdd({
-  showAddDialog,
-  setShowAddDialog,
-  setPosts,
-}: {
-  showAddDialog: boolean
-  setShowAddDialog: (showAddDialog: boolean) => void
-  setPosts: (posts: Post[]) => void
-}) {
+export function PostDialogAdd() {
+  const { showAddDialog, setShowAddDialog } = useApp()
+  const { posts, setPosts } = usePosts()
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
 
   function handleChangeTitle(e: React.ChangeEvent<HTMLInputElement>) {

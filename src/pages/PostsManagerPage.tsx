@@ -1,5 +1,4 @@
-import { atom, useAtom } from "jotai"
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
 import { useEffect } from "react"
 import {
   Button,
@@ -19,34 +18,22 @@ import {
   SelectValue,
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
   Textarea,
 } from "../components"
-import type { Post } from "../entities/Post/Post"
-import type { User } from "../entities/User/User"
 import { usePosts } from "../hooks/usePosts"
 import { useQueryParams } from "../hooks/useQueryParams"
 import { useTags } from "../hooks/useTags"
 import { highlightText } from "./highlightText"
 import { Pagination } from "./Pagination"
 import { PostDialogAdd } from "./PostDialogAdd"
-import { TagView } from "./TagView"
-import { useComments } from "./useComments"
-import { useApp } from "./useApp"
-
-const userAtom = atom<User | null>(null)
-
-function useUser() {
-  const [selectedUser, setSelectedUser] = useAtom(userAtom)
-
-  return {
-    selectedUser,
-    setSelectedUser,
-  }
-}
+import { useComments } from "../hooks/useComments.tsx"
+import { useApp } from "../hooks/useApp.tsx"
+import { useUser } from "../hooks/useUser.tsx"
+import { PostTableRow } from "./PostTableRow.tsx"
+import type { Comment } from "../entities/Comment/Comment"
 
 const PostsManager = () => {
   const {
@@ -134,41 +121,6 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 삭제
-  async function handleCommentDelete(id, postId) {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }))
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요
-  async function handleCommentLike(id, postId) {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     setSkip(parseInt(params.get("skip") || "0"))
@@ -209,54 +161,6 @@ const PostsManager = () => {
         ))}
       </TableBody>
     </Table>
-  )
-
-  // 댓글 렌더링
-  const renderComments = (postId) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => handleCommentLike(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleCommentDelete(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   )
 
   return (
@@ -384,7 +288,7 @@ const PostsManager = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
+            {CommentsList(selectedPost?.id)}
           </div>
         </DialogContent>
       </Dialog>
@@ -472,100 +376,91 @@ function PostDialog() {
   )
 }
 
-export function PostTableRow({ post }: { post: Post }) {
-  const { posts, setPosts } = usePosts()
+// 댓글 렌더링
+function CommentsList(postId: number) {
+  const { setNewComment, setShowAddCommentDialog, setSelectedComment, setShowEditCommentDialog } = useApp()
   const { comments, setComments } = useComments()
-  const { setShowPostDetailDialog, setShowUserModal, setSelectedPost, setShowEditDialog } = useApp()
   const { searchQuery } = useQueryParams()
-  const { setSelectedUser } = useUser()
 
-  // 댓글 가져오기
-  async function handleCommentsFetch(post: Post) {
-    if (comments[post.id]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
+  // 댓글 삭제
+  async function handleCommentDelete(comment: Comment, postId: number) {
     try {
-      const response = await fetch(`/api/comments/post/${post.id}`)
+      await fetch(`/api/comments/${comment.id}`, {
+        method: "DELETE",
+      })
+      setComments((prev) => ({
+        ...prev,
+        [postId]: prev[postId].filter((c) => c.id !== comment.id),
+      }))
+    } catch (error) {
+      console.error("댓글 삭제 오류:", error)
+    }
+  }
+
+  // 댓글 좋아요
+  async function handleCommentLike(comment: Comment, postId: number) {
+    try {
+      const response = await fetch(`/api/comments/${comment.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ likes: comment.likes + 1 }),
+      })
       const data = await response.json()
-      setComments((prev) => ({ ...prev, [post.id]: data.comments }))
+      setComments((prev) => ({
+        ...prev,
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
+      }))
     } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 게시물 상세 보기
-  function handleOpenPostDetail(post: Post) {
-    setSelectedPost(post)
-    handleCommentsFetch(post)
-    setShowPostDetailDialog(true)
-  }
-
-  // 게시물 삭제
-  async function handlePostDelete(post: Post) {
-    try {
-      await fetch(`/api/posts/${post.id}`, { method: "DELETE" })
-      setPosts(posts.filter((p) => p.id !== post.id))
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
-
-  function handleOpenEditDialog() {
-    setSelectedPost(post)
-    setShowEditDialog(true)
-  }
-
-  // 사용자 모달 열기
-  async function handleOpenUserModal(user: User) {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
+      console.error("댓글 좋아요 오류:", error)
     }
   }
 
   return (
-    <TableRow>
-      <TableCell>{post.id}</TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          <div>{highlightText(post.title, searchQuery)}</div>
-
-          <div className="flex flex-wrap gap-1">
-            {post.tags?.map((tag) => (
-              <TagView key={tag} tag={tag} />
-            ))}
+    <div className="mt-2">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold">댓글</h3>
+        <Button
+          size="sm"
+          onClick={() => {
+            setNewComment((prev) => ({ ...prev, postId }))
+            setShowAddCommentDialog(true)
+          }}
+        >
+          <Plus className="w-3 h-3 mr-1" />
+          댓글 추가
+        </Button>
+      </div>
+      <div className="space-y-1">
+        {comments[postId]?.map((comment) => (
+          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
+            <div className="flex items-center space-x-2 overflow-hidden">
+              <span className="font-medium truncate">{comment.user.username}:</span>
+              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Button variant="ghost" size="sm" onClick={() => handleCommentLike(comment, postId)}>
+                <ThumbsUp className="w-3 h-3" />
+                <span className="ml-1 text-xs">{comment.likes}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedComment(comment)
+                  setShowEditCommentDialog(true)
+                }}
+              >
+                <Edit2 className="w-3 h-3" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => handleCommentDelete(comment, postId)}>
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleOpenUserModal(post.author)}>
-          <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
-          <span>{post.author?.username}</span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <ThumbsUp className="w-4 h-4" />
-          <span>{post.reactions?.likes || 0}</span>
-          <ThumbsDown className="w-4 h-4" />
-          <span>{post.reactions?.dislikes || 0}</span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleOpenPostDetail(post)}>
-            <MessageSquare className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleOpenEditDialog}>
-            <Edit2 className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => handlePostDelete(post)}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
+        ))}
+      </div>
+    </div>
   )
 }
