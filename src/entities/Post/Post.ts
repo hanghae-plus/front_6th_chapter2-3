@@ -1,3 +1,5 @@
+import {User} from "../User/User.ts"
+
 export interface PostResponse {
   posts: Post[]
   total: number
@@ -13,6 +15,7 @@ export interface Post {
   reactions: Reactions
   views: number
   userId: number
+  author: User
 }
 
 export type PostId = Post["id"]

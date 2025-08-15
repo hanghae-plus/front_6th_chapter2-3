@@ -1,8 +1,10 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "../components"
-import { useApp } from "../hooks/useApp"
+import {Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea} from "../components"
+import {useApp} from "../hooks/useApp"
+import {useComments} from "../hooks/useComments.tsx"
 
 export function CommentEditDialog() {
   const { selectedComment, setSelectedComment, showEditCommentDialog, setShowEditCommentDialog } = useApp()
+  const { setComments } = useComments()
 
   // 댓글 업데이트
   async function handleCommentUpdate() {

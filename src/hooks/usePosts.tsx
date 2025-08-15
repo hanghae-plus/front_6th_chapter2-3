@@ -1,5 +1,5 @@
 import { atom, useAtom } from "jotai"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import type { Post, PostResponse } from "../entities/Post/Post"
 import type { User, UserResponse } from "../entities/User/User"
 import { useQueryParams } from "./useQueryParams"
@@ -7,7 +7,7 @@ import { useQueryParams } from "./useQueryParams"
 export const postsAtom = atom<Post[]>([])
 
 export function usePosts() {
-  const { skip, limit, searchQuery, sortBy, sortOrder, selectedTag } = useQueryParams()
+  const { skip, limit, searchQuery } = useQueryParams()
 
   const [posts, setPosts] = useAtom(postsAtom)
   const [total, setTotal] = useState(0)
@@ -30,7 +30,7 @@ export function usePosts() {
         usersData = users.users
         const postsWithUsers = postsData.posts.map((post) => ({
           ...post,
-          author: usersData.find((user) => user.id === post.userId),
+          author: usersData.find((user) => user.id === post.userId) as User,
         }))
         setPosts(postsWithUsers)
         setTotal(postsData.total)
@@ -60,7 +60,7 @@ export function usePosts() {
 
       const postsWithUsers = postsData.posts.map((post) => ({
         ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
+        author: usersData.users.find((user) => user.id === post.userId) as User,
       }))
 
       setPosts(postsWithUsers)
@@ -80,7 +80,7 @@ export function usePosts() {
     setLoading(true)
     try {
       const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
+      const data = (await response.json()) as PostResponse
       setPosts(data.posts)
       setTotal(data.total)
     } catch (error) {

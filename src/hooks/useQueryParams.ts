@@ -14,9 +14,9 @@ export function useQueryParams() {
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
 
   const { selectedTag, setSelectedTag } = useTags()
-  // useEffect(() => {
-  // setSelectedTag(queryParams.get("tag") || "")
-  // }, [])
+  useEffect(() => {
+    setSelectedTag(queryParams.get("tag") || "")
+  }, [queryParams.get("tag")])
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -33,7 +33,7 @@ export function useQueryParams() {
   // useEffect 쪼개기
   useEffect(() => {
     updateURL()
-  }, [])
+  }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag])
 
   return {
     skip,

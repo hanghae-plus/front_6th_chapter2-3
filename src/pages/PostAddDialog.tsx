@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../components"
 import { useApp } from "../hooks/useApp"
 import { usePosts } from "../hooks/usePosts"
+import type { PostResponse } from "../entities/Post/Post"
 
 export function PostAddDialog() {
   const { showPostAddDialog: showAddDialog, setShowPostAddDialog: setShowAddDialog } = useApp()
@@ -28,7 +29,7 @@ export function PostAddDialog() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),
       })
-      const data = await response.json()
+      const data = (await response.json()) as PostResponse
       setPosts([data, ...posts])
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
