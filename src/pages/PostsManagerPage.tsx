@@ -6,11 +6,9 @@ import { PostForm, PostDetail } from '../features/post/ui';
 import { CommentForm, CommentList } from '../features/comment/ui';
 import { UserProfile } from '../features/user/ui';
 import { openPostDetailWithComments as openPostDetailWithCommentsUtil } from '../entities/post/model';
-import { useCommentAPI } from '../features/comment/api';
-import { SearchBar } from '../widgets/SearchBar';
-import { FilterBar } from '../widgets/FilterBar';
-import { PostTable } from '../widgets/PostTable';
-import { Pagination } from '../widgets/Pagination';
+import { SearchBar, FilterBar, PostTable, Pagination } from '../widgets';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '../shared/ui';
+import { Plus } from 'lucide-react';
 
 const PostsManager = () => {
   // Post Feature 사용
@@ -55,7 +53,6 @@ const PostsManager = () => {
 
   // Comment Feature 사용 (컴포넌트 최상위에서 호출)
   const {
-    comments,
     selectedComment,
     newComment,
     showAddCommentDialog,
@@ -65,15 +62,13 @@ const PostsManager = () => {
     setShowAddCommentDialog,
     setShowEditCommentDialog,
     handleFetchComments,
-
     handleUpdateComment,
     handleDeleteComment,
     handleLikeComment,
-    setComments,
+    clearNewComment,
+    clearSelectedComment,
+    handleAddComment,
   } = useCommentFeature();
-
-  // commentAPI 직접 사용
-  const commentAPI = useCommentAPI();
 
   // 게시물 상세 보기 (댓글도 함께 가져오기) - entities 함수 사용
   const openPostDetailWithComments = (post: any) => {
@@ -95,14 +90,8 @@ const PostsManager = () => {
 
       console.log('설정된 댓글 데이터:', commentWithPostId);
 
-      // 직접 댓글 추가 API 호출
-      commentAPI.addCommentWithState(
-        setComments,
-        comments,
-        setShowAddCommentDialog,
-        setNewComment,
-        commentWithPostId,
-      );
+      // TanStack Query를 사용하여 댓글 추가 (데이터 직접 전달)
+      handleAddComment(commentWithPostId);
     } else {
       console.error('selectedPost가 없거나 댓글 내용이 없습니다!');
     }
@@ -223,7 +212,6 @@ const PostsManager = () => {
         {selectedPost && (
           <CommentList
             postId={selectedPost.id}
-            comments={comments}
             searchQuery={searchQuery}
             onAddComment={() => setShowAddCommentDialog(true)}
             onEditComment={(comment) => {
