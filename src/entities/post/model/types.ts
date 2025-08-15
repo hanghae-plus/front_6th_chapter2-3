@@ -17,6 +17,8 @@ export interface PostType {
 export interface GetPostsListResponseType {
   posts: PostType[];
   total: number;
+  skip: number;
+  limit: number;
 }
 
 export interface PostPostRequestType {
