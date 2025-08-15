@@ -21,67 +21,37 @@ import {
 import { usePosts } from "../hooks/usePosts"
 import { useQueryParams } from "../hooks/useQueryParams"
 import { useTags } from "../hooks/useTags"
+import { CommentAddDialog } from "./CommentAddDialog.tsx"
+import { CommentEditDialog } from "./CommentEditDialog.tsx"
 import { Pagination } from "./Pagination"
 import { PostAddDialog } from "./PostAddDialog.tsx"
-import { useComments } from "../hooks/useComments.tsx"
-import { useApp } from "../hooks/useApp.tsx"
-import { useUser } from "../hooks/useUser.tsx"
-import { PostTableRow } from "./PostTableRow.tsx"
 import { PostEditDialog } from "./PostEditDialog.tsx"
-import type { User } from "../entities/User/User.ts"
-import { UserDialog } from "./UserDialog.tsx"
-import type { Post } from "../entities/Post/Post.ts"
+import { PostTableRow } from "./PostTableRow.tsx"
 import { PostViewDialog } from "./PostViewDialog.tsx"
-import type { Comment } from "../entities/Comment/Comment.ts"
-import { CommentEditDialog } from "./CommentEditDialog.tsx"
-import { CommentAddDialog } from "./CommentAddDialog.tsx"
+import { UserDialog } from "./UserDialog.tsx"
+import { useApp } from "../hooks/useApp.tsx"
 
 const PostsManager = () => {
-  const {
-    showPostAddDialog: showAddDialog,
-    setShowPostAddDialog: setShowAddDialog,
-    showEditDialog,
-    setShowEditDialog,
-    selectedPost,
-    setSelectedPost,
-    selectedComment,
-    setSelectedComment,
-    newComment,
-    setNewComment,
-    showAddCommentDialog,
-    setShowAddCommentDialog,
-    showEditCommentDialog,
-    setShowEditCommentDialog,
-    showPostViewDialog: showPostDetailDialog,
-    setShowPostViewDialog: setShowPostDetailDialog,
-    showUserDialog,
-    setShowUserDialog,
-  } = useApp()
+  const { setShowPostAddDialog } = useApp()
 
-  const { selectedUser, setSelectedUser } = useUser()
+  // Post 엔티티 기준으로 필요한 인자를 받고 반환하는 커스텀 훅으로 분리
+  const { posts, total, loading, fetchPostsByTag, searchPosts, fetchPosts } = usePosts()
+
+  const { tags, fetchTags } = useTags()
 
   const {
     skip,
     setSkip,
     limit,
     setLimit,
-    searchQuery,
-    setSearchQuery,
     sortBy,
     setSortBy,
     sortOrder,
     setSortOrder,
     selectedTag,
     setSelectedTag,
-    updateURL,
+    setSearchQuery,
   } = useQueryParams()
-
-  // Post 엔티티 기준으로 필요한 인자를 받고 반환하는 커스텀 훅으로 분리
-  const { posts, setPosts, total, loading, fetchPostsByTag, searchPosts, fetchPosts } = usePosts()
-
-  const { tags, fetchTags } = useTags()
-
-  const { comments, setComments } = useComments()
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -125,12 +95,16 @@ const PostsManager = () => {
     </Table>
   )
 
+  function handleAddPost() {
+    setShowPostAddDialog(true)
+  }
+
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={handleAddPost}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -139,60 +113,7 @@ const PostsManager = () => {
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="게시물 검색..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
-                />
-              </div>
-            </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value)
-                fetchPostsByTag(value)
-                updateURL()
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <SearchAndFilter />
 
           {/* 게시물 테이블 */}
           {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
@@ -224,3 +145,77 @@ const PostsManager = () => {
 }
 
 export default PostsManager
+
+function SearchAndFilter() {
+  const {
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    selectedTag,
+    setSelectedTag,
+    updateURL,
+  } = useQueryParams()
+
+  const { tags } = useTags()
+  const { fetchPostsByTag, searchPosts } = usePosts()
+
+  return (
+    <div className="flex gap-4">
+      <div className="flex-1">
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="게시물 검색..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+          />
+        </div>
+      </div>
+      <Select
+        value={selectedTag}
+        onValueChange={(value) => {
+          setSelectedTag(value)
+          fetchPostsByTag(value)
+          updateURL()
+        }}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="태그 선택" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">모든 태그</SelectItem>
+          {tags.map((tag) => (
+            <SelectItem key={tag.url} value={tag.slug}>
+              {tag.slug}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="정렬 기준" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">없음</SelectItem>
+          <SelectItem value="id">ID</SelectItem>
+          <SelectItem value="title">제목</SelectItem>
+          <SelectItem value="reactions">반응</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={sortOrder} onValueChange={setSortOrder}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="정렬 순서" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="asc">오름차순</SelectItem>
+          <SelectItem value="desc">내림차순</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
