@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom"
 
-import { Footer } from "@/shell/ui/Footer"
-import { Header } from "@/shell/ui/Header"
+import { Footer } from "@/root/ui/Footer"
+import { Header } from "@/root/ui/Header"
 
 export function AppLayout() {
   return (

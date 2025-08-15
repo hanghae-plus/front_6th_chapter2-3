@@ -1,4 +1,4 @@
-# App Layer (별칭: Shell)
+# App Layer (별칭: Root)
 
 앱 전역에서 동작하는 환경 설정과 공용 로직을 관리하는 레이어입니다.
 

@@ -1,4 +1,4 @@
-import "@/shell/styles/index.css"
+import "@/root/styles/index.css"
 
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
@@ -6,8 +6,8 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { RouterProvider } from "react-router-dom"
 
-import { queryClient } from "@/shell/config"
-import { appRouter } from "@/shell/router"
+import { queryClient } from "@/root/config"
+import { appRouter } from "@/root/router"
 
 const rootElement = document.getElementById("root")
 

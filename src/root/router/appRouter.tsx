@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 
 import { PostsManagerPage } from "@/pages/posts-manager/ui"
-import { AppLayout } from "@/shell/ui/AppLayout"
+import { AppLayout } from "@/root/ui/AppLayout"
 
 const isProd = import.meta.env.MODE === "production"
 const basename = isProd ? "/front_6th_chapter2-3" : "/"
