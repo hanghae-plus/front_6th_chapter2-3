@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NewComment } from '../../../entities/comment';
+import * as commentAPI from '../../../entities/comment/api';
 
 // 댓글 목록 조회
 export const useComments = (postId: number) => {
   return useQuery({
     queryKey: ['comments', postId],
     queryFn: async () => {
-      // API 호출을 하지 않고 빈 데이터 반환 (실제로는 사용되지 않음)
-      return { comments: [], total: 0, skip: 0, limit: 0 };
+      // 실제 API 호출하여 댓글 데이터 가져오기
+      return await commentAPI.fetchComments(postId);
     },
     enabled: !!postId,
   });
@@ -19,9 +20,9 @@ export const useAddComment = () => {
 
   return useMutation({
     mutationFn: async (comment: NewComment) => {
-      // API 호출을 하지 않고 바로 성공 응답 반환
-      console.log('댓글 추가 - API 호출 없이 UI만 업데이트');
-      return { ...comment, id: Date.now() }; // 가짜 성공 응답
+      // 실제 API 호출하여 사용자 정보를 포함한 댓글 데이터 가져오기
+      console.log('댓글 추가 - API 호출하여 사용자 정보 가져오기');
+      return await commentAPI.addComment(comment);
     },
     onSuccess: (data: any, variables: NewComment) => {
       console.log('useAddComment onSuccess:', { data, variables });
@@ -49,8 +50,8 @@ export const useUpdateComment = () => {
 
   return useMutation({
     mutationFn: async ({ id, body }: { id: number; body: string }) => {
-      // API 호출을 하지 않고 바로 성공 응답 반환
-      console.log('댓글 수정 - API 호출 없이 UI만 업데이트');
+      // 로컬에서만 작동 - API 호출하지 않음
+      console.log('댓글 수정 - 로컬에서만 작동');
       return { id, body, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: { id: number; body: string }) => {
@@ -95,8 +96,8 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      // API 호출을 하지 않고 바로 성공 응답 반환
-      console.log('댓글 삭제 - API 호출 없이 UI만 업데이트');
+      // 로컬에서만 작동 - API 호출하지 않음
+      console.log('댓글 삭제 - 로컬에서만 작동');
       return { id, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: number) => {
@@ -141,13 +142,9 @@ export const useLikeComment = () => {
 
   return useMutation({
     mutationFn: async ({ id, likes }: { id: number; likes: number }) => {
-      // API 호출을 하지 않고 바로 성공 응답 반환
-      console.log('댓글 좋아요 - API 호출 없이 UI만 업데이트');
-
-      // likes 값이 유효하지 않으면 1로 설정, 유효하면 +1
-      const newLikes = likes && !isNaN(likes) && likes >= 0 ? likes + 1 : 1;
-
-      return { id, likes: newLikes, postId: null }; // 가짜 성공 응답
+      // 로컬에서만 작동 - API 호출하지 않음
+      console.log('댓글 좋아요 - 로컬에서만 작동');
+      return { id, likes: likes + 1, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: { id: number; likes: number }) => {
       console.log('useLikeComment onSuccess:', { data, variables });
