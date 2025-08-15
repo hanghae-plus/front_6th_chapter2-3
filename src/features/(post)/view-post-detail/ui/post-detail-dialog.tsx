@@ -1,13 +1,23 @@
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
+import { Plus } from 'lucide-react';
 import type { Post } from '@/entities/post';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui';
+import type { Comment } from '@/entities/comment';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button } from '@/shared/ui';
+import { CommentList } from '@/features/(comment)/list-comments';
 
 type PostDetailDialogProps = {
   open: boolean;
   post: Post | null;
   searchQuery?: string;
   onOpenChange: (open: boolean) => void;
-  children?: ReactNode; // 댓글 영역 등 외부에서 주입
+  commentsFeature: {
+    comments: Comment[];
+    refetch: () => void;
+  };
+  onAddComment: () => void;
+  onEditComment: (comment: Comment) => void;
+  onDeleteComment: (id: number) => void;
+  onLikeComment: (id: number) => void;
 };
 
 function useHighlight(text: string | undefined, highlight: string | undefined) {
@@ -31,7 +41,11 @@ export function PostDetailDialog({
   post,
   searchQuery,
   onOpenChange,
-  children,
+  commentsFeature,
+  onAddComment,
+  onEditComment,
+  onDeleteComment,
+  onLikeComment,
 }: PostDetailDialogProps) {
   const highlightedTitle = useHighlight(post?.title, searchQuery);
   const highlightedBody = useHighlight(post?.body, searchQuery);
@@ -44,7 +58,23 @@ export function PostDetailDialog({
         </DialogHeader>
         <div className='space-y-4'>
           <p>{highlightedBody}</p>
-          {children}
+          {post ? (
+            <div className='mt-2'>
+              <div className='flex items-center justify-between mb-2'>
+                <h3 className='text-sm font-semibold'>댓글</h3>
+                <Button size='sm' onClick={onAddComment}>
+                  <Plus className='w-3 h-3 mr-1' />
+                  댓글 추가
+                </Button>
+              </div>
+              <CommentList
+                comments={commentsFeature.comments}
+                onLike={onLikeComment}
+                onEdit={onEditComment}
+                onDelete={onDeleteComment}
+              />
+            </div>
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>

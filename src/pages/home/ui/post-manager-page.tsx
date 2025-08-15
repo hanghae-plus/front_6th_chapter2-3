@@ -15,10 +15,10 @@ import { usePagination } from '@/features/(post)/paginate-posts';
 import { SortSelect } from '@/features/(post)/sort-posts';
 import { usePostSort } from '@/features/(post)/sort-posts';
 import { PostDetailDialog } from '@/features/(post)/view-post-detail';
-import { usePostDetail } from '@/features/(post)/view-post-detail';
+
 import { AddPostDialog } from '@/features/(post)/add-post';
 import { EditPostDialog } from '@/features/(post)/edit-post';
-import { CommentList } from '@/features/(comment)/list-comments';
+
 import { AddCommentDialog } from '@/features/(comment)/add-comment';
 import { EditCommentDialog } from '@/features/(comment)/edit-comment';
 import { useComments } from '@/features/(comment)/list-comments';
@@ -53,7 +53,6 @@ export function PostsManagerPage() {
     (queryParams.get('sortBy') as any) || 'none',
     (queryParams.get('sortOrder') as any) || 'asc',
   );
-  const postDetail = usePostDetail();
   const { tags } = useTags();
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
 
@@ -76,7 +75,7 @@ export function PostsManagerPage() {
     open(AddCommentDialog, {
       open: true,
       onOpenChange: () => close(AddCommentDialog),
-      postId: postDetail.post?.id ?? null,
+      postId: selectedPost?.id ?? null,
       onSuccess: () => void commentsFeature.refetch(),
     });
 
@@ -123,7 +122,20 @@ export function PostsManagerPage() {
 
   const openPostDetail = (post: Post) => {
     setSelectedPost(post);
-    postDetail.show(post);
+    open(PostDetailDialog, {
+      open: true,
+      onOpenChange: () => {
+        close(PostDetailDialog);
+        setSelectedPost(null);
+      },
+      post,
+      searchQuery: searchQuery || '',
+      commentsFeature,
+      onAddComment: openAddCommentDialog,
+      onEditComment: openEditCommentDialog,
+      onDeleteComment: deleteComment,
+      onLikeComment: likeComment,
+    });
   };
 
   const openUserModal = async (user: User) => {
@@ -231,33 +243,6 @@ export function PostsManagerPage() {
           />
         </div>
       </Card.Content>
-
-      <PostDetailDialog
-        open={postDetail.open}
-        post={postDetail.post}
-        searchQuery={searchQuery || ''}
-        onOpenChange={(o) => {
-          if (!o) postDetail.hide();
-        }}
-      >
-        {postDetail.post ? (
-          <div className='mt-2'>
-            <div className='flex items-center justify-between mb-2'>
-              <h3 className='text-sm font-semibold'>댓글</h3>
-              <Button size='sm' onClick={openAddCommentDialog}>
-                <Plus className='w-3 h-3 mr-1' />
-                댓글 추가
-              </Button>
-            </div>
-            <CommentList
-              comments={commentsFeature.comments}
-              onLike={(id) => likeComment(id)}
-              onEdit={openEditCommentDialog}
-              onDelete={(id) => deleteComment(id)}
-            />
-          </div>
-        ) : null}
-      </PostDetailDialog>
     </Card>
   );
 }
