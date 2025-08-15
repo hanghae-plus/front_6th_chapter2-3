@@ -55,6 +55,7 @@ export function PostUpdateDialog() {
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>게시물 수정</Dialog.Title>
+          <Dialog.Description></Dialog.Description>
         </Dialog.Header>
         <div className="space-y-4">
           <Input placeholder="제목" value={selectedPost.title} onChange={handleTitleChange} />

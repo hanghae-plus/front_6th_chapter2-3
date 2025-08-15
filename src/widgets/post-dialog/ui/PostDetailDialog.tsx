@@ -50,6 +50,7 @@ export function PostDetailDialog() {
           <Dialog.Title>
             <PostHighlightText text={selectedPost.title} highlight={search} />
           </Dialog.Title>
+          <Dialog.Description></Dialog.Description>
         </Dialog.Header>
         <div className="space-y-4">
           <p>

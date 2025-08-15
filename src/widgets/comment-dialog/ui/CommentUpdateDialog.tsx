@@ -38,6 +38,7 @@ export function CommentUpdateDialog() {
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>댓글 수정</Dialog.Title>
+          <Dialog.Description></Dialog.Description>
         </Dialog.Header>
         <div className="space-y-4">
           <Textarea placeholder="댓글 내용" value={selectedComment.body} onChange={handleBodyChange} />

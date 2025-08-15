@@ -21,6 +21,7 @@ export function UserInfoDialog() {
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>사용자 정보</Dialog.Title>
+          <Dialog.Description></Dialog.Description>
         </Dialog.Header>
         {!isLoading && user ? <UserProfile user={user} /> : <div className="flex justify-center p-4">로딩 중...</div>}
       </Dialog.Content>
