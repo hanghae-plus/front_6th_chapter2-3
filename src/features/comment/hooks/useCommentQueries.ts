@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Comment, NewComment } from '../../../entities/comment';
+import { NewComment } from '../../../entities/comment';
 import * as commentAPI from '../../../entities/comment/api';
 
 // 댓글 목록 조회

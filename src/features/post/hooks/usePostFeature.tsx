@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Post, NewPost } from '../../../entities/post';
+import { Post } from '../../../entities/post';
 import { Tag } from '../../../entities/tag';
 import { fetchTags } from '../../../entities/tag';
 import { usePostStore } from '../store';
@@ -22,8 +22,7 @@ export const usePostFeature = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // 클라이언트 상태 (UI 상태) - Zustand 사용
-  const { selectedPost, newPost, setSelectedPost, setNewPost, clearNewPost, clearSelectedPost } =
-    usePostStore();
+  const { selectedPost, newPost, setSelectedPost, setNewPost } = usePostStore();
 
   // 클라이언트 상태 (UI 상태) - useState 사용
   const [skip, setSkip] = useState(parseInt(queryParams.get('skip') || '0'));
@@ -54,7 +53,7 @@ export const usePostFeature = () => {
   };
 
   // TanStack Query 훅들 사용
-  const { data: postsData, isLoading: postsLoading, error: postsError } = usePosts(limit, skip);
+  const { data: postsData, isLoading: postsLoading } = usePosts(limit, skip);
   const { data: searchData, isLoading: searchLoading } = useSearchPosts(searchQuery);
   const { data: tagData, isLoading: tagLoading } = usePostsByTag(selectedTag);
 
@@ -126,24 +125,12 @@ export const usePostFeature = () => {
     updateURL();
   };
 
-  // 태그별 게시글 가져오기
-  const handleFetchPostsByTag = (tag: string) => {
-    // TanStack Query가 자동으로 태그별 게시글을 처리함
-    updateURL();
-  };
-
   // useEffect들 (PostsManagerPage.tsx에서 그대로 복사)
   useEffect(() => {
     handleFetchTags();
   }, []);
 
   useEffect(() => {
-    if (selectedTag) {
-      handleFetchPostsByTag(selectedTag);
-    } else {
-      // TanStack Query가 자동으로 태그 없이 게시글을 가져옴
-      updateURL();
-    }
     updateURL();
   }, [skip, limit, sortBy, sortOrder, selectedTag]);
 
@@ -192,7 +179,6 @@ export const usePostFeature = () => {
     handleFetchTags,
     openPostDetail,
     handleSearchPosts,
-    handleFetchPostsByTag,
     handleAddPost,
     handleUpdatePost,
     handleDeletePost,
