@@ -34,7 +34,7 @@ import EditCommentModal from "../../widgets/edit-comment-modal"
 import PostDetailModal from "../../widgets/post-detail-modal"
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
 
-import { useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -43,6 +43,10 @@ import {
   editingPostAtom,
   isEditPostModalOpenAtom,
 } from "../../features/edit-post/model/atoms"
+import {
+  detailPostAtom,
+  isPostDetailModalOpenAtom,
+} from "../../features/view-post-detail/model/atoms"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui"
 import {
   addPostApi,
@@ -91,12 +95,15 @@ const PostsManager = () => {
   // 모달 관련
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
 
   const setIsAddPostModalOpen = useSetAtom(isAddPostModalOpenAtom)
   const setEditingPost = useSetAtom(editingPostAtom)
   const setIsEditPostModalOpen = useSetAtom(isEditPostModalOpenAtom)
+  const setDetailPost = useSetAtom(detailPostAtom)
+  const setIsPostDetailModalOpen = useSetAtom(isPostDetailModalOpenAtom)
+
+  const detailPost = useAtomValue(detailPostAtom)
 
   // 현재 선택된 태그,, 및 저장
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
@@ -209,10 +216,10 @@ const PostsManager = () => {
   }
 
   // 댓글 가져오기
-  const { data: commentsData, isLoading: commentsLoading } = useQuery<any>({
-    queryKey: ["comments", postsData?.posts.find(p => p.id === editingPostAtom)?.id],
-    queryFn: () => fetchCommentsApi(postsData?.posts.find(p => p.id === editingPostAtom)?.id),
-    enabled: !!postsData?.posts.find(p => p.id === editingPostAtom)?.id,
+  const { data: commentsData, isLoading: commentsLoading } = useQuery({
+    queryKey: ["comments", detailPost?.id],
+    queryFn: () => fetchCommentsApi(detailPost!.id),
+    enabled: !!detailPost,
   })
 
   // 댓글 추가
@@ -279,8 +286,8 @@ const PostsManager = () => {
 
   // 게시물 상세 보기
   const openPostDetail = (post: PostDTO) => {
-    setEditingPost(post)
-    setShowPostDetailDialog(true)
+    setDetailPost(post)
+    setIsPostDetailModalOpen(true)
   }
 
   // 사용자 모달 열기
@@ -390,7 +397,7 @@ const PostsManager = () => {
         isOpen={showAddCommentDialog}
         onOpenChange={setShowAddCommentDialog}
         onAddComment={addComment}
-        postId={postsData?.posts.find(p => p.id === editingPostAtom)?.id}
+        postId={detailPost?.id}
       />
 
       <EditCommentModal
@@ -401,12 +408,8 @@ const PostsManager = () => {
       />
 
       <PostDetailModal
-        isOpen={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
         comments={commentsData?.comments!}
-        post={postsData?.posts.find(p => p.id === editingPostAtom)}
         onAddComment={() => {
-          // setNewComment((prev) => ({ ...prev, postId }))
           setShowAddCommentDialog(true)
         }}
         onClickLike={(id, postId) => likeComment(id, postId)}

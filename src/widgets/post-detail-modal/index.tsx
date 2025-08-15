@@ -1,34 +1,34 @@
+import { useAtom } from "jotai"
 import { DialogTitle } from "@radix-ui/react-dialog"
 
 import { Dialog, DialogContent, DialogHeader } from "../../shared/ui"
 import HighlightText from "../../shared/ui/HighlightText"
 import { CommentsSection } from "../../features/comments-management/ui/CommentSection"
 import { ComponentProps } from "react"
-import { PostDTO } from "../../entities/posts/api"
+import {
+  detailPostAtom,
+  isPostDetailModalOpenAtom,
+} from "../../features/view-post-detail/model/atoms"
 
-interface PostDetailModalProps extends ComponentProps<typeof CommentsSection> {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  post: PostDTO
-}
+interface PostDetailModalProps extends ComponentProps<typeof CommentsSection> {}
 
 const PostDetailModal = ({
-  isOpen,
   comments,
-  post,
   searchQuery,
-  onOpenChange,
   onAddComment,
   onDeleteComment,
   onEditComment,
   onLikeComment,
 }: PostDetailModalProps) => {
+  const [isOpen, setIsOpen] = useAtom(isPostDetailModalOpenAtom)
+  const [post] = useAtom(detailPostAtom)
+
   const postId = post?.id
 
   if (!postId) return null
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>
