@@ -1,14 +1,18 @@
+import { useSetAtom } from "jotai"
 import { Button } from "../../../shared/ui"
 import { Plus } from "lucide-react"
 import CommentItem from "./CommentItem"
 import { Comment } from "../../../entities/comments/api"
+import {
+  editingCommentAtom,
+  isEditCommentModalOpenAtom,
+} from "../../edit-comment/model/atoms"
 
 type Props = {
   postId: number
   comments: Comment[]
   searchQuery: string
   onAddComment: (postId: number) => void
-  onEditComment: (comment: Comment) => void
   onDeleteComment: (commentId: number, postId: number) => void
   onLikeComment: (commentId: number, postId: number) => void
 }
@@ -18,10 +22,17 @@ export function CommentsSection({
   comments,
   searchQuery,
   onAddComment,
-  onEditComment,
   onDeleteComment,
   onLikeComment,
 }: Props) {
+  const setEditingComment = useSetAtom(editingCommentAtom)
+  const setIsEditCommentModalOpen = useSetAtom(isEditCommentModalOpenAtom)
+
+  const handleEditComment = (comment: Comment) => {
+    setEditingComment(comment)
+    setIsEditCommentModalOpen(true)
+  }
+
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -39,7 +50,7 @@ export function CommentsSection({
             postId={postId}
             searchQuery={searchQuery}
             onClickLike={(id, postId) => onLikeComment(id, postId)}
-            onClickEdit={(comment) => onEditComment(comment)}
+            onClickEdit={handleEditComment}
             onClickDelete={(id, postId) => onDeleteComment(id, postId)}
           />
         ))}
