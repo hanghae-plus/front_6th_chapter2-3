@@ -1,4 +1,4 @@
-import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 import { useEffect } from "react"
 import {
   Button,
@@ -6,10 +6,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
   Select,
   SelectContent,
@@ -21,24 +17,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Textarea,
 } from "../components"
 import { usePosts } from "../hooks/usePosts"
 import { useQueryParams } from "../hooks/useQueryParams"
 import { useTags } from "../hooks/useTags"
-import { highlightText } from "./highlightText"
 import { Pagination } from "./Pagination"
-import { PostDialogAdd } from "./PostDialogAdd"
+import { PostAddDialog } from "./PostAddDialog.tsx"
 import { useComments } from "../hooks/useComments.tsx"
 import { useApp } from "../hooks/useApp.tsx"
 import { useUser } from "../hooks/useUser.tsx"
 import { PostTableRow } from "./PostTableRow.tsx"
-import type { Comment } from "../entities/Comment/Comment"
+import { PostEditDialog } from "./PostEditDialog.tsx"
+import type { User } from "../entities/User/User.ts"
+import { UserDialog } from "./UserDialog.tsx"
+import type { Post } from "../entities/Post/Post.ts"
+import { PostViewDialog } from "./PostViewDialog.tsx"
+import type { Comment } from "../entities/Comment/Comment.ts"
+import { CommentEditDialog } from "./CommentEditDialog.tsx"
+import { CommentAddDialog } from "./CommentAddDialog.tsx"
 
 const PostsManager = () => {
   const {
-    showAddDialog,
-    setShowAddDialog,
+    showPostAddDialog: showAddDialog,
+    setShowPostAddDialog: setShowAddDialog,
     showEditDialog,
     setShowEditDialog,
     selectedPost,
@@ -51,10 +52,10 @@ const PostsManager = () => {
     setShowAddCommentDialog,
     showEditCommentDialog,
     setShowEditCommentDialog,
-    showPostDetailDialog,
-    setShowPostDetailDialog,
-    showUserModal,
-    setShowUserModal,
+    showPostViewDialog: showPostDetailDialog,
+    setShowPostViewDialog: setShowPostDetailDialog,
+    showUserDialog,
+    setShowUserDialog,
   } = useApp()
 
   const { selectedUser, setSelectedUser } = useUser()
@@ -81,45 +82,6 @@ const PostsManager = () => {
   const { tags, fetchTags } = useTags()
 
   const { comments, setComments } = useComments()
-
-  // 댓글 추가
-  async function handleCommentAdd() {
-    try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
-
-  // 댓글 업데이트
-  async function handleCommentUpdate() {
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      }))
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
-    }
-  }
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -241,226 +203,24 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <PostDialogAdd showAddDialog={showAddDialog} setShowAddDialog={setShowAddDialog} setPosts={setPosts} />
+      <PostAddDialog />
 
       {/* 게시물 수정 대화상자 */}
-      <PostDialog showEditDialog={showEditDialog} setShowEditDialog={setShowEditDialog} selectedPost={selectedPost} />
+      <PostEditDialog />
 
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={handleCommentAdd}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CommentAddDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={handleCommentUpdate}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CommentEditDialog />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {CommentsList(selectedPost?.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostViewDialog />
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserDialog />
     </Card>
   )
 }
 
 export default PostsManager
-
-function PostDialog() {
-  const { posts, setPosts } = usePosts()
-  const { selectedPost, setSelectedPost, showEditDialog, setShowEditDialog } = useApp()
-
-  // 게시물 업데이트
-  async function handlePostUpdate() {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
-  }
-
-  function handlePostTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSelectedPost({ ...selectedPost, title: e.target.value })
-  }
-
-  function handlePostBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setSelectedPost({ ...selectedPost, body: e.target.value })
-  }
-
-  return (
-    <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>게시물 수정</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <Input placeholder="제목" value={selectedPost?.title || ""} onChange={handlePostTitleChange} />
-          <Textarea rows={15} placeholder="내용" value={selectedPost?.body || ""} onChange={handlePostBodyChange} />
-          <Button onClick={handlePostUpdate}>게시물 업데이트</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-// 댓글 렌더링
-function CommentsList(postId: number) {
-  const { setNewComment, setShowAddCommentDialog, setSelectedComment, setShowEditCommentDialog } = useApp()
-  const { comments, setComments } = useComments()
-  const { searchQuery } = useQueryParams()
-
-  // 댓글 삭제
-  async function handleCommentDelete(comment: Comment, postId: number) {
-    try {
-      await fetch(`/api/comments/${comment.id}`, {
-        method: "DELETE",
-      })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((c) => c.id !== comment.id),
-      }))
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요
-  async function handleCommentLike(comment: Comment, postId: number) {
-    try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comment.likes + 1 }),
-      })
-      const data = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
-  return (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => handleCommentLike(comment, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleCommentDelete(comment, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}

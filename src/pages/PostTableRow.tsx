@@ -7,13 +7,18 @@ import { useUser } from "../hooks/useUser.tsx"
 import type { User } from "../entities/User/User.ts"
 import { Button, TableCell, TableRow } from "../components"
 import { highlightText } from "./highlightText.tsx"
-import { TagView } from "./TagView.tsx"
+import { TagChip } from "./TagChip.tsx"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 
 export function PostTableRow({ post }: { post: Post }) {
   const { posts, setPosts } = usePosts()
   const { comments, setComments } = useComments()
-  const { setShowPostDetailDialog, setShowUserModal, setSelectedPost, setShowEditDialog } = useApp()
+  const {
+    setShowPostViewDialog: setShowPostDetailDialog,
+    setShowUserDialog,
+    setSelectedPost,
+    setShowEditDialog,
+  } = useApp()
   const { searchQuery } = useQueryParams()
   const { setSelectedUser } = useUser()
 
@@ -57,7 +62,7 @@ export function PostTableRow({ post }: { post: Post }) {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
       setSelectedUser(userData)
-      setShowUserModal(true)
+      setShowUserDialog(true)
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
@@ -72,7 +77,7 @@ export function PostTableRow({ post }: { post: Post }) {
 
           <div className="flex flex-wrap gap-1">
             {post.tags?.map((tag) => (
-              <TagView key={tag} tag={tag} />
+              <TagChip key={tag} tag={tag} />
             ))}
           </div>
         </div>

@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Butt
 import { useApp } from "../hooks/useApp"
 import { usePosts } from "../hooks/usePosts"
 
-export function PostDialogAdd() {
-  const { showAddDialog, setShowAddDialog } = useApp()
+export function PostAddDialog() {
+  const { showPostAddDialog: showAddDialog, setShowPostAddDialog: setShowAddDialog } = useApp()
   const { posts, setPosts } = usePosts()
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
 
