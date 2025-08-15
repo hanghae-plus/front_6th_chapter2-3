@@ -34,11 +34,48 @@ import EditCommentModal from "../../widgets/edit-comment-modal"
 import PostDetailModal from "../../widgets/post-detail-modal"
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
 
+import { useSetAtom } from "jotai"
+import { isAddPostModalOpenAtom } from "../../features/add-post/model/atoms"
+import { useEffect, useState } from "react"
+import { Plus } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui"
+import {
+  addPostApi,
+  deletePostApi,
+  fetchPostsApi,
+  PostDTO,
+  searchPostsApi,
+  updatePostApi,
+} from "../../entities/posts/api"
+import { fetchTagsApi } from "../../entities/tags/api"
+import { fetchUserApi, fetchUsersApi } from "../../entities/users/api"
+import {
+  addCommentApi,
+  Comment,
+  deleteCommentApi,
+  fetchCommentsApi,
+  likeCommentApi,
+  updateCommentApi,
+} from "../../entities/comments/api"
+import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
+import PostsTable from "../../features/posts-management/ui/posts-table"
+
+import UserInfoModal from "../../widgets/user-modal"
+
+import PostSearchFilter from "../../features/posts-search-filter/ui/PostSearchFilter"
+import PostPagination from "../../features/posts-pagination/ui/PostPagination"
+import AddPostModal from "../../widgets/add-post-modal"
+import EditPostModal from "../../widgets/edit-post-modal"
+import AddCommentModal from "../../widgets/add-comment-modal"
+import EditCommentModal from "../../widgets/edit-comment-modal"
+import PostDetailModal from "../../widgets/post-detail-modal"
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
+
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
-
 
   // 검색 관련
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
@@ -49,12 +86,13 @@ const PostsManager = () => {
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
 
   // 모달 관련
-  const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
+
+  const setIsAddPostModalOpen = useSetAtom(isAddPostModalOpenAtom)
 
   // 현재 선택된 태그,, 및 저장
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
@@ -124,7 +162,7 @@ const PostsManager = () => {
     mutationFn: addPostApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] })
-      setShowAddDialog(false)
+      setIsAddPostModalOpen(false)
     },
     onError: (error) => {
       console.error("게시물 추가 오류:", error)
@@ -173,7 +211,6 @@ const PostsManager = () => {
     enabled: !!selectedPost?.id,
   })
 
-
   // 댓글 추가
   const { mutate: addCommentMutate } = useMutation({
     mutationFn: addCommentApi,
@@ -218,7 +255,7 @@ const PostsManager = () => {
   })
 
   const deleteComment = (id: number, postId: number) => {
-    deleteCommentMutate(id)
+    deletePostMutate(id)
   }
 
   // 댓글 좋아요
@@ -305,7 +342,7 @@ const PostsManager = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => setIsAddPostModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -341,7 +378,7 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      <AddPostModal isOpen={showAddDialog} onOpenChange={setShowAddDialog} onAddPost={addPostFlow} />
+      <AddPostModal onAddPost={addPostFlow} />
 
       <EditPostModal
         post={selectedPost}

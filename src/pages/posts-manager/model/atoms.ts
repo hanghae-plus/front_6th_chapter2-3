@@ -3,7 +3,6 @@ import { PostDTO } from '../../../entities/posts/api';
 import { User } from '../../../entities/users/api';
 
 // UI State Atoms
-export const isAddPostModalOpenAtom = atom(false);
 export const isEditPostModalOpenAtom = atom(false);
 export const editingPostAtom = atom<PostDTO | null>(null);
 export const isPostDetailModalOpenAtom = atom(false);
@@ -29,7 +28,6 @@ export const openUserInfoModalAtom = atom(null, (_get, set, user: User) => {
 
 // Type definition for our context value
 export interface PostsManagerAtoms {
-  isAddPostModalOpenAtom: WritableAtom<boolean, [boolean], void>;
   isEditPostModalOpenAtom: WritableAtom<boolean, [boolean], void>;
   editingPostAtom: WritableAtom<PostDTO | null, [PostDTO | null], void>;
   isPostDetailModalOpenAtom: WritableAtom<boolean, [boolean], void>;
