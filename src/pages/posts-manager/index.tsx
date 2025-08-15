@@ -21,7 +21,6 @@ import {
   fetchPostsApi,
   PostDTO,
   searchPostsApi,
-  updatePostApi,
 } from "../../entities/posts/api"
 import { fetchTagsApi } from "../../entities/tags/api"
 import { fetchUsersApi } from "../../entities/users/api"
@@ -125,22 +124,6 @@ const PostsManager = () => {
   const fetchPostsByTag = (tag: string) => {
     setSelectedTag(tag)
     updateURL()
-  }
-
-  // 게시물 업데이트
-  const { mutate: updatePostMutate } = useMutation({
-    mutationFn: updatePostApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      setIsEditPostModalOpen(false)
-    },
-    onError: (error) => {
-      console.error("게시물 업데이트 오류:", error)
-    },
-  })
-
-  const updatePost = (updatedPost: PostDTO) => {
-    updatePostMutate({ selectedPost: updatedPost })
   }
 
   // 게시물 삭제
@@ -293,7 +276,7 @@ const PostsManager = () => {
 
       <AddPostModal />
 
-      <EditPostModal onUpdatePost={updatePost} />
+      <EditPostModal />
 
       <AddCommentModal />
 
