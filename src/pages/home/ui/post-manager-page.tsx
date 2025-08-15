@@ -23,11 +23,13 @@ import { AddCommentDialog } from '@/features/(comment)/add-comment';
 import { EditCommentDialog } from '@/features/(comment)/edit-comment';
 import { useComments } from '@/features/(comment)/list-comments';
 import { UserModal } from '@/features/(user)/view-user-modal';
-import { useUserModal } from '@/features/(user)/view-user-modal';
+
 import { useTags } from '../model';
 import type { Post } from '@/entities/post';
 import type { Comment } from '@/entities/comment';
 import type { User } from '@/entities/user';
+import { userApi } from '@/entities/user';
+import { useDialog } from '@/shared/utils';
 
 export function PostsManagerPage() {
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ export function PostsManagerPage() {
   const queryParams = new URLSearchParams(location.search);
   const initial = useInitialQueryParams();
 
-  // 상태 관리
+  const { open, close } = useDialog();
   const { limit, skip, next, prev, setPageSize, setSkip } = usePagination(
     initial.limit,
     initial.skip,
@@ -51,16 +53,40 @@ export function PostsManagerPage() {
     (queryParams.get('sortBy') as any) || 'none',
     (queryParams.get('sortOrder') as any) || 'asc',
   );
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const postDetail = usePostDetail();
   const { tags } = useTags();
   const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
 
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
-  const postDetail = usePostDetail();
-  const userModal = useUserModal();
+  const openAddPostDialog = () =>
+    open(AddPostDialog, {
+      open: true,
+      onOpenChange: () => close(AddPostDialog),
+      onSuccess: () => void refetch(),
+    });
+
+  const openEditPostDialog = (post: Post) =>
+    open(EditPostDialog, {
+      open: true,
+      onOpenChange: () => close(EditPostDialog),
+      post,
+      onSuccess: refetch,
+    });
+
+  const openAddCommentDialog = () =>
+    open(AddCommentDialog, {
+      open: true,
+      onOpenChange: () => close(AddCommentDialog),
+      postId: postDetail.post?.id ?? null,
+      onSuccess: () => void commentsFeature.refetch(),
+    });
+
+  const openEditCommentDialog = (comment: Comment) =>
+    open(EditCommentDialog, {
+      open: true,
+      onOpenChange: () => close(EditCommentDialog),
+      comment,
+      onSuccess: () => void commentsFeature.refetch(),
+    });
 
   const { posts, total, loading, refetch } = usePosts({
     limit,
@@ -75,9 +101,7 @@ export function PostsManagerPage() {
     updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
   };
 
-  const onPostDeleted = async (_id: number) => {
-    void refetch();
-  };
+  const onPostDeleted = async (_id: number) => refetch();
 
   const commentsFeature = useComments(selectedPost?.id ?? null);
 
@@ -104,7 +128,17 @@ export function PostsManagerPage() {
 
   const openUserModal = async (user: User) => {
     if (!user?.id) return;
-    await userModal.show(user.id);
+
+    try {
+      const userData = await userApi.getUserById(user.id);
+      open(UserModal, {
+        open: true,
+        onOpenChange: () => close(UserModal),
+        user: userData,
+      });
+    } catch (error) {
+      console.error('사용자 정보 로드 오류:', error);
+    }
   };
 
   useEffect(() => {
@@ -135,58 +169,12 @@ export function PostsManagerPage() {
     setSkip,
   ]);
 
-  const renderPostTable = () => (
-    <PostTable
-      posts={posts}
-      loading={loading}
-      searchQuery={searchQuery}
-      selectedTag={selectedTag}
-      onClickTag={(tag) => {
-        setSelectedTag(tag);
-        updateURL();
-      }}
-      onOpenDetail={(post) => openPostDetail(post)}
-      onOpenUser={(userId) => openUserModal({ id: userId } as User)}
-      onEdit={(post) => {
-        setSelectedPost(post);
-        setShowEditDialog(true);
-      }}
-      onDelete={(postId) => void onPostDeleted(postId)}
-    />
-  );
-
-  const renderComments = () => (
-    <div className='mt-2'>
-      <div className='flex items-center justify-between mb-2'>
-        <h3 className='text-sm font-semibold'>댓글</h3>
-        <Button
-          size='sm'
-          onClick={() => {
-            setShowAddCommentDialog(true);
-          }}
-        >
-          <Plus className='w-3 h-3 mr-1' />
-          댓글 추가
-        </Button>
-      </div>
-      <CommentList
-        comments={commentsFeature.comments}
-        onLike={(id) => void likeComment(id)}
-        onEdit={(comment) => {
-          setSelectedComment(comment);
-          setShowEditCommentDialog(true);
-        }}
-        onDelete={(id) => void deleteComment(id)}
-      />
-    </div>
-  );
-
   return (
     <Card className='w-full max-w-6xl mx-auto'>
       <Card.Header>
         <Card.Title className='flex items-center justify-between'>
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={openAddPostDialog}>
             <Plus className='w-4 h-4 mr-2' />
             게시물 추가
           </Button>
@@ -214,7 +202,24 @@ export function PostsManagerPage() {
             />
           </div>
 
-          {loading ? <div className='flex justify-center p-4'>로딩 중...</div> : renderPostTable()}
+          {loading ? (
+            <div className='flex justify-center p-4'>로딩 중...</div>
+          ) : (
+            <PostTable
+              posts={posts}
+              loading={loading}
+              searchQuery={searchQuery}
+              selectedTag={selectedTag}
+              onClickTag={(tag) => {
+                setSelectedTag(tag);
+                updateURL();
+              }}
+              onOpenDetail={(post) => openPostDetail(post)}
+              onOpenUser={(userId) => openUserModal({ id: userId } as User)}
+              onEdit={(post) => openEditPostDialog(post)}
+              onDelete={(postId) => onPostDeleted(postId)}
+            />
+          )}
 
           <PaginationControls
             limit={limit}
@@ -227,20 +232,6 @@ export function PostsManagerPage() {
         </div>
       </Card.Content>
 
-      <AddCommentDialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
-        postId={postDetail.post?.id ?? null}
-        onSuccess={() => void commentsFeature.refetch()}
-      />
-
-      <EditCommentDialog
-        open={showEditCommentDialog}
-        onOpenChange={setShowEditCommentDialog}
-        comment={selectedComment}
-        onSuccess={() => void commentsFeature.refetch()}
-      />
-
       <PostDetailDialog
         open={postDetail.open}
         post={postDetail.post}
@@ -249,28 +240,24 @@ export function PostsManagerPage() {
           if (!o) postDetail.hide();
         }}
       >
-        {postDetail.post ? renderComments() : null}
+        {postDetail.post ? (
+          <div className='mt-2'>
+            <div className='flex items-center justify-between mb-2'>
+              <h3 className='text-sm font-semibold'>댓글</h3>
+              <Button size='sm' onClick={openAddCommentDialog}>
+                <Plus className='w-3 h-3 mr-1' />
+                댓글 추가
+              </Button>
+            </div>
+            <CommentList
+              comments={commentsFeature.comments}
+              onLike={(id) => likeComment(id)}
+              onEdit={openEditCommentDialog}
+              onDelete={(id) => deleteComment(id)}
+            />
+          </div>
+        ) : null}
       </PostDetailDialog>
-
-      <AddPostDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        onSuccess={() => void refetch()}
-      />
-      <EditPostDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        post={selectedPost}
-        onSuccess={() => void refetch()}
-      />
-
-      <UserModal
-        open={userModal.open}
-        user={userModal.user}
-        onOpenChange={(o) => {
-          if (!o) userModal.hide();
-        }}
-      />
     </Card>
   );
 }
