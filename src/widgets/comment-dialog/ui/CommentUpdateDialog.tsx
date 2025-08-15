@@ -1,4 +1,4 @@
-import { type ChangeEvent } from "react"
+import type { ChangeEvent } from "react"
 
 import { useCommentDialogStore } from "@/features/get-comments/model"
 import { useUpdateCommentMutation } from "@/features/update-comment/api"

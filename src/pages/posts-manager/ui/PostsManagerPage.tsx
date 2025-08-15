@@ -30,7 +30,7 @@ export function PostsManagerPage() {
       ? { data: tagData, loading: isTagLoading }
       : { data: postsData, loading: isPostsLoading }
 
-  const postsWithUsers =
+  const posts =
     activeData.data && usersData
       ? activeData.data.posts.map((post) => ({
           ...post,
@@ -38,7 +38,6 @@ export function PostsManagerPage() {
         }))
       : []
 
-  const posts = postsWithUsers
   const total = activeData.data?.total || 0
   const loading = activeData.loading || isUsersLoading
 

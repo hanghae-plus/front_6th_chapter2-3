@@ -1,4 +1,5 @@
-import { cva, VariantProps } from "class-variance-authority"
+import type { VariantProps } from "class-variance-authority"
+import { cva } from "class-variance-authority"
 import type { ComponentPropsWithRef } from "react"
 
 import { mergeClasses } from "@/shared/lib/styles"

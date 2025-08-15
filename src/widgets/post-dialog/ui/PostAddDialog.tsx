@@ -1,4 +1,4 @@
-import { type ChangeEvent } from "react"
+import type { ChangeEvent } from "react"
 
 import { useCreatePostMutation } from "@/features/create-post/api"
 import { usePostDialogStore } from "@/features/get-post/model"
@@ -12,6 +12,7 @@ export function PostAddDialog() {
   const { setNewPost, resetNewPost } = usePostDialogStore((state) => state.actions)
 
   const createPostMutation = useCreatePostMutation()
+
   const isOpen = currentDialog === DialogType.ADD_POST
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +50,10 @@ export function PostAddDialog() {
           <Input placeholder="제목" value={newPost.title} onChange={handleTitleChange} />
           <Textarea rows={30} placeholder="내용" value={newPost.body} onChange={handleBodyChange} />
           <Input type="number" placeholder="사용자 ID" value={newPost.userId} onChange={handleUserIdChange} />
-          <Button onClick={handleAddPost} disabled={!newPost.title.trim() || !newPost.body.trim() || createPostMutation.isPending}>
+          <Button
+            onClick={handleAddPost}
+            disabled={!newPost.title.trim() || !newPost.body.trim() || createPostMutation.isPending}
+          >
             {createPostMutation.isPending ? "추가 중..." : "게시물 추가"}
           </Button>
         </div>

@@ -1,20 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 
+import type { Post } from "@/entities/post/model"
 import { PostHighlightText } from "@/entities/post/ui"
+import type { User } from "@/entities/user/model"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { mergeClasses } from "@/shared/lib"
 import { Button } from "@/shared/ui/Button"
 import { Table } from "@/shared/ui/Table"
 
 type PostTableProps = {
-  posts: any[]
+  posts: (Post & { author?: User })[]
   onTagClick: (tag: string) => void
-  onUserClick: (author: any) => void
-  onPostDetailClick: (post: any) => void
-  onPostEditClick: (post: any) => void
-  onPostDeleteClick: (postId: any) => void
+  onUserClick: (author: User) => void
+  onPostDetailClick: (post: Post) => void
+  onPostEditClick: (post: Post) => void
+  onPostDeleteClick: (postId: number) => void
 }
 
 export function PostTable({
@@ -32,19 +32,19 @@ export function PostTable({
     onTagClick(postTag)
   }
 
-  const handleUserClick = (author: any) => {
+  const handleUserClick = (author: User) => {
     onUserClick(author)
   }
 
-  const handlePostDetailClick = (post: any) => {
+  const handlePostDetailClick = (post: Post) => {
     onPostDetailClick(post)
   }
 
-  const handlePostEditClick = (post: any) => {
+  const handlePostEditClick = (post: Post) => {
     onPostEditClick(post)
   }
 
-  const handlePostDeleteClick = (postId: any) => {
+  const handlePostDeleteClick = (postId: number) => {
     onPostDeleteClick(postId)
   }
 
@@ -61,14 +61,14 @@ export function PostTable({
       </Table.Header>
 
       <Table.Body>
-        {posts.map((post: any) => (
+        {posts.map((post) => (
           <Table.Row key={post.id}>
             <Table.Cell>{post.id}</Table.Cell>
             <Table.Cell>
               <div className="space-y-1">
                 <PostHighlightText text={post.title} highlight={search} />
                 <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((postTag: any) => (
+                  {post.tags?.map((postTag) => (
                     <span
                       key={postTag}
                       className={mergeClasses(
@@ -86,7 +86,7 @@ export function PostTable({
               </div>
             </Table.Cell>
             <Table.Cell>
-              <div className="flex cursor-pointer items-center space-x-2" onClick={() => handleUserClick(post.author)}>
+              <div className="flex cursor-pointer items-center space-x-2" onClick={() => handleUserClick(post.author!)}>
                 <img src={post.author?.image} alt={post.author?.username} className="h-8 w-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>

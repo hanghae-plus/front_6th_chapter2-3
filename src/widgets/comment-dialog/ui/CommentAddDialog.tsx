@@ -1,4 +1,5 @@
-import { type ChangeEvent, useState } from "react"
+import type { ChangeEvent } from "react"
+import { useState } from "react"
 
 import { useCreateCommentMutation } from "@/features/create-comment/api"
 import { useCommentDialogStore } from "@/features/get-comments/model"

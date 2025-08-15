@@ -7,7 +7,7 @@ export function PostTagFilterSelect() {
   const { updateParam } = usePostParamsStore((state) => state.actions)
   const { data: tags } = usePostTagsQuery()
 
-  function handleValueChange(value: string) {
+  const handleValueChange = (value: string) => {
     updateParam("tag", value)
   }
 

@@ -1,4 +1,4 @@
-import { type ChangeEvent } from "react"
+import type { ChangeEvent } from "react"
 
 import { usePostDialogStore } from "@/features/get-post/model"
 import { useUpdatePostMutation } from "@/features/update-post/api"
@@ -12,6 +12,7 @@ export function PostUpdateDialog() {
   const { setSelectedPost } = usePostDialogStore((state) => state.actions)
 
   const updatePostMutation = useUpdatePostMutation()
+
   const isOpen = currentDialog === DialogType.EDIT_POST
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +33,7 @@ export function PostUpdateDialog() {
         id: selectedPost.id,
         title: selectedPost.title,
         body: selectedPost.body,
-        userId: selectedPost.userId
+        userId: selectedPost.userId,
       })
       closeDialog()
     } catch (error) {

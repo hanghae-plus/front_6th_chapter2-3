@@ -1,7 +1,7 @@
 import { MessageSquare } from "lucide-react"
 import type { ComponentProps } from "react"
 
-import { mergeClasses } from "@/shared/lib/styles"
+import { mergeClasses } from "@/shared/lib"
 
 type HeaderProps = ComponentProps<"header">
 
