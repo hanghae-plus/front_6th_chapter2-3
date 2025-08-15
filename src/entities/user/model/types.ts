@@ -1,4 +1,5 @@
 export interface UserType {
+  id: number;
   image: string;
   username: string;
   firstName: string;
@@ -10,11 +11,11 @@ export interface UserType {
     address: string;
     city: string;
     state: string;
-  },
+  };
   company: {
     name: string;
     title: string;
-  }
+  };
 }
 
 export interface GetUsersListRequestType {

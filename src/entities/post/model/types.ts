@@ -4,6 +4,7 @@ export interface PostType {
   title: string;
   tags: string[];
   body: string;
+  userId: number;
   author?: {
     image: string;
     username: string;
@@ -19,6 +20,13 @@ export interface GetPostsListResponseType {
   total: number;
   skip: number;
   limit: number;
+}
+
+export interface GetPostsListRequestType {
+  skip?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface PostPostRequestType {

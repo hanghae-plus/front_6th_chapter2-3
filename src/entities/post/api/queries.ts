@@ -1,24 +1,21 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { GetPostsListRequestType, GetPostsListResponseType } from '../model';
+import { GetPostsListRequestType } from '../model';
 
 import { getPosts, getPostsBySearch, getPostsByTag } from './index';
 
 export const usePostListQuery = (
   params: GetPostsListRequestType,
-  options?: UseQueryOptions<GetPostsListResponseType>,
+  options?: { enabled: boolean },
 ) => {
   return useQuery({
     queryKey: ['posts', params],
     queryFn: () => getPosts(params),
-    ...options,
+    enabled: options?.enabled,
   });
 };
 
-export const usePostListBySearchQuery = (
-  search: string,
-  options?: UseQueryOptions<GetPostsListResponseType>,
-) => {
+export const usePostListBySearchQuery = (search: string, options?: { enabled: boolean }) => {
   return useQuery({
     queryKey: ['posts', search],
     queryFn: () => getPostsBySearch(search),
@@ -26,10 +23,7 @@ export const usePostListBySearchQuery = (
   });
 };
 
-export const useGetPostListByTagQuery = (
-  tag: string,
-  options?: UseQueryOptions<GetPostsListResponseType>,
-) => {
+export const useGetPostListByTagQuery = (tag: string, options?: { enabled: boolean }) => {
   return useQuery({
     queryKey: ['posts', tag],
     queryFn: () => getPostsByTag(tag),

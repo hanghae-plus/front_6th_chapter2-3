@@ -1,19 +1,22 @@
-import { GetPostsListResponseType, PostPostRequestType, PutPostRequestType } from '../model';
+import {
+  GetPostsListResponseType,
+  GetPostsListRequestType,
+  PostPostRequestType,
+  PutPostRequestType,
+} from '../model';
 
 export const getPosts = async (
-  limit?: number,
-  skip?: number,
-  sortBy?: string,
-  sortOrder?: string,
+  params: GetPostsListRequestType,
 ): Promise<GetPostsListResponseType> => {
-  const response = await fetch(`/api/posts`, {
-    params: {
-      limit,
-      skip,
-      sortBy,
-      sortOrder,
-    },
-  });
+  const searchParams = new URLSearchParams();
+
+  if (params.limit) searchParams.append('limit', params.limit.toString());
+  if (params.skip) searchParams.append('skip', params.skip.toString());
+  if (params.sortBy) searchParams.append('sortBy', params.sortBy);
+  if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+
+  const url = `/api/posts${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const response = await fetch(url);
   return response.json();
 };
 
