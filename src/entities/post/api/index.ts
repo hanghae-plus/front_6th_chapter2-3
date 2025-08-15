@@ -20,13 +20,35 @@ export const getPosts = async (
   return response.json();
 };
 
-export const getPostsBySearch = async (search: string): Promise<GetPostsListResponseType> => {
-  const response = await fetch(`/api/posts/search?q=${search}`);
+export const getPostsBySearch = async (
+  search: string,
+  params?: GetPostsListRequestType,
+): Promise<GetPostsListResponseType> => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('q', search);
+
+  if (params?.limit) searchParams.append('limit', params.limit.toString());
+  if (params?.skip) searchParams.append('skip', params.skip.toString());
+  if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+  if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+
+  const response = await fetch(`/api/posts/search?${searchParams.toString()}`);
   return response.json();
 };
 
-export const getPostsByTag = async (tag: string): Promise<GetPostsListResponseType> => {
-  const response = await fetch(`/api/posts/tag/${tag}`);
+export const getPostsByTag = async (
+  tag: string,
+  params?: GetPostsListRequestType,
+): Promise<GetPostsListResponseType> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.limit) searchParams.append('limit', params.limit.toString());
+  if (params?.skip) searchParams.append('skip', params.skip.toString());
+  if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+  if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+
+  const url = `/api/posts/tag/${tag}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const response = await fetch(url);
   return response.json();
 };
 

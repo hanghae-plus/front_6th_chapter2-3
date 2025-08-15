@@ -15,18 +15,26 @@ export const usePostListQuery = (
   });
 };
 
-export const usePostListBySearchQuery = (search: string, options?: { enabled: boolean }) => {
+export const usePostListBySearchQuery = (
+  search: string,
+  params?: GetPostsListRequestType,
+  options?: { enabled: boolean },
+) => {
   return useQuery({
-    queryKey: ['posts', search],
-    queryFn: () => getPostsBySearch(search),
+    queryKey: ['posts', search, params],
+    queryFn: () => getPostsBySearch(search, params),
     ...options,
   });
 };
 
-export const useGetPostListByTagQuery = (tag: string, options?: { enabled: boolean }) => {
+export const useGetPostListByTagQuery = (
+  tag: string,
+  params?: GetPostsListRequestType,
+  options?: { enabled: boolean },
+) => {
   return useQuery({
-    queryKey: ['posts', tag],
-    queryFn: () => getPostsByTag(tag),
+    queryKey: ['posts', tag, params],
+    queryFn: () => getPostsByTag(tag, params),
     ...options,
   });
 };
