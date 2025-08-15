@@ -1,48 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useInitialQueryParams } from '../model/useInitialQueryParams';
-import { updateUrl } from '../lib/updateUrl';
 import { Button, Card } from '@/shared/ui';
 import { PostTable } from '@/features/(post)/list-posts';
 import { usePosts } from '@/features/(post)/list-posts';
-import { TagFilterSelect } from '@/features/(post)/filter-by-tag';
 import { useTagFilter } from '@/features/(post)/filter-by-tag';
-import { SearchInput } from '@/features/(post)/search-posts';
 import { usePostSearch } from '@/features/(post)/search-posts';
 import { PaginationControls } from '@/features/(post)/paginate-posts';
 import { usePagination } from '@/features/(post)/paginate-posts';
-import { SortSelect } from '@/features/(post)/sort-posts';
 import { usePostSort } from '@/features/(post)/sort-posts';
-import { PostDetailDialog } from '@/features/(post)/view-post-detail';
-
-import { AddPostDialog } from '@/features/(post)/add-post';
-import { EditPostDialog } from '@/features/(post)/edit-post';
-import { useDeletePost } from '@/features/(post)/delete-post';
-
-import { AddCommentDialog } from '@/features/(comment)/add-comment';
-import { EditCommentDialog } from '@/features/(comment)/edit-comment';
 import { useComments } from '@/features/(comment)/list-comments';
-import { UserModal } from '@/features/(user)/view-user-modal';
-
-import { useTags } from '../model';
+import { useInitialQueryParams, useTags, useUrlSync, useDialogHandlers } from '../model';
+import { PostFilters } from './post-filters';
 import type { Post } from '@/entities/post';
-import type { Comment } from '@/entities/comment';
 import type { User } from '@/entities/user';
-import { userApi } from '@/entities/user';
 import { useDialog } from '@/shared/utils';
 
 export function PostsManagerPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
   const initial = useInitialQueryParams();
-
   const { open, close } = useDialog();
 
-  // 뮤테이션 훅들
-  const deletePostMutation = useDeletePost();
-
+  // 상태 관리 훅들
   const { limit, skip, next, prev, setPageSize, setSkip } = usePagination(
     initial.limit,
     initial.skip,
@@ -54,139 +31,52 @@ export function PostsManagerPage() {
     sortOrder,
     setBy: setSortBy,
     setOrder: setSortOrder,
-  } = usePostSort(
-    (queryParams.get('sortBy') as any) || 'none',
-    (queryParams.get('sortOrder') as any) || 'asc',
-  );
+  } = usePostSort(initial.sortBy, initial.sortOrder);
   const { tags } = useTags();
-  const { selectedTag, setTag: setSelectedTag } = useTagFilter(queryParams.get('tag') || '');
+  const { selectedTag, setTag: setSelectedTag } = useTagFilter(initial.selectedTag);
 
-  const openAddPostDialog = () =>
-    open(AddPostDialog, {
-      open: true,
-      onOpenChange: () => close(AddPostDialog),
-      onSuccess: () => close(AddPostDialog),
-    });
+  const { updateURL } = useUrlSync(
+    { skip, limit, searchQuery, sortBy, sortOrder, selectedTag },
+    { setSkip, setPageSize, setQuery, setSortBy, setSortOrder, setSelectedTag },
+    initial,
+  );
 
-  const openEditPostDialog = (post: Post) =>
-    open(EditPostDialog, {
-      open: true,
-      onOpenChange: () => close(EditPostDialog),
-      post,
-      onSuccess: () => close(EditPostDialog),
-    });
+  const commentsFeature = useComments(selectedPost?.id ?? null);
 
-  const openAddCommentDialog = () =>
-    open(AddCommentDialog, {
-      open: true,
-      onOpenChange: () => close(AddCommentDialog),
-      postId: selectedPost?.id ?? null,
-      onSuccess: () => void commentsFeature.refetch(),
-    });
-
-  const openEditCommentDialog = (comment: Comment) =>
-    open(EditCommentDialog, {
-      open: true,
-      onOpenChange: () => close(EditCommentDialog),
-      comment,
-      onSuccess: () => void commentsFeature.refetch(),
-    });
+  const { openAddPostDialog, openEditPostDialog, onPostDeleted, openPostDetail, openUserModal } =
+    useDialogHandlers({ open, close }, selectedPost, setSelectedPost, commentsFeature, searchQuery);
 
   const { posts, total, loading } = usePosts({
     limit,
     skip,
     searchQuery,
     tag: selectedTag,
-    sortBy: (sortBy as any) || 'none',
-    sortOrder: (sortOrder as any) || 'asc',
+    sortBy,
+    sortOrder,
   });
 
-  const updateURL = () => {
-    updateUrl(navigate, { skip, limit, search: searchQuery, sortBy, sortOrder, tag: selectedTag });
-  };
+  const handleTagChange = useCallback(
+    (value: string) => {
+      setSelectedTag(value);
+      updateURL();
+    },
+    [setSelectedTag, updateURL],
+  );
 
-  const onPostDeleted = async (id: number) => {
-    await deletePostMutation.mutateAsync(id);
-  };
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      setSelectedTag(tag);
+      updateURL();
+    },
+    [setSelectedTag, updateURL],
+  );
 
-  const commentsFeature = useComments(selectedPost?.id ?? null);
-
-  const deleteComment = async (id: number) => {
-    try {
-      await commentsFeature.remove(id);
-    } catch (error) {
-      console.error('댓글 삭제 오류:', error);
-    }
-  };
-
-  const likeComment = async (id: number) => {
-    try {
-      await commentsFeature.like(id);
-    } catch (error) {
-      console.error('댓글 좋아요 오류:', error);
-    }
-  };
-
-  const openPostDetail = (post: Post) => {
-    setSelectedPost(post);
-    open(PostDetailDialog, {
-      open: true,
-      onOpenChange: () => {
-        close(PostDetailDialog);
-        setSelectedPost(null);
-      },
-      post,
-      searchQuery: searchQuery || '',
-      commentsFeature,
-      onAddComment: openAddCommentDialog,
-      onEditComment: openEditCommentDialog,
-      onDeleteComment: deleteComment,
-      onLikeComment: likeComment,
-    });
-  };
-
-  const openUserModal = async (user: User) => {
-    if (!user?.id) return;
-
-    try {
-      const userData = await userApi.getUserById(user.id);
-      open(UserModal, {
-        open: true,
-        onOpenChange: () => close(UserModal),
-        user: userData,
-      });
-    } catch (error) {
-      console.error('사용자 정보 로드 오류:', error);
-    }
-  };
-
-  useEffect(() => {
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get('skip') || String(initial.skip)));
-    setPageSize(parseInt(params.get('limit') || String(initial.limit)));
-    setQuery(params.get('search') || initial.searchQuery);
-    setSortBy((params.get('sortBy') as any) || initial.sortBy);
-    setSortOrder((params.get('sortOrder') as any) || initial.sortOrder);
-    setSelectedTag(params.get('tag') || initial.selectedTag);
-  }, [
-    location.search,
-    setQuery,
-    setSortBy,
-    setSortOrder,
-    setSelectedTag,
-    initial.skip,
-    initial.limit,
-    initial.searchQuery,
-    initial.sortBy,
-    initial.sortOrder,
-    initial.selectedTag,
-    setPageSize,
-    setSkip,
-  ]);
+  const handleUserOpen = useCallback(
+    (userId: number) => {
+      openUserModal({ id: userId } as User);
+    },
+    [openUserModal],
+  );
 
   return (
     <Card className='w-full max-w-6xl mx-auto'>
@@ -201,25 +91,18 @@ export function PostsManagerPage() {
       </Card.Header>
       <Card.Content>
         <div className='flex flex-col gap-4'>
-          <div className='flex gap-4'>
-            <div className='flex-1'>
-              <SearchInput value={searchQuery} onChange={setQuery} />
-            </div>
-            <TagFilterSelect
-              value={selectedTag}
-              tags={tags}
-              onChange={(value) => {
-                setSelectedTag(value);
-                updateURL();
-              }}
-            />
-            <SortSelect
-              sortBy={sortBy as any}
-              sortOrder={sortOrder as any}
-              onChangeBy={(v) => setSortBy(v as any)}
-              onChangeOrder={(v) => setSortOrder(v as any)}
-            />
-          </div>
+          <PostFilters
+            searchQuery={searchQuery}
+            selectedTag={selectedTag}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            tags={tags}
+            onSearchChange={setQuery}
+            onTagChange={handleTagChange}
+            onSortByChange={setSortBy}
+            onSortOrderChange={setSortOrder}
+            onTagClick={handleTagClick}
+          />
 
           {loading ? (
             <div className='flex justify-center p-4'>로딩 중...</div>
@@ -229,14 +112,11 @@ export function PostsManagerPage() {
               loading={loading}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
-              onClickTag={(tag) => {
-                setSelectedTag(tag);
-                updateURL();
-              }}
-              onOpenDetail={(post) => openPostDetail(post)}
-              onOpenUser={(userId) => openUserModal({ id: userId } as User)}
-              onEdit={(post) => openEditPostDialog(post)}
-              onDelete={(postId) => onPostDeleted(postId)}
+              onClickTag={handleTagClick}
+              onOpenDetail={openPostDetail}
+              onOpenUser={handleUserOpen}
+              onEdit={openEditPostDialog}
+              onDelete={onPostDeleted}
             />
           )}
 
