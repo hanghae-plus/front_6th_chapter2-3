@@ -1,4 +1,8 @@
 {
+  // Alias policy:
+  // - @widgets: barrel-only import (use '@widgets' via src/widgets/index.ts)
+  // - @entities/*, @shared/*, @features/*, @pages/*: use subpaths only. Root barrels are intentionally NOT provided
+  //   to discourage broad surface imports.
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -19,7 +23,23 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Paths */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@pages": ["src/pages"], // barrel-only
+      "@pages/*": ["src/pages/*"],
+      "@features": ["src/features"], // barrel-only
+      "@features/*": ["src/features/*"],
+      "@widgets": ["src/widgets"], // barrel-only
+      "@widgets/*": ["src/widgets/*"],
+      "@entities": ["src/entities"], // barrel-only
+      "@entities/*": ["src/entities/*"],
+      "@shared": ["src/shared"], // barrel-only
+      "@shared/*": ["src/shared/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "vite-env.d.ts"]
 }
