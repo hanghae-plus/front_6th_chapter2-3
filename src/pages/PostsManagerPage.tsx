@@ -11,6 +11,7 @@ import {
   TagSelectFilter,
   SortOrderSelectFilter,
   SortBySelectFilter,
+  SearchInputFilter,
 } from '../features';
 import {
   Button,
@@ -23,12 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -38,6 +33,7 @@ import {
   Textarea,
   highlightText,
 } from '../shared';
+import { Pagination } from '../widgets';
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -420,18 +416,7 @@ const PostsManager = () => {
         <div className='flex flex-col gap-4'>
           {/* 검색 및 필터 컨트롤 */}
           <div className='flex gap-4'>
-            <div className='flex-1'>
-              <div className='relative'>
-                <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                <Input
-                  placeholder='게시물 검색...'
-                  className='pl-8'
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && searchPosts()}
-                />
-              </div>
-            </div>
+            <SearchInputFilter />
             <TagSelectFilter />
             <SortBySelectFilter />
             <SortOrderSelectFilter />
@@ -441,30 +426,7 @@ const PostsManager = () => {
           {loading ? <div className='flex justify-center p-4'>로딩 중...</div> : renderPostTable()}
 
           {/* 페이지네이션 */}
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-2'>
-              <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='10' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='10'>10</SelectItem>
-                  <SelectItem value='20'>20</SelectItem>
-                  <SelectItem value='30'>30</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>항목</span>
-            </div>
-            <div className='flex gap-2'>
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination />
         </div>
       </CardContent>
 
