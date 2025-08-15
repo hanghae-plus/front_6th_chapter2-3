@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui"
 import { highlightText } from "@shared/lib"
 import type { Post } from "@entities/post/model"
-import { CommentList } from "@entities/comment/ui"
+import { CommentList, CommentListProvider } from "@features/comment/view-comment-list"
 import { commentQueries } from "@entities/comment/api/queries"
 import type { CommentItem } from "@entities/comment/model"
 import { useAddComment } from "@features/comment/add-comment"
@@ -43,21 +43,21 @@ export const PostDetailDialog = ({ isOpen, onClose, post, searchQuery }: PostDet
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(post.body, searchQuery)}</p>
-          <CommentList
-            comments={comments}
-            searchQuery={searchQuery}
-            onAddComment={() => addComment(post.id, 1)}
-            onEditComment={async (comment) => {
+          <CommentListProvider
+            addComment={() => addComment(post.id, 1)}
+            editComment={async (comment) => {
               await updateComment(comment)
             }}
-            onDeleteComment={(id) => {
+            deleteComment={(id) => {
               const comment = comments.find((c: CommentItem) => c.id === id)
               if (comment) {
                 deleteComment(comment)
               }
             }}
-            onLikeComment={handleLike}
-          />
+            likeComment={handleLike}
+          >
+            <CommentList comments={comments} searchQuery={searchQuery} />
+          </CommentListProvider>
         </div>
         {editOverlay}
         {addCommentOverlay}
