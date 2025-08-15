@@ -1,9 +1,7 @@
 import { Post } from '../types';
 import { httpClient } from '../../../shared/config/httpClient';
 
-// 게시물 관련 비즈니스 로직 함수들 (usePostFeature에서만 사용)
-
-// 게시물 검색 비즈니스 로직
+// 게시물 검색 (제목/내용 기반)
 export const searchPosts = async (
   setLoading: (loading: boolean) => void,
   setPosts: (posts: any[]) => void,
@@ -27,7 +25,7 @@ export const searchPosts = async (
   setLoading(false);
 };
 
-// 태그별 게시물 가져오기 비즈니스 로직
+// 특정 태그의 게시물 조회 (사용자 정보 포함)
 export const fetchPostsByTag = async (
   setLoading: (loading: boolean) => void,
   setPosts: (posts: any[]) => void,
@@ -64,6 +62,4 @@ export const fetchPostsByTag = async (
 // 게시물 상세 보기 (댓글은 TanStack Query가 자동으로 처리)
 export const openPostDetailWithComments = (post: Post, openPostDetail: (post: Post) => void) => {
   openPostDetail(post);
-  // TanStack Query가 자동으로 댓글을 가져옴
-  // handleFetchComments 호출 불필요
 };

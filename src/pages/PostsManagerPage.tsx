@@ -79,8 +79,6 @@ const PostsManager = () => {
         userId: newComment.userId || 1,
       };
 
-      console.log('설정된 댓글 데이터:', commentWithPostId);
-
       // TanStack Query를 사용하여 댓글 추가 (데이터 직접 전달)
       handleAddComment(commentWithPostId);
     } else {

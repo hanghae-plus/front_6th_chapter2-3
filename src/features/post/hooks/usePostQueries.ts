@@ -84,7 +84,7 @@ export const useAddPost = () => {
         // ID가 없으면 임시 ID 생성 (서버에서 생성된 ID로 대체될 예정)
         postWithId = {
           ...data,
-          id: Date.now(), // 임시 ID
+          id: Date.now(),
         };
       }
 
@@ -94,13 +94,9 @@ export const useAddPost = () => {
         ...postWithId,
         author: usersData.users.find((user: User) => user.id === postWithId.userId),
       };
-
-      console.log('새로 생성된 게시글:', newPostWithAuthor); // 디버깅용
       return newPostWithAuthor;
     },
     onSuccess: (newPost) => {
-      console.log('게시글 추가 성공, ID:', newPost.id); // 디버깅용
-
       // 모든 posts 관련 쿼리에 낙관적 업데이트 적용
       const queries = queryClient.getQueriesData({ queryKey: ['posts'], exact: false });
       queries.forEach(([queryKey, data]) => {

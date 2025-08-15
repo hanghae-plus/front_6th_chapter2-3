@@ -20,12 +20,9 @@ export const useAddComment = () => {
 
   return useMutation({
     mutationFn: async (comment: NewComment) => {
-      // 실제 API 호출하여 사용자 정보를 포함한 댓글 데이터 가져오기
-      console.log('댓글 추가 - API 호출하여 사용자 정보 가져오기');
       return await commentAPI.addComment(comment);
     },
     onSuccess: (data: any, variables: NewComment) => {
-      console.log('useAddComment onSuccess:', { data, variables });
       const postId = data.postId || variables.postId;
 
       if (postId) {
@@ -50,13 +47,9 @@ export const useUpdateComment = () => {
 
   return useMutation({
     mutationFn: async ({ id, body }: { id: number; body: string }) => {
-      // 로컬에서만 작동 - API 호출하지 않음
-      console.log('댓글 수정 - 로컬에서만 작동');
       return { id, body, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: { id: number; body: string }) => {
-      console.log('useUpdateComment onSuccess:', { data, variables });
-
       // data.postId가 있으면 해당 게시글의 댓글만 업데이트
       if (data && data.postId) {
         const existingData = queryClient.getQueryData(['comments', data.postId]);
@@ -96,13 +89,9 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      // 로컬에서만 작동 - API 호출하지 않음
-      console.log('댓글 삭제 - 로컬에서만 작동');
       return { id, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: number) => {
-      console.log('useDeleteComment onSuccess:', { data, variables });
-
       // data.postId가 있으면 해당 게시글의 댓글만 삭제
       if (data && data.postId) {
         const existingData = queryClient.getQueryData(['comments', data.postId]);
@@ -142,13 +131,9 @@ export const useLikeComment = () => {
 
   return useMutation({
     mutationFn: async ({ id, likes }: { id: number; likes: number }) => {
-      // 로컬에서만 작동 - API 호출하지 않음
-      console.log('댓글 좋아요 - 로컬에서만 작동');
       return { id, likes: likes + 1, postId: null }; // 가짜 성공 응답
     },
     onSuccess: (data: any, variables: { id: number; likes: number }) => {
-      console.log('useLikeComment onSuccess:', { data, variables });
-
       // data.postId가 있으면 해당 게시글의 댓글만 업데이트
       if (data && data.postId) {
         const existingData = queryClient.getQueryData(['comments', data.postId]);
