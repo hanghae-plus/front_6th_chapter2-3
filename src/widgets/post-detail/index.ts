@@ -1,2 +1,0 @@
-export { PostDetailDialog } from "./ui"
-
