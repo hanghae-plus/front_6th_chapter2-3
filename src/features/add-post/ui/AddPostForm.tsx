@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { Input, Textarea, Button } from "../../../shared/ui"
+import { useAddPost } from "../model/useAddPost"
 
-interface AddPostFormProps {
-  onAddPost: () => void
-}
-
-const AddPostForm = ({ onAddPost }: AddPostFormProps) => {
+const AddPostForm = () => {
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  const { mutate: addPost } = useAddPost()
+
+  const handleAddPost = () => {
+    addPost(newPost)
+  }
 
   return (
     <div className="space-y-4">
@@ -27,7 +29,7 @@ const AddPostForm = ({ onAddPost }: AddPostFormProps) => {
         value={newPost.userId}
         onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
       />
-      <Button onClick={onAddPost}>게시물 추가</Button>
+      <Button onClick={handleAddPost}>게시물 추가</Button>
     </div>
   )
 }
