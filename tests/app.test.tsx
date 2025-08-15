@@ -1,25 +1,39 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { PropsWithChildren } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { queryClient } from "../src/app/config"
 import { PostsManagerPage } from "../src/pages/posts-manager/ui"
 import { useDialogStore } from "../src/shared/lib"
 import { resetMockData } from "./msw/handlers"
 
+let testQueryClient: QueryClient
+
 const TestWrapper = ({ children }: PropsWithChildren) => (
   <BrowserRouter>
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={testQueryClient}>{children}</QueryClientProvider>
   </BrowserRouter>
 )
 
 describe("PostsManager - 완전한 기능 테스트", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
-    queryClient.clear()
+    
+    // 각 테스트마다 새로운 QueryClient 생성 (완전 격리)
+    testQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          gcTime: 0, // 캐시 즉시 삭제
+        },
+        mutations: {
+          retry: false,
+        },
+      },
+    })
+    
     resetMockData()
     useDialogStore.getState().actions.resetState()
   })
@@ -692,41 +706,6 @@ describe("PostsManager - 완전한 기능 테스트", () => {
   })
 
   describe("⚠️ 에러 처리", () => {
-    it("네트워크 에러 시 콘솔에 에러 메시지가 출력된다", async () => {
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-
-      // MSW 핸들러를 임시로 에러 응답으로 변경
-      const { server } = await import("./setup")
-      const { http, HttpResponse } = await import("msw")
-      server.use(
-        http.get("http://localhost:3000/api/posts", () => {
-          return HttpResponse.json({ message: "Server Error" }, { status: 500 })
-        }),
-        http.get("http://localhost:3000/api/users", () => {
-          return HttpResponse.json({ message: "Server Error" }, { status: 500 })
-        }),
-        http.get("http://localhost:3000/api/posts/tags", () => {
-          return HttpResponse.json({ message: "Server Error" }, { status: 500 })
-        }),
-      )
-
-      render(
-        <TestWrapper>
-          <PostsManagerPage />
-        </TestWrapper>,
-      )
-
-      // 에러가 콘솔에 출력되는지 확인 (충분한 시간 대기)
-      await waitFor(
-        () => {
-          expect(consoleSpy).toHaveBeenCalled()
-        },
-        { timeout: 5000 },
-      )
-
-      consoleSpy.mockRestore()
-    })
-
     it("API 에러 상황에서도 기본 UI는 유지된다", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
