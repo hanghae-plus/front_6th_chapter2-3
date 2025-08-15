@@ -3,18 +3,9 @@ import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isAddPostModalOpenAtom } from "../../features/add-post/model/atoms"
-import {
-  editingPostAtom,
-  isEditPostModalOpenAtom,
-} from "../../features/edit-post/model/atoms"
-import {
-  isUserInfoModalOpenAtom,
-  viewingUserIdAtom,
-} from "../../features/user-management/model/atoms"
-import {
-  detailPostAtom,
-  isPostDetailModalOpenAtom,
-} from "../../features/view-post-detail/model/atoms"
+import { editingPostAtom, isEditPostModalOpenAtom } from "../../features/edit-post/model/atoms"
+import { isUserInfoModalOpenAtom, viewingUserIdAtom } from "../../features/user-management/model/atoms"
+import { detailPostAtom, isPostDetailModalOpenAtom } from "../../features/view-post-detail/model/atoms"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui"
 import {
   addPostApi,
@@ -26,11 +17,7 @@ import {
 } from "../../entities/posts/api"
 import { fetchTagsApi } from "../../entities/tags/api"
 import { fetchUsersApi } from "../../entities/users/api"
-import {
-  deleteCommentApi,
-  fetchCommentsApi,
-  likeCommentApi,
-} from "../../entities/comments/api"
+import { deleteCommentApi, fetchCommentsApi, likeCommentApi } from "../../entities/comments/api"
 import { fetchPostsByTagApi } from "../../entities/posts/api/fetchPostsByTag"
 import PostsTable from "../../features/posts-management/ui/posts-table"
 import UserInfoModal from "../../widgets/user-modal"
