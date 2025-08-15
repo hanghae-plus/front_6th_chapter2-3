@@ -1,5 +1,3 @@
-import React from 'react';
-
 // PostsManagerPage.tsx에서 이동한 텍스트 하이라이트 유틸리티 함수
 export const highlightText = (text: string, highlight: string) => {
   if (!text || !text.trim()) return <span>내용 없음</span>;

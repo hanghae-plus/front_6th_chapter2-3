@@ -3,9 +3,10 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check } from 'lucide-react';
 import { BasePropsWithChildren } from '../../types/common';
 
-interface SelectItemProps
-  extends BasePropsWithChildren,
-    React.ComponentProps<typeof SelectPrimitive.Item> {}
+interface SelectItemProps extends BasePropsWithChildren {
+  value: string;
+  disabled?: boolean;
+}
 
 export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
   ({ className, children, ...props }, ref) => (

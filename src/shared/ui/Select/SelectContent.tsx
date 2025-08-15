@@ -2,9 +2,9 @@ import { forwardRef } from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { BasePropsWithChildren } from '../../types/common';
 
-interface SelectContentProps
-  extends BasePropsWithChildren,
-    React.ComponentProps<typeof SelectPrimitive.Content> {}
+interface SelectContentProps extends BasePropsWithChildren {
+  position?: 'popper' | 'item-aligned';
+}
 
 export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
   ({ className, children, position = 'popper', ...props }, ref) => (

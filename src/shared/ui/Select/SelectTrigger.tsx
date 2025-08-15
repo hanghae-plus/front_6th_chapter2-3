@@ -3,9 +3,9 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { ChevronDown } from 'lucide-react';
 import { BasePropsWithChildren } from '../../types/common';
 
-interface SelectTriggerProps
-  extends BasePropsWithChildren,
-    React.ComponentProps<typeof SelectPrimitive.Trigger> {}
+interface SelectTriggerProps extends BasePropsWithChildren {
+  disabled?: boolean;
+}
 
 export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className, children, ...props }, ref) => (

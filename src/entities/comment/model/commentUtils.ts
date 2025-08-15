@@ -1,4 +1,4 @@
-import { Comment, NewComment } from '../types';
+import { NewComment } from '../types';
 
 // 댓글 추가 시 postId 설정
 export const handleAddCommentWithPostId = (

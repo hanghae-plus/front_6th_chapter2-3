@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../shared/ui';
-import { Tag } from '../../entities/post';
+import { Tag } from '../../entities/tag';
 
 interface FilterBarProps {
   selectedTag: string;
@@ -46,7 +46,7 @@ export const FilterBar = ({
           ))}
         </SelectContent>
       </Select>
-      
+
       <Select value={sortBy} onValueChange={onSortByChange}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='정렬 기준' />
@@ -58,7 +58,7 @@ export const FilterBar = ({
           <SelectItem value='reactions'>반응</SelectItem>
         </SelectContent>
       </Select>
-      
+
       <Select value={sortOrder} onValueChange={onSortOrderChange}>
         <SelectTrigger className='w-[180px]'>
           <SelectValue placeholder='정렬 순서' />
