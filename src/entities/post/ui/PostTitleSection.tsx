@@ -12,11 +12,11 @@ type PostTitleSectionProps = ComponentPropsWithoutRef<"div"> & {
 }
 
 export function PostTitleSection({ title, tags, className, ...props }: PostTitleSectionProps) {
-  const search = usePostParamsStore((state) => state.search)
+  const searchInput = usePostParamsStore((state) => state.searchInput)
 
   return (
     <div className={mergeClasses("space-y-1", className)} {...props}>
-      <PostHighlightText text={title} highlight={search} />
+      <PostHighlightText text={title} highlight={searchInput} />
       {tags && <PostTagList tags={tags} />}
     </div>
   )
