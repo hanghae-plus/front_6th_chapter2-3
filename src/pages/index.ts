@@ -1,1 +1,1 @@
-export {PostsManager} from './PostsManagerPage'
+export { PostsManager } from "./PostsManagerPage"

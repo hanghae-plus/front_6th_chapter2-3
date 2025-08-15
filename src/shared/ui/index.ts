@@ -22,4 +22,4 @@ export { DialogContent } from "./dialog/dialog-content"
 export { DialogHeader } from "./dialog/dialog-header"
 export { DialogTitle } from "./dialog/dialog-title"
 export { HighlightText } from "./hight-text"
-export {Pagination} from './pagination'
+export { Pagination } from "./pagination"
