@@ -7,6 +7,10 @@ import { CommentForm, CommentList } from '../features/comment/ui';
 import { UserProfile } from '../features/user/ui';
 import { openPostDetailWithComments as openPostDetailWithCommentsUtil } from '../entities/post/model';
 import { useCommentAPI } from '../features/comment/api';
+import { SearchBar } from '../widgets/SearchBar';
+import { FilterBar } from '../widgets/FilterBar';
+import { PostTable } from '../widgets/PostTable';
+import { Pagination } from '../widgets/Pagination';
 
 const PostsManager = () => {
   // Post Feature 사용
@@ -106,33 +110,54 @@ const PostsManager = () => {
 
   return (
     <>
-      <PostManager
-        posts={posts}
-        total={total}
-        skip={skip}
-        limit={limit}
-        searchQuery={searchQuery}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        selectedTag={selectedTag}
-        loading={loading}
-        tags={tags}
-        setSkip={setSkip}
-        setLimit={setLimit}
-        setSearchQuery={setSearchQuery}
-        setSortBy={setSortBy}
-        setSortOrder={setSortOrder}
-        setSelectedTag={setSelectedTag}
-        updateURL={updateURL}
-        handleSearchPosts={handleSearchPosts}
-        handleFetchPostsByTag={handleFetchPostsByTag}
-        openPostDetail={openPostDetailWithComments}
-        setSelectedPost={setSelectedPost}
-        setShowEditDialog={setShowEditDialog}
-        handleDeletePost={handleDeletePost}
-        openUserModal={openUserModal}
-        setShowAddDialog={setShowAddDialog}
-      />
+      <PostManager onAddPost={() => setShowAddDialog(true)}>
+        {/* 검색 및 필터 컨트롤 */}
+        <div className='flex gap-4'>
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearch={handleSearchPosts}
+          />
+          <FilterBar
+            selectedTag={selectedTag}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            tags={tags}
+            onTagChange={setSelectedTag}
+            onSortByChange={setSortBy}
+            onSortOrderChange={setSortOrder}
+            onFetchPostsByTag={handleFetchPostsByTag}
+            updateURL={updateURL}
+          />
+        </div>
+
+        {/* 게시물 테이블 */}
+        {loading ? (
+          <div className='flex justify-center p-4'>로딩 중...</div>
+        ) : (
+          <PostTable
+            posts={posts}
+            searchQuery={searchQuery}
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+            updateURL={updateURL}
+            openUserModal={openUserModal}
+            openPostDetail={openPostDetailWithComments}
+            setSelectedPost={setSelectedPost}
+            setShowEditDialog={setShowEditDialog}
+            handleDeletePost={handleDeletePost}
+          />
+        )}
+
+        {/* 페이지네이션 */}
+        <Pagination
+          skip={skip}
+          limit={limit}
+          total={total}
+          onSkipChange={setSkip}
+          onLimitChange={setLimit}
+        />
+      </PostManager>
 
       {/* 게시물 추가 대화상자 */}
       <PostForm
