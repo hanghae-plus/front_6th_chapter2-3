@@ -1,6 +1,6 @@
 import { useCommentDialogStore } from '@/entities/comment/model/commentDialogStore';
 import { useAddComment } from '@/entities/comment/model/useComments';
-import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
+import { useViewPostStore } from '@/features';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from '@/shared/ui';
 
 export const CreateCommentDialog = () => {

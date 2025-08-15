@@ -1,4 +1,4 @@
-import { usePostSearch } from '@/features/post-search/model/usePostSearch';
+import { usePostSearch } from '@/features';
 
 interface HighlightTextProps {
   text: string;

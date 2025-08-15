@@ -2,10 +2,7 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react';
 
 import { Post } from '../model/types';
 
-import { DeletePostButton } from '@/features/post-delete/ui/DeletePostButton';
-import { EditPostButton } from '@/features/post-edit/ui/EditPostButton';
-import { usePostFilter } from '@/features/post-filter/model/usePostFilter';
-import { ViewPostButton } from '@/features/post-view/ui/ViewPostButton';
+import { DeletePostButton, EditPostButton, usePostFilter, ViewPostButton } from '@/features';
 import {
   Table,
   TableHeader,

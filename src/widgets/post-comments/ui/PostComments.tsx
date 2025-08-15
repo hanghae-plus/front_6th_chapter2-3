@@ -1,10 +1,12 @@
 import { useFetchComments } from '@/entities/comment/model/useComments';
 import { CommentList } from '@/entities/comment/ui/CommentList';
-import { CreateCommentButton } from '@/features/comment-create/ui/CreateCommentButton';
-import { DeleteCommentButton } from '@/features/comment-delete/ui/DeleteCommentButton';
-import { EditCommentButton } from '@/features/comment-edit/ui/EditCommentButton';
-import { LikeCommentButton } from '@/features/comment-like/ui/LikeCommentButton';
-import { useViewPostStore } from '@/features/post-view/model/viewPostStore';
+import {
+  CreateCommentButton,
+  DeleteCommentButton,
+  EditCommentButton,
+  LikeCommentButton,
+  useViewPostStore,
+} from '@/features';
 
 export const PostComments = () => {
   const { postToView } = useViewPostStore();
