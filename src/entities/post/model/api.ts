@@ -1,5 +1,5 @@
+import type { DeleteResponse, PaginatedResponse } from "@/base/api/types"
 import type { Post, PostTag } from "@/entities/post/model/entity"
-import type { DeleteResponse, PaginatedResponse } from "@/shared/api/types"
 
 export namespace FetchPosts {
   export type Payload = {

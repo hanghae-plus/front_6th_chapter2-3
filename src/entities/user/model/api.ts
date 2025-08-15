@@ -1,5 +1,5 @@
+import type { PaginatedResponse } from "@/base/api/types"
 import type { FullUser, User } from "@/entities/user/model/entity"
-import type { PaginatedResponse } from "@/shared/api/types"
 
 export namespace FetchUsers {
   export type Payload = {

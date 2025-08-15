@@ -1,8 +1,8 @@
 import { Search } from "lucide-react"
 import type { ChangeEvent } from "react"
 
+import { Input } from "@/base/ui/Input"
 import { usePostParamsStore } from "@/features/get-post/model"
-import { Input } from "@/shared/ui/Input"
 
 export function PostSearchInput() {
   const search = usePostParamsStore((state) => state.search)

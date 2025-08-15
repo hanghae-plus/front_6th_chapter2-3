@@ -1,1 +1,0 @@
-export { PostPagination } from "./PostPagination"

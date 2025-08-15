@@ -1,9 +1,9 @@
 import { Plus } from "lucide-react"
 
+import { Button } from "@/base/ui/Button"
 import type { Comment } from "@/entities/comment/model"
 import { CommentItem } from "@/entities/comment/ui/CommentItem"
 import { useCommentsQuery } from "@/features/get-comments/api"
-import { Button } from "@/shared/ui/Button"
 
 type CommentListProps = {
   postId: number

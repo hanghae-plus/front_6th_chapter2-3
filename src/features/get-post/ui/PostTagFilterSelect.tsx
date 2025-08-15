@@ -1,6 +1,6 @@
+import { Select } from "@/base/ui/Select"
 import { usePostParamsStore } from "@/features/get-post/model"
 import { usePostTagsQuery } from "@/features/get-post-tags/api"
-import { Select } from "@/shared/ui/Select"
 
 export function PostTagFilterSelect() {
   const selectedTag = usePostParamsStore((state) => state.tag)

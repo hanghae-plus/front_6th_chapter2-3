@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PostsManagerPage } from "../src/pages/posts-manager/ui"
-import { useDialogStore } from "../src/shared/lib"
+import { useDialogStore } from "../src/base/lib"
 import { resetMockData } from "./msw/handlers"
 
 let testQueryClient: QueryClient
@@ -20,7 +20,7 @@ const TestWrapper = ({ children }: PropsWithChildren) => (
 describe("PostsManager - 완전한 기능 테스트", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     // 각 테스트마다 새로운 QueryClient 생성 (완전 격리)
     testQueryClient = new QueryClient({
       defaultOptions: {
@@ -33,7 +33,7 @@ describe("PostsManager - 완전한 기능 테스트", () => {
         },
       },
     })
-    
+
     resetMockData()
     useDialogStore.getState().actions.resetState()
   })

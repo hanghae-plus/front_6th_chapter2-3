@@ -1,5 +1,5 @@
+import type { DeleteResponse, PaginatedResponse } from "@/base/api/types"
 import type { Comment } from "@/entities/comment/model/entity"
-import type { DeleteResponse, PaginatedResponse } from "@/shared/api/types"
 
 export namespace FetchCommentsByPostId {
   export type Payload = {

@@ -1,5 +1,5 @@
+import { fetcher } from "@/base/api"
 import type * as UserModels from "@/entities/user/model"
-import { fetcher } from "@/shared/api"
 
 export async function fetchUsers({ limit }: UserModels.FetchUsers.Payload) {
   const searchParams = { limit, select: "username,image" }

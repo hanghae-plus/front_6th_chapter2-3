@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
 
-import { updateURL } from "@/shared/lib"
+import { updateURL } from "@/base/lib"
 
 export type State = {
   skip: number

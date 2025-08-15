@@ -1,5 +1,5 @@
+import { Select } from "@/base/ui/Select"
 import { usePostParamsStore } from "@/features/get-post/model"
-import { Select } from "@/shared/ui/Select"
 
 export function PostSortBySelect() {
   const sortBy = usePostParamsStore((state) => state.sortBy)

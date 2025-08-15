@@ -1,5 +1,5 @@
+import { fetcher } from "@/base/api"
 import type * as CommentModels from "@/entities/comment/model"
-import { fetcher } from "@/shared/api"
 
 export async function fetchCommentsByPostId({ postId }: CommentModels.FetchCommentsByPostId.Payload) {
   const response = await fetcher.get(`/comments/post/${postId}`)
