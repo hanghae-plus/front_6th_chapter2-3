@@ -1,4 +1,3 @@
-import { updateURLSearchParams } from '../../../shared';
 import { GetPostsListResponseType, PostPostRequestType, PutPostRequestType } from '../model';
 
 export const getPosts = async (
@@ -7,8 +6,14 @@ export const getPosts = async (
   sortBy?: string,
   sortOrder?: string,
 ): Promise<GetPostsListResponseType> => {
-  const query = updateURLSearchParams({ limit, skip, sortBy, sortOrder });
-  const response = await fetch(`/api/posts?${query}`);
+  const response = await fetch(`/api/posts`, {
+    params: {
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
+    },
+  });
   return response.json();
 };
 

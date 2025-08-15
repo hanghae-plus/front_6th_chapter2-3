@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
+import { usePosts } from '../../../features';
 import { Button } from '../../../shared/ui/Button';
 import {
   Select,
@@ -14,9 +15,18 @@ export const Pagination = () => {
   const searchQuery = searchParams.get('search') || '';
   const limit = Number(searchParams.get('limit') || 10);
   const skip = Number(searchParams.get('skip') || 0);
+  const tag = searchParams.get('tag') || '';
+  const sortBy = searchParams.get('sortBy') || '';
+  const sortOrder = searchParams.get('sortOrder') || '';
 
-  // TODO: 총 게시물 가져오기 추후 처리
-  const total = 251;
+  const { total } = usePosts({
+    skip,
+    limit,
+    searchQuery,
+    tag,
+    sortBy,
+    sortOrder,
+  });
 
   const handleLimitChange = (value: string) => {
     setSearchParams((prev) => {
