@@ -29,9 +29,10 @@ export function PostAddDialog() {
   const handleAddPost = async () => {
     if (!newPost.title.trim() || !newPost.body.trim()) return
 
+    const prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api"
     setIsSubmitting(true)
     try {
-      const response = await fetch("/api/posts/add", {
+      const response = await fetch(`${prefixUrl}/posts/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),

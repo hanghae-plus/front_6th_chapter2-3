@@ -30,15 +30,16 @@ export function PostsManagerPage() {
 
   // 게시물 가져오기
   const fetchPosts = () => {
+    const prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api"
     setLoading(true)
     let postsData: any
     let usersData: any
 
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+    fetch(`${prefixUrl}/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
       .then((data) => {
         postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
+        return fetch(`${prefixUrl}/users?limit=0&select=username,image`)
       })
       .then((response) => response.json())
       .then((users) => {

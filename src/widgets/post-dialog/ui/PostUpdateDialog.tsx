@@ -27,9 +27,10 @@ export function PostUpdateDialog() {
   const handleUpdatePost = async () => {
     if (!selectedPost || !selectedPost.title.trim() || !selectedPost.body.trim()) return
 
+    const prefixUrl = import.meta.env.PROD ? "https://dummyjson.com" : "/api"
     setIsSubmitting(true)
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
+      const response = await fetch(`${prefixUrl}/posts/${selectedPost.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedPost),
