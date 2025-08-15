@@ -1,11 +1,11 @@
-import { BrowserRouter as Router } from "react-router-dom"
-import Header from "./components/Header.tsx"
-import Footer from "./components/Footer.tsx"
+import Header from "./widgets/header/ui/Header"
+import Footer from "./widgets/footer/ui/Footer"
 import PostsManagerPage from "./pages/PostsManagerPage.tsx"
+import { AppProviders } from "./app/Providers.tsx"
 
 const App = () => {
   return (
-    <Router>
+    <AppProviders>
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
@@ -13,7 +13,7 @@ const App = () => {
         </main>
         <Footer />
       </div>
-    </Router>
+    </AppProviders>
   )
 }
 
