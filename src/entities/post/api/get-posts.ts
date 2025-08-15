@@ -1,4 +1,5 @@
 import { client } from '@/shared/configs';
+import { enrichPostsWithAuthors } from '../lib';
 import type { Post } from '@/entities/post/model';
 
 export type GetPostsParams = {
@@ -14,5 +15,15 @@ export type GetPostsResponse = {
 };
 
 export async function getPosts(params: GetPostsParams): Promise<GetPostsResponse> {
-  return client.get<GetPostsResponse>('/posts', params);
+  const response = await client.get<GetPostsResponse>('/posts', params);
+
+  if (response.posts) {
+    const postsWithAuthors = await enrichPostsWithAuthors(response.posts);
+    return {
+      ...response,
+      posts: postsWithAuthors,
+    };
+  }
+
+  return response;
 }
