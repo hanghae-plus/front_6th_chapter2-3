@@ -1,21 +1,15 @@
-import { BrowserRouter as Router } from "react-router-dom"
-import { AppProviders } from "@/app/providers"
 import { Header, Footer } from "@/app/ui/"
 import PostsManagerPage from "@/pages/post-manager/PostsManagerPage"
 
 const App = () => {
   return (
-    <AppProviders>
-      <Router>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
-            <PostsManagerPage />
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AppProviders>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <PostsManagerPage />
+      </main>
+      <Footer />
+    </div>
   )
 }
 

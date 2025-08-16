@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { CreateComment } from "@/entities/comment/model"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Textarea } from "@/shared/ui"
 
@@ -6,37 +6,25 @@ interface AddCommentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   postId: number | null
-  onSubmit: (comment: CreateComment) => Promise<void>
+  onSubmit: (comment: CreateComment) => Promise<void> | void
 }
 
 export const AddCommentDialog = ({ open, onOpenChange, postId, onSubmit }: AddCommentDialogProps) => {
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 })
 
-  useEffect(() => {
-    if (postId) {
-      setNewComment((prev) => ({ ...prev, postId }))
-    }
-  }, [postId])
-
   const handleSubmit = async () => {
     if (!postId || !newComment.body.trim()) return
 
-    try {
-      await onSubmit({
-        body: newComment.body,
-        postId: postId,
-        userId: newComment.userId,
-      })
+    await onSubmit({
+      body: newComment.body,
+      postId: postId,
+      userId: newComment.userId,
+    })
 
-      setNewComment({ body: "", postId: 0, userId: 1 })
-      onOpenChange(false)
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
+    onOpenChange(false)
   }
 
   const handleCancel = () => {
-    setNewComment({ body: "", postId: 0, userId: 1 })
     onOpenChange(false)
   }
 

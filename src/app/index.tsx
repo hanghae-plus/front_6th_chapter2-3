@@ -1,10 +1,13 @@
+import { BrowserRouter as Router } from "react-router-dom"
 import { AppProviders } from "./providers"
 import App from "../App.tsx"
 
 const AppRoot = () => {
   return (
     <AppProviders>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </AppProviders>
   )
 }

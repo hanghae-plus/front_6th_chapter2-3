@@ -1,6 +1,7 @@
+import { getUserById } from "@/entities/user/api"
 import { HttpClient } from "@/shared/api/http"
 import { buildApiQueryParams, BaseQueryParams } from "@/shared/lib"
-import { CreatePost, Post, PostPaginatedResponse, UpdatePost } from "../model"
+import { CreatePost, Post, PostPaginatedResponse, PostWithAuthor, UpdatePost } from "../model"
 
 // 전체 게시글 조회
 export const getPosts = (filters: BaseQueryParams = {}): Promise<PostPaginatedResponse> => {
@@ -40,6 +41,14 @@ export const deletePost = async (id: number): Promise<Post> => {
   return HttpClient.delete<Post>(`/posts/${id}`)
 }
 
+// 게시물 수정
 export const updatePost = async (id: number, data: UpdatePost): Promise<Post> => {
   return HttpClient.patch<Post>(`/posts/${id}`, data)
+}
+
+// 게시물 생성 시 작성자 정보 추가
+export const createPostWithAuth = async (data: CreatePost): Promise<PostWithAuthor> => {
+  const post = await createPost(data)
+  const author = await getUserById(post.userId)
+  return { ...post, author }
 }

@@ -32,8 +32,8 @@ export const CommentDialogs = ({
           }
         }}
         postId={postId}
-        onSubmit={async (comment) => {
-          await onAddComment(comment)
+        onSubmit={(comment) => {
+          onAddComment(comment)
         }}
       />
 
