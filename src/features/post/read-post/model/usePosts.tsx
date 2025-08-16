@@ -51,6 +51,25 @@ export function usePosts() {
             return aLikes - bLikes // 오름차순 (좋아요 적은 순)
           }
         })
+      } else if (sortBy === "id") {
+        sortedPosts.sort((a, b) => {
+          if (sortOrder === "desc") {
+            return b.id - a.id // 내림차순 (ID 큰 순)
+          } else {
+            return a.id - b.id // 오름차순 (ID 작은 순)
+          }
+        })
+      } else if (sortBy === "title") {
+        sortedPosts.sort((a, b) => {
+          const titleA = a.title.toLowerCase()
+          const titleB = b.title.toLowerCase()
+
+          if (sortOrder === "desc") {
+            return titleB.localeCompare(titleA) // 내림차순 (제목 Z→A)
+          } else {
+            return titleA.localeCompare(titleB) // 오름차순 (제목 A→Z)
+          }
+        })
       }
 
       // 검색이나 태그 필터가 적용된 경우에만 페이지네이션 처리
