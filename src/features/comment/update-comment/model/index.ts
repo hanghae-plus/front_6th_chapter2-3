@@ -1,0 +1,1 @@
+export { useUpdateComment } from "./useUpdateComment"

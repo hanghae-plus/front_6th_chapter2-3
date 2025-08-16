@@ -1,0 +1,1 @@
+export { SearchPostInput } from "./SearchPostInput"

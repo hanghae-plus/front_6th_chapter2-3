@@ -1,0 +1,1 @@
+export { getTotal } from "./getTotal"
