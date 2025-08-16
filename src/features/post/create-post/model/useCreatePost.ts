@@ -14,10 +14,8 @@ export const useCreatePost = () => {
     error,
   } = useMutation({
     mutationFn: async (data: CreatePost) => {
-      // 게시글 생성
       const newPost = await createPostApi(data)
 
-      // 사용자 정보가 없으면 가져오기
       if (!data.author && newPost.userId) {
         try {
           const author = await getUserById(newPost.userId)
@@ -37,11 +35,8 @@ export const useCreatePost = () => {
             ...baseQueryParams,
           }),
         },
-        (old: PostPaginatedResponse | undefined) => {
-          console.log("createPost", old)
+        (old: PostPaginatedResponse) => {
           if (!old) return old
-
-          // 새 게시글을 첫 번째 페이지에 추가
           return {
             ...old,
             posts: [newPost, ...old.posts],

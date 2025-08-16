@@ -6,9 +6,9 @@ import { useCreatePost } from "../model"
 
 export const AddPostDialog = () => {
   const { createPost } = useCreatePost()
+  const { hideDialog } = useDialogActions()
 
   const isOpen = useDialogStore((state) => state.dialogs.ADD)
-  const { hideDialog } = useDialogActions()
 
   const [newPost, setNewPost] = useState<CreatePost>({
     title: "",
@@ -26,7 +26,6 @@ export const AddPostDialog = () => {
     setIsSubmitting(true)
     try {
       await createPost(newPost)
-      // 성공 시 폼 초기화
       setNewPost({ title: "", body: "", userId: 1 })
       hideDialog("ADD")
     } catch (error) {

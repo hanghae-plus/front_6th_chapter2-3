@@ -1,16 +1,22 @@
 import { PaginatedResponse } from "@/shared/api/type"
 
+interface Reactions {
+  likes: number
+  dislikes: number
+}
+
+interface User {
+  fullName: string
+  id: number
+  username: string
+}
+
 export interface Comment {
   id: number
   body: string
-  likes: number
+  reactions: Reactions
   postId: number
-
-  user: {
-    fullName: string
-    id: number
-    username: string
-  }
+  user: User
 }
 
 export interface CreateComment {
@@ -23,20 +29,6 @@ export interface UpdateComment {
   body: string
 }
 
-export interface CommentFilter {
-  postId?: number
-  userId?: number
-  skip?: number
-  limit?: number
-  orderBy?: "latest" | "top"
-  [key: string]: unknown
-}
-
 export interface CommentPaginatedResponse extends PaginatedResponse {
   comments: Comment[]
-}
-
-export interface CommentReaction {
-  likes: number
-  dislikes: number
 }

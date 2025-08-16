@@ -14,7 +14,6 @@ export const SortSelectBox = () => {
       } else {
         newParams.set("sortBy", value)
 
-        // reactions를 선택했을 때는 기본적으로 내림차순(좋아요 많은 순)으로 설정
         if (value === "reactions") {
           newParams.set("sortOrder", "desc")
         } else {

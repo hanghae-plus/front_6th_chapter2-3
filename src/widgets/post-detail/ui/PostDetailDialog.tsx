@@ -9,7 +9,7 @@ export const PostDetailDialog = () => {
   const { hideDialog } = useDialogActions()
 
   // postId가 유효할 때만 쿼리 실행
-  const { data, isLoading, error } = usePostDetail(postId)
+  const { data, isLoading, error } = usePostDetail(postId!)
 
   // postId가 없거나 다이얼로그가 닫혀있으면 렌더링하지 않음
   if (!postId || !isOpen) return null

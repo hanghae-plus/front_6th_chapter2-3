@@ -80,7 +80,6 @@ export const useDialogStore = create<
   dispatch: (action) => set((state) => dialogReducer(state, action)),
 }))
 
-// 편의 함수들
 export const useDialogActions = () => {
   const dispatch = useDialogStore((state) => state.dispatch)
 

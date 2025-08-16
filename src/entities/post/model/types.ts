@@ -1,15 +1,17 @@
 import { PaginatedResponse } from "@/shared/api/type"
 
+interface Reactions {
+  likes: number
+  dislikes: number
+}
+
 export interface Post {
   id: number
   title: string
   body: string
   userId: number
   tags?: string[]
-  reactions: {
-    likes: number
-    dislikes: number
-  }
+  reactions: Reactions
   views?: number
 }
 
@@ -18,10 +20,9 @@ export interface CreatePost {
   title: string
   body: string
   userId: number
-  author?: Author // 사용자 정보 추가
+  author?: Author
 }
 
-// Post 수정 타입
 export interface UpdatePost {
   title?: string
   body?: string

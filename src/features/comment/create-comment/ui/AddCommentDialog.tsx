@@ -12,7 +12,6 @@ interface AddCommentDialogProps {
 export const AddCommentDialog = ({ open, onOpenChange, postId, onSubmit }: AddCommentDialogProps) => {
   const [newComment, setNewComment] = useState<CreateComment>({ body: "", postId: 0, userId: 1 })
 
-  // postId가 변경될 때 상태 초기화
   useEffect(() => {
     if (postId) {
       setNewComment((prev) => ({ ...prev, postId }))
@@ -29,7 +28,6 @@ export const AddCommentDialog = ({ open, onOpenChange, postId, onSubmit }: AddCo
         userId: newComment.userId,
       })
 
-      // 성공 후 상태 초기화 및 대화상자 닫기
       setNewComment({ body: "", postId: 0, userId: 1 })
       onOpenChange(false)
     } catch (error) {

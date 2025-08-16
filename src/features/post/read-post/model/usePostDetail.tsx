@@ -9,13 +9,10 @@ export const usePostDetail = (id: number) => {
     queryFn: async () => {
       if (!id) throw new Error("Post ID is required")
 
-      // 게시물과 댓글을 병렬로 가져오기
       const [postResponse, usersResponse] = await Promise.all([getPost(id), getUsers()])
 
-      // 사용자 정보를 Map으로 변환하여 빠른 조회 가능하게 함
       const userMap = new Map(usersResponse.users.map((u) => [u.id, u]))
 
-      // 게시물에 작성자 정보 추가
       const postWithAuthor = {
         ...postResponse,
         author: userMap.get(postResponse.userId) as Author,
@@ -25,7 +22,7 @@ export const usePostDetail = (id: number) => {
         post: postWithAuthor,
       }
     },
-    enabled: !!id, // id가 있을 때만 쿼리 실행
+    enabled: !!id,
   })
 
   return { data, isLoading, error }
