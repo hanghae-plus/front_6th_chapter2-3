@@ -11,6 +11,7 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  
   // 게시물 상세 보기
   const openPostDetail = (post: PostType) => {
     setSelectedPost(post);

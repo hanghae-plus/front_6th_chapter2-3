@@ -7,9 +7,35 @@ export const useCreateComment = () => {
 
   return useMutation({
     mutationFn: postComment,
-    onSuccess: () => {
-      console.log('useCreateComment onSuccess');
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (response, { postId, body, userId }) => {
+      // 특정 게시물의 댓글 캐시에 새 댓글을 맨 아래에 추가
+      queryClient.setQueriesData({ queryKey: ['comments', postId] }, (oldData: any) => {
+        if (!oldData?.comments) return oldData;
+
+        // 새로운 댓글을 맨 아래에 추가
+        const newComment = {
+          id: response.id || Date.now(),
+          body,
+          likes: 0, // 초기 좋아요 수
+          postId,
+          user: {
+            id: userId,
+            username: `User ${userId}`,
+            fullName: `User ${userId}`,
+          },
+          ...response,
+        };
+
+        return {
+          ...oldData,
+          comments: [...oldData.comments, newComment], // 맨 아래에 추가
+        };
+      });
+
+      console.log('댓글 추가 성공', response);
+    },
+    onError: (error) => {
+      console.error('댓글 추가 오류:', error);
     },
   });
 };
