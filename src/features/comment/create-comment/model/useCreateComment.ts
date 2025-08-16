@@ -53,7 +53,7 @@ export const useCreateComment = () => {
     },
     onSettled: () => {
       // 성공/실패 관계없이 쿼리 무효화하여 최신 데이터 동기화
-      queryClient.invalidateQueries({ queryKey: commentKeys.base() })
+      // queryClient.invalidateQueries({ queryKey: commentKeys.base() })
     },
   })
 }
