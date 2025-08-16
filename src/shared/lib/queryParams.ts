@@ -17,21 +17,6 @@ export const QUERY_PARAM_KEYS = {
   SEARCH_QUERY: "q", // API용 검색 파라미터
 } as const
 
-export const buildQueryParams = (filters: BaseQueryParams = {}): string => {
-  const params = new URLSearchParams()
-
-  if (filters.limit) params.set(QUERY_PARAM_KEYS.LIMIT, filters.limit.toString())
-  if (filters.skip) params.set(QUERY_PARAM_KEYS.SKIP, filters.skip.toString())
-  if (filters.search) params.set(QUERY_PARAM_KEYS.SEARCH, filters.search)
-  if (filters.tag && filters.tag !== "all") params.set(QUERY_PARAM_KEYS.TAG, filters.tag)
-  if (filters.sortBy && filters.sortBy !== "none") {
-    params.set(QUERY_PARAM_KEYS.SORT_BY, filters.sortBy)
-    if (filters.sortOrder) params.set(QUERY_PARAM_KEYS.SORT_ORDER, filters.sortOrder)
-  }
-
-  return params.toString()
-}
-
 export const buildApiQueryParams = (filters: BaseQueryParams = {}): string => {
   const params = new URLSearchParams()
 

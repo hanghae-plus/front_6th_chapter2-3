@@ -1,7 +1,10 @@
 import { useSearchParams } from "react-router-dom"
 import { useMemo } from "react"
+import { BaseQueryParams } from "../lib"
 
-export function useBaseQueryParams() {
+type BaseQueryParamsReturnType = BaseQueryParams
+
+export function useBaseQueryParams(): BaseQueryParamsReturnType {
   const [searchParams] = useSearchParams()
 
   return useMemo(

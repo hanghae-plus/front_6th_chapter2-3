@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { getPost } from "@/entities/post/api"
 import { getUsers } from "@/entities/user/api"
-import { Author } from "@/entities/post/model"
+import { Author, POST_QK } from "@/entities/post/model"
 
-export const usePostDetail = (id: number | null) => {
+export const usePostDetail = (id: number) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["posts", "detail", id],
+    queryKey: POST_QK.detail(id),
     queryFn: async () => {
       if (!id) throw new Error("Post ID is required")
 
