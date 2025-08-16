@@ -25,7 +25,6 @@ const getApiBaseUrl = (): string => {
 
   // 개발 환경에서는 프록시 사용
   const url = '/api';
-  console.log('Using API URL:', url);
   return url;
 };
 
