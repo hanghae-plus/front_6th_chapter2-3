@@ -1,12 +1,12 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea, Button } from "../components"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../components"
+// import { createPost } from "../entities/Post/api"
 import { useApp } from "../hooks/useApp"
 import { usePosts } from "../hooks/usePosts"
-import type { PostResponse } from "../entities/Post/Post"
+import { useState } from "react"
 
 export function PostAddDialog() {
   const { showPostAddDialog: showAddDialog, setShowPostAddDialog: setShowAddDialog } = useApp()
-  const { posts, setPosts } = usePosts()
+  // const { posts, setPosts } = usePosts()
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
 
   function handleChangeTitle(e: React.ChangeEvent<HTMLInputElement>) {
@@ -23,19 +23,14 @@ export function PostAddDialog() {
 
   // 게시물 추가
   async function handlePostAdd() {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = (await response.json()) as PostResponse
-      setPosts([data, ...posts])
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
+    // try {
+    //   const data = await createPost(newPost)
+    //   setPosts([data, ...posts])
+    //   setNewPost({ title: "", body: "", userId: 1 })
+    //   setShowAddDialog(false)
+    // } catch (error) {
+    //   console.error("게시물 추가 오류:", error)
+    // }
   }
 
   return (
@@ -44,6 +39,7 @@ export function PostAddDialog() {
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>
         </DialogHeader>
+
         <div className="space-y-4">
           <Input placeholder="제목" value={newPost.title} onChange={handleChangeTitle} />
           <Textarea rows={30} placeholder="내용" value={newPost.body} onChange={handleChangeBody} />

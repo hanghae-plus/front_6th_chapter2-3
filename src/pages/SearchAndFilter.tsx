@@ -1,8 +1,7 @@
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components"
 import { useQueryParams } from "../hooks/useQueryParams.ts"
 import { useTags } from "../hooks/useTags.ts"
-import { usePosts } from "../hooks/usePosts.tsx"
 import { Search } from "lucide-react"
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components"
 
 export function SearchAndFilter() {
   const {
@@ -14,16 +13,19 @@ export function SearchAndFilter() {
     setSortOrder,
     selectedTag,
     setSelectedTag,
-    updateURL,
+    setSearchQueryKeyword,
   } = useQueryParams()
 
   const { tags } = useTags()
-  const { fetchPostsByTag, searchPosts } = usePosts()
 
   function handleTagChange(value: string) {
     setSelectedTag(value)
-    fetchPostsByTag(value)
-    updateURL()
+  }
+
+  function handleSearch(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      setSearchQueryKeyword(e.currentTarget.value)
+    }
   }
 
   return (
@@ -36,7 +38,7 @@ export function SearchAndFilter() {
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+            onKeyPress={handleSearch}
           />
         </div>
       </div>

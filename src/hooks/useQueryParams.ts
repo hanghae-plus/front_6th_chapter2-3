@@ -1,22 +1,26 @@
-import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
 import { useTags } from "./useTags"
+import { atom } from "jotai"
+import { useAtom } from "jotai"
+import { useLocation, useNavigate } from "react-router-dom"
+
+const skipAtom = atom(0)
+const limitAtom = atom(10)
+const sortByAtom = atom("")
+const sortOrderAtom = atom("asc")
+const searchQueryAtom = atom("")
+const searchQueryKeywordAtom = atom("")
 
 export function useQueryParams() {
   const location = useLocation()
   const navigate = useNavigate()
-  const queryParams = new URLSearchParams(location.search)
 
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-
+  const [skip, setSkip] = useAtom(skipAtom)
+  const [limit, setLimit] = useAtom(limitAtom)
+  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom)
+  const [searchQueryKeyword, setSearchQueryKeyword] = useAtom(searchQueryKeywordAtom)
+  const [sortBy, setSortBy] = useAtom(sortByAtom)
+  const [sortOrder, setSortOrder] = useAtom(sortOrderAtom)
   const { selectedTag, setSelectedTag } = useTags()
-  useEffect(() => {
-    setSelectedTag(queryParams.get("tag") || "")
-  }, [queryParams.get("tag")])
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -29,11 +33,6 @@ export function useQueryParams() {
     if (selectedTag) params.set("tag", selectedTag)
     navigate(`?${params.toString()}`)
   }
-
-  // useEffect 쪼개기
-  useEffect(() => {
-    updateURL()
-  }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag])
 
   return {
     skip,
@@ -49,5 +48,7 @@ export function useQueryParams() {
     selectedTag,
     setSelectedTag,
     updateURL,
+    searchQueryKeyword,
+    setSearchQueryKeyword,
   }
 }

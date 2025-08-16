@@ -1,24 +1,21 @@
-import { useEffect } from "react"
 import { Card, CardContent, Table, TableBody, TableHead, TableHeader, TableRow } from "../components"
 import { usePosts } from "../hooks/usePosts"
 import { useQueryParams } from "../hooks/useQueryParams"
-import { useTags } from "../hooks/useTags"
 import { CommentAddDialog } from "./CommentAddDialog.tsx"
 import { CommentEditDialog } from "./CommentEditDialog.tsx"
 import { Pagination } from "./Pagination"
 import { PostAddDialog } from "./PostAddDialog.tsx"
 import { PostEditDialog } from "./PostEditDialog.tsx"
+import { PostManagerHeader } from "./PostManagerHeader.tsx"
 import { PostTableRow } from "./PostTableRow.tsx"
 import { PostViewDialog } from "./PostViewDialog.tsx"
-import { UserDialog } from "./UserDialog.tsx"
 import { SearchAndFilter } from "./SearchAndFilter.tsx"
-import { PostManagerHeader } from "./PostManagerHeader.tsx"
+import { UserDialog } from "./UserDialog.tsx"
+import { useEffect } from "react"
 
 const PostsManager = () => {
   // Post 엔티티 기준으로 필요한 인자를 받고 반환하는 커스텀 훅으로 분리
-  const { posts, total, loading, fetchPostsByTag, fetchPosts } = usePosts()
-
-  const { fetchTags } = useTags()
+  const { posts, total, loading } = usePosts()
 
   const {
     skip,
@@ -31,7 +28,9 @@ const PostsManager = () => {
     setSortOrder,
     selectedTag,
     setSelectedTag,
+    searchQuery,
     setSearchQuery,
+    updateURL,
   } = useQueryParams()
 
   useEffect(() => {
@@ -45,16 +44,8 @@ const PostsManager = () => {
   }, [location.search])
 
   useEffect(() => {
-    fetchTags()
-  }, [])
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
+    updateURL()
+  }, [skip, limit, searchQuery, sortBy, sortOrder, selectedTag])
 
   return (
     <Card className="w-full max-w-6xl mx-auto">

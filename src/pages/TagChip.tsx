@@ -1,13 +1,10 @@
-import { useQueryParams } from "../hooks/useQueryParams"
 import { useTags } from "../hooks/useTags"
 
 export function TagChip({ tag }: { tag: string }) {
   const { selectedTag, setSelectedTag } = useTags()
-  const { updateURL } = useQueryParams()
 
   function handleSelectTag(tag: string) {
     setSelectedTag(tag)
-    updateURL()
   }
 
   return (

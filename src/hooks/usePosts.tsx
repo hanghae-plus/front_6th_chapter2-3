@@ -1,101 +1,36 @@
-import { atom, useAtom } from "jotai"
-import { useState } from "react"
-import type { Post, PostResponse } from "../entities/Post/Post"
-import type { User, UserResponse } from "../entities/User/User"
+import type { Post } from "../entities/Post/Post"
+import { useQueryPosts, useQueryPostsBySearch, useQueryPostsByTag } from "../entities/Post/api"
+import type { User } from "../entities/User/User"
+import { useQueryUsers } from "../entities/User/api"
 import { useQueryParams } from "./useQueryParams"
 
-export const postsAtom = atom<Post[]>([])
-
 export function usePosts() {
-  const { skip, limit, searchQuery } = useQueryParams()
+  const { skip, limit, selectedTag, searchQueryKeyword } = useQueryParams()
 
-  const [posts, setPosts] = useAtom(postsAtom)
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const { data: postsData, isLoading: isPostsLoading } = useQueryPosts(limit, skip)
+  const { data: postsByTagData, isLoading: isPostsByTagLoading } = useQueryPostsByTag(selectedTag, limit, skip)
+  const { data: postsBySearchData, isLoading: isPostsBySearchLoading } = useQueryPostsBySearch(searchQueryKeyword)
+  const { data: usersData, isLoading: isUsersLoading } = useQueryUsers(0, null, "username,image")
 
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true)
-    let postsData: PostResponse
-    let usersData: User[]
+  const currentPostsData = searchQueryKeyword
+    ? postsBySearchData
+    : selectedTag && selectedTag !== "all"
+      ? postsByTagData
+      : postsData
 
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data) => {
-        postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
-      })
-      .then((response) => response.json())
-      .then((users) => {
-        usersData = users.users
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.find((user) => user.id === post.userId) as User,
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  const loading = isPostsLoading || isPostsByTagLoading || isPostsBySearchLoading || isUsersLoading
 
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData = (await postsResponse.json()) as PostResponse
-      const usersData = (await usersResponse.json()) as UserResponse
+  const total = currentPostsData?.total || 0
 
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId) as User,
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
-    }
-    setLoading(false)
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = (await response.json()) as PostResponse
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
+  const posts: Post[] =
+    currentPostsData?.posts.map((post) => ({
+      ...post,
+      author: usersData?.users.find((user) => user.id === post.userId) as User,
+    })) || []
 
   return {
     posts,
-    setPosts,
     total,
     loading,
-    fetchPosts,
-    fetchPostsByTag,
-    searchPosts,
   }
 }
