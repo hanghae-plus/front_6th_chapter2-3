@@ -1,4 +1,4 @@
-import { Tag } from "@/entities/tag/model"
-import { HttpClient } from "@/shared/api/http"
+import { httpClient } from "@/shared/api/http"
+import { Tag } from "../model"
 
-export const getTags = async (): Promise<Tag[]> => HttpClient.get<Tag[]>("/posts/tags")
+export const getTags = async (): Promise<Tag[]> => httpClient.get<Tag[]>("/posts/tags")
