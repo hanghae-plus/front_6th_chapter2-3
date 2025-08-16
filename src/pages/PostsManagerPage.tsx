@@ -8,7 +8,7 @@ import {
   PostHeader,
   PostList,
   PostUserDialog,
-} from "../feature"
+} from "../features"
 import { Card } from "../shared"
 
 export const PostsManager = () => {

@@ -5,7 +5,7 @@ import {
   useDeleteCommentMutation,
   useLikeCommentMutation,
   useUpdateCommentMutation,
-} from "./"
+} from "."
 import { Comment, getComments } from "../../../entities"
 import { QUERY_KEYS } from "../../../shared"
 

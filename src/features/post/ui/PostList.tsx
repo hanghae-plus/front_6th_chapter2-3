@@ -23,7 +23,7 @@ export const PostList = () => {
     setSortOrder,
     setSelectedTag,
     updateURL,
-  } = useURL()
+  } = useURL(searchQuery, setSearchQuery)
   const { loading, total, setActiveSearchQuery, posts } = userPostInfo(limit, skip, sortBy, sortOrder, selectedTag)
   // 태그 가져오기
   const { data: tagsData } = useQuery({

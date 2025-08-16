@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { Post as OriginPost } from "../../../entities"
-import { NewPost, Post, DeletePost } from "../../../feature"
+import { NewPost, Post, DeletePost } from "../.."
 import { useSelectedPostStore } from "./store"
 import { requestApi } from "../../../shared"
 

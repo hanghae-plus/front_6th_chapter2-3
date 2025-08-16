@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useSearchQueryStore } from "../../feature/post/model/store"
 
-export const useURL = () => {
-  const { searchQuery, setSearchQuery } = useSearchQueryStore()
+export const useURL = (searchQuery: string,  setSearchQuery: (setSearchQuery: string) => void) => {
   const location = useLocation()
   const navigate = useNavigate()
   const queryParams = new URLSearchParams(location.search)
