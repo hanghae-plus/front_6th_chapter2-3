@@ -1,0 +1,1 @@
+export { usePostTagsQuery } from "./usePostTagsQuery"

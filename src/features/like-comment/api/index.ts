@@ -1,0 +1,1 @@
+export { useLikeCommentMutation } from "./useLikeCommentMutation"
