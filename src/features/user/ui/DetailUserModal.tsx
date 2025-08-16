@@ -1,4 +1,4 @@
-import { UserType } from '../../../entities';
+import { useUserQuery } from '../../../entities';
 import {
   Dialog,
   DialogContent,
@@ -10,12 +10,12 @@ import {
 interface DetailUserModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedUser: UserType | null;
+  selectedUserId: number;
 }
 
-export const DetailUserModal = ({ isOpen, onOpenChange, selectedUser }: DetailUserModalProps) => {
-  if (!selectedUser) return null;
-
+export const DetailUserModal = ({ isOpen, onOpenChange, selectedUserId }: DetailUserModalProps) => {
+  const { data: selectedUser } = useUserQuery(selectedUserId);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>

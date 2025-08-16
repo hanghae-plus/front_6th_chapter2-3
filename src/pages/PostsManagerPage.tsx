@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-import type { PostType, UserType } from '../entities';
+import { type PostType, type UserType } from '../entities';
 import { CreatePostButton, DetailUserModal } from '../features';
-import { Card, CardContent, CardHeader, CardTitle, apiClient } from '../shared';
+import { Card, CardContent, CardHeader, CardTitle } from '../shared';
 import { Pagination, PostDetailModal, PostTable, PostFilter } from '../widgets';
 
 const PostsManager = () => {
@@ -10,8 +10,7 @@ const PostsManager = () => {
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   // 게시물 상세 보기
   const openPostDetail = (post: PostType) => {
     setSelectedPost(post);
@@ -20,13 +19,8 @@ const PostsManager = () => {
 
   // 사용자 모달 열기
   const openUserModal = async (user: UserType) => {
-    try {
-      const userData = await apiClient.get(`/users/${user.id}`);
-      setSelectedUser(userData);
-      setShowUserModal(true);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 오류:', error);
-    }
+    setSelectedUserId(user.id);
+    setShowUserModal(true);
   };
 
   return (
@@ -59,7 +53,7 @@ const PostsManager = () => {
       <DetailUserModal
         isOpen={showUserModal}
         onOpenChange={setShowUserModal}
-        selectedUser={selectedUser}
+        selectedUserId={selectedUserId ?? 1}
       />
     </Card>
   );
