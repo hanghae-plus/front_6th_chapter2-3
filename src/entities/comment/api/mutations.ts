@@ -110,10 +110,28 @@ export const useLikeComment = () => {
 
   return useMutation({
     mutationFn: patchLikeComment,
-    onSuccess: (response, { postId }) => {
-      // 특정 게시물의 댓글만 무효화
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-      console.log('댓글 좋아요 성공', response);
+    onSuccess: (response, { commentId, postId }) => {
+      // 특정 게시물의 댓글 캐시에서 해당 댓글의 좋아요 수 증가
+      queryClient.setQueriesData({ queryKey: ['comments', postId] }, (oldData: any) => {
+        if (!oldData?.comments) return oldData;
+
+        // 좋아요가 눌린 댓글을 찾아서 좋아요 수 증가
+        const updatedComments = oldData.comments.map((comment: any) => {
+          if (comment.id === commentId) {
+            return {
+              ...comment,
+              ...response, // 서버에서 온 추가 필드들을 먼저 적용
+              likes: (comment.likes || 0) + 1, // 클라이언트에서 계산한 좋아요 수가 우선
+            };
+          }
+          return comment;
+        });
+
+        return {
+          ...oldData,
+          comments: updatedComments,
+        };
+      });
     },
     onError: (error) => {
       console.error('댓글 좋아요 오류:', error);
