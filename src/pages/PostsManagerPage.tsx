@@ -58,13 +58,14 @@ const PostsManager = () => {
     selectedComment, setSelectedComment,
     showAddCommentDialog, setShowAddCommentDialog,
     showEditCommentDialog, setShowEditCommentDialog,
-    addComment,
+    createComment,
     updateComment,
     deleteComment,
     likeComment
-  } = useComment(selectedPost?.id ?? null)
+  } = useComment(postId)
 
   // 게시물 가져오기
+/*
   const fetchPosts = () => {
     setLoading(true)
     let postsData
@@ -93,6 +94,29 @@ const PostsManager = () => {
         setLoading(false)
       })
   }
+*/
+
+  const fetchPosts = async () => {
+    try {
+      setLoading(true)
+      // 1) posts (axios postApi)
+      const data = await getPosts(limit, skip) // { posts, total }
+      // 2) users(작성자) — 지금은 fetch 그대로 유지
+      const usersRes = await fetch("/api/users?limit=0&select=username,image").then((r) => r.json())
+      const users = usersRes.users ?? []
+      const postsWithUsers = data.posts.map((post: Post) => ({
+        ...post,
+        author: users.find((u: any) => u.id === post.userId),
+      }))
+      setPosts(postsWithUsers)
+      setTotal(data.total ?? 0)
+    } catch (e) {
+      console.error("게시물 가져오기 오류:", e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   // 태그 가져오기
   const fetchTags = async () => {
@@ -336,7 +360,7 @@ const PostsManager = () => {
         bodyValue={newComment.body}
         onChangeBody={(value) => setNewComment({ ...newComment, body: value })}
         submitActionLabel="댓글 추가"
-        onSubmit={addComment}
+        onSubmit={createComment}
       />
 
       {/* 댓글 수정 대화상자 */}

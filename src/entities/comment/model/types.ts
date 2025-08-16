@@ -38,6 +38,7 @@ export interface UpdateCommentRequest {
 export interface LikeCommentRequest {
   id: number
   postId: number
+  currentLikes: number
 }
 
 export interface CommentsResponse {

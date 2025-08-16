@@ -16,6 +16,7 @@ export const useComment = (postId?: number) => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
 
   const { data: commentsData } = useGetCommentsQuery(postId)
+  const comments = commentsData?.comments ?? []
 
   const createCommentMutation = useCreateCommentMutation()
   const updateCommentMutation = useUpdateCommentMutation()
@@ -62,7 +63,8 @@ export const useComment = (postId?: number) => {
 
   // 댓글 좋아요
   const likeComment = (id: number, postId: number) => {
-    likeCommentMutation.mutate({ id, postId })
+    const currentLikes = comments.find(comment => comment.id === id)?.likes ?? 0;
+    likeCommentMutation.mutate({ id, postId, currentLikes })
   }
 
   return {

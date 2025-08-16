@@ -69,9 +69,7 @@ export const useLikeCommentMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: LikeCommentRequest) => {
-      return likeComment(payload.id, currentlikes);
-    },
+    mutationFn: async (payload: LikeCommentRequest) => likeComment(payload.id, payload.currentLikes),
 
     // 낙관적 업데이트 적용
     onMutate: async (payload) => {
@@ -93,21 +91,15 @@ export const useLikeCommentMutation = () => {
           ),
         };
       });
-
       // 4) 롤백 컨텍스트 반환
       return { key, previous };
     },
-    onSuccess: (response) => {
-      const key = commentQueryKeys.list(response.postId)
-      queryClient.setQueryData<CommentsResponse>(key, (old) => {
-        if (!old) return old
-        return {
-          ...old,
-          comments: old.comments.map((comment) =>
-            comment.id === response.id ? { ...comment, likes: response.likes } : comment
-          ),
-        }
-      })
+    onError: (error, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(context.key, context.previous)
+      }
+    },
+    onSuccess: () => {
     },
   })
 }
