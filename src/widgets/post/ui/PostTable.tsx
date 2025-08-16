@@ -12,14 +12,11 @@ import {
   TableRow,
   Button,
   highlightText,
+  useModal,
 } from '../../../shared';
 
-interface PostTableProps {
-  onUserClick?: (user: UserType) => void;
-  onPostDetailClick?: (post: PostType) => void;
-}
-
-export const PostTable = ({ onUserClick, onPostDetailClick }: PostTableProps) => {
+export const PostTable = () => {
+  const { openUserModal, openPostDetail } = useModal();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const tag = searchParams.get('tag') || '';
@@ -55,11 +52,11 @@ export const PostTable = ({ onUserClick, onPostDetailClick }: PostTableProps) =>
 
   const handleUserClick = (user: UserType | undefined) => {
     if (!user) return;
-    onUserClick?.(user);
+    openUserModal(user.id);
   };
 
   const handlePostDetailClick = (post: PostType) => {
-    onPostDetailClick?.(post);
+    openPostDetail(post);
   };
 
   return (
