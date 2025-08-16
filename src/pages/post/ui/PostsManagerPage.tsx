@@ -1,6 +1,6 @@
-import { CreatePostButton, DetailUserModal } from '../features';
-import { Card, CardContent, CardHeader, CardTitle, ModalProvider, useModal } from '../shared';
-import { Pagination, PostDetailModal, PostTable, PostFilter } from '../widgets';
+import { CreatePostButton, DetailUserModal } from '../../../features';
+import { Card, CardContent, CardHeader, CardTitle, ModalProvider, useModal } from '../../../shared';
+import { Pagination, PostDetailModal, PostTable, PostFilter } from '../../../widgets';
 
 const PostsManagerContent = () => {
   const {
