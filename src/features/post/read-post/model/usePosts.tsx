@@ -13,23 +13,23 @@ export function usePosts() {
     queryFn: async () => {
       const { search: searchQuery, tag: selectedTag, ...otherFilters } = baseQueryParams
 
-      let postsResponse
-
-      if (searchQuery) {
-        // 검색어가 있으면 검색 API 사용 (페이지네이션 파라미터 포함)
-        postsResponse = await getPostBySearch(searchQuery, otherFilters)
-      } else if (selectedTag && selectedTag !== "all") {
-        // 태그가 있고 "all"이 아니면 태그 API 사용 (페이지네이션 파라미터 포함)
-        postsResponse = await getPostByTag(selectedTag, otherFilters)
-      } else {
-        // 둘 다 없으면 일반 목록 API 사용
-        postsResponse = await getPosts(otherFilters)
+      const getPostsData = () => {
+        if (searchQuery) {
+          return getPostBySearch(searchQuery, otherFilters)
+        }
+        if (selectedTag && selectedTag !== "all") {
+          return getPostByTag(selectedTag, otherFilters)
+        }
+        return getPosts(otherFilters)
       }
 
-      const usersResponse = await getUsers()
+      const [postsResponse, usersResponse] = await Promise.all([getPostsData(), getUsers()])
 
-      const map = new Map(usersResponse.users.map((u: User) => [u.id, u]))
-      const posts = postsResponse.posts.map((po: Post) => ({ ...po, author: map.get(po.userId) as Author }))
+      const userMap = new Map(usersResponse.users.map((u: User) => [u.id, u]))
+      const posts = postsResponse.posts.map((po: Post) => ({
+        ...po,
+        author: userMap.get(po.userId) as Author,
+      }))
 
       return { posts, total: postsResponse.total }
     },
@@ -53,7 +53,11 @@ export function usePosts() {
         })
       }
 
-      if ((searchQuery || (selectedTag && selectedTag !== "all")) && sortedPosts.length > (limit || 0)) {
+      // 검색이나 태그 필터가 적용된 경우에만 페이지네이션 처리
+      const shouldPaginate =
+        (searchQuery || (selectedTag && selectedTag !== "all")) && sortedPosts.length > (limit || 0)
+
+      if (shouldPaginate) {
         const startIndex = skip || 0
         const endIndex = startIndex + (limit || 0)
         const paginatedPosts = sortedPosts.slice(startIndex, endIndex)
