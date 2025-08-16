@@ -34,6 +34,7 @@ import {
   useDeletePostMutation,
 } from '../entities/post/hooks'
 import type { Post, Comment, User } from '../shared/api/posts'
+import { API_BASE } from '../shared/api/posts'
 
 const PostsManagerPage = () => {
   /* ----------------------- zustand 상태 & 액션 ----------------------- */
@@ -198,7 +199,7 @@ const PostsManagerPage = () => {
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={async () => {
                   if (!post.author?.id) return
-                  const resp = await fetch(`/api/users/${post.author.id}`)
+                  const resp = await fetch(`${API_BASE}/users/${post.author.id}`)
                   const data = await resp.json()
                   setSelectedUser(data)
                   setShowUserModal(true)

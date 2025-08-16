@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { API_BASE } from '../api/posts'
 
 interface User {
   id: number
@@ -78,7 +79,7 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     const { limit, skip } = get()
     set({ loading: true })
     try {
-      const postsResp = await fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+      const postsResp = await fetch(`${API_BASE}/posts?limit=${limit}&skip=${skip}`)
       const postsData = await postsResp.json()
       const usersResp = await fetch('/api/users?limit=0&select=username,image')
       const usersData = await usersResp.json()

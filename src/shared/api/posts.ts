@@ -54,11 +54,21 @@ const clientPosts: Post[] = []
 const mergeClientPosts = (predicate: (p: Post) => boolean = () => true): Post[] =>
   clientPosts.filter(predicate)
 
+export const API_BASE = 'https://dummyjson.com'
+
 /**
- * 공통 JSON fetch 래퍼
+ * 공통 JSON fetch 래퍼 (상대경로 → DummyJSON 절대경로 변환)
  */
 const jsonFetch = async <T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> => {
-  const res = await fetch(input, {
+  let url: RequestInfo | URL = input
+  if (typeof input === 'string') {
+    if (input.startsWith('/api/')) {
+      url = API_BASE + input.replace('/api', '')
+    } else if (input.includes('://') && input.includes('/api/')) {
+      url = input.replace('/api/', '/')
+    }
+  }
+  const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     ...init,
   })
