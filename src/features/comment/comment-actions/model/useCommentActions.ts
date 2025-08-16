@@ -54,7 +54,7 @@ export const useCommentActions = (postId: number) => {
       await likeCommentMutation.mutateAsync({
         commentId: id,
         postId: postId,
-        currentLikes: comment.reactions.likes,
+        currentLikes: comment.likes,
       })
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
