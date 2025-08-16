@@ -81,9 +81,22 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: deleteComment,
-    onSuccess: (response, { postId }) => {
-      // 특정 게시물의 댓글만 무효화
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+    onSuccess: (response, { commentId, postId }) => {
+      // 특정 게시물의 댓글 캐시에서 해당 댓글 제거
+      queryClient.setQueriesData({ queryKey: ['comments', postId] }, (oldData: any) => {
+        if (!oldData?.comments) return oldData;
+
+        // 삭제된 댓글을 목록에서 제거
+        const filteredComments = oldData.comments.filter(
+          (comment: any) => comment.id !== commentId,
+        );
+
+        return {
+          ...oldData,
+          comments: filteredComments,
+        };
+      });
+
       console.log('댓글 삭제 성공', response);
     },
     onError: (error) => {
