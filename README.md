@@ -104,3 +104,38 @@ FSD가 아닌 자신만의 기능 중심의 폴더 구조를 만들어보세요.
 꼭 기억할 점
 1. 자신만의 기능 중심의 폴더라고 했지만, 그 모습이 상당히 유니크하고 독창적이지는 않을 거에요. 아마 적절한 모법사례의 조합으로 수렴될 거에요. 
 2. 그리고 그게 잘하는 거에요. 좋은 코드는? 자신보돠 남들에게 모두에게 이해하기 쉬운 코드니까요.
+```
+
+## 구현 가이드 (6주차 Basic 완료)
+
+### 폴더 구조 (FSD 적용)
+```
+src/
+  app/              # App 루트, 전역 Provider
+  shared/
+    ui/             # Button, Input 등 디자인 시스템
+    stores/         # Zustand 전역 상태 (예: postsStore)
+  entities/
+    post/
+      model/        # types, adapter
+      ui/           # PostRow 등 단순 표시 컴포넌트
+  features/
+    post/
+      add-post/
+      update-post/
+      delete-post/
+  widgets/
+    posts-table/    # 테이블 + 검색/필터 UI 조합
+  pages/
+    PostsManagerPage.tsx
+```
+
+### 전역 상태관리(Zustand)
+`src/shared/stores/postsStore.ts` 에서 게시물·댓글·태그와 CRUD action 을 관리합니다.
+
+### 실행 방법
+```bash
+pnpm i      # 의존성 설치 (zustand 포함)
+pnpm dev    # Vite 개발 서버 실행
+```
+브라우저에서 `localhost:5173` 접속 후 게시물 CRUD 및 페이지네이션, 검색, 태그 필터가 정상 동작하면 Basic 과제 요구사항을 충족합니다.
