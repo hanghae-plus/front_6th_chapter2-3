@@ -52,7 +52,7 @@ export const useDeleteCommentMutation = () => {
 
   return useMutation({
     mutationFn: ({ id }: { id: number; postId: number }) => deleteComment(id),
-    onSuccess: (_res, { postId, id }) => {
+    onSuccess: (_response, { postId, id }) => {
       queryClient.setQueryData<CommentsResponse>(commentQueryKeys.list(postId), (old) => {
         if (!old) return old
         return {
@@ -70,23 +70,41 @@ export const useLikeCommentMutation = () => {
 
   return useMutation({
     mutationFn: async (payload: LikeCommentRequest) => {
-      const key = commentQueryKeys.list(payload.postId)
-      const snap = queryClient.getQueryData<CommentsResponse>(key)
-      const current = snap?.comments.find((comment) => comment.id === payload.id)
-      const currentLikes = current?.likes ?? 0
-
-      await likeComment(payload.id, currentLikes)
-
-      return { id: payload.id, postId: payload.postId, likes: currentLikes + 1 }
+      return likeComment(payload.id, currentlikes);
     },
-    onSuccess: (res) => {
-      const key = commentQueryKeys.list(res.postId)
+
+    // 낙관적 업데이트 적용
+    onMutate: async (payload) => {
+      const key = commentQueryKeys.list(payload.postId);
+
+      // 1) 진행 중 쿼리 중단
+      await queryClient.cancelQueries({ queryKey: key });
+
+      // 2) 스냅샷 저장(롤백용)
+      const previous = queryClient.getQueryData<CommentsResponse>(key);
+
+      // 3) 즉시 캐시 반영(+1)
+      queryClient.setQueryData<CommentsResponse>(key, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          comments: old.comments.map((comment) =>
+            comment.id === payload.id ? { ...comment, likes: (comment.likes ?? 0) + 1 } : comment
+          ),
+        };
+      });
+
+      // 4) 롤백 컨텍스트 반환
+      return { key, previous };
+    },
+    onSuccess: (response) => {
+      const key = commentQueryKeys.list(response.postId)
       queryClient.setQueryData<CommentsResponse>(key, (old) => {
         if (!old) return old
         return {
           ...old,
           comments: old.comments.map((comment) =>
-            comment.id === res.id ? { ...comment, likes: res.likes } : comment
+            comment.id === response.id ? { ...comment, likes: response.likes } : comment
           ),
         }
       })
