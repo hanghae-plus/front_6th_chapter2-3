@@ -5,19 +5,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  useModal,
 } from '../../../shared';
 
-interface DetailUserModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedUserId: number;
-}
+export const DetailUserModal = () => {
+  const { selectedUserId, showUserModal, closeUserModal } = useModal();
+  const { data: selectedUser } = useUserQuery(selectedUserId ?? 1);
 
-export const DetailUserModal = ({ isOpen, onOpenChange, selectedUserId }: DetailUserModalProps) => {
-  const { data: selectedUser } = useUserQuery(selectedUserId);
-  
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={showUserModal} onOpenChange={closeUserModal}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>사용자 정보</DialogTitle>

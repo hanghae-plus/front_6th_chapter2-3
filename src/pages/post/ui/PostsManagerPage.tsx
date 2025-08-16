@@ -1,17 +1,8 @@
 import { CreatePostButton, DetailUserModal } from '../../../features';
-import { Card, CardContent, CardHeader, CardTitle, ModalProvider, useModal } from '../../../shared';
+import { Card, CardContent, CardHeader, CardTitle, ModalProvider } from '../../../shared';
 import { Pagination, PostDetailModal, PostTable, PostFilter } from '../../../widgets';
 
 const PostsManagerContent = () => {
-  const {
-    selectedPost,
-    showPostDetailDialog,
-    closePostDetail,
-    selectedUserId,
-    showUserModal,
-    closeUserModal,
-  } = useModal();
-
   return (
     <Card className='w-full max-w-6xl mx-auto'>
       <CardHeader>
@@ -28,22 +19,9 @@ const PostsManagerContent = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 상세 보기 모달 */}
-      {selectedPost && (
-        <PostDetailModal
-          isOpen={showPostDetailDialog}
-          onOpenChange={closePostDetail}
-          selectedPost={selectedPost}
-          postId={selectedPost?.id}
-        />
-      )}
-
-      {/* 사용자 모달 */}
-      <DetailUserModal
-        isOpen={showUserModal}
-        onOpenChange={closeUserModal}
-        selectedUserId={selectedUserId ?? 1}
-      />
+      {/* 모달들 - props 없이 자체적으로 상태 관리 */}
+      <PostDetailModal />
+      <DetailUserModal />
     </Card>
   );
 };
