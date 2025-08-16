@@ -2,7 +2,7 @@ import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { Input } from '../../../shared/ui/Input';
+import { Input } from '../../../shared';
 
 export const SearchInputFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();

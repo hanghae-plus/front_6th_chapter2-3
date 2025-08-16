@@ -1,14 +1,14 @@
 import { useSearchParams } from 'react-router-dom';
 
 import { usePosts } from '../../../features';
-import { Button } from '../../../shared/ui/Button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../shared/ui/Select';
+  Button,
+} from '../../../shared';
 
 export const Pagination = () => {
   const [searchParams, setSearchParams] = useSearchParams();

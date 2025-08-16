@@ -1,13 +1,13 @@
 import { useSearchParams } from 'react-router-dom';
 
-import { useTagListQuery } from '../../../entities/tag/api/queries';
+import { useTagListQuery } from '../../../entities';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../shared/ui/Select';
+} from '../../../shared';
 
 export const TagSelectFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();

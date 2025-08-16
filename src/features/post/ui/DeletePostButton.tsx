@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 
-import { useDeletePost } from "../../../entities/post/api/mutations";
+import { useDeletePost } from "../../../entities";
 import { Button } from "../../../shared";
 
 interface DeletePostButtonProps {

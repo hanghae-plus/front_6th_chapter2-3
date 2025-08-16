@@ -6,7 +6,7 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from '../../../shared/ui/Select';
+} from '../../../shared';
 
 export const SortBySelectFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
