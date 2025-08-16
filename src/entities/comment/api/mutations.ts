@@ -45,9 +45,33 @@ export const useUpdateComment = () => {
 
   return useMutation({
     mutationFn: putComment,
-    onSuccess: (response) => {
-      console.log('useUpdateComment onSuccess> ', response);
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (response, { id, body, postId }) => {
+      // 특정 게시물의 댓글 캐시에서 해당 댓글 업데이트
+      queryClient.setQueriesData({ queryKey: ['comments', postId] }, (oldData: any) => {
+        if (!oldData?.comments) return oldData;
+
+        // 수정된 댓글을 목록에서 찾아서 업데이트
+        const updatedComments = oldData.comments.map((comment: any) => {
+          if (comment.id === id) {
+            return {
+              ...comment,
+              body, // 수정된 내용 반영
+              ...response, // 서버에서 온 추가 필드들
+            };
+          }
+          return comment;
+        });
+
+        return {
+          ...oldData,
+          comments: updatedComments,
+        };
+      });
+
+      console.log('댓글 수정 성공', response);
+    },
+    onError: (error) => {
+      console.error('댓글 수정 오류:', error);
     },
   });
 };
