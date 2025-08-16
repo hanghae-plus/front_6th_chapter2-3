@@ -1,23 +1,9 @@
 import { useState } from 'react';
 
 import type { PostType, UserType } from '../entities';
-import {
-  CreatePostButton,
-  DetailUserModal,
-  TagSelectFilter,
-  SortOrderSelectFilter,
-  SortBySelectFilter,
-  SearchInputFilter,
-} from '../features';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  apiClient,
-} from '../shared';
-import { Pagination, PostTable } from '../widgets';
-import { PostDetailModal } from '../widgets/post/ui/PostDetailModal';
+import { CreatePostButton, DetailUserModal } from '../features';
+import { Card, CardContent, CardHeader, CardTitle, apiClient } from '../shared';
+import { Pagination, PostDetailModal, PostTable, PostFilter } from '../widgets';
 
 const PostsManager = () => {
   // 상태 관리
@@ -53,14 +39,7 @@ const PostsManager = () => {
       </CardHeader>
       <CardContent>
         <div className='flex flex-col gap-4'>
-          {/* 검색 및 필터 컨트롤 */}
-          <div className='flex gap-4'>
-            <SearchInputFilter />
-            <TagSelectFilter />
-            <SortBySelectFilter />
-            <SortOrderSelectFilter />
-          </div>
-
+          <PostFilter />
           <PostTable onUserClick={openUserModal} onPostDetailClick={openPostDetail} />
           <Pagination />
         </div>

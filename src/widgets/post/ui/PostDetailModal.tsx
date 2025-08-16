@@ -44,7 +44,6 @@ export const PostDetailModal = ({
         </DialogHeader>
         <div className='space-y-4'>
           <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-          {/* {renderComments(selectedPost?.id)} */}
           <div className='mt-2'>
             <div className='flex items-center justify-between mb-2'>
               <h3 className='text-sm font-semibold'>댓글</h3>
