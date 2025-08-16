@@ -1,14 +1,24 @@
+import { DialogType, useDialogStore } from "@/base/lib"
 import { Table } from "@/base/ui/Table"
 import type { Post } from "@/entities/post/model"
 import { PostActions, PostReactions, PostTitleSection } from "@/entities/post/ui"
 import type { User } from "@/entities/user/model"
 import { UserAvatar } from "@/entities/user/ui"
+import { useUserDialogStore } from "@/features/get-user/model"
 
 type PostTableProps = {
   posts: (Post & { author?: User })[]
 }
 
 export function PostTable({ posts }: PostTableProps) {
+  const { openDialog } = useDialogStore((state) => state.actions)
+  const { setSelectedUserId } = useUserDialogStore((state) => state.actions)
+
+  const handleUserClick = (user: User) => {
+    setSelectedUserId(user.id)
+    openDialog(DialogType.USER_MODAL)
+  }
+
   return (
     <Table>
       <Table.Header>
@@ -29,7 +39,11 @@ export function PostTable({ posts }: PostTableProps) {
               <PostTitleSection title={post.title} tags={post.tags} />
             </Table.Cell>
             <Table.Cell>
-              <UserAvatar user={post.author} />
+              {post.author ? (
+                <UserAvatar user={post.author} onUserClick={handleUserClick} />
+              ) : (
+                <span className="text-gray-500">알 수 없음</span>
+              )}
             </Table.Cell>
             <Table.Cell>
               <PostReactions reactions={post.reactions} />
