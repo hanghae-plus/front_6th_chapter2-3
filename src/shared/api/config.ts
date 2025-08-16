@@ -4,28 +4,14 @@ const getApiBaseUrl = (): string => {
   const isGitHubPages =
     typeof window !== 'undefined' && window.location.hostname.includes('github.io');
 
-  const isProd = import.meta.env.PROD;
-
-  // 디버깅용 로그 (프로덕션에서는 제거 가능)
-  if (typeof window !== 'undefined') {
-    console.log('Environment check:', {
-      hostname: window.location.hostname,
-      isGitHubPages,
-      isProd,
-      mode: import.meta.env.MODE,
-    });
-  }
-
   // 프로덕션 빌드이거나 GitHub Pages 환경이면 dummyjson.com 사용
-  if (isProd || isGitHubPages) {
-    const url = 'https://dummyjson.com';
-    console.log('Using API URL:', url);
-    return url;
+  // GitHub Pages 환경에서는 무조건 dummyjson.com 사용
+  if (isGitHubPages) {
+    return 'https://dummyjson.com';
   }
 
   // 개발 환경에서는 프록시 사용
-  const url = '/api';
-  return url;
+  return '/api';
 };
 
 // API 호출을 위한 공통 fetch 함수
