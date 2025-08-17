@@ -22,14 +22,16 @@ import { CommentAddDialog } from "../entities/comment/ui/CommentAddDialog"
 import { CommentEditDialog } from "../entities/comment/ui/CommentEditDialog"
 import { UserInfoDialog } from "../entities/user/ui/UserInfoDialog"
 import { usePost } from "../entities/post/hooks/usePost"
-import { useComment } from "../entities/comment/hooks/useComment"
+import { useComment } from "../features/post/comment/hooks/useComment"
 import { loadingAtom } from "../shared/model/store"
 import { useAtom } from "jotai"
+import { useUser } from "../entities/user/hooks/useUser"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
+
   const [loading, setLoading] = useAtom(loadingAtom)
 
   const {
@@ -54,11 +56,11 @@ const PostsManager = () => {
 
   const { fetchComments } = useComment()
 
+  const { openUserModal } = useUser()
+
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -77,18 +79,6 @@ const PostsManager = () => {
     setSelectedPost(post)
     fetchComments(post.id)
     setShowPostDetailDialog(true)
-  }
-
-  // 사용자 모달 열기
-  const openUserModal = async (user) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
   }
 
   useEffect(() => {
@@ -239,7 +229,7 @@ const PostsManager = () => {
       <CommentEditDialog />
 
       {/* 사용자 모달 */}
-      <UserInfoDialog showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
+      <UserInfoDialog />
     </Card>
   )
 }

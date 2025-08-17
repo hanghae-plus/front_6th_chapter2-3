@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../widgets/ui"
-import { useComment } from "../hooks/useComment"
+import { useComment } from "../../../features/post/comment/hooks/useComment"
 
 // 게시물 테이블 렌더링
 export const CommentEditDialog = () => {

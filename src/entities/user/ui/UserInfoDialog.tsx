@@ -1,8 +1,9 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../widgets/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../widgets/ui"
+import { useUser } from "../hooks/useUser"
 
 // 게시물 테이블 렌더링
-export const UserInfoDialog = (props) => {
-  const { showUserModal, setShowUserModal, selectedUser } = props
+export const UserInfoDialog = () => {
+  const { showUserModal, setShowUserModal, selectedUser } = useUser()
 
   return (
     <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

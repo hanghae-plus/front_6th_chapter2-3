@@ -6,7 +6,7 @@ import {
   likeCommentApi,
   updateCommentApi,
 } from "../api/comment-api"
-import { loadingAtom } from "../../../shared/model/store"
+import { loadingAtom } from "../../../../shared/model/store"
 import {
   commentsAtom,
   selectedCommentAtom,

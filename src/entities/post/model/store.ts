@@ -1,16 +1,11 @@
 import { atom } from "jotai"
+import { PostTag } from "./types"
 
 // 게시물 목록 atom
 export const postsAtom = atom([])
 
 // 게시물 총 개수 atom
 export const totalPostsAtom = atom(0)
-
-// 태그 목록 atom
-export const tagsAtom = atom([])
-
-// 선택된 태그 atom
-export const selectedTagAtom = atom("")
 
 // 검색어 atom
 export const searchQueryAtom = atom("")
