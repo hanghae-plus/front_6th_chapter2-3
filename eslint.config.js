@@ -3,6 +3,8 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import fsdPlugin from 'eslint-plugin-fsd-lint'
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -16,13 +18,16 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'fsd': fsdPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'fsd/forbidden-imports': 'error',
+      'fsd/no-cross-slice-dependency': 'error',
+      'fsd/no-ui-in-business-logic': 'error',
+      'fsd/ordered-imports': 'warn',
     },
   },
+  eslintConfigPrettier,
 )

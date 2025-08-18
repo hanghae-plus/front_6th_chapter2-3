@@ -1,0 +1,1 @@
+export { PostsTableWidget } from './ui/PostsTableWidget'
